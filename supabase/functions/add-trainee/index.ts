@@ -31,8 +31,11 @@ const traineeSchema = z.object({
 });
 
 serve(async (req) => {
+  console.log("Received request to add-trainee function");
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log("Handling OPTIONS request");
     return new Response('ok', { headers: corsHeaders });
   }
 
@@ -42,12 +45,40 @@ serve(async (req) => {
       throw new Error('Method not allowed');
     }
 
+    console.log("Processing POST request");
+    
     // Get the request body
-    const requestBody = await req.json();
+    let requestBody;
+    try {
+      requestBody = await req.json();
+      console.log("Request body parsed:", JSON.stringify(requestBody));
+    } catch (e) {
+      console.error("Error parsing request body:", e);
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON in request body' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
     
     // Validate request against schema
-    const validatedData = traineeSchema.parse(requestBody);
+    try {
+      const validatedData = traineeSchema.parse(requestBody);
+      console.log("Data validation successful");
+    } catch (validationError) {
+      console.error("Validation error:", validationError);
+      return new Response(
+        JSON.stringify({ error: 'Validation error', details: validationError.errors }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
 
+    console.log("Creating Supabase client");
     // Create a Supabase client with the Auth context
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -58,11 +89,12 @@ serve(async (req) => {
     // Create timestamp for created_at and updated_at
     const timestamp = new Date().toISOString();
     
+    console.log("Inserting new trainee into database");
     // Insert the new trainee
     const { data, error } = await supabaseClient
       .from('trainees')
       .insert({
-        ...validatedData,
+        ...requestBody,
         created_at: timestamp,
         updated_at: timestamp
       })
@@ -70,15 +102,19 @@ serve(async (req) => {
       .single();
 
     if (error) {
+      console.error("Database error:", error);
       throw error;
     }
 
+    console.log("Trainee added successfully:", data?.id);
     return new Response(
       JSON.stringify(data),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
     
   } catch (error) {
+    console.error("Error in add-trainee function:", error);
+    
     // Check if it's a validation error
     if (error.errors) {
       return new Response(

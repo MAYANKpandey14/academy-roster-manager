@@ -30,6 +30,8 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
     setIsSubmitting(true);
     
     try {
+      console.log("Form data to submit:", data);
+      
       const formData = {
         ...data,
         arrival_date: new Date(data.arrival_date).toISOString(),
@@ -37,14 +39,18 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
         date_of_birth: new Date(data.date_of_birth).toISOString(),
         date_of_joining: new Date(data.date_of_joining).toISOString(),
       };
+      
+      console.log("Transformed form data:", formData);
 
       // Call the API to add a new trainee
       const response = await addTrainee(formData);
       
       if (response.error) {
+        console.error("API returned error:", response.error);
         throw response.error;
       }
       
+      console.log("API response:", response);
       toast.success("Trainee added successfully");
       
       if (onSuccess) {
