@@ -6,6 +6,7 @@ import { z } from 'https://esm.sh/zod@3.22.4';
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
 };
 
 // Define validation schema
@@ -33,6 +34,7 @@ const updateTraineeSchema = z.object({
 
 serve(async (req) => {
   console.log("Received request to update-trainee function");
+  console.log("Request method:", req.method);
   
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -44,7 +46,13 @@ serve(async (req) => {
     // Only allow PUT requests
     if (req.method !== 'PUT') {
       console.log(`Method not allowed: ${req.method}`);
-      throw new Error(`Method not allowed: ${req.method}`);
+      return new Response(
+        JSON.stringify({ error: `Method not allowed: ${req.method}` }),
+        { 
+          status: 405, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
     // Get the request body
@@ -80,66 +88,95 @@ serve(async (req) => {
       
       console.log("Supabase client created");
       
-      // Set updated_at timestamp
-      const timestamp = new Date().toISOString();
-      
-      // Dates formatting - ensure they are proper ISO strings
-      const formattedData = {
-        ...traineeData,
-        arrival_date: new Date(traineeData.arrival_date).toISOString(),
-        departure_date: new Date(traineeData.departure_date).toISOString(),
-        date_of_birth: new Date(traineeData.date_of_birth).toISOString(),
-        date_of_joining: new Date(traineeData.date_of_joining).toISOString(),
-        updated_at: timestamp
-      };
-      
-      console.log("Updating trainee with formatted data:", JSON.stringify(formattedData));
-      
-      // Update the trainee record
-      const { data, error } = await supabaseClient
-        .from('trainees')
-        .update(formattedData)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) {
-        console.error("Database error:", error);
-        throw error;
-      }
-
-      console.log("Trainee updated successfully:", JSON.stringify(data));
-      return new Response(
-        JSON.stringify(data),
-        { 
-          status: 200, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      // Validate dates before formatting
+      const validateDate = (dateStr: string): Date => {
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) {
+          throw new Error(`Invalid date format: ${dateStr}`);
         }
-      );
-    } catch (validationError) {
-      console.error("Validation error:", validationError);
-      if (validationError.errors) {
+        return date;
+      };
+
+      try {
+        // Validate all dates
+        const arrivalDate = validateDate(traineeData.arrival_date);
+        const departureDate = validateDate(traineeData.departure_date);
+        const birthDate = validateDate(traineeData.date_of_birth);
+        const joiningDate = validateDate(traineeData.date_of_joining);
+        
+        console.log("All dates are valid");
+        
+        // Set updated_at timestamp
+        const timestamp = new Date().toISOString();
+        
+        // Format dates as ISO strings
+        const formattedData = {
+          ...traineeData,
+          arrival_date: arrivalDate.toISOString(),
+          departure_date: departureDate.toISOString(),
+          date_of_birth: birthDate.toISOString(),
+          date_of_joining: joiningDate.toISOString(),
+          updated_at: timestamp
+        };
+        
+        console.log("Updating trainee with formatted data:", JSON.stringify(formattedData));
+        
+        // Update the trainee record
+        const { data, error } = await supabaseClient
+          .from('trainees')
+          .update(formattedData)
+          .eq('id', id)
+          .select()
+          .single();
+
+        if (error) {
+          console.error("Database error:", error);
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { 
+              status: 400, 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+            }
+          );
+        }
+
+        console.log("Trainee updated successfully:", JSON.stringify(data));
         return new Response(
-          JSON.stringify({ 
-            error: 'Validation error', 
-            details: validationError.errors,
-            formErrors: validationError.formErrors,
-            fieldErrors: validationError.fieldErrors 
-          }),
+          JSON.stringify(data),
+          { 
+            status: 200, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      } catch (dateError) {
+        console.error("Date validation error:", dateError);
+        return new Response(
+          JSON.stringify({ error: dateError.message }),
           { 
             status: 400, 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
           }
         );
       }
-      throw validationError;
+    } catch (validationError) {
+      console.error("Validation error:", validationError);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Validation error', 
+          details: validationError.errors ? validationError.errors : validationError.message 
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
   } catch (error) {
     console.error("General error:", error);
     return new Response(
       JSON.stringify({ error: error.message || "Unknown error occurred" }),
       { 
-        status: 400, 
+        status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     );

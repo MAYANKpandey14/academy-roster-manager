@@ -84,6 +84,7 @@ export async function updateTrainee(id: string, traineeData: TraineeFormValues):
     console.log("Update data:", JSON.stringify(traineeData));
     
     const { data, error } = await supabase.functions.invoke('update-trainee', {
+      method: 'PUT', // Explicitly set the HTTP method to PUT
       body: { id, ...traineeData }
     });
     

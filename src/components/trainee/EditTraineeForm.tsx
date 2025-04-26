@@ -68,27 +68,13 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
     console.log("Form data to submit:", data);
     
     try {
-      // Ensure all dates are valid
-      const validateDate = (dateString: string): string => {
-        if (!dateString) throw new Error("Missing date value");
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) throw new Error(`Invalid date: ${dateString}`);
-        return dateString; // Return original string if valid
-      };
+      // Ensure all dates are in the correct format YYYY-MM-DD
+      // No need to create Date objects here as that causes timezone issues
       
-      // Validate all date fields
-      const formData = {
-        ...data,
-        arrival_date: validateDate(data.arrival_date),
-        departure_date: validateDate(data.departure_date),
-        date_of_birth: validateDate(data.date_of_birth),
-        date_of_joining: validateDate(data.date_of_joining),
-      };
-      
-      console.log("Transformed form data:", formData);
+      console.log("Transformed form data:", data);
 
       // Call the API to update the trainee
-      const response = await updateTrainee(trainee.id, formData);
+      const response = await updateTrainee(trainee.id, data);
       
       if (response.error) {
         throw response.error;
