@@ -16,13 +16,13 @@ const traineeSchema = z.object({
   chest_no: z.string().min(1, "Chest No is required"),
   name: z.string().min(1, "Name is required"),
   father_name: z.string().min(1, "Father's Name is required"),
-  arrival_date: z.string().datetime({ offset: true }),
-  departure_date: z.string().datetime({ offset: true }),
+  arrival_date: z.string(),
+  departure_date: z.string(),
   current_posting_district: z.string().min(1, "Current Posting District is required"),
   mobile_number: z.string().min(10, "Mobile Number must be at least 10 digits"),
   education: z.string().min(1, "Education is required"),
-  date_of_birth: z.string().datetime({ offset: true }),
-  date_of_joining: z.string().datetime({ offset: true }),
+  date_of_birth: z.string(),
+  date_of_joining: z.string(),
   blood_group: z.enum(bloodGroups as [string, ...string[]], {
     required_error: "Blood Group is required",
   }),
@@ -90,27 +90,44 @@ serve(async (req) => {
     const timestamp = new Date().toISOString();
     
     console.log("Inserting new trainee into database");
-    // Insert the new trainee
-    const { data, error } = await supabaseClient
-      .from('trainees')
-      .insert({
-        ...requestBody,
-        created_at: timestamp,
-        updated_at: timestamp
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Database error:", error);
-      throw error;
+    try {
+      // Insert the new trainee
+      const { data, error } = await supabaseClient
+        .from('trainees')
+        .insert({
+          ...requestBody,
+          created_at: timestamp,
+          updated_at: timestamp
+        })
+        .select()
+        .single();
+  
+      if (error) {
+        console.error("Database error:", error);
+        return new Response(
+          JSON.stringify({ error: error.message, details: error.details }),
+          { 
+            status: 400, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+  
+      console.log("Trainee added successfully:", data?.id);
+      return new Response(
+        JSON.stringify(data),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    } catch (dbError) {
+      console.error("Unexpected database error:", dbError);
+      return new Response(
+        JSON.stringify({ error: 'Database error', message: dbError.message }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
-
-    console.log("Trainee added successfully:", data?.id);
-    return new Response(
-      JSON.stringify(data),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
     
   } catch (error) {
     console.error("Error in add-trainee function:", error);

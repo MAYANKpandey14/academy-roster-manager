@@ -12,6 +12,8 @@ import { DateFields } from "./form/DateFields";
 import { ContactFields } from "./form/ContactFields";
 import { useNavigate } from "react-router-dom";
 import { addTrainee } from "@/services/api";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 interface AddTraineeFormProps {
   onSuccess?: () => void;
@@ -19,6 +21,7 @@ interface AddTraineeFormProps {
 
 export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const form = useForm<TraineeFormValues>({
@@ -28,6 +31,7 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
 
   const onSubmit = async (data: TraineeFormValues) => {
     setIsSubmitting(true);
+    setFormError(null);
     
     try {
       console.log("Form data to submit:", data);
@@ -59,7 +63,12 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
       navigate('/');
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to save trainee data");
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : "Failed to save trainee data. Please try again.";
+      
+      setFormError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -68,6 +77,14 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
   return (
     <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
       <h2 className="text-2xl font-semibold mb-6">Add New Trainee</h2>
+      
+      {formError && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{formError}</AlertDescription>
+        </Alert>
+      )}
+      
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="space-y-6">

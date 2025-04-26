@@ -55,7 +55,9 @@ export async function filterTrainees(
 export async function addTrainee(traineeData: TraineeFormValues): Promise<{ data: Trainee | null; error: Error | null }> {
   try {
     console.log("Adding trainee with data:", traineeData);
-    const { data, error } = await supabase.functions.invoke('add-trainee', {
+    
+    // Add extra validation or data processing if needed
+    const { data, error, status } = await supabase.functions.invoke('add-trainee', {
       body: traineeData
     });
     
@@ -64,11 +66,19 @@ export async function addTrainee(traineeData: TraineeFormValues): Promise<{ data
       throw error;
     }
     
+    if (status !== 200) {
+      console.error("Unexpected status code:", status);
+      throw new Error(`Server returned status ${status}`);
+    }
+    
     console.log("Trainee added successfully:", data);
     return { data, error: null };
   } catch (error) {
     console.error('Error adding trainee:', error);
-    return { data: null, error: error instanceof Error ? error : new Error('Unknown error') };
+    return { 
+      data: null, 
+      error: error instanceof Error ? error : new Error('Unknown error') 
+    };
   }
 }
 
