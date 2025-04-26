@@ -22,3 +22,6 @@ export interface Trainee {
 }
 
 export interface TraineeFormData extends Omit<Trainee, "id" | "created_at" | "updated_at"> {}
+
+// Export TraineeFormValues from the form schema
+export { TraineeFormValues } from "@/components/trainee/TraineeFormSchema";
