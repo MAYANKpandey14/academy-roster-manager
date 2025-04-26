@@ -179,7 +179,7 @@ const Index = () => {
         </div>
 
         <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-          <DialogContent className="max-w-4xl p-0 h-[calc(100vh-4rem)]">
+          <DialogContent className="max-w-4xl p-0">
             <TraineeForm 
               onSuccess={handleFormSuccess} 
               onCancel={() => setIsFormOpen(false)} 

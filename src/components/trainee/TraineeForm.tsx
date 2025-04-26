@@ -26,8 +26,8 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
   });
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)] max-h-[800px]">
-      <DialogHeader className="px-6 py-4 border-b">
+    <div className="flex flex-col h-[calc(100vh-4rem)] max-h-[90vh]">
+      <DialogHeader className="px-6 py-4 border-b bg-background">
         <DialogTitle>
           {isEditMode ? "Edit Trainee" : "Add New Trainee"}
         </DialogTitle>
@@ -35,19 +35,21 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1">
-          <ScrollArea className="flex-1 px-6 py-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-4">
-              <ServiceFields form={form} />
-              <PersonalInfoFields form={form} />
-              <DateFields form={form} />
-              <AdditionalFields form={form} />
-              <div className="md:col-span-2">
-                <ContactFields form={form} />
+          <ScrollArea className="flex-1">
+            <div className="px-6 py-4 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <ServiceFields form={form} />
+                <PersonalInfoFields form={form} />
+                <DateFields form={form} />
+                <AdditionalFields form={form} />
+                <div className="md:col-span-2">
+                  <ContactFields form={form} />
+                </div>
               </div>
             </div>
           </ScrollArea>
 
-          <div className="flex justify-end gap-4 px-6 py-4 border-t bg-background">
+          <div className="flex justify-end gap-4 px-6 py-4 border-t bg-background mt-auto">
             {onCancel && (
               <Button 
                 type="button" 
