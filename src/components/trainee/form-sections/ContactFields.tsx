@@ -17,7 +17,7 @@ export function ContactFields({ form }: ContactFieldsProps) {
         control={form.control}
         name="mobile_number"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="md:col-span-1">
             <FormLabel>Mobile Number</FormLabel>
             <FormControl>
               <Input maxLength={10} placeholder="Enter mobile number" type="tel" {...field} />
@@ -31,7 +31,7 @@ export function ContactFields({ form }: ContactFieldsProps) {
         control={form.control}
         name="home_address"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="md:col-span-2">
             <FormLabel>Home Address</FormLabel>
             <FormControl>
               <Textarea 

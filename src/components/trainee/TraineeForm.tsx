@@ -3,6 +3,7 @@ import React from "react";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { PersonalInfoFields } from "./form-sections/PersonalInfoFields";
 import { ContactFields } from "./form-sections/ContactFields";
 import { ServiceFields } from "./form-sections/ServiceFields";
@@ -25,24 +26,28 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
   });
 
   return (
-    <div className="space-y-6">
-      <DialogHeader>
+    <div className="flex flex-col h-[calc(100vh-8rem)] max-h-[800px]">
+      <DialogHeader className="px-6 py-4 border-b">
         <DialogTitle>
           {isEditMode ? "Edit Trainee" : "Add New Trainee"}
         </DialogTitle>
       </DialogHeader>
       
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <ServiceFields form={form} />
-            <PersonalInfoFields form={form} />
-            <DateFields form={form} />
-            <AdditionalFields form={form} />
-            <ContactFields form={form} />
-          </div>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1">
+          <ScrollArea className="flex-1 px-6 py-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-4">
+              <ServiceFields form={form} />
+              <PersonalInfoFields form={form} />
+              <DateFields form={form} />
+              <AdditionalFields form={form} />
+              <div className="md:col-span-2">
+                <ContactFields form={form} />
+              </div>
+            </div>
+          </ScrollArea>
 
-          <div className="flex justify-end space-x-4 pt-4 sticky bottom-0 bg-white py-4 border-t mt-6">
+          <div className="flex justify-end gap-4 px-6 py-4 border-t bg-background">
             {onCancel && (
               <Button 
                 type="button" 
