@@ -3,10 +3,10 @@ project_id = "zjgphamebgrclivvkhmw"
 
 [functions]
 [functions.get-trainees]
-verify_jwt = true
+verify_jwt = false
 
 [functions.add-trainee]
-verify_jwt = true
+verify_jwt = false
 
 [functions.update-trainee]
-verify_jwt = true
+verify_jwt = false
