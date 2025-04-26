@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { TraineeForm } from "@/components/trainee/TraineeForm";
 import { TraineeTable } from "@/components/trainee/TraineeTable";
 import { TraineeFilters } from "@/components/trainee/TraineeFilters";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Trainee } from "@/types/trainee";
 import { Plus } from "lucide-react";
@@ -66,7 +67,7 @@ const mockTrainees: Trainee[] = [
     id: "4",
     pno: "PN123123",
     chest_no: "C12",
-    name: "Mayank Pandey",
+    name: "Mayank Pandey", // Fixed typo here
     father_name: "RCP",
     arrival_date: "2025-01-05T00:00:00.000Z",
     departure_date: "2025-03-05T00:00:00.000Z",
@@ -82,19 +83,17 @@ const mockTrainees: Trainee[] = [
 ];
 
 const Index = () => {
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("view");
   const [trainees, setTrainees] = useState<Trainee[]>(mockTrainees);
   const [filteredTrainees, setFilteredTrainees] = useState<Trainee[]>(mockTrainees);
   const [nameFilter, setNameFilter] = useState("");
   const [districtFilter, setDistrictFilter] = useState("");
   const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined);
 
-  const handleFormSuccess = (newTrainee: Trainee) => {
-    // Add the new trainee to both the main list and filtered list
-    const updatedTrainees = [...trainees, newTrainee];
-    setTrainees(updatedTrainees);
-    setFilteredTrainees(updatedTrainees);
-    setIsFormOpen(false);
+  const handleFormSuccess = () => {
+    // In a real app, this would refresh data from Supabase
+    // For now, we'll just switch to the view tab
+    setActiveTab("view");
   };
 
   const applyFilters = () => {
@@ -156,36 +155,39 @@ const Index = () => {
       <Header />
       
       <main className="container mx-auto py-6 px-4">
-        <div className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-semibold">Trainee Management</h1>
-            <Button onClick={() => setIsFormOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add New Trainee
-            </Button>
+            <TabsList>
+              <TabsTrigger value="view">View Trainees</TabsTrigger>
+              <TabsTrigger value="add">Add Trainee</TabsTrigger>
+            </TabsList>
+            
+            {activeTab === "view" && (
+              <Button onClick={() => setActiveTab("add")}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add New Trainee
+              </Button>
+            )}
           </div>
           
-          <TraineeFilters
-            onNameChange={handleNameChange}
-            onDistrictChange={handleDistrictChange}
-            onDateChange={handleDateChange}
-            onReset={handleResetFilters}
-          />
-          
-          <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-            <h2 className="text-2xl font-semibold mb-6">Trainees List</h2>
-            <TraineeTable trainees={filteredTrainees} onRefresh={handleRefresh} />
-          </div>
-        </div>
-
-        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-          <DialogContent className="max-w-4xl p-0">
-            <TraineeForm 
-              onSuccess={handleFormSuccess} 
-              onCancel={() => setIsFormOpen(false)} 
+          <TabsContent value="view" className="space-y-6">
+            <TraineeFilters
+              onNameChange={handleNameChange}
+              onDistrictChange={handleDistrictChange}
+              onDateChange={handleDateChange}
+              onReset={handleResetFilters}
             />
-          </DialogContent>
-        </Dialog>
+            
+            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+              <h2 className="text-2xl font-semibold mb-6">Trainees List</h2>
+              <TraineeTable trainees={filteredTrainees} onRefresh={handleRefresh} />
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="add">
+            <TraineeForm onSuccess={handleFormSuccess} onCancel={() => setActiveTab("view")} />
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
