@@ -2,28 +2,15 @@
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { bloodGroups, traineeFormSchema, TraineeFormValues } from "./TraineeFormSchema";
+import { Form } from "@/components/ui/form";
+import { traineeFormSchema, TraineeFormValues } from "./TraineeFormSchema";
 import { Trainee } from "@/types/trainee";
 import { toast } from "sonner";
+import { PersonalInfoFields } from "./form/PersonalInfoFields";
+import { ServiceInfoFields } from "./form/ServiceInfoFields";
+import { DateFields } from "./form/DateFields";
+import { ContactFields } from "./form/ContactFields";
 
 interface TraineeFormProps {
   trainee?: Trainee;
@@ -43,9 +30,7 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
         date_of_birth: trainee.date_of_birth ? trainee.date_of_birth.split('T')[0] : '',
         date_of_joining: trainee.date_of_joining ? trainee.date_of_joining.split('T')[0] : '',
       }
-    : {
-        // Set default empty values
-      };
+    : {};
 
   const form = useForm<TraineeFormValues>({
     resolver: zodResolver(traineeFormSchema),
@@ -56,7 +41,6 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
     setIsSubmitting(true);
     
     try {
-      // Transform dates to ISO strings for API
       const formData = {
         ...data,
         arrival_date: new Date(data.arrival_date).toISOString(),
@@ -67,7 +51,6 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
 
       console.log("Form data to be sent:", formData);
       
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       toast.success(isEditMode ? "Trainee updated successfully" : "Trainee added successfully");
@@ -92,247 +75,11 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* PNO */}
-            <FormField
-              control={form.control}
-              name="pno"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>PNO</FormLabel>
-                  <FormControl>
-                    <Input maxLength={9} placeholder="Enter PNO" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Chest No */}
-            <FormField
-              control={form.control}
-              name="chest_no"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Chest No</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter Chest No" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Name */}
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter full name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Father's Name */}
-            <FormField
-              control={form.control}
-              name="father_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Father's Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter father's name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Date of Arrival */}
-            <FormField
-              control={form.control}
-              name="arrival_date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Date of Arrival</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="date" 
-                      placeholder="YYYY-MM-DD"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Date of Departure */}
-            <FormField
-              control={form.control}
-              name="departure_date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Date of Departure</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="date" 
-                      placeholder="YYYY-MM-DD"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Current Posting District */}
-            <FormField
-              control={form.control}
-              name="current_posting_district"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Current Posting District</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter district" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Mobile Number */}
-            <FormField
-              control={form.control}
-              name="mobile_number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mobile Number</FormLabel>
-                  <FormControl>
-                    <Input maxLength={10} placeholder="Enter mobile number" type="tel" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Education */}
-            <FormField
-              control={form.control}
-              name="education"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Education</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter education details" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Date of Birth */}
-            <FormField
-              control={form.control}
-              name="date_of_birth"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Date of Birth</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="date" 
-                      placeholder="YYYY-MM-DD"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Date of Joining */}
-            <FormField
-              control={form.control}
-              name="date_of_joining"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Date of Joining</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="date" 
-                      placeholder="YYYY-MM-DD"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Blood Group */}
-            <FormField
-              control={form.control}
-              name="blood_group"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Blood Group</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select blood group" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {bloodGroups.map((group) => (
-                        <SelectItem key={group} value={group}>
-                          {group}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Nominee */}
-            <FormField
-              control={form.control}
-              name="nominee"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nominee</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter nominee name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <ServiceInfoFields form={form} />
+            <PersonalInfoFields form={form} />
+            <DateFields form={form} />
+            <ContactFields form={form} />
           </div>
-
-          {/* Home Address - Full width */}
-          <FormField
-            control={form.control}
-            name="home_address"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Home Address</FormLabel>
-                <FormControl>
-                  <Textarea 
-                    placeholder="Enter full home address" 
-                    className="min-h-[80px]" 
-                    {...field} 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
           <div className="flex justify-end space-x-4 pt-4">
             {onCancel && (
