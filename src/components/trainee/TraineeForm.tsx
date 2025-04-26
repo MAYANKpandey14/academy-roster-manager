@@ -104,20 +104,20 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-      <h2 className="text-2xl font-semibold mb-6">
+    <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm max-h-[calc(100vh-12rem)] overflow-y-auto">
+      <h2 className="text-2xl font-semibold mb-6 sticky top-0 bg-white py-2 z-10">
         {isEditMode ? "Edit Trainee" : "Add New Trainee"}
       </h2>
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* PNO */}
+            {/* Form fields in a responsive grid */}
             <FormField
               control={form.control}
               name="pno"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex-1">
                   <FormLabel>PNO</FormLabel>
                   <FormControl>
                     <Input maxLength={9} placeholder="Enter PNO" {...field} />
@@ -442,7 +442,7 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
             )}
           />
 
-          <div className="flex justify-end space-x-4 pt-4">
+          <div className="flex justify-end space-x-4 pt-4 sticky bottom-0 bg-white py-4 border-t mt-6">
             {onCancel && (
               <Button 
                 type="button" 

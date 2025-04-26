@@ -90,9 +90,11 @@ const Index = () => {
   const [districtFilter, setDistrictFilter] = useState("");
   const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined);
 
-  const handleFormSuccess = () => {
-    // In a real app, this would refresh data from Supabase
-    // For now, we'll just switch to the view tab
+  const handleFormSuccess = (newTrainee: Trainee) => {
+    // Add the new trainee to both the main list and filtered list
+    const updatedTrainees = [...trainees, newTrainee];
+    setTrainees(updatedTrainees);
+    setFilteredTrainees(updatedTrainees);
     setActiveTab("view");
   };
 
