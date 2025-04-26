@@ -120,7 +120,7 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
                 <FormItem>
                   <FormLabel>PNO</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter PNO" {...field} />
+                    <Input maxLength={9} placeholder="Enter PNO" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
