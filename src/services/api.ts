@@ -57,7 +57,7 @@ export async function addTrainee(traineeData: TraineeFormValues): Promise<{ data
     console.log("Adding trainee with data:", traineeData);
     
     // Add extra validation or data processing if needed
-    const { data, error, status } = await supabase.functions.invoke('add-trainee', {
+    const { data, error } = await supabase.functions.invoke('add-trainee', {
       body: traineeData
     });
     
@@ -66,10 +66,7 @@ export async function addTrainee(traineeData: TraineeFormValues): Promise<{ data
       throw error;
     }
     
-    if (status !== 200) {
-      console.error("Unexpected status code:", status);
-      throw new Error(`Server returned status ${status}`);
-    }
+    // Removing the status check since FunctionsResponse doesn't have a status property
     
     console.log("Trainee added successfully:", data);
     return { data, error: null };
