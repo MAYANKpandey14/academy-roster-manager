@@ -1,4 +1,3 @@
-
 export type BloodGroup = "A+" | "A-" | "B+" | "B-" | "O+" | "O-" | "AB+" | "AB-";
 
 export interface Trainee {
@@ -23,5 +22,5 @@ export interface Trainee {
 
 export interface TraineeFormData extends Omit<Trainee, "id" | "created_at" | "updated_at"> {}
 
-// Export TraineeFormValues from the form schema
-export { TraineeFormValues } from "@/components/trainee/TraineeFormSchema";
+// Export TraineeFormValues from the form schema using export type
+export type { TraineeFormValues } from "@/components/trainee/TraineeFormSchema";
