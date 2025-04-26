@@ -16,11 +16,11 @@ interface TraineeFormProps {
   trainee?: Trainee;
   onSuccess?: () => void;
   onCancel?: () => void;
+  isEditMode?: boolean;
 }
 
-export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) {
+export function TraineeForm({ trainee, onSuccess, onCancel, isEditMode }: TraineeFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const isEditMode = !!trainee;
 
   const defaultValues: Partial<TraineeFormValues> = trainee
     ? {
@@ -66,38 +66,52 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
     }
   };
 
-  return (
-    <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-      <h2 className="text-2xl font-semibold mb-6">
-        {isEditMode ? "Edit Trainee" : "Add New Trainee"}
-      </h2>
-      
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <ServiceInfoFields form={form} />
-            <PersonalInfoFields form={form} />
-            <DateFields form={form} />
-            <ContactFields form={form} />
-          </div>
+  const formContent = (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <ServiceInfoFields form={form} />
+        <PersonalInfoFields form={form} />
+        <DateFields form={form} />
+        <ContactFields form={form} />
+      </div>
 
-          <div className="flex justify-end space-x-4 pt-4">
-            {onCancel && (
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={onCancel}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-            )}
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : isEditMode ? "Update Trainee" : "Add Trainee"}
-            </Button>
-          </div>
-        </form>
-      </Form>
+      <div className="flex justify-end space-x-4 pt-4">
+        {onCancel && (
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={onCancel}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+        )}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Saving..." : isEditMode ? "Update Trainee" : "Add Trainee"}
+        </Button>
+      </div>
     </div>
+  );
+
+  // Different wrapper for edit mode vs add mode
+  if (!isEditMode) {
+    return (
+      <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
+        <h2 className="text-2xl font-semibold mb-6">Add New Trainee</h2>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            {formContent}
+          </form>
+        </Form>
+      </div>
+    );
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        {formContent}
+      </form>
+    </Form>
   );
 }

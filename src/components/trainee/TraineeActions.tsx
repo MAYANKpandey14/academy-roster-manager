@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { TraineeForm } from "./TraineeForm";
 import { toast } from "sonner";
 
@@ -137,20 +138,24 @@ export function TraineeActions({ trainee, onEdit }: TraineeActionsProps) {
             <Edit className="h-4 w-4" />
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
+        <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col gap-0 p-0">
+          <DialogHeader className="p-6 pb-4">
             <DialogTitle>Edit Trainee</DialogTitle>
           </DialogHeader>
-          <TraineeForm 
-            trainee={trainee} 
-            onSuccess={() => {
-              setIsEditDialogOpen(false);
-              if (onEdit) {
-                onEdit(trainee);
-              }
-            }}
-            onCancel={() => setIsEditDialogOpen(false)}
-          />
+          
+          <ScrollArea className="flex-1 p-6 pt-2">
+            <TraineeForm 
+              trainee={trainee} 
+              onSuccess={() => {
+                setIsEditDialogOpen(false);
+                if (onEdit) {
+                  onEdit(trainee);
+                }
+              }}
+              onCancel={() => setIsEditDialogOpen(false)}
+              isEditMode={true}
+            />
+          </ScrollArea>
         </DialogContent>
       </Dialog>
       
