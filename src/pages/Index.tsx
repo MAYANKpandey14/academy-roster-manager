@@ -67,7 +67,7 @@ const mockTrainees: Trainee[] = [
     id: "4",
     pno: "PN123123",
     chest_no: "C12",
-    name: "Mayank Pandey"
+    name: "Mayank Pandey",
     father_name: "RCP",
     arrival_date: "2025-01-05T00:00:00.000Z",
     departure_date: "2025-03-05T00:00:00.000Z",
