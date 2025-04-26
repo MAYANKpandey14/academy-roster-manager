@@ -1,13 +1,12 @@
 
 import { useState } from "react";
 import { Header } from "@/components/layout/Header";
-import { TraineeForm } from "@/components/trainee/TraineeForm";
 import { TraineeTable } from "@/components/trainee/TraineeTable";
 import { TraineeFilters } from "@/components/trainee/TraineeFilters";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Trainee } from "@/types/trainee";
 import { Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 // Mock data for demo purposes
 // This would be replaced with actual data from Supabase
@@ -67,7 +66,7 @@ const mockTrainees: Trainee[] = [
     id: "4",
     pno: "PN123123",
     chest_no: "C12",
-    name: "Mayank Pandey", // Fixed typo here
+    name: "Mayank Pandey", 
     father_name: "RCP",
     arrival_date: "2025-01-05T00:00:00.000Z",
     departure_date: "2025-03-05T00:00:00.000Z",
@@ -83,18 +82,12 @@ const mockTrainees: Trainee[] = [
 ];
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState("view");
+  const navigate = useNavigate();
   const [trainees, setTrainees] = useState<Trainee[]>(mockTrainees);
   const [filteredTrainees, setFilteredTrainees] = useState<Trainee[]>(mockTrainees);
   const [nameFilter, setNameFilter] = useState("");
   const [districtFilter, setDistrictFilter] = useState("");
   const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined);
-
-  const handleFormSuccess = () => {
-    // In a real app, this would refresh data from Supabase
-    // For now, we'll just switch to the view tab
-    setActiveTab("view");
-  };
 
   const applyFilters = () => {
     let filtered = [...trainees];
@@ -155,39 +148,25 @@ const Index = () => {
       <Header />
       
       <main className="container mx-auto py-6 px-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <div className="flex justify-between items-center">
-            <TabsList>
-              <TabsTrigger value="view">View Trainees</TabsTrigger>
-              <TabsTrigger value="add">Add Trainee</TabsTrigger>
-            </TabsList>
-            
-            {activeTab === "view" && (
-              <Button onClick={() => setActiveTab("add")}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add New Trainee
-              </Button>
-            )}
-          </div>
-          
-          <TabsContent value="view" className="space-y-6">
-            <TraineeFilters
-              onNameChange={handleNameChange}
-              onDistrictChange={handleDistrictChange}
-              onDateChange={handleDateChange}
-              onReset={handleResetFilters}
-            />
-            
-            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-              <h2 className="text-2xl font-semibold mb-6">Trainees List</h2>
-              <TraineeTable trainees={filteredTrainees} onRefresh={handleRefresh} />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="add">
-            <TraineeForm onSuccess={handleFormSuccess} onCancel={() => setActiveTab("view")} />
-          </TabsContent>
-        </Tabs>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Trainees Management</h1>
+          <Button onClick={() => navigate('/add-trainee')}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add New Trainee
+          </Button>
+        </div>
+        
+        <TraineeFilters
+          onNameChange={handleNameChange}
+          onDistrictChange={handleDistrictChange}
+          onDateChange={handleDateChange}
+          onReset={handleResetFilters}
+        />
+        
+        <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm mt-6">
+          <h2 className="text-2xl font-semibold mb-6">Trainees List</h2>
+          <TraineeTable trainees={filteredTrainees} onRefresh={handleRefresh} />
+        </div>
       </main>
     </div>
   );

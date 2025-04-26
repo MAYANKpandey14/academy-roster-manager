@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { 
   Download,
   Printer, 
@@ -7,16 +6,8 @@ import {
 } from "lucide-react";
 import { Trainee } from "@/types/trainee";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { TraineeForm } from "./TraineeForm";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface TraineeActionsProps {
   trainee: Trainee;
@@ -24,7 +15,7 @@ interface TraineeActionsProps {
 }
 
 export function TraineeActions({ trainee, onEdit }: TraineeActionsProps) {
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const navigate = useNavigate();
   
   const handlePrint = () => {
     // Create printable version
@@ -132,32 +123,14 @@ export function TraineeActions({ trainee, onEdit }: TraineeActionsProps) {
 
   return (
     <div className="flex space-x-2">
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogTrigger asChild>
-          <Button variant="outline" size="icon" title="Edit">
-            <Edit className="h-4 w-4" />
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-          <DialogHeader className="px-6 py-4 border-b">
-            <DialogTitle>Edit Trainee</DialogTitle>
-          </DialogHeader>
-          
-          <ScrollArea className="flex-1 px-6 py-4">
-            <TraineeForm 
-              trainee={trainee} 
-              onSuccess={() => {
-                setIsEditDialogOpen(false);
-                if (onEdit) {
-                  onEdit(trainee);
-                }
-              }}
-              onCancel={() => setIsEditDialogOpen(false)}
-              isEditMode={true}
-            />
-          </ScrollArea>
-        </DialogContent>
-      </Dialog>
+      <Button 
+        variant="outline" 
+        size="icon" 
+        title="Edit"
+        onClick={() => navigate(`/edit-trainee/${trainee.id}`)}
+      >
+        <Edit className="h-4 w-4" />
+      </Button>
       
       <Button 
         variant="outline" 
