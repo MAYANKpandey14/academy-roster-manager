@@ -1,26 +1,16 @@
 
 import { Trainee, TraineeFormValues } from "@/types/trainee";
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+import { supabase } from "@/integrations/supabase/client";
 
 // Function to fetch all trainees
 export async function getTrainees(): Promise<{ data: Trainee[] | null; error: Error | null }> {
   try {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/get-trainees`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to fetch trainees');
+    const { data, error } = await supabase.functions.invoke('get-trainees');
+    
+    if (error) {
+      throw error;
     }
-
-    const data = await response.json();
+    
     return { data, error: null };
   } catch (error) {
     console.error('Error fetching trainees:', error);
@@ -35,28 +25,19 @@ export async function filterTrainees(
   dateFilter?: string
 ): Promise<{ data: Trainee[] | null; error: Error | null }> {
   try {
-    const queryParams = new URLSearchParams();
-    if (nameFilter) queryParams.append('name', nameFilter);
-    if (districtFilter) queryParams.append('district', districtFilter);
-    if (dateFilter) queryParams.append('date', dateFilter);
-
-    const response = await fetch(
-      `${SUPABASE_URL}/functions/v1/get-trainees?${queryParams.toString()}`, 
-      {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to fetch filtered trainees');
+    const params: Record<string, string> = {};
+    if (nameFilter) params.name = nameFilter;
+    if (districtFilter) params.district = districtFilter;
+    if (dateFilter) params.date = dateFilter;
+    
+    const { data, error } = await supabase.functions.invoke('get-trainees', {
+      body: params
+    });
+    
+    if (error) {
+      throw error;
     }
-
-    const data = await response.json();
+    
     return { data, error: null };
   } catch (error) {
     console.error('Error fetching filtered trainees:', error);
@@ -67,21 +48,14 @@ export async function filterTrainees(
 // Function to add a new trainee
 export async function addTrainee(traineeData: TraineeFormValues): Promise<{ data: Trainee | null; error: Error | null }> {
   try {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/add-trainee`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(traineeData),
+    const { data, error } = await supabase.functions.invoke('add-trainee', {
+      body: traineeData
     });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to add trainee');
+    
+    if (error) {
+      throw error;
     }
-
-    const data = await response.json();
+    
     return { data, error: null };
   } catch (error) {
     console.error('Error adding trainee:', error);
@@ -92,21 +66,14 @@ export async function addTrainee(traineeData: TraineeFormValues): Promise<{ data
 // Function to update an existing trainee
 export async function updateTrainee(id: string, traineeData: TraineeFormValues): Promise<{ data: Trainee | null; error: Error | null }> {
   try {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/update-trainee`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ id, ...traineeData }),
+    const { data, error } = await supabase.functions.invoke('update-trainee', {
+      body: { id, ...traineeData }
     });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to update trainee');
+    
+    if (error) {
+      throw error;
     }
-
-    const data = await response.json();
+    
     return { data, error: null };
   } catch (error) {
     console.error('Error updating trainee:', error);
