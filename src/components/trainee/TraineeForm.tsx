@@ -75,21 +75,41 @@ export function TraineeForm({ trainee, onSuccess, onCancel, isEditMode }: Traine
         <ContactFields form={form} />
       </div>
 
-      <div className="flex justify-end space-x-4 pt-4">
-        {onCancel && (
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={onCancel}
-            disabled={isSubmitting}
-          >
-            Cancel
+      {isEditMode && (
+        <div className="sticky bottom-0 flex justify-end space-x-4 pt-6 mt-6 border-t bg-white">
+          {onCancel && (
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={onCancel}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+          )}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : isEditMode ? "Update Trainee" : "Add Trainee"}
           </Button>
-        )}
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : isEditMode ? "Update Trainee" : "Add Trainee"}
-        </Button>
-      </div>
+        </div>
+      )}
+
+      {!isEditMode && (
+        <div className="flex justify-end space-x-4 pt-4">
+          {onCancel && (
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={onCancel}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+          )}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : "Add Trainee"}
+          </Button>
+        </div>
+      )}
     </div>
   );
 

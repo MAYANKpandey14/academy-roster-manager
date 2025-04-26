@@ -138,12 +138,12 @@ export function TraineeActions({ trainee, onEdit }: TraineeActionsProps) {
             <Edit className="h-4 w-4" />
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col gap-0 p-0">
-          <DialogHeader className="p-6 pb-4">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader className="px-6 py-4 border-b">
             <DialogTitle>Edit Trainee</DialogTitle>
           </DialogHeader>
           
-          <ScrollArea className="flex-1 p-6 pt-2">
+          <ScrollArea className="flex-1 px-6 py-4">
             <TraineeForm 
               trainee={trainee} 
               onSuccess={() => {
