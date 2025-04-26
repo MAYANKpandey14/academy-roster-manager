@@ -26,17 +26,17 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
   });
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] max-h-[90vh]">
-      <DialogHeader className="px-6 py-4 border-b bg-background">
+    <div className="flex flex-col h-[90vh] max-h-[90vh] bg-background">
+      <DialogHeader className="px-6 py-4 border-b shrink-0">
         <DialogTitle>
           {isEditMode ? "Edit Trainee" : "Add New Trainee"}
         </DialogTitle>
       </DialogHeader>
       
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1">
-          <ScrollArea className="flex-1">
-            <div className="px-6 py-4 space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
+          <ScrollArea className="flex-1 px-6">
+            <div className="py-6 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <ServiceFields form={form} />
                 <PersonalInfoFields form={form} />
@@ -49,7 +49,7 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
             </div>
           </ScrollArea>
 
-          <div className="flex justify-end gap-4 px-6 py-4 border-t bg-background mt-auto">
+          <div className="flex justify-end gap-4 px-6 py-4 border-t mt-auto shrink-0">
             {onCancel && (
               <Button 
                 type="button" 
