@@ -66,8 +66,6 @@ export async function addTrainee(traineeData: TraineeFormValues): Promise<{ data
       throw error;
     }
     
-    // Removing the status check since FunctionsResponse doesn't have a status property
-    
     console.log("Trainee added successfully:", data);
     return { data, error: null };
   } catch (error) {
@@ -83,6 +81,8 @@ export async function addTrainee(traineeData: TraineeFormValues): Promise<{ data
 export async function updateTrainee(id: string, traineeData: TraineeFormValues): Promise<{ data: Trainee | null; error: Error | null }> {
   try {
     console.log("Updating trainee with id:", id);
+    console.log("Update data:", JSON.stringify(traineeData));
+    
     const { data, error } = await supabase.functions.invoke('update-trainee', {
       body: { id, ...traineeData }
     });

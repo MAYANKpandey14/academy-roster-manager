@@ -23,13 +23,40 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  const defaultValues: Partial<TraineeFormValues> = {
-    ...trainee,
-    arrival_date: trainee.arrival_date ? trainee.arrival_date.split('T')[0] : '',
-    departure_date: trainee.departure_date ? trainee.departure_date.split('T')[0] : '',
-    date_of_birth: trainee.date_of_birth ? trainee.date_of_birth.split('T')[0] : '',
-    date_of_joining: trainee.date_of_joining ? trainee.date_of_joining.split('T')[0] : '',
+  // Format dates for form input fields (YYYY-MM-DD)
+  const formatDateForInput = (dateString: string): string => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        console.warn(`Invalid date: ${dateString}`);
+        return '';
+      }
+      return date.toISOString().split('T')[0];
+    } catch (error) {
+      console.error(`Error formatting date: ${dateString}`, error);
+      return '';
+    }
   };
+
+  const defaultValues: Partial<TraineeFormValues> = {
+    pno: trainee.pno,
+    chest_no: trainee.chest_no,
+    name: trainee.name,
+    father_name: trainee.father_name,
+    arrival_date: formatDateForInput(trainee.arrival_date),
+    departure_date: formatDateForInput(trainee.departure_date),
+    current_posting_district: trainee.current_posting_district,
+    mobile_number: trainee.mobile_number,
+    education: trainee.education,
+    date_of_birth: formatDateForInput(trainee.date_of_birth),
+    date_of_joining: formatDateForInput(trainee.date_of_joining),
+    blood_group: trainee.blood_group,
+    nominee: trainee.nominee,
+    home_address: trainee.home_address,
+  };
+
+  console.log("Default form values:", defaultValues);
 
   const form = useForm<TraineeFormValues>({
     resolver: zodResolver(traineeFormSchema),
@@ -38,15 +65,27 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
 
   const onSubmit = async (data: TraineeFormValues) => {
     setIsSubmitting(true);
+    console.log("Form data to submit:", data);
     
     try {
+      // Ensure all dates are valid
+      const validateDate = (dateString: string): string => {
+        if (!dateString) throw new Error("Missing date value");
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) throw new Error(`Invalid date: ${dateString}`);
+        return dateString; // Return original string if valid
+      };
+      
+      // Validate all date fields
       const formData = {
         ...data,
-        arrival_date: new Date(data.arrival_date).toISOString(),
-        departure_date: new Date(data.departure_date).toISOString(),
-        date_of_birth: new Date(data.date_of_birth).toISOString(),
-        date_of_joining: new Date(data.date_of_joining).toISOString(),
+        arrival_date: validateDate(data.arrival_date),
+        departure_date: validateDate(data.departure_date),
+        date_of_birth: validateDate(data.date_of_birth),
+        date_of_joining: validateDate(data.date_of_joining),
       };
+      
+      console.log("Transformed form data:", formData);
 
       // Call the API to update the trainee
       const response = await updateTrainee(trainee.id, formData);
