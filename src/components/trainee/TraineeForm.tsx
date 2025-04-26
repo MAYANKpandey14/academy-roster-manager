@@ -2,8 +2,6 @@
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,15 +21,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
 import { bloodGroups, traineeFormSchema, TraineeFormValues } from "./TraineeFormSchema";
-import { Trainee, TraineeFormData } from "@/types/trainee";
+import { Trainee } from "@/types/trainee";
 import { toast } from "sonner";
 
 interface TraineeFormProps {
@@ -47,10 +38,10 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
   const defaultValues: Partial<TraineeFormValues> = trainee
     ? {
         ...trainee,
-        arrival_date: trainee.arrival_date ? new Date(trainee.arrival_date) : undefined,
-        departure_date: trainee.departure_date ? new Date(trainee.departure_date) : undefined,
-        date_of_birth: trainee.date_of_birth ? new Date(trainee.date_of_birth) : undefined,
-        date_of_joining: trainee.date_of_joining ? new Date(trainee.date_of_joining) : undefined,
+        arrival_date: trainee.arrival_date ? trainee.arrival_date.split('T')[0] : '',
+        departure_date: trainee.departure_date ? trainee.departure_date.split('T')[0] : '',
+        date_of_birth: trainee.date_of_birth ? trainee.date_of_birth.split('T')[0] : '',
+        date_of_joining: trainee.date_of_joining ? trainee.date_of_joining.split('T')[0] : '',
       }
     : {
         // Set default empty values
@@ -66,25 +57,14 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
     
     try {
       // Transform dates to ISO strings for API
-      const formData: TraineeFormData = {
-        pno: data.pno,
-        chest_no: data.chest_no,
-        name: data.name,
-        father_name: data.father_name,
-        arrival_date: data.arrival_date.toISOString(),
-        departure_date: data.departure_date.toISOString(),
-        date_of_birth: data.date_of_birth.toISOString(),
-        date_of_joining: data.date_of_joining.toISOString(),
-        current_posting_district: data.current_posting_district,
-        mobile_number: data.mobile_number,
-        education: data.education,
-        blood_group: data.blood_group,
-        nominee: data.nominee,
-        home_address: data.home_address,
+      const formData = {
+        ...data,
+        arrival_date: new Date(data.arrival_date).toISOString(),
+        departure_date: new Date(data.departure_date).toISOString(),
+        date_of_birth: new Date(data.date_of_birth).toISOString(),
+        date_of_joining: new Date(data.date_of_joining).toISOString(),
       };
 
-      // Here you would connect to Supabase
-      // This is a placeholder for future integration
       console.log("Form data to be sent:", formData);
       
       // Simulate API call
@@ -177,37 +157,15 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
               control={form.control}
               name="arrival_date"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
+                <FormItem>
                   <FormLabel>Date of Arrival</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        initialFocus
-                        className={cn("p-3 pointer-events-auto")}
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <FormControl>
+                    <Input 
+                      type="date" 
+                      placeholder="YYYY-MM-DD"
+                      {...field}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -218,37 +176,15 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
               control={form.control}
               name="departure_date"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
+                <FormItem>
                   <FormLabel>Date of Departure</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        initialFocus
-                        className={cn("p-3 pointer-events-auto")}
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <FormControl>
+                    <Input 
+                      type="date" 
+                      placeholder="YYYY-MM-DD"
+                      {...field}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -304,37 +240,15 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
               control={form.control}
               name="date_of_birth"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
+                <FormItem>
                   <FormLabel>Date of Birth</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        initialFocus
-                        className={cn("p-3 pointer-events-auto")}
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <FormControl>
+                    <Input 
+                      type="date" 
+                      placeholder="YYYY-MM-DD"
+                      {...field}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -345,37 +259,15 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
               control={form.control}
               name="date_of_joining"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
+                <FormItem>
                   <FormLabel>Date of Joining</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        initialFocus
-                        className={cn("p-3 pointer-events-auto")}
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <FormControl>
+                    <Input 
+                      type="date" 
+                      placeholder="YYYY-MM-DD"
+                      {...field}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
