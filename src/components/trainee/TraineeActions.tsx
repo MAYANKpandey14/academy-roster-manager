@@ -36,7 +36,7 @@ export function TraineeActions({ trainee, onEdit }: TraineeActionsProps) {
         </head>
         <body>
           <div class="header">
-            <h1>Police Training Academy</h1>
+            <h1>RTC Police Line, Moradabad</h1>
             <p>RTC Trainee Information</p>
           </div>
           
