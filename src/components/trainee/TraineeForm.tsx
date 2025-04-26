@@ -67,11 +67,20 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
     try {
       // Transform dates to ISO strings for API
       const formData: TraineeFormData = {
-        ...data,
+        pno: data.pno,
+        chest_no: data.chest_no,
+        name: data.name,
+        father_name: data.father_name,
         arrival_date: data.arrival_date.toISOString(),
         departure_date: data.departure_date.toISOString(),
         date_of_birth: data.date_of_birth.toISOString(),
         date_of_joining: data.date_of_joining.toISOString(),
+        current_posting_district: data.current_posting_district,
+        mobile_number: data.mobile_number,
+        education: data.education,
+        blood_group: data.blood_group,
+        nominee: data.nominee,
+        home_address: data.home_address,
       };
 
       // Here you would connect to Supabase
