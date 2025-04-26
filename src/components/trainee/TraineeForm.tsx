@@ -277,7 +277,7 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
                 <FormItem>
                   <FormLabel>Mobile Number</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter mobile number" type="tel" {...field} />
+                    <Input maxLength={10} placeholder="Enter mobile number" type="tel" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
