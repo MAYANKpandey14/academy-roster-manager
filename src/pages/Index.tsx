@@ -62,6 +62,23 @@ const mockTrainees: Trainee[] = [
     blood_group: "A-",
     nominee: "Ana Garcia",
     home_address: "789 Pine Street, West End"
+  },
+  {
+    id: "4",
+    pno: "PN123123",
+    chest_no: "C12",
+    name: "<ayank Pandey"
+    father_name: "RCP",
+    arrival_date: "2025-01-05T00:00:00.000Z",
+    departure_date: "2025-03-05T00:00:00.000Z",
+    current_posting_district: "Western District",
+    mobile_number: "7654321098",
+    education: "BTECH CSE",
+    date_of_birth: "1992-03-10T00:00:00.000Z",
+    date_of_joining: "2021-02-15T00:00:00.000Z",
+    blood_group: "B+",
+    nominee: "MEENA",
+    home_address: "789 Pine Street, West End"
   }
 ];
 
