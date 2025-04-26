@@ -132,7 +132,7 @@ export function TraineeTable({ trainees, onRefresh }: TraineeTableProps) {
         </head>
         <body>
           <div class="header">
-            <h1>Police Training Academy</h1>
+            <h1>Police Line Moradabad RTC</h1>
             <p>RTC Trainees Information</p>
           </div>
     `;
