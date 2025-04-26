@@ -11,6 +11,7 @@ import { ServiceInfoFields } from "./form/ServiceInfoFields";
 import { DateFields } from "./form/DateFields";
 import { ContactFields } from "./form/ContactFields";
 import { useNavigate } from "react-router-dom";
+import { addTrainee } from "@/services/api";
 
 interface AddTraineeFormProps {
   onSuccess?: () => void;
@@ -37,9 +38,12 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
         date_of_joining: new Date(data.date_of_joining).toISOString(),
       };
 
-      console.log("Form data to be sent:", formData);
+      // Call the API to add a new trainee
+      const response = await addTrainee(formData);
       
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (response.error) {
+        throw response.error;
+      }
       
       toast.success("Trainee added successfully");
       
@@ -49,7 +53,7 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
       navigate('/');
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error("Failed to save trainee data");
+      toast.error(error instanceof Error ? error.message : "Failed to save trainee data");
     } finally {
       setIsSubmitting(false);
     }

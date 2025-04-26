@@ -18,6 +18,7 @@ interface TraineeFiltersProps {
   onDistrictChange: (value: string) => void;
   onDateChange: (value: Date | undefined) => void;
   onReset: () => void;
+  disabled?: boolean;
 }
 
 export function TraineeFilters({
@@ -25,6 +26,7 @@ export function TraineeFilters({
   onDistrictChange,
   onDateChange,
   onReset,
+  disabled = false,
 }: TraineeFiltersProps) {
   const [name, setName] = useState("");
   const [district, setDistrict] = useState("");
@@ -66,6 +68,7 @@ export function TraineeFilters({
             placeholder="Search by name"
             value={name}
             onChange={handleNameChange}
+            disabled={disabled}
           />
         </div>
         
@@ -76,6 +79,7 @@ export function TraineeFilters({
             placeholder="Search by district"
             value={district}
             onChange={handleDistrictChange}
+            disabled={disabled}
           />
         </div>
         
@@ -89,6 +93,7 @@ export function TraineeFilters({
                   "w-full justify-start text-left font-normal",
                   !date && "text-muted-foreground"
                 )}
+                disabled={disabled}
               >
                 {date ? format(date, "PPP") : "Select date"}
                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
@@ -108,7 +113,7 @@ export function TraineeFilters({
       </div>
       
       <div className="flex justify-end">
-        <Button variant="outline" onClick={handleReset}>
+        <Button variant="outline" onClick={handleReset} disabled={disabled}>
           Reset Filters
         </Button>
       </div>

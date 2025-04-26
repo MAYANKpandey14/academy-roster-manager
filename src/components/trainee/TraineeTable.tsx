@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { format } from "date-fns";
 import { 
@@ -16,9 +15,10 @@ import { toast } from "sonner";
 interface TraineeTableProps {
   trainees: Trainee[];
   onRefresh?: () => void;
+  isLoading?: boolean;
 }
 
-export function TraineeTable({ trainees, onRefresh }: TraineeTableProps) {
+export function TraineeTable({ trainees, onRefresh, isLoading = false }: TraineeTableProps) {
   const [rowSelection, setRowSelection] = useState({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   
@@ -33,6 +33,7 @@ export function TraineeTable({ trainees, onRefresh }: TraineeTableProps) {
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
+          disabled={isLoading}
         />
       ),
       cell: ({ row }) => (
@@ -40,6 +41,7 @@ export function TraineeTable({ trainees, onRefresh }: TraineeTableProps) {
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
+          disabled={isLoading}
         />
       ),
       enableSorting: false,
@@ -99,14 +101,14 @@ export function TraineeTable({ trainees, onRefresh }: TraineeTableProps) {
     },
   ];
 
-  const getSelectedTrainees = (): Trainee[] => {
+  function getSelectedTrainees(): Trainee[] {
     // Get the indices of selected rows
     const selectedIndices = Object.keys(rowSelection).map(Number);
     // Return the trainee objects at those indices
     return selectedIndices.map(index => trainees[index]);
-  };
+  }
 
-  const handlePrintSelected = () => {
+  function handlePrintSelected() {
     const selectedTrainees = getSelectedTrainees();
     
     if (selectedTrainees.length === 0) {
@@ -178,9 +180,9 @@ export function TraineeTable({ trainees, onRefresh }: TraineeTableProps) {
     } else {
       toast.error("Failed to open print window. Please check your pop-up blocker settings.");
     }
-  };
+  }
 
-  const handleDownloadSelectedCSV = () => {
+  function handleDownloadSelectedCSV() {
     const selectedTrainees = getSelectedTrainees();
     
     if (selectedTrainees.length === 0) {
@@ -232,7 +234,7 @@ export function TraineeTable({ trainees, onRefresh }: TraineeTableProps) {
     document.body.removeChild(link);
     
     toast.success(`CSV file with ${selectedTrainees.length} trainees downloaded successfully`);
-  };
+  }
 
   return (
     <div className="space-y-4">
@@ -243,6 +245,7 @@ export function TraineeTable({ trainees, onRefresh }: TraineeTableProps) {
           size="sm"
           onClick={handlePrintSelected}
           className="print-button"
+          disabled={isLoading}
         >
           <Printer className="mr-2 h-4 w-4" />
           Print Selected
@@ -252,6 +255,7 @@ export function TraineeTable({ trainees, onRefresh }: TraineeTableProps) {
           size="sm"
           onClick={handleDownloadSelectedCSV}
           className="download-button"
+          disabled={isLoading}
         >
           <Download className="mr-2 h-4 w-4" />
           Download Selected
@@ -263,6 +267,7 @@ export function TraineeTable({ trainees, onRefresh }: TraineeTableProps) {
         data={trainees}
         filterColumn="name"
         filterPlaceholder="Search by name..."
+        isLoading={isLoading}
       />
     </div>
   );

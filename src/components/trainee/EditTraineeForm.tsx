@@ -12,6 +12,7 @@ import { ServiceInfoFields } from "./form/ServiceInfoFields";
 import { DateFields } from "./form/DateFields";
 import { ContactFields } from "./form/ContactFields";
 import { useNavigate } from "react-router-dom";
+import { updateTrainee } from "@/services/api";
 
 interface EditTraineeFormProps {
   trainee: Trainee;
@@ -47,9 +48,12 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
         date_of_joining: new Date(data.date_of_joining).toISOString(),
       };
 
-      console.log("Form data to be sent:", formData);
+      // Call the API to update the trainee
+      const response = await updateTrainee(trainee.id, formData);
       
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (response.error) {
+        throw response.error;
+      }
       
       toast.success("Trainee updated successfully");
       
@@ -59,7 +63,7 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
       navigate('/');
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error("Failed to update trainee data");
+      toast.error(error instanceof Error ? error.message : "Failed to update trainee data");
     } finally {
       setIsSubmitting(false);
     }
