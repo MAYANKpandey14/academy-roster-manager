@@ -67,7 +67,7 @@ const mockTrainees: Trainee[] = [
     id: "4",
     pno: "PN123123",
     chest_no: "C12",
-    name: "Mayank Pandey", // Fixed typo here
+    name: "Mayank Pandey",
     father_name: "RCP",
     arrival_date: "2025-01-05T00:00:00.000Z",
     departure_date: "2025-03-05T00:00:00.000Z",
@@ -90,6 +90,7 @@ const Index = () => {
   const [districtFilter, setDistrictFilter] = useState("");
   const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined);
 
+  // Updated to match the parameter in TraineeForm
   const handleFormSuccess = (newTrainee: Trainee) => {
     // Add the new trainee to both the main list and filtered list
     const updatedTrainees = [...trainees, newTrainee];

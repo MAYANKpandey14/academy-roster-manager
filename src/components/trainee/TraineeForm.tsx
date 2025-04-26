@@ -36,7 +36,7 @@ import { toast } from "sonner";
 
 interface TraineeFormProps {
   trainee?: Trainee;
-  onSuccess?: () => void;
+  onSuccess?: (newTrainee: Trainee) => void;  // Updated to accept a Trainee parameter
   onCancel?: () => void;
 }
 
@@ -90,10 +90,18 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // Create a complete trainee object with an ID
+      const newTrainee: Trainee = {
+        ...formData,
+        id: isEditMode ? trainee!.id : `${Date.now()}`, // Use existing ID or create a new one
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      
       toast.success(isEditMode ? "Trainee updated successfully" : "Trainee added successfully");
       
       if (onSuccess) {
-        onSuccess();
+        onSuccess(newTrainee);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
