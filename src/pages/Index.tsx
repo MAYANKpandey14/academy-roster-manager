@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { TraineeForm } from "@/components/trainee/TraineeForm";
 import { TraineeTable } from "@/components/trainee/TraineeTable";
 import { TraineeFilters } from "@/components/trainee/TraineeFilters";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Trainee } from "@/types/trainee";
 import { Plus } from "lucide-react";
@@ -83,20 +82,19 @@ const mockTrainees: Trainee[] = [
 ];
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState("view");
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [trainees, setTrainees] = useState<Trainee[]>(mockTrainees);
   const [filteredTrainees, setFilteredTrainees] = useState<Trainee[]>(mockTrainees);
   const [nameFilter, setNameFilter] = useState("");
   const [districtFilter, setDistrictFilter] = useState("");
   const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined);
 
-  // Updated to match the parameter in TraineeForm
   const handleFormSuccess = (newTrainee: Trainee) => {
     // Add the new trainee to both the main list and filtered list
     const updatedTrainees = [...trainees, newTrainee];
     setTrainees(updatedTrainees);
     setFilteredTrainees(updatedTrainees);
-    setActiveTab("view");
+    setIsFormOpen(false);
   };
 
   const applyFilters = () => {
@@ -158,39 +156,36 @@ const Index = () => {
       <Header />
       
       <main className="container mx-auto py-6 px-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <div className="space-y-6">
           <div className="flex justify-between items-center">
-            <TabsList>
-              <TabsTrigger value="view">View Trainees</TabsTrigger>
-              <TabsTrigger value="add">Add Trainee</TabsTrigger>
-            </TabsList>
-            
-            {activeTab === "view" && (
-              <Button onClick={() => setActiveTab("add")}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add New Trainee
-              </Button>
-            )}
+            <h1 className="text-2xl font-semibold">Trainee Management</h1>
+            <Button onClick={() => setIsFormOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add New Trainee
+            </Button>
           </div>
           
-          <TabsContent value="view" className="space-y-6">
-            <TraineeFilters
-              onNameChange={handleNameChange}
-              onDistrictChange={handleDistrictChange}
-              onDateChange={handleDateChange}
-              onReset={handleResetFilters}
-            />
-            
-            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-              <h2 className="text-2xl font-semibold mb-6">Trainees List</h2>
-              <TraineeTable trainees={filteredTrainees} onRefresh={handleRefresh} />
-            </div>
-          </TabsContent>
+          <TraineeFilters
+            onNameChange={handleNameChange}
+            onDistrictChange={handleDistrictChange}
+            onDateChange={handleDateChange}
+            onReset={handleResetFilters}
+          />
           
-          <TabsContent value="add">
-            <TraineeForm onSuccess={handleFormSuccess} onCancel={() => setActiveTab("view")} />
-          </TabsContent>
-        </Tabs>
+          <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+            <h2 className="text-2xl font-semibold mb-6">Trainees List</h2>
+            <TraineeTable trainees={filteredTrainees} onRefresh={handleRefresh} />
+          </div>
+        </div>
+
+        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <TraineeForm 
+              onSuccess={handleFormSuccess} 
+              onCancel={() => setIsFormOpen(false)} 
+            />
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );

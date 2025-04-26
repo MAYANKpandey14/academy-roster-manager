@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
+import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -36,7 +36,7 @@ import { toast } from "sonner";
 
 interface TraineeFormProps {
   trainee?: Trainee;
-  onSuccess?: (newTrainee: Trainee) => void;  // Updated to accept a Trainee parameter
+  onSuccess?: (newTrainee: Trainee) => void;
   onCancel?: () => void;
 }
 
@@ -112,10 +112,12 @@ export function TraineeForm({ trainee, onSuccess, onCancel }: TraineeFormProps) 
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm max-h-[calc(100vh-12rem)] overflow-y-auto">
-      <h2 className="text-2xl font-semibold mb-6 sticky top-0 bg-white py-2 z-10">
-        {isEditMode ? "Edit Trainee" : "Add New Trainee"}
-      </h2>
+    <div className="space-y-6">
+      <DialogHeader>
+        <DialogTitle>
+          {isEditMode ? "Edit Trainee" : "Add New Trainee"}
+        </DialogTitle>
+      </DialogHeader>
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
