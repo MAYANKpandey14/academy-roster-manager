@@ -54,7 +54,6 @@ export function TraineeFilters({
             disabled={disabled}
             maxLength={9}
           />
-          <p className="text-xs text-gray-500">9-digit unique code</p>
         </div>
         
         <div className="space-y-2">
@@ -67,7 +66,6 @@ export function TraineeFilters({
             disabled={disabled}
             maxLength={4}
           />
-          <p className="text-xs text-gray-500">4-digit unique code</p>
         </div>
         
         <div className="space-y-2">
@@ -80,7 +78,6 @@ export function TraineeFilters({
             disabled={disabled}
             maxLength={12}
           />
-          <p className="text-xs text-gray-500">12-digit unique number</p>
         </div>
       </div>
       
