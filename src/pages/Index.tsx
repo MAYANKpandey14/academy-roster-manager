@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { TraineeTable } from "@/components/trainee/TraineeTable";
@@ -124,6 +125,7 @@ const Index = () => {
         
         <TraineeFilters
           onSearch={handleSearch}
+          onShowAll={fetchTrainees}  // Added the missing onShowAll prop
           disabled={isLoading}
         />
         
