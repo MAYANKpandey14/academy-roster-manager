@@ -1,9 +1,10 @@
 
 import { useState } from "react";
-import { Search, List } from "lucide-react";
+import { Search, List, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 interface StaffFiltersProps {
@@ -17,6 +18,7 @@ export function StaffFilters({
   onShowAll,
   disabled = false,
 }: StaffFiltersProps) {
+  const navigate = useNavigate();
   const [pno, setPno] = useState("");
 
   const handleSearch = async () => {
@@ -58,6 +60,10 @@ export function StaffFilters({
       </div>
       
       <div className="flex justify-end gap-2">
+        <Button onClick={() => navigate('/add-staff')} variant="outline">
+          <UserPlus className="mr-2 h-4 w-4" />
+          Add Staff
+        </Button>
         <Button onClick={onShowAll} variant="outline" disabled={disabled}>
           <List className="mr-2 h-4 w-4" />
           Show All Staff

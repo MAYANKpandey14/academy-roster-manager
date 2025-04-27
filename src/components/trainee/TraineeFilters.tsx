@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Search, List } from "lucide-react";
+import { Search, List, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -88,6 +88,10 @@ export function TraineeFilters({
       </div>
       
       <div className="flex justify-end gap-2">
+        <Button onClick={() => navigate('/add-trainee')} variant="outline">
+          <UserPlus className="mr-2 h-4 w-4" />
+          Add Trainee
+        </Button>
         <Button onClick={onShowAll} variant="outline" disabled={disabled}>
           <List className="mr-2 h-4 w-4" />
           Show All Trainees
