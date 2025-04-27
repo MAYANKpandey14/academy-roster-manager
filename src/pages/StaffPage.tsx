@@ -1,58 +1,81 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Header } from "@/components/layout/Header";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { Staff } from "@/types/staff";
-import { getStaff } from "@/services/staffApi";
-import { toast } from "sonner";
 import { StaffTable } from "@/components/staff/StaffTable";
+import { StaffFilters } from "@/components/staff/StaffFilters";
+import { Staff } from "@/types/staff";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const StaffPage = () => {
-  const navigate = useNavigate();
   const [staff, setStaff] = useState<Staff[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showTable, setShowTable] = useState(false);
 
-  const fetchStaff = async () => {
+  const handleSearch = async (pno: string) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      const { data, error } = await getStaff();
+      const { data, error } = await supabase
+        .from('staff')
+        .select('*')
+        .eq('pno', pno);
       
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
       
       setStaff(data || []);
+      setShowTable(true);
+      return data && data.length > 0;
     } catch (error) {
-      console.error('Error fetching staff:', error);
+      console.error('Error searching staff:', error);
+      toast.error('Failed to search staff');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleShowAll = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('staff')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      
+      setStaff(data || []);
+      setShowTable(true);
+    } catch (error) {
+      console.error('Error fetching all staff:', error);
       toast.error('Failed to load staff');
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchStaff();
-  }, []);
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
       <main className="container mx-auto py-6 px-4">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold">Staff</h1>
-          <Button onClick={() => navigate("/add-staff")}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add New Staff
-          </Button>
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold mb-6">Staff</h1>
+          <StaffFilters
+            onSearch={handleSearch}
+            onShowAll={handleShowAll}
+            disabled={isLoading}
+          />
         </div>
         
-        <StaffTable 
-          staff={staff} 
-          onRefresh={fetchStaff}
-          isLoading={isLoading}
-        />
+        {showTable && (
+          <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mt-6">
+            <StaffTable 
+              staff={staff} 
+              onRefresh={handleShowAll}
+              isLoading={isLoading}
+            />
+          </div>
+        )}
       </main>
     </div>
   );

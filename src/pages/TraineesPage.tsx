@@ -1,61 +1,83 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Header } from "@/components/layout/Header";
-import { Button } from "@/components/ui/button";
-import { Plus, Search } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { TraineeTable } from "@/components/trainee/TraineeTable";
+import { TraineeFilters } from "@/components/trainee/TraineeFilters";
 import { Trainee } from "@/types/trainee";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const TraineesPage = () => {
-  const navigate = useNavigate();
   const [trainees, setTrainees] = useState<Trainee[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showTable, setShowTable] = useState(false);
 
-  const fetchTrainees = async () => {
+  const handleSearch = async (pno: string, chestNo: string, rollNo: string) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
+      let query = supabase.from('trainees').select('*');
+      
+      if (pno) query = query.eq('pno', pno);
+      if (chestNo) query = query.eq('chest_no', chestNo);
+      if (rollNo) query = query.eq('id', rollNo);
+
+      const { data, error } = await query;
+      
+      if (error) throw error;
+      
+      setTrainees(data || []);
+      setShowTable(true);
+      return data && data.length > 0;
+    } catch (error) {
+      console.error('Error searching trainees:', error);
+      toast.error('Failed to search trainees');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleShowAll = async () => {
+    setIsLoading(true);
+    try {
       const { data, error } = await supabase
         .from('trainees')
         .select('*')
-        .order('name', { ascending: true });
+        .order('name');
       
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
       
-      setTrainees(data as Trainee[] || []);
+      setTrainees(data || []);
+      setShowTable(true);
     } catch (error) {
-      console.error('Error fetching trainees:', error);
+      console.error('Error fetching all trainees:', error);
       toast.error('Failed to load trainees');
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchTrainees();
-  }, []);
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
       <main className="container mx-auto py-6 px-4">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold">Trainees</h1>
-          <Button onClick={() => navigate("/add-trainee")}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add New Trainee
-          </Button>
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold mb-6">Trainees</h1>
+          <TraineeFilters
+            onSearch={handleSearch}
+            onShowAll={handleShowAll}
+            disabled={isLoading}
+          />
         </div>
         
-        <TraineeTable 
-          trainees={trainees} 
-          onRefresh={fetchTrainees}
-          isLoading={isLoading}
-        />
+        {showTable && (
+          <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mt-6">
+            <TraineeTable 
+              trainees={trainees} 
+              isLoading={isLoading}
+            />
+          </div>
+        )}
       </main>
     </div>
   );
