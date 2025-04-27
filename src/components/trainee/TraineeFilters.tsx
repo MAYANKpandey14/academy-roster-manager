@@ -4,7 +4,6 @@ import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useNavigate } from "react-router-dom";
 
 interface TraineeFiltersProps {
   onSearch: (pno: string, chestNo: string, rollNo: string) => void;
@@ -18,7 +17,6 @@ export function TraineeFilters({
   const [pno, setPno] = useState("");
   const [chestNo, setChestNo] = useState("");
   const [rollNo, setRollNo] = useState("");
-  const navigate = useNavigate();
 
   const handlePnoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -39,6 +37,13 @@ export function TraineeFilters({
     onSearch(pno, chestNo, rollNo);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSearch();
+    }
+  };
+
   return (
     <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-4">
       <h3 className="text-lg font-medium mb-4">Search Trainees</h3>
@@ -51,6 +56,7 @@ export function TraineeFilters({
             placeholder="Enter 9-digit PNO"
             value={pno}
             onChange={handlePnoChange}
+            onKeyDown={handleKeyDown}
             disabled={disabled}
             maxLength={9}
           />
@@ -63,6 +69,7 @@ export function TraineeFilters({
             placeholder="Enter 4-digit Chest No"
             value={chestNo}
             onChange={handleChestNoChange}
+            onKeyDown={handleKeyDown}
             disabled={disabled}
             maxLength={4}
           />
@@ -75,6 +82,7 @@ export function TraineeFilters({
             placeholder="Enter 12-digit Roll No"
             value={rollNo}
             onChange={handleRollNoChange}
+            onKeyDown={handleKeyDown}
             disabled={disabled}
             maxLength={12}
           />
