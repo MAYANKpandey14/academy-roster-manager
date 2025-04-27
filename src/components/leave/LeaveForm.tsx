@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
@@ -63,15 +62,18 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
         return;
       }
 
+      const leaveData = {
+        [`${type}_id`]: person.id,
+        start_date: data.start_date.toISOString().split('T')[0],
+        end_date: data.end_date.toISOString().split('T')[0],
+        reason: data.reason,
+        status: 'pending'
+      };
+
       // Insert leave record
       const { error: leaveError } = await supabase
         .from(`${type}_leave`)
-        .insert({
-          [`${type}_id`]: person.id,
-          start_date: data.start_date.toISOString().split('T')[0],
-          end_date: data.end_date.toISOString().split('T')[0],
-          reason: data.reason,
-        });
+        .insert(leaveData);
 
       if (leaveError) throw leaveError;
 

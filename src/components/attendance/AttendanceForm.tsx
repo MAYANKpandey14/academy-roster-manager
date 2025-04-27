@@ -39,14 +39,16 @@ export function AttendanceForm({ type, onSuccess }: AttendanceFormProps) {
         return;
       }
 
+      const attendanceData = {
+        [`${type}_id`]: person.id,
+        date: date.toISOString().split('T')[0],
+        status: status
+      };
+
       // Then, insert the attendance record
       const { error: insertError } = await supabase
         .from(`${type}_attendance`)
-        .upsert({
-          [`${type}_id`]: person.id,
-          date: date.toISOString().split('T')[0],
-          status: status
-        });
+        .upsert(attendanceData);
 
       if (insertError) throw insertError;
 
