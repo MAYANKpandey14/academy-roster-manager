@@ -39,7 +39,7 @@ export function Header() {
             <div className="flex items-center text-white p-1.5 rounded">
               <img src="/images.svg" alt="logo" className="w-[96px] h-[96px]" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold">RTC TRAINEE MANAGER</h1>
+            <h1 className="text-xl sm:text-2xl font-bold">RTC TRAINING CENTRE POLICE LINE,MORADABAD</h1>
           </div>
           
           <div className="flex flex-col sm:flex-row items-center gap-4">
