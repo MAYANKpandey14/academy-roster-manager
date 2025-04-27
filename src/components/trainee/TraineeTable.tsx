@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { format } from "date-fns";
 import { 
   ColumnDef,
   ColumnFiltersState,
@@ -11,6 +10,8 @@ import { TraineeActions } from "./TraineeActions";
 import { Button } from "@/components/ui/button";
 import { Download, Printer } from "lucide-react";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/exportUtils";
 
 interface TraineeTableProps {
   trainees: Trainee[];
@@ -21,6 +22,7 @@ interface TraineeTableProps {
 export function TraineeTable({ trainees, onRefresh, isLoading = false }: TraineeTableProps) {
   const [rowSelection, setRowSelection] = useState({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const isMobile = useIsMobile();
   
   const columns: ColumnDef<Trainee>[] = [
     {
@@ -102,9 +104,7 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
   ];
 
   function getSelectedTrainees(): Trainee[] {
-    // Get the indices of selected rows
     const selectedIndices = Object.keys(rowSelection).map(Number);
-    // Return the trainee objects at those indices
     return selectedIndices.map(index => trainees[index]);
   }
 
@@ -116,73 +116,11 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
       return;
     }
     
-    // Create printable version for all selected trainees
-    let printContent = `
-      <html>
-        <head>
-          <title>Selected Trainees Information</title>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 20px; }
-            h1 { text-align: center; margin-bottom: 20px; }
-            .trainee-info { border: 1px solid #ddd; padding: 15px; margin-bottom: 30px; page-break-after: always; }
-            .field { margin-bottom: 10px; }
-            .field-label { font-weight: bold; }
-            .header { text-align: center; margin-bottom: 30px; }
-            .header h1 { margin-bottom: 5px; }
-            .header p { margin-top: 0; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>RRTC POLICE LINE, MORADABAD</h1>
-            <p>TRAINEE INFORMATION</p>
-          </div>
-    `;
-    
-    selectedTrainees.forEach(trainee => {
-      printContent += `
-        <div class="trainee-info">
-          <h2>${trainee.name} (${trainee.pno})</h2>
-          <div class="field"><span class="field-label">Chest No:</span> ${trainee.chest_no}</div>
-          <div class="field"><span class="field-label">Father's Name:</span> ${trainee.father_name}</div>
-          <div class="field"><span class="field-label">Date of Birth:</span> ${new Date(trainee.date_of_birth).toLocaleDateString()}</div>
-          <div class="field"><span class="field-label">Date of Joining:</span> ${new Date(trainee.date_of_joining).toLocaleDateString()}</div>
-          <div class="field"><span class="field-label">Training Period:</span> ${new Date(trainee.arrival_date).toLocaleDateString()} to ${new Date(trainee.departure_date).toLocaleDateString()}</div>
-          <div class="field"><span class="field-label">Current Posting:</span> ${trainee.current_posting_district}</div>
-          <div class="field"><span class="field-label">Mobile:</span> ${trainee.mobile_number}</div>
-          <div class="field"><span class="field-label">Education:</span> ${trainee.education}</div>
-          <div class="field"><span class="field-label">Blood Group:</span> ${trainee.blood_group}</div>
-          <div class="field"><span class="field-label">Nominee:</span> ${trainee.nominee}</div>
-          <div class="field"><span class="field-label">Home Address:</span> ${trainee.home_address}</div>
-        </div>
-      `;
-    });
-    
-    printContent += `
-        <div style="text-align: center; font-size: 12px;">
-          <p>This document was generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
-        </div>
-      </body>
-      </html>
-    `;
-    
-    // Create a new window to print
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(printContent);
-      printWindow.document.close();
-      printWindow.focus();
-      // Wait for content to load before printing
-      printWindow.setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-      }, 500);
-    } else {
-      toast.error("Failed to open print window. Please check your pop-up blocker settings.");
-    }
+    const content = createPrintContent(selectedTrainees);
+    handlePrint(content);
   }
 
-  function handleDownloadSelectedCSV() {
+  function handleDownloadSelected() {
     const selectedTrainees = getSelectedTrainees();
     
     if (selectedTrainees.length === 0) {
@@ -190,56 +128,14 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
       return;
     }
     
-    // Headers for the CSV file
-    const headers = [
-      "PNO", "Chest No", "Name", "Father's Name", "Arrival Date",
-      "Departure Date", "Current Posting District", "Mobile Number",
-      "Education", "Date of Birth", "Date of Joining", "Blood Group",
-      "Nominee", "Home Address"
-    ];
-    
-    // Create CSV content
-    let csvContent = headers.join(',') + '\n';
-    
-    selectedTrainees.forEach(trainee => {
-      const row = [
-        trainee.pno,
-        trainee.chest_no,
-        trainee.name,
-        trainee.father_name,
-        new Date(trainee.arrival_date).toLocaleDateString(),
-        new Date(trainee.departure_date).toLocaleDateString(),
-        trainee.current_posting_district,
-        trainee.mobile_number,
-        trainee.education,
-        new Date(trainee.date_of_birth).toLocaleDateString(),
-        new Date(trainee.date_of_joining).toLocaleDateString(),
-        trainee.blood_group,
-        trainee.nominee,
-        trainee.home_address.replace(/,/g, ' ')  // Remove commas in address to not break CSV format
-      ];
-      
-      csvContent += row.join(',') + '\n';
-    });
-    
-    // Create a download link
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `trainees_export_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
+    const content = createCSVContent(selectedTrainees);
+    handleDownload(content, `selected_trainees_${new Date().toISOString().split('T')[0]}.csv`);
     toast.success(`CSV file with ${selectedTrainees.length} trainees downloaded successfully`);
   }
 
   return (
     <div className="space-y-4">
-      {/* Bulk actions */}
-      <div className="flex justify-end space-x-2">
+      <div className="flex flex-wrap gap-2 justify-end">
         <Button
           variant="outline"
           size="sm"
@@ -247,18 +143,18 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
           className="print-button"
           disabled={isLoading}
         >
-          <Printer className="mr-2 h-4 w-4" />
-          Print Selected
+          <Printer className="h-4 w-4" />
+          {!isMobile && <span className="ml-2">Print Selected</span>}
         </Button>
         <Button
           variant="outline"
           size="sm"
-          onClick={handleDownloadSelectedCSV}
+          onClick={handleDownloadSelected}
           className="download-button"
           disabled={isLoading}
         >
-          <Download className="mr-2 h-4 w-4" />
-          Download Selected
+          <Download className="h-4 w-4" />
+          {!isMobile && <span className="ml-2">Download Selected</span>}
         </Button>
       </div>
       

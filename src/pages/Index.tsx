@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { TraineeTable } from "@/components/trainee/TraineeTable";
@@ -9,14 +8,16 @@ import { Plus, RefreshCcw, Download, Printer } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getTrainees, filterTrainees } from "@/services/api";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/exportUtils";
 
 const Index = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [trainees, setTrainees] = useState<Trainee[]>([]);
   const [filteredTrainees, setFilteredTrainees] = useState<Trainee[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch all trainees on component mount
   useEffect(() => {
     fetchTrainees();
   }, []);
@@ -45,12 +46,10 @@ const Index = () => {
     }
   };
 
-  // Search trainees based on criteria
   const handleSearch = async (pno: string, chestNo: string, rollNo: string) => {
     setIsLoading(true);
     
     try {
-      // We'll use the existing filterTrainees function but adapt it for our new search parameters
       const { data, error } = await filterTrainees(pno, chestNo, rollNo);
       
       if (error) {
@@ -61,7 +60,6 @@ const Index = () => {
       
       if (data) {
         setFilteredTrainees(data);
-        // If there are results, you might want to highlight this to the user
         if (data.length === 0) {
           toast.info("No trainees found matching your search criteria");
         } else {
@@ -82,142 +80,22 @@ const Index = () => {
   };
 
   const handlePrintAll = () => {
-    printAllTrainees(filteredTrainees);
-  };
-
-  const handleDownloadAll = () => {
-    downloadAllTraineesCSV(filteredTrainees);
-  };
-
-  const printAllTrainees = (traineesToPrint: Trainee[]) => {
-    if (traineesToPrint.length === 0) {
+    if (filteredTrainees.length === 0) {
       toast.error("No trainees to print");
       return;
     }
-    
-    // Create a print-friendly HTML document with table layout
-    let printContent = `
-      <html>
-        <head>
-          <title>Trainees List</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            h1 { text-align: center; margin-bottom: 20px; }
-            table { width: 100%; border-collapse: collapse; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; }
-            .header { text-align: center; margin-bottom: 30px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>RTC POLICE LINE, MORADABAD</h1>
-            <p>TRAINEES LIST</p>
-          </div>
-          
-          <table border="1" cellpadding="5" cellspacing="0">
-            <thead>
-              <tr>
-                <th>PNO</th>
-                <th>Name</th>
-                <th>Father's Name</th>
-                <th>District</th>
-                <th>Arrival Date</th>
-                <th>Departure Date</th>
-                <th>Mobile</th>
-              </tr>
-            </thead>
-            <tbody>
-    `;
-    
-    traineesToPrint.forEach(trainee => {
-      printContent += `
-        <tr>
-          <td>${trainee.pno}</td>
-          <td>${trainee.name}</td>
-          <td>${trainee.father_name}</td>
-          <td>${trainee.current_posting_district}</td>
-          <td>${new Date(trainee.arrival_date).toLocaleDateString()}</td>
-          <td>${new Date(trainee.departure_date).toLocaleDateString()}</td>
-          <td>${trainee.mobile_number}</td>
-        </tr>
-      `;
-    });
-    
-    printContent += `
-            </tbody>
-          </table>
-          
-          <div style="text-align: center; margin-top: 30px; font-size: 12px;">
-            <p>This document was generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
-          </div>
-        </body>
-      </html>
-    `;
-    
-    // Create a new window to print
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(printContent);
-      printWindow.document.close();
-      printWindow.focus();
-      // Wait for content to load before printing
-      printWindow.setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-      }, 500);
-    } else {
-      toast.error("Failed to open print window. Please check your pop-up blocker settings.");
-    }
+    const content = createPrintContent(filteredTrainees);
+    handlePrint(content);
   };
 
-  const downloadAllTraineesCSV = (traineesToDownload: Trainee[]) => {
-    if (traineesToDownload.length === 0) {
+  const handleDownloadAll = () => {
+    if (filteredTrainees.length === 0) {
       toast.error("No trainees to download");
       return;
     }
-    
-    // Headers for the CSV file
-    const headers = [
-      "PNO", "Name", "Father's Name", "District", 
-      "Arrival Date", "Departure Date", "Mobile"
-    ];
-    
-    // Create CSV content
-    let csvContent = headers.join(',') + '\n';
-    
-    traineesToDownload.forEach(trainee => {
-      const row = [
-        trainee.pno,
-        trainee.name,
-        trainee.father_name,
-        trainee.current_posting_district,
-        new Date(trainee.arrival_date).toLocaleDateString(),
-        new Date(trainee.departure_date).toLocaleDateString(),
-        trainee.mobile_number
-      ];
-      
-      // Escape any commas within the data fields
-      const escapedRow = row.map(field => {
-        const stringField = String(field);
-        return stringField.includes(',') ? `"${stringField}"` : stringField;
-      });
-      
-      csvContent += escapedRow.join(',') + '\n';
-    });
-    
-    // Create a download link
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `trainees_list_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    toast.success(`CSV file with ${traineesToDownload.length} trainees downloaded successfully`);
+    const content = createCSVContent(filteredTrainees);
+    handleDownload(content, `trainees_export_${new Date().toISOString().split('T')[0]}.csv`);
+    toast.success(`CSV file with ${filteredTrainees.length} trainees downloaded successfully`);
   };
 
   return (
@@ -225,16 +103,16 @@ const Index = () => {
       <Header />
       
       <main className="container mx-auto py-6 px-4">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <h1 className="text-2xl font-bold">RTC POLICE LINE, MORADABAD</h1>
-          <div className="space-x-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={handleRefresh} disabled={isLoading}>
-              <RefreshCcw className="mr-2 h-4 w-4" />
-              Refresh
+              <RefreshCcw className="h-4 w-4" />
+              {!isMobile && <span className="ml-2">Refresh</span>}
             </Button>
             <Button onClick={() => navigate('/add-trainee')} disabled={isLoading}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add New Trainee
+              <Plus className="h-4 w-4" />
+              {!isMobile && <span className="ml-2">Add New Trainee</span>}
             </Button>
           </div>
         </div>
@@ -244,23 +122,25 @@ const Index = () => {
           disabled={isLoading}
         />
         
-        <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm mt-6">
-          <div className="flex justify-end space-x-2 mb-4">
+        <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200 shadow-sm mt-6">
+          <div className="flex flex-wrap gap-2 justify-end mb-4">
             <Button
               variant="outline"
               onClick={handlePrintAll}
               disabled={isLoading || filteredTrainees.length === 0}
+              className="print-button"
             >
-              <Printer className="mr-2 h-4 w-4" />
-              Print All
+              <Printer className="h-4 w-4" />
+              {!isMobile && <span className="ml-2">Print All</span>}
             </Button>
             <Button
               variant="outline"
               onClick={handleDownloadAll}
               disabled={isLoading || filteredTrainees.length === 0}
+              className="download-button"
             >
-              <Download className="mr-2 h-4 w-4" />
-              Download All
+              <Download className="h-4 w-4" />
+              {!isMobile && <span className="ml-2">Download All</span>}
             </Button>
           </div>
           
