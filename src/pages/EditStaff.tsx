@@ -8,12 +8,13 @@ import { StaffForm } from "@/components/staff/StaffForm";
 import { StaffFormValues } from "@/components/staff/StaffFormSchema";
 import { getStaffById, updateStaff } from "@/services/staffApi";
 import { toast } from "sonner";
+import { Staff } from "@/types/staff";
 
 const EditStaff = () => {
   const { id } = useParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [staff, setStaff] = useState<StaffFormValues | null>(null);
+  const [staff, setStaff] = useState<Staff | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {

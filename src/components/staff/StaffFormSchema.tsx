@@ -5,8 +5,6 @@ import { BloodGroup, StaffRank } from "@/types/staff";
 export const bloodGroups: BloodGroup[] = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
 export const staffRanks: StaffRank[] = ["Instructor", "ITI", "PTI", "SI(Teacher)", "Mess Staff", "Cleaning Staff"];
 
-const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-
 export const staffFormSchema = z.object({
   pno: z.string().min(1, "PNO is required"),
   name: z.string().min(1, "Name is required"),
@@ -17,8 +15,8 @@ export const staffFormSchema = z.object({
   current_posting_district: z.string().min(1, "Current Posting District is required"),
   mobile_number: z.string().min(10, "Mobile Number must be at least 10 digits"),
   education: z.string().min(1, "Education is required"),
-  date_of_birth: z.string().regex(dateRegex, "Date must be in YYYY-MM-DD format"),
-  date_of_joining: z.string().regex(dateRegex, "Date must be in YYYY-MM-DD format"),
+  date_of_birth: z.string().min(1, "Date of Birth is required"),
+  date_of_joining: z.string().min(1, "Date of Joining is required"),
   blood_group: z.enum(bloodGroups as [BloodGroup, ...BloodGroup[]], {
     required_error: "Blood Group is required",
   }),

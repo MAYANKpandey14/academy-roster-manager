@@ -51,7 +51,7 @@ export async function addStaff(staffData: StaffFormValues): Promise<{ data: Staf
   try {
     const { data, error } = await supabase
       .from('staff')
-      .insert([staffData])
+      .insert(staffData)
       .select()
       .single();
     
