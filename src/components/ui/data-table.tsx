@@ -112,7 +112,7 @@ export function DataTable<TData, TValue>({
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns.length} className="h-16 text-center">
                   Loading data...
                 </TableCell>
               </TableRow>
