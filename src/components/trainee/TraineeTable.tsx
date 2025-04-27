@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { 
   ColumnDef,
@@ -12,6 +13,7 @@ import { Download, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/exportUtils";
+import { format } from "date-fns";
 
 interface TraineeTableProps {
   trainees: Trainee[];

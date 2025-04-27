@@ -1,5 +1,6 @@
 
 import { Trainee } from "@/types/trainee";
+import { format } from "date-fns";
 
 export const createPrintContent = (trainees: Trainee[]) => {
   const printContent = `
@@ -77,14 +78,14 @@ export const createPrintContent = (trainees: Trainee[]) => {
                 <td>${trainee.chest_no}</td>
                 <td>${trainee.name}</td>
                 <td>${trainee.father_name}</td>
-                <td>${new Date(trainee.date_of_birth).toLocaleDateString()}</td>
-                <td>${new Date(trainee.date_of_joining).toLocaleDateString()}</td>
+                <td>${format(new Date(trainee.date_of_birth), "dd/MM/yyyy")}</td>
+                <td>${format(new Date(trainee.date_of_joining), "dd/MM/yyyy")}</td>
                 <td>${trainee.current_posting_district}</td>
                 <td>${trainee.mobile_number}</td>
                 <td>${trainee.education}</td>
                 <td>${trainee.blood_group}</td>
-                <td>${new Date(trainee.arrival_date).toLocaleDateString()}</td>
-                <td>${new Date(trainee.departure_date).toLocaleDateString()}</td>
+                <td>${format(new Date(trainee.arrival_date), "dd/MM/yyyy")}</td>
+                <td>${format(new Date(trainee.departure_date), "dd/MM/yyyy")}</td>
                 <td>${trainee.nominee}</td>
                 <td>${trainee.home_address}</td>
               </tr>
@@ -93,7 +94,7 @@ export const createPrintContent = (trainees: Trainee[]) => {
         </table>
         
         <div class="footer">
-          <p>Generated on: ${new Date().toLocaleString()}</p>
+          <p>Generated on: ${format(new Date(), "dd/MM/yyyy HH:mm")}</p>
         </div>
       </body>
     </html>
@@ -115,14 +116,14 @@ export const createCSVContent = (trainees: Trainee[]) => {
     trainee.chest_no,
     trainee.name,
     trainee.father_name,
-    new Date(trainee.date_of_birth).toLocaleDateString(),
-    new Date(trainee.date_of_joining).toLocaleDateString(),
+    format(new Date(trainee.date_of_birth), "dd/MM/yyyy"),
+    format(new Date(trainee.date_of_joining), "dd/MM/yyyy"),
     trainee.current_posting_district,
     trainee.mobile_number,
     trainee.education,
     trainee.blood_group,
-    new Date(trainee.arrival_date).toLocaleDateString(),
-    new Date(trainee.departure_date).toLocaleDateString(),
+    format(new Date(trainee.arrival_date), "dd/MM/yyyy"),
+    format(new Date(trainee.departure_date), "dd/MM/yyyy"),
     trainee.nominee,
     trainee.home_address.replace(/,/g, ' ') // Remove commas to not break CSV format
   ]);
