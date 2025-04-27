@@ -49,9 +49,26 @@ export async function getStaffById(id: string): Promise<{ data: Staff | null; er
 
 export async function addStaff(staffData: StaffFormValues): Promise<{ data: Staff | null; error: Error | null }> {
   try {
+    // Ensure all required fields are present before insert
     const { data, error } = await supabase
       .from('staff')
-      .insert(staffData)
+      .insert({
+        pno: staffData.pno,
+        name: staffData.name,
+        father_name: staffData.father_name,
+        rank: staffData.rank,
+        current_posting_district: staffData.current_posting_district,
+        mobile_number: staffData.mobile_number,
+        education: staffData.education,
+        date_of_birth: staffData.date_of_birth,
+        date_of_joining: staffData.date_of_joining,
+        blood_group: staffData.blood_group,
+        nominee: staffData.nominee,
+        home_address: staffData.home_address,
+        toli_no: staffData.toli_no,
+        class_no: staffData.class_no,
+        class_subject: staffData.class_subject
+      })
       .select()
       .single();
     
@@ -72,9 +89,26 @@ export async function addStaff(staffData: StaffFormValues): Promise<{ data: Staf
 
 export async function updateStaff(id: string, staffData: StaffFormValues): Promise<{ data: Staff | null; error: Error | null }> {
   try {
+    // Ensure all required fields are present before update
     const { data, error } = await supabase
       .from('staff')
-      .update(staffData)
+      .update({
+        pno: staffData.pno,
+        name: staffData.name,
+        father_name: staffData.father_name,
+        rank: staffData.rank,
+        current_posting_district: staffData.current_posting_district,
+        mobile_number: staffData.mobile_number,
+        education: staffData.education,
+        date_of_birth: staffData.date_of_birth,
+        date_of_joining: staffData.date_of_joining,
+        blood_group: staffData.blood_group,
+        nominee: staffData.nominee,
+        home_address: staffData.home_address,
+        toli_no: staffData.toli_no,
+        class_no: staffData.class_no,
+        class_subject: staffData.class_subject
+      })
       .eq('id', id)
       .select()
       .single();

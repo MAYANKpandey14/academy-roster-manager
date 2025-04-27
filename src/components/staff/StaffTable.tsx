@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Staff, StaffRank } from "@/types/staff";
 import { 
@@ -147,14 +146,12 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
 
       <div className="flex gap-2 justify-end">
         <Button variant="outline" onClick={() => {
-          // Print selected staff
           toast.info("Print functionality will be implemented soon");
         }}>
           <Printer className="mr-2 h-4 w-4" />
           Print Selected
         </Button>
         <Button variant="outline" onClick={() => {
-          // Download selected staff as CSV
           toast.info("Download functionality will be implemented soon");
         }}>
           <Download className="mr-2 h-4 w-4" />
