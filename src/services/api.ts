@@ -23,16 +23,16 @@ export async function getTrainees(): Promise<{ data: Trainee[] | null; error: Er
 
 // Function to filter trainees based on search criteria
 export async function filterTrainees(
-  nameFilter?: string, 
-  districtFilter?: string, 
-  dateFilter?: string
+  pnoFilter?: string, 
+  chestNoFilter?: string, 
+  rollNoFilter?: string
 ): Promise<{ data: Trainee[] | null; error: Error | null }> {
   try {
-    console.log("Filtering trainees with params:", { nameFilter, districtFilter, dateFilter });
+    console.log("Searching trainees with params:", { pnoFilter, chestNoFilter, rollNoFilter });
     const params: Record<string, string> = {};
-    if (nameFilter) params.name = nameFilter;
-    if (districtFilter) params.district = districtFilter;
-    if (dateFilter) params.date = dateFilter;
+    if (pnoFilter) params.pno = pnoFilter;
+    if (chestNoFilter) params.chest_no = chestNoFilter;
+    if (rollNoFilter) params.roll_no = rollNoFilter;
     
     const { data, error } = await supabase.functions.invoke('get-trainees', {
       body: params
@@ -43,10 +43,10 @@ export async function filterTrainees(
       throw error;
     }
     
-    console.log("Filtered trainees fetched successfully:", data?.length);
+    console.log("Searched trainees fetched successfully:", data?.length);
     return { data, error: null };
   } catch (error) {
-    console.error('Error fetching filtered trainees:', error);
+    console.error('Error searching trainees:', error);
     return { data: null, error: error instanceof Error ? error : new Error('Unknown error') };
   }
 }

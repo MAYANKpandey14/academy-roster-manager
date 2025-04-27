@@ -1,120 +1,93 @@
 
 import { useState } from "react";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface TraineeFiltersProps {
-  onNameChange: (value: string) => void;
-  onDistrictChange: (value: string) => void;
-  onDateChange: (value: Date | undefined) => void;
-  onReset: () => void;
+  onSearch: (pno: string, chestNo: string, rollNo: string) => void;
   disabled?: boolean;
 }
 
 export function TraineeFilters({
-  onNameChange,
-  onDistrictChange,
-  onDateChange,
-  onReset,
+  onSearch,
   disabled = false,
 }: TraineeFiltersProps) {
-  const [name, setName] = useState("");
-  const [district, setDistrict] = useState("");
-  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [pno, setPno] = useState("");
+  const [chestNo, setChestNo] = useState("");
+  const [rollNo, setRollNo] = useState("");
+  const navigate = useNavigate();
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePnoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setName(value);
-    onNameChange(value);
+    setPno(value);
   };
 
-  const handleDistrictChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChestNoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setDistrict(value);
-    onDistrictChange(value);
+    setChestNo(value);
   };
 
-  const handleDateChange = (date: Date | undefined) => {
-    setDate(date);
-    onDateChange(date);
+  const handleRollNoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setRollNo(value);
   };
 
-  const handleReset = () => {
-    setName("");
-    setDistrict("");
-    setDate(undefined);
-    onReset();
+  const handleSearch = () => {
+    onSearch(pno, chestNo, rollNo);
   };
 
   return (
     <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-4">
-      <h3 className="text-lg font-medium mb-4">Filter Trainees</h3>
+      <h3 className="text-lg font-medium mb-4">Search Trainees</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="name">Chest Number</Label>
+          <Label htmlFor="pno">PNO Number</Label>
           <Input
-            id="name"
-            placeholder="Search by Chest Number"
-            value={name}
-            onChange={handleNameChange}
+            id="pno"
+            placeholder="Enter 9-digit PNO"
+            value={pno}
+            onChange={handlePnoChange}
             disabled={disabled}
+            maxLength={9}
           />
+          <p className="text-xs text-gray-500">9-digit unique code</p>
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="district">PNO Number</Label>
+          <Label htmlFor="chestNo">Chest Number</Label>
           <Input
-            id="district"
-            placeholder="Search by PNO Number"
-            value={district}
-            onChange={handleDistrictChange}
+            id="chestNo"
+            placeholder="Enter 4-digit Chest No"
+            value={chestNo}
+            onChange={handleChestNoChange}
             disabled={disabled}
+            maxLength={4}
           />
+          <p className="text-xs text-gray-500">4-digit unique code</p>
         </div>
         
         <div className="space-y-2">
-          <Label>Roll No / Unique Id</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                className={cn(
-                  "w-full justify-start text-left font-normal",
-                  !date && "text-muted-foreground"
-                )}
-                disabled={disabled}
-              >
-                {date ? format(date, "PPP") : "Select date"}
-                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={handleDateChange}
-                initialFocus
-                className={cn("p-3 pointer-events-auto")}
-              />
-            </PopoverContent>
-          </Popover>
+          <Label htmlFor="rollNo">Roll No / Unique Id</Label>
+          <Input
+            id="rollNo"
+            placeholder="Enter 12-digit Roll No"
+            value={rollNo}
+            onChange={handleRollNoChange}
+            disabled={disabled}
+            maxLength={12}
+          />
+          <p className="text-xs text-gray-500">12-digit unique number</p>
         </div>
       </div>
       
       <div className="flex justify-end">
-        <Button variant="outline" onClick={handleReset} disabled={disabled}>
-          Reset Filters
+        <Button onClick={handleSearch} disabled={disabled}>
+          <Search className="mr-2 h-4 w-4" />
+          Search Trainee
         </Button>
       </div>
     </div>
