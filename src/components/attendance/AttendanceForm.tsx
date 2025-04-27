@@ -1,9 +1,9 @@
 
 import { useState } from "react";
-import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,7 +42,7 @@ export function AttendanceForm({ type, onSuccess }: AttendanceFormProps) {
       // Then, insert the attendance record
       const { error: insertError } = await supabase
         .from(`${type}_attendance`)
-        .insert({
+        .upsert({
           [`${type}_id`]: person.id,
           date: date.toISOString().split('T')[0],
           status: status
@@ -77,7 +77,10 @@ export function AttendanceForm({ type, onSuccess }: AttendanceFormProps) {
 
         <div className="space-y-2">
           <Label htmlFor="status">Status</Label>
-          <Select value={status} onValueChange={(value: 'absent' | 'on_leave') => setStatus(value)}>
+          <Select 
+            value={status} 
+            onValueChange={(value: 'absent' | 'on_leave') => setStatus(value)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
