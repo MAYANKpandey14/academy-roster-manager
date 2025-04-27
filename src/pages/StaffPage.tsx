@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { StaffTable } from "@/components/staff/StaffTable";
 import { StaffFilters } from "@/components/staff/StaffFilters";
-import { Staff } from "@/types/staff";
+import { Staff, StaffRank } from "@/types/staff";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -12,7 +12,7 @@ const StaffPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showTable, setShowTable] = useState(false);
 
-  const handleSearch = async (pno: string) => {
+  const handleSearch = async (pno: string): Promise<boolean> => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
@@ -22,9 +22,16 @@ const StaffPage = () => {
       
       if (error) throw error;
       
-      setStaff(data || []);
+      // Convert the data to ensure it matches the Staff type
+      const typedStaff: Staff[] = data?.map(item => ({
+        ...item,
+        rank: item.rank as StaffRank,
+        blood_group: item.blood_group as Staff['blood_group']
+      })) || [];
+      
+      setStaff(typedStaff);
       setShowTable(true);
-      return data && data.length > 0;
+      return typedStaff.length > 0;
     } catch (error) {
       console.error('Error searching staff:', error);
       toast.error('Failed to search staff');
@@ -44,7 +51,14 @@ const StaffPage = () => {
       
       if (error) throw error;
       
-      setStaff(data || []);
+      // Convert the data to ensure it matches the Staff type
+      const typedStaff: Staff[] = data?.map(item => ({
+        ...item,
+        rank: item.rank as StaffRank,
+        blood_group: item.blood_group as Staff['blood_group']
+      })) || [];
+      
+      setStaff(typedStaff);
       setShowTable(true);
     } catch (error) {
       console.error('Error fetching all staff:', error);

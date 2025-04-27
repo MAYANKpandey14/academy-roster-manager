@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { TraineeTable } from "@/components/trainee/TraineeTable";
 import { TraineeFilters } from "@/components/trainee/TraineeFilters";
-import { Trainee } from "@/types/trainee";
+import { Trainee, BloodGroup } from "@/types/trainee";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -12,7 +12,7 @@ const TraineesPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showTable, setShowTable] = useState(false);
 
-  const handleSearch = async (pno: string, chestNo: string, rollNo: string) => {
+  const handleSearch = async (pno: string, chestNo: string, rollNo: string): Promise<boolean> => {
     setIsLoading(true);
     try {
       let query = supabase.from('trainees').select('*');
@@ -25,9 +25,15 @@ const TraineesPage = () => {
       
       if (error) throw error;
       
-      setTrainees(data || []);
+      // Convert the data to ensure it matches the Trainee type
+      const typedTrainees: Trainee[] = data?.map(item => ({
+        ...item,
+        blood_group: item.blood_group as BloodGroup
+      })) || [];
+      
+      setTrainees(typedTrainees);
       setShowTable(true);
-      return data && data.length > 0;
+      return typedTrainees.length > 0;
     } catch (error) {
       console.error('Error searching trainees:', error);
       toast.error('Failed to search trainees');
@@ -47,7 +53,13 @@ const TraineesPage = () => {
       
       if (error) throw error;
       
-      setTrainees(data || []);
+      // Convert the data to ensure it matches the Trainee type
+      const typedTrainees: Trainee[] = data?.map(item => ({
+        ...item,
+        blood_group: item.blood_group as BloodGroup
+      })) || [];
+      
+      setTrainees(typedTrainees);
       setShowTable(true);
     } catch (error) {
       console.error('Error fetching all trainees:', error);

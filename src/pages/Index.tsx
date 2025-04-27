@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { TraineeTable } from "@/components/trainee/TraineeTable";
@@ -47,7 +46,7 @@ const Index = () => {
     }
   };
 
-  const handleSearch = async (pno: string, chestNo: string, rollNo: string) => {
+  const handleSearch = async (pno: string, chestNo: string, rollNo: string): Promise<boolean> => {
     setIsLoading(true);
     
     try {
@@ -56,20 +55,24 @@ const Index = () => {
       if (error) {
         toast.error("Failed to search trainees");
         console.error(error);
-        return;
+        return false;
       }
       
       if (data) {
         setFilteredTrainees(data);
         if (data.length === 0) {
           toast.info("No trainees found matching your search criteria");
+          return false;
         } else {
           toast.success(`Found ${data.length} trainee(s) matching your criteria`);
+          return true;
         }
       }
+      return false;
     } catch (error) {
       toast.error("An unexpected error occurred while searching");
       console.error(error);
+      return false;
     } finally {
       setIsLoading(false);
     }
