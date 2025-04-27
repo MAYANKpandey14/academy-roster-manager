@@ -62,10 +62,10 @@ export function TraineeFilters({
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
+          <Label htmlFor="name">Chest Number</Label>
           <Input
             id="name"
-            placeholder="Search by name"
+            placeholder="Search by Chest Number"
             value={name}
             onChange={handleNameChange}
             disabled={disabled}
@@ -73,10 +73,10 @@ export function TraineeFilters({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="district">Current Posting District</Label>
+          <Label htmlFor="district">PNO Number</Label>
           <Input
             id="district"
-            placeholder="Search by district"
+            placeholder="Search by PNO Number"
             value={district}
             onChange={handleDistrictChange}
             disabled={disabled}
@@ -84,7 +84,7 @@ export function TraineeFilters({
         </div>
         
         <div className="space-y-2">
-          <Label>Filter by Arrival Date</Label>
+          <Label>Roll No / Unique Id</Label>
           <Popover>
             <PopoverTrigger asChild>
               <Button

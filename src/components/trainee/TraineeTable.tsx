@@ -134,8 +134,8 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
         </head>
         <body>
           <div class="header">
-            <h1>RTC Police Line,Moradabad</h1>
-            <p>RTC Trainees Information</p>
+            <h1>RRTC POLICE LINE, MORADABAD</h1>
+            <p>TRAINEE INFORMATION</p>
           </div>
     `;
     

@@ -106,7 +106,7 @@ const Index = () => {
       
       <main className="container mx-auto py-6 px-4">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Trainees Management</h1>
+          <h1 className="text-2xl font-bold">RTC POLICE LINE, MORADABAD</h1>
           <div className="space-x-2">
             <Button variant="outline" onClick={handleRefresh} disabled={isLoading}>
               <RefreshCcw className="mr-2 h-4 w-4" />
@@ -128,7 +128,7 @@ const Index = () => {
         />
         
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm mt-6">
-          <h2 className="text-2xl font-semibold mb-6">Trainees List</h2>
+          {/* <h2 className="text-2xl font-semibold mb-6">Trainees List</h2> */}
           <TraineeTable 
             trainees={filteredTrainees} 
             onRefresh={handleRefresh} 
