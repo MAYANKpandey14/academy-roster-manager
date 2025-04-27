@@ -3,6 +3,7 @@ import {
   Download,
   Printer, 
   Edit,
+  Eye
 } from "lucide-react";
 import { Trainee } from "@/types/trainee";
 import { Button } from "@/components/ui/button";
@@ -123,6 +124,15 @@ export function TraineeActions({ trainee, onEdit }: TraineeActionsProps) {
 
   return (
     <div className="flex space-x-2">
+      <Button 
+        variant="outline" 
+        size="icon" 
+        title="View"
+        onClick={() => navigate(`/view-trainee/${trainee.id}`)}
+      >
+        <Eye className="h-4 w-4" />
+      </Button>
+      
       <Button 
         variant="outline" 
         size="icon" 
