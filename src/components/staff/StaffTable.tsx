@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Staff, StaffRank } from "@/types/staff";
 import { 

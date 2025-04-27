@@ -5,7 +5,6 @@ import { BloodGroup, StaffRank } from "@/types/staff";
 export const bloodGroups: BloodGroup[] = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
 export const staffRanks: StaffRank[] = ["Instructor", "ITI", "PTI", "SI(Teacher)", "Mess Staff", "Cleaning Staff"];
 
-// Helper function to validate date string format (YYYY-MM-DD)
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
 export const staffFormSchema = z.object({

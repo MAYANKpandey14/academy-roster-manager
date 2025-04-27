@@ -4,11 +4,31 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { StaffForm } from "@/components/staff/StaffForm";
+import { StaffFormValues } from "@/components/staff/StaffFormSchema";
+import { addStaff } from "@/services/staffApi";
 import { toast } from "sonner";
 
 const AddStaff = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+
+  const handleSubmit = async (data: StaffFormValues) => {
+    try {
+      setIsSubmitting(true);
+      const { error } = await addStaff(data);
+      
+      if (error) throw error;
+      
+      toast.success("Staff added successfully");
+      navigate("/staff");
+    } catch (error) {
+      console.error("Error adding staff:", error);
+      toast.error("Failed to add staff");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -23,17 +43,7 @@ const AddStaff = () => {
 
         <Card>
           <CardContent className="p-6">
-            <p className="text-center text-gray-500 my-8">
-              Staff form will be implemented in the next phase.
-            </p>
-            <div className="flex justify-center">
-              <Button onClick={() => {
-                toast.info("Staff form will be implemented soon");
-                navigate("/staff");
-              }}>
-                Go Back
-              </Button>
-            </div>
+            <StaffForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
           </CardContent>
         </Card>
       </main>

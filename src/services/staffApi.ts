@@ -2,7 +2,6 @@
 import { Staff, StaffFormValues } from "@/types/staff";
 import { supabase } from "@/integrations/supabase/client";
 
-// Function to fetch all staff
 export async function getStaff(): Promise<{ data: Staff[] | null; error: Error | null }> {
   try {
     const { data, error } = await supabase
@@ -12,14 +11,19 @@ export async function getStaff(): Promise<{ data: Staff[] | null; error: Error |
     
     if (error) throw error;
     
-    return { data, error: null };
+    return { 
+      data: data as Staff[], 
+      error: null 
+    };
   } catch (error) {
     console.error('Error fetching staff:', error);
-    return { data: null, error: error instanceof Error ? error : new Error('Unknown error') };
+    return { 
+      data: null, 
+      error: error instanceof Error ? error : new Error('Unknown error') 
+    };
   }
 }
 
-// Function to fetch a single staff member by ID
 export async function getStaffById(id: string): Promise<{ data: Staff | null; error: Error | null }> {
   try {
     const { data, error } = await supabase
@@ -30,14 +34,19 @@ export async function getStaffById(id: string): Promise<{ data: Staff | null; er
     
     if (error) throw error;
     
-    return { data, error: null };
+    return { 
+      data: data as Staff, 
+      error: null 
+    };
   } catch (error) {
     console.error('Error fetching staff:', error);
-    return { data: null, error: error instanceof Error ? error : new Error('Unknown error') };
+    return { 
+      data: null, 
+      error: error instanceof Error ? error : new Error('Unknown error') 
+    };
   }
 }
 
-// Function to add a new staff member
 export async function addStaff(staffData: StaffFormValues): Promise<{ data: Staff | null; error: Error | null }> {
   try {
     const { data, error } = await supabase
@@ -48,14 +57,19 @@ export async function addStaff(staffData: StaffFormValues): Promise<{ data: Staf
     
     if (error) throw error;
     
-    return { data, error: null };
+    return { 
+      data: data as Staff, 
+      error: null 
+    };
   } catch (error) {
     console.error('Error adding staff:', error);
-    return { data: null, error: error instanceof Error ? error : new Error('Unknown error') };
+    return { 
+      data: null, 
+      error: error instanceof Error ? error : new Error('Unknown error') 
+    };
   }
 }
 
-// Function to update an existing staff member
 export async function updateStaff(id: string, staffData: StaffFormValues): Promise<{ data: Staff | null; error: Error | null }> {
   try {
     const { data, error } = await supabase
@@ -67,14 +81,19 @@ export async function updateStaff(id: string, staffData: StaffFormValues): Promi
     
     if (error) throw error;
     
-    return { data, error: null };
+    return { 
+      data: data as Staff, 
+      error: null 
+    };
   } catch (error) {
     console.error('Error updating staff:', error);
-    return { data: null, error: error instanceof Error ? error : new Error('Unknown error') };
+    return { 
+      data: null, 
+      error: error instanceof Error ? error : new Error('Unknown error') 
+    };
   }
 }
 
-// Function to delete a staff member
 export async function deleteStaff(id: string): Promise<{ error: Error | null }> {
   try {
     const { error } = await supabase
@@ -87,6 +106,8 @@ export async function deleteStaff(id: string): Promise<{ error: Error | null }> 
     return { error: null };
   } catch (error) {
     console.error('Error deleting staff:', error);
-    return { error: error instanceof Error ? error : new Error('Unknown error') };
+    return { 
+      error: error instanceof Error ? error : new Error('Unknown error') 
+    };
   }
 }
