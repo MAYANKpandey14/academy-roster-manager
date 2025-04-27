@@ -1,16 +1,20 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
-import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AddTrainee from "./pages/AddTrainee";
 import EditTrainee from "./pages/EditTrainee";
 import ViewTrainee from "./pages/ViewTrainee";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
+import TraineesPage from "./pages/TraineesPage";
+import StaffPage from "./pages/StaffPage";
+import AttendancePage from "./pages/AttendancePage";
+import LeavePage from "./pages/LeavePage";
 
 const queryClient = new QueryClient();
 
@@ -27,7 +31,39 @@ const App = () => (
             path="/"
             element={
               <ProtectedRoute>
-                <Index />
+                <Navigate to="/trainees" replace />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/trainees"
+            element={
+              <ProtectedRoute>
+                <TraineesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/staff"
+            element={
+              <ProtectedRoute>
+                <StaffPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/attendance"
+            element={
+              <ProtectedRoute>
+                <AttendancePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leave"
+            element={
+              <ProtectedRoute>
+                <LeavePage />
               </ProtectedRoute>
             }
           />

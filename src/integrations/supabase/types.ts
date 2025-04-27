@@ -30,6 +30,221 @@ export type Database = {
         }
         Relationships: []
       }
+      staff: {
+        Row: {
+          blood_group: string
+          class_no: string | null
+          class_subject: string | null
+          created_at: string | null
+          current_posting_district: string
+          date_of_birth: string
+          date_of_joining: string
+          education: string
+          father_name: string
+          home_address: string
+          id: string
+          mobile_number: string
+          name: string
+          nominee: string
+          pno: string
+          rank: string
+          toli_no: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          blood_group: string
+          class_no?: string | null
+          class_subject?: string | null
+          created_at?: string | null
+          current_posting_district: string
+          date_of_birth: string
+          date_of_joining: string
+          education: string
+          father_name: string
+          home_address: string
+          id?: string
+          mobile_number: string
+          name: string
+          nominee: string
+          pno: string
+          rank: string
+          toli_no?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          blood_group?: string
+          class_no?: string | null
+          class_subject?: string | null
+          created_at?: string | null
+          current_posting_district?: string
+          date_of_birth?: string
+          date_of_joining?: string
+          education?: string
+          father_name?: string
+          home_address?: string
+          id?: string
+          mobile_number?: string
+          name?: string
+          nominee?: string
+          pno?: string
+          rank?: string
+          toli_no?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      staff_attendance: {
+        Row: {
+          created_at: string | null
+          date: string
+          id: string
+          staff_id: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          id?: string
+          staff_id: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          id?: string
+          staff_id?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_attendance_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_leave: {
+        Row: {
+          created_at: string | null
+          end_date: string
+          id: string
+          reason: string
+          staff_id: string
+          start_date: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_date: string
+          id?: string
+          reason: string
+          staff_id: string
+          start_date: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          reason?: string
+          staff_id?: string
+          start_date?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_leave_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trainee_attendance: {
+        Row: {
+          created_at: string | null
+          date: string
+          id: string
+          status: string
+          trainee_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          id?: string
+          status?: string
+          trainee_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          id?: string
+          status?: string
+          trainee_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trainee_attendance_trainee_id_fkey"
+            columns: ["trainee_id"]
+            isOneToOne: false
+            referencedRelation: "trainees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trainee_leave: {
+        Row: {
+          created_at: string | null
+          end_date: string
+          id: string
+          reason: string
+          start_date: string
+          status: string
+          trainee_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_date: string
+          id?: string
+          reason: string
+          start_date: string
+          status?: string
+          trainee_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          reason?: string
+          start_date?: string
+          status?: string
+          trainee_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trainee_leave_trainee_id_fkey"
+            columns: ["trainee_id"]
+            isOneToOne: false
+            referencedRelation: "trainees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trainees: {
         Row: {
           arrival_date: string
@@ -48,6 +263,7 @@ export type Database = {
           name: string
           nominee: string
           pno: string
+          toli_no: string | null
           updated_at: string | null
         }
         Insert: {
@@ -67,6 +283,7 @@ export type Database = {
           name: string
           nominee: string
           pno: string
+          toli_no?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -86,6 +303,7 @@ export type Database = {
           name?: string
           nominee?: string
           pno?: string
+          toli_no?: string | null
           updated_at?: string | null
         }
         Relationships: []
