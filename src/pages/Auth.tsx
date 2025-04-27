@@ -11,7 +11,6 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isLogin, setIsLogin] = useState(true);
   const [resetPassword, setResetPassword] = useState(false);
   const navigate = useNavigate();
 
@@ -22,11 +21,11 @@ export default function Auth() {
     try {
       if (resetPassword) {
         await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: window.location.origin + "/auth",
+          redirectTo: `${window.location.origin}/reset-password`,
         });
         toast.success("Password reset email sent!");
         setResetPassword(false);
-      } else if (isLogin) {
+      } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -34,16 +33,6 @@ export default function Auth() {
         if (error) throw error;
         navigate("/");
         toast.success("Logged in successfully!");
-      } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: window.location.origin + "/auth",
-          },
-        });
-        if (error) throw error;
-        toast.success("Verification email sent!");
       }
     } catch (error: any) {
       toast.error(error.message);
@@ -58,11 +47,7 @@ export default function Auth() {
         <div>
           <img src="/images.svg" alt="Logo" className="mx-auto h-24 w-24" />
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            {resetPassword 
-              ? "Reset Password"
-              : isLogin 
-                ? "Sign in to your account" 
-                : "Create a new account"}
+            {resetPassword ? "Reset Password" : "Sign in to your account"}
           </h2>
         </div>
         
@@ -96,25 +81,13 @@ export default function Auth() {
           </div>
 
           <div className="flex flex-col space-y-4">
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Processing..." : resetPassword 
                 ? "Send reset link" 
-                : isLogin 
-                  ? "Sign in" 
-                  : "Sign up"}
+                : "Sign in"}
             </Button>
             
             {!resetPassword && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsLogin(!isLogin)}
-              >
-                {isLogin ? "Need an account? Sign up" : "Have an account? Sign in"}
-              </Button>
-            )}
-            
-            {isLogin && !resetPassword && (
               <Button
                 type="button"
                 variant="link"
