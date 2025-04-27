@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
@@ -62,39 +63,61 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
         return;
       }
 
-      const leaveData = {
-        [`${type}_id`]: person.id,
-        start_date: data.start_date.toISOString().split('T')[0],
-        end_date: data.end_date.toISOString().split('T')[0],
-        reason: data.reason,
-        status: 'pending'
-      };
+      const startDate = data.start_date.toISOString().split('T')[0];
+      const endDate = data.end_date.toISOString().split('T')[0];
 
-      // Insert leave record
-      const { error: leaveError } = await supabase
-        .from(`${type}_leave`)
-        .insert(leaveData);
+      // Insert leave record based on type
+      if (type === 'trainee') {
+        const { error: leaveError } = await supabase
+          .from('trainee_leave')
+          .insert({
+            trainee_id: person.id,
+            start_date: startDate,
+            end_date: endDate,
+            reason: data.reason,
+            status: 'pending'
+          });
 
-      if (leaveError) throw leaveError;
+        if (leaveError) throw leaveError;
+      } else {
+        const { error: leaveError } = await supabase
+          .from('staff_leave')
+          .insert({
+            staff_id: person.id,
+            start_date: startDate,
+            end_date: endDate,
+            reason: data.reason,
+            status: 'pending'
+          });
 
-      // Create attendance records for each day of leave
-      const startDate = new Date(data.start_date);
-      const endDate = new Date(data.end_date);
-      const leaveDates = [];
-
-      for (let date = startDate; date <= endDate; date.setDate(date.getDate() + 1)) {
-        leaveDates.push({
-          [`${type}_id`]: person.id,
-          date: new Date(date).toISOString().split('T')[0],
-          status: 'on_leave'
-        });
+        if (leaveError) throw leaveError;
       }
 
-      const { error: attendanceError } = await supabase
-        .from(`${type}_attendance`)
-        .upsert(leaveDates);
-
-      if (attendanceError) throw attendanceError;
+      // Create attendance records for each day of leave
+      const start = new Date(data.start_date);
+      const end = new Date(data.end_date);
+      
+      for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
+        const formattedDate = date.toISOString().split('T')[0];
+        
+        if (type === 'trainee') {
+          await supabase
+            .from('trainee_attendance')
+            .upsert({
+              trainee_id: person.id,
+              date: formattedDate,
+              status: 'on_leave'
+            });
+        } else {
+          await supabase
+            .from('staff_attendance')
+            .upsert({
+              staff_id: person.id,
+              date: formattedDate,
+              status: 'on_leave'
+            });
+        }
+      }
 
       toast.success("Leave request submitted successfully");
       form.reset();

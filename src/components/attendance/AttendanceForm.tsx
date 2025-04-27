@@ -39,18 +39,30 @@ export function AttendanceForm({ type, onSuccess }: AttendanceFormProps) {
         return;
       }
 
-      const attendanceData = {
-        [`${type}_id`]: person.id,
-        date: date.toISOString().split('T')[0],
-        status: status
-      };
+      // Create the appropriate data object based on type
+      const formattedDate = date.toISOString().split('T')[0];
+      
+      if (type === 'trainee') {
+        const { error: insertError } = await supabase
+          .from('trainee_attendance')
+          .upsert({
+            trainee_id: person.id,
+            date: formattedDate,
+            status: status
+          });
 
-      // Then, insert the attendance record
-      const { error: insertError } = await supabase
-        .from(`${type}_attendance`)
-        .upsert(attendanceData);
+        if (insertError) throw insertError;
+      } else {
+        const { error: insertError } = await supabase
+          .from('staff_attendance')
+          .upsert({
+            staff_id: person.id,
+            date: formattedDate,
+            status: status
+          });
 
-      if (insertError) throw insertError;
+        if (insertError) throw insertError;
+      }
 
       toast.success("Attendance marked successfully");
       setPno("");
