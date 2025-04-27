@@ -42,53 +42,60 @@ export default function Auth() {
   };
 
   return (
-    <div 
-      className="min-h-screen flex items-center justify-center relative"
-      style={{
-        backgroundImage: "url('/lovable-uploads/770f1f52-7dee-4ccb-8b0e-2ef941d6ab59.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat"
-      }}
-    >
-      {/* Overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+    <div className="min-h-screen flex items-center justify-center w-full bg-gray-100">
+      {/* Background image with responsive sizing */}
+      <div 
+        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: "url('/lovable-uploads/848121d1-4a54-4879-bd4e-2d7e21c26244.png')",
+        }}
+      >
+        <div className="absolute inset-0 bg-black/30" />
+      </div>
       
       <div className="max-w-md w-full mx-4 relative z-10">
-        <div className="bg-white/95 backdrop-blur-md p-8 rounded-lg shadow-2xl">
+        <div className="bg-white rounded-lg shadow-xl p-8">
           <div className="text-center">
-            <img src="/images.svg" alt="Logo" className="mx-auto h-24 w-24" />
-            <h2 className="mt-6 text-2xl md:text-3xl font-extrabold text-gray-900">
+            <img 
+              src="/lovable-uploads/848121d1-4a54-4879-bd4e-2d7e21c26244.png" 
+              alt="Police Academy Logo" 
+              className="mx-auto h-24 w-auto object-contain"
+            />
+            <h2 className="mt-6 text-2xl font-bold text-gray-900">
               {resetPassword ? "Reset Password" : "Sign in to your account"}
             </h2>
           </div>
           
           <form className="mt-8 space-y-6" onSubmit={handleAuth}>
-            <div className="rounded-md space-y-4">
+            <div className="space-y-4">
               <div>
-                <Label htmlFor="email" className="text-gray-900">Email address</Label>
+                <Label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email address
+                </Label>
                 <Input
                   id="email"
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email address"
-                  className="bg-white/80"
+                  placeholder="Enter your email"
+                  className="w-full"
                 />
               </div>
               
               {!resetPassword && (
                 <div>
-                  <Label htmlFor="password" className="text-gray-900">Password</Label>
+                  <Label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                    Password
+                  </Label>
                   <Input
                     id="password"
                     type="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Password"
-                    className="bg-white/80"
+                    placeholder="Enter your password"
+                    className="w-full"
                   />
                 </div>
               )}
@@ -97,7 +104,7 @@ export default function Auth() {
             <div className="flex flex-col space-y-4">
               <Button 
                 type="submit" 
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2"
                 disabled={loading}
               >
                 {loading ? "Processing..." : resetPassword 
@@ -105,27 +112,27 @@ export default function Auth() {
                   : "Sign in"}
               </Button>
               
-              {!resetPassword && (
-                <Button
-                  type="button"
-                  variant="link"
-                  onClick={() => setResetPassword(true)}
-                  className="text-blue-600"
-                >
-                  Forgot your password?
-                </Button>
-              )}
-              
-              {resetPassword && (
-                <Button
-                  type="button"
-                  variant="link"
-                  onClick={() => setResetPassword(false)}
-                  className="text-blue-600"
-                >
-                  Back to login
-                </Button>
-              )}
+              <div className="text-center">
+                {!resetPassword ? (
+                  <Button
+                    type="button"
+                    variant="link"
+                    onClick={() => setResetPassword(true)}
+                    className="text-blue-600 text-sm"
+                  >
+                    Forgot your password?
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="link"
+                    onClick={() => setResetPassword(false)}
+                    className="text-blue-600 text-sm"
+                  >
+                    Back to login
+                  </Button>
+                )}
+              </div>
             </div>
           </form>
         </div>
