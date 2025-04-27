@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Staff, StaffRank } from "@/types/staff";
 import { 
@@ -40,8 +41,11 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
       header: ({ table }) => (
         <Checkbox
           checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
+            table.getIsAllPageRowsSelected() 
+              ? true 
+              : table.getIsSomePageRowsSelected() 
+                ? "indeterminate" 
+                : false
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
