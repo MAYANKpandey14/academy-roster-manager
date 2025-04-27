@@ -1,11 +1,40 @@
 
+import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Staff } from "@/types/staff";
+import { getStaff } from "@/services/staffApi";
+import { toast } from "sonner";
+import { StaffTable } from "@/components/staff/StaffTable";
 
 const StaffPage = () => {
   const navigate = useNavigate();
+  const [staff, setStaff] = useState<Staff[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const fetchStaff = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await getStaff();
+      
+      if (error) {
+        throw error;
+      }
+      
+      setStaff(data || []);
+    } catch (error) {
+      console.error('Error fetching staff:', error);
+      toast.error('Failed to load staff');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStaff();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -19,9 +48,11 @@ const StaffPage = () => {
           </Button>
         </div>
         
-        <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-          <p className="text-center text-gray-500">Staff management coming soon...</p>
-        </div>
+        <StaffTable 
+          staff={staff} 
+          onRefresh={fetchStaff}
+          isLoading={isLoading}
+        />
       </main>
     </div>
   );

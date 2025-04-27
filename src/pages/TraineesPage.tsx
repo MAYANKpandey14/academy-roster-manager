@@ -26,7 +26,7 @@ const TraineesPage = () => {
         throw error;
       }
       
-      setTrainees(data || []);
+      setTrainees(data as Trainee[] || []);
     } catch (error) {
       console.error('Error fetching trainees:', error);
       toast.error('Failed to load trainees');

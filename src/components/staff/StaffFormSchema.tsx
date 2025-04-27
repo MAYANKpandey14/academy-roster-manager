@@ -1,19 +1,20 @@
 
 import { z } from "zod";
-import { BloodGroup } from "@/types/trainee";
+import { BloodGroup, StaffRank } from "@/types/staff";
 
 export const bloodGroups: BloodGroup[] = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
+export const staffRanks: StaffRank[] = ["Instructor", "ITI", "PTI", "SI(Teacher)", "Mess Staff", "Cleaning Staff"];
 
 // Helper function to validate date string format (YYYY-MM-DD)
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
-export const traineeFormSchema = z.object({
+export const staffFormSchema = z.object({
   pno: z.string().min(1, "PNO is required"),
-  chest_no: z.string().min(1, "Chest No is required"),
   name: z.string().min(1, "Name is required"),
   father_name: z.string().min(1, "Father's Name is required"),
-  arrival_date: z.string().regex(dateRegex, "Date must be in YYYY-MM-DD format"),
-  departure_date: z.string().regex(dateRegex, "Date must be in YYYY-MM-DD format"),
+  rank: z.enum(staffRanks as [StaffRank, ...StaffRank[]], {
+    required_error: "Rank is required",
+  }),
   current_posting_district: z.string().min(1, "Current Posting District is required"),
   mobile_number: z.string().min(10, "Mobile Number must be at least 10 digits"),
   education: z.string().min(1, "Education is required"),
@@ -24,7 +25,9 @@ export const traineeFormSchema = z.object({
   }),
   nominee: z.string().min(1, "Nominee is required"),
   home_address: z.string().min(1, "Home Address is required"),
-  toli_no: z.string().max(2, "Toli No must be a 2-digit number").optional(),
+  toli_no: z.string().optional(),
+  class_no: z.string().optional(),
+  class_subject: z.string().optional(),
 });
 
-export type TraineeFormValues = z.infer<typeof traineeFormSchema>;
+export type StaffFormValues = z.infer<typeof staffFormSchema>;

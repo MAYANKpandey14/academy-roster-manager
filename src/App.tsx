@@ -15,6 +15,9 @@ import TraineesPage from "./pages/TraineesPage";
 import StaffPage from "./pages/StaffPage";
 import AttendancePage from "./pages/AttendancePage";
 import LeavePage from "./pages/LeavePage";
+import AddStaff from "./pages/AddStaff";
+import EditStaff from "./pages/EditStaff";
+import ViewStaff from "./pages/ViewStaff";
 
 const queryClient = new QueryClient();
 
@@ -88,6 +91,30 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <ViewTrainee />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/add-staff"
+            element={
+              <ProtectedRoute>
+                <AddStaff />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/edit-staff/:id"
+            element={
+              <ProtectedRoute>
+                <EditStaff />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/view-staff/:id"
+            element={
+              <ProtectedRoute>
+                <ViewStaff />
               </ProtectedRoute>
             }
           />
