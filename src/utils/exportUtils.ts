@@ -8,20 +8,22 @@ export const createPrintContent = (trainees: Trainee[]) => {
       <head>
         <title>Trainees Information</title>
         <style>
-          @page { size: landscape; }
+          @page { size: landscape; margin: 10mm; }
           body { 
             font-family: Arial, sans-serif; 
-            margin: 20px;
+            margin: 0;
+            padding: 0;
             -webkit-print-color-adjust: exact;
           }
           .header { 
             text-align: center; 
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            padding-top: 10px;
           }
           table { 
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 15px;
             page-break-inside: auto;
           }
           tr { 
@@ -30,26 +32,28 @@ export const createPrintContent = (trainees: Trainee[]) => {
           }
           th, td { 
             border: 1px solid #ddd; 
-            padding: 8px;
+            padding: 6px 4px;
             text-align: left;
-            font-size: 11px;
+            font-size: 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
           th { 
-            background-color: #f8f9fa;
+            background-color: #f2f2f2;
             font-weight: bold;
           }
           .footer {
             text-align: center;
-            margin-top: 20px;
-            font-size: 10px;
+            margin-top: 15px;
+            font-size: 9px;
             color: #666;
           }
         </style>
       </head>
       <body>
         <div class="header">
-          <h1>RTC POLICE LINE, MORADABAD</h1>
-          <p>TRAINEES INFORMATION</p>
+          <h2 style="margin: 0;">RTC POLICE LINE, MORADABAD</h2>
+          <p style="margin: 5px 0;">TRAINEES INFORMATION</p>
         </div>
         
         <table>
@@ -74,20 +78,20 @@ export const createPrintContent = (trainees: Trainee[]) => {
           <tbody>
             ${trainees.map(trainee => `
               <tr>
-                <td>${trainee.pno}</td>
-                <td>${trainee.chest_no}</td>
-                <td>${trainee.name}</td>
-                <td>${trainee.father_name}</td>
-                <td>${format(new Date(trainee.date_of_birth), "dd/MM/yyyy")}</td>
-                <td>${format(new Date(trainee.date_of_joining), "dd/MM/yyyy")}</td>
-                <td>${trainee.current_posting_district}</td>
-                <td>${trainee.mobile_number}</td>
-                <td>${trainee.education}</td>
-                <td>${trainee.blood_group}</td>
-                <td>${format(new Date(trainee.arrival_date), "dd/MM/yyyy")}</td>
-                <td>${format(new Date(trainee.departure_date), "dd/MM/yyyy")}</td>
-                <td>${trainee.nominee}</td>
-                <td>${trainee.home_address}</td>
+                <td>${trainee.pno || ''}</td>
+                <td>${trainee.chest_no || ''}</td>
+                <td>${trainee.name || ''}</td>
+                <td>${trainee.father_name || ''}</td>
+                <td>${trainee.date_of_birth ? format(new Date(trainee.date_of_birth), "dd/MM/yyyy") : ''}</td>
+                <td>${trainee.date_of_joining ? format(new Date(trainee.date_of_joining), "dd/MM/yyyy") : ''}</td>
+                <td>${trainee.current_posting_district || ''}</td>
+                <td>${trainee.mobile_number || ''}</td>
+                <td>${trainee.education || ''}</td>
+                <td>${trainee.blood_group || ''}</td>
+                <td>${trainee.arrival_date ? format(new Date(trainee.arrival_date), "dd/MM/yyyy") : ''}</td>
+                <td>${trainee.departure_date ? format(new Date(trainee.departure_date), "dd/MM/yyyy") : ''}</td>
+                <td>${trainee.nominee || ''}</td>
+                <td>${trainee.home_address || ''}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -112,20 +116,20 @@ export const createCSVContent = (trainees: Trainee[]) => {
   ];
   
   const rows = trainees.map(trainee => [
-    trainee.pno,
-    trainee.chest_no,
-    trainee.name,
-    trainee.father_name,
-    format(new Date(trainee.date_of_birth), "dd/MM/yyyy"),
-    format(new Date(trainee.date_of_joining), "dd/MM/yyyy"),
-    trainee.current_posting_district,
-    trainee.mobile_number,
-    trainee.education,
-    trainee.blood_group,
-    format(new Date(trainee.arrival_date), "dd/MM/yyyy"),
-    format(new Date(trainee.departure_date), "dd/MM/yyyy"),
-    trainee.nominee,
-    trainee.home_address.replace(/,/g, ' ') // Remove commas to not break CSV format
+    trainee.pno || '',
+    trainee.chest_no || '',
+    trainee.name || '',
+    trainee.father_name || '',
+    trainee.date_of_birth ? format(new Date(trainee.date_of_birth), "dd/MM/yyyy") : '',
+    trainee.date_of_joining ? format(new Date(trainee.date_of_joining), "dd/MM/yyyy") : '',
+    trainee.current_posting_district || '',
+    trainee.mobile_number || '',
+    trainee.education || '',
+    trainee.blood_group || '',
+    trainee.arrival_date ? format(new Date(trainee.arrival_date), "dd/MM/yyyy") : '',
+    trainee.departure_date ? format(new Date(trainee.departure_date), "dd/MM/yyyy") : '',
+    trainee.nominee || '',
+    (trainee.home_address || '').replace(/,/g, ' ') // Remove commas to not break CSV format
   ]);
   
   return [headers, ...rows]
@@ -143,6 +147,8 @@ export const handlePrint = (content: string) => {
       printWindow.print();
       printWindow.close();
     }, 250);
+  } else {
+    console.error("Could not open print window. Please check if pop-ups are blocked.");
   }
 };
 

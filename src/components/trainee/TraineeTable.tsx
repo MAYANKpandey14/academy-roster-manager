@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   ColumnDef,
   ColumnFiltersState,
@@ -24,8 +24,14 @@ interface TraineeTableProps {
 export function TraineeTable({ trainees, onRefresh, isLoading = false }: TraineeTableProps) {
   const [rowSelection, setRowSelection] = useState({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [selectedCount, setSelectedCount] = useState(0);
   const isMobile = useIsMobile();
   
+  useEffect(() => {
+    // Update selected count when rowSelection changes
+    setSelectedCount(Object.keys(rowSelection).length);
+  }, [rowSelection]);
+
   const columns: ColumnDef<Trainee>[] = [
     {
       id: "select",
@@ -110,7 +116,7 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
     return selectedIndices.map(index => trainees[index]);
   }
 
-  function handlePrintSelected() {
+  function handlePrintAction() {
     const selectedTrainees = getSelectedTrainees();
     
     if (selectedTrainees.length === 0) {
@@ -120,9 +126,10 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
     
     const content = createPrintContent(selectedTrainees);
     handlePrint(content);
+    toast.success(`Printing ${selectedTrainees.length} trainee(s)`);
   }
 
-  function handleDownloadSelected() {
+  function handleDownloadAction() {
     const selectedTrainees = getSelectedTrainees();
     
     if (selectedTrainees.length === 0) {
@@ -141,22 +148,26 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
         <Button
           variant="outline"
           size="sm"
-          onClick={handlePrintSelected}
+          onClick={handlePrintAction}
           className="print-button"
-          disabled={isLoading}
+          disabled={isLoading || selectedCount === 0}
         >
           <Printer className="h-4 w-4" />
-          {!isMobile && <span className="ml-2">Print Selected</span>}
+          {!isMobile && <span className="ml-2">
+            Print {selectedCount > 0 ? `Selected (${selectedCount})` : ""}
+          </span>}
         </Button>
         <Button
           variant="outline"
           size="sm"
-          onClick={handleDownloadSelected}
+          onClick={handleDownloadAction}
           className="download-button"
-          disabled={isLoading}
+          disabled={isLoading || selectedCount === 0}
         >
           <Download className="h-4 w-4" />
-          {!isMobile && <span className="ml-2">Download Selected</span>}
+          {!isMobile && <span className="ml-2">
+            Download {selectedCount > 0 ? `Selected (${selectedCount})` : ""}
+          </span>}
         </Button>
       </div>
       
@@ -166,6 +177,8 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
         filterColumn="name"
         filterPlaceholder="Search by name..."
         isLoading={isLoading}
+        onRowSelectionChange={setRowSelection}
+        rowSelection={rowSelection}
       />
     </div>
   );

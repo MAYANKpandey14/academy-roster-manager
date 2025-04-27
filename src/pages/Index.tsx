@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { TraineeTable } from "@/components/trainee/TraineeTable";
@@ -86,6 +87,7 @@ const Index = () => {
     }
     const content = createPrintContent(filteredTrainees);
     handlePrint(content);
+    toast.success(`Printing ${filteredTrainees.length} trainees`);
   };
 
   const handleDownloadAll = () => {
@@ -128,7 +130,7 @@ const Index = () => {
               variant="outline"
               onClick={handlePrintAll}
               disabled={isLoading || filteredTrainees.length === 0}
-              className="print-button"
+              className="print-all-button"
             >
               <Printer className="h-4 w-4" />
               {!isMobile && <span className="ml-2">Print All</span>}
@@ -137,7 +139,7 @@ const Index = () => {
               variant="outline"
               onClick={handleDownloadAll}
               disabled={isLoading || filteredTrainees.length === 0}
-              className="download-button"
+              className="download-all-button"
             >
               <Download className="h-4 w-4" />
               {!isMobile && <span className="ml-2">Download All</span>}
