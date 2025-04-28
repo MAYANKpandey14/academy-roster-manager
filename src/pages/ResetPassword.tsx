@@ -36,16 +36,6 @@ export default function ResetPassword() {
       confirmPassword: "",
     },
   });
-  
-  // Set input language based on selected language
-  useEffect(() => {
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach(input => {
-      if (input instanceof HTMLElement) {
-        input.lang = i18n.language;
-      }
-    });
-  }, [i18n.language]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -75,7 +65,7 @@ export default function ResetPassword() {
       <div className="w-full max-w-md space-y-8">
         <div>
           <img src="/images.svg" alt="Logo" className="mx-auto h-24 w-24" />
-          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 dynamic-text">
             {t("resetYourPassword")}
           </h2>
         </div>
@@ -87,7 +77,7 @@ export default function ResetPassword() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("newPassword")}</FormLabel>
+                  <FormLabel className="dynamic-text">{t("newPassword")}</FormLabel>
                   <FormControl>
                     <Input 
                       type="password" 
@@ -95,7 +85,7 @@ export default function ResetPassword() {
                       lang={i18n.language} 
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="dynamic-text" />
                 </FormItem>
               )}
             />
@@ -105,7 +95,7 @@ export default function ResetPassword() {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("confirmPassword")}</FormLabel>
+                  <FormLabel className="dynamic-text">{t("confirmPassword")}</FormLabel>
                   <FormControl>
                     <Input 
                       type="password" 
@@ -113,13 +103,15 @@ export default function ResetPassword() {
                       lang={i18n.language} 
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="dynamic-text" />
                 </FormItem>
               )}
             />
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? t("processing") : t("updatePassword")}
+              <span className="dynamic-text">
+                {loading ? t("processing") : t("updatePassword")}
+              </span>
             </Button>
           </form>
         </Form>

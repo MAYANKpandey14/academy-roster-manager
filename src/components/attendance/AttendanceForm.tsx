@@ -24,7 +24,16 @@ export function AttendanceForm({ type, onSuccess }: AttendanceFormProps) {
   useEffect(() => {
     const inputs = document.querySelectorAll('input');
     inputs.forEach(input => {
-      input.lang = i18n.language;
+      if (input instanceof HTMLElement) {
+        input.lang = i18n.language;
+        
+        // Apply or remove KrutiDev font class based on language
+        if (i18n.language === 'hi') {
+          input.classList.add('krutidev-font');
+        } else {
+          input.classList.remove('krutidev-font');
+        }
+      }
     });
   }, [i18n.language]);
 
@@ -88,7 +97,7 @@ export function AttendanceForm({ type, onSuccess }: AttendanceFormProps) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="pno">{t("pnoNumber")}</Label>
+          <Label htmlFor="pno" className="dynamic-text">{t("pnoNumber")}</Label>
           <Input
             id="pno"
             value={pno}
@@ -101,24 +110,24 @@ export function AttendanceForm({ type, onSuccess }: AttendanceFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="status">{t("status")}</Label>
+          <Label htmlFor="status" className="dynamic-text">{t("status")}</Label>
           <Select 
             value={status} 
             onValueChange={(value: 'absent' | 'on_leave') => setStatus(value)}
           >
             <SelectTrigger>
-              <SelectValue placeholder={t("status")} />
+              <SelectValue placeholder={t("status")} className="dynamic-text" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="absent">{t("absent")}</SelectItem>
-              <SelectItem value="on_leave">{t("onLeave")}</SelectItem>
+              <SelectItem value="absent" className="dynamic-text">{t("absent")}</SelectItem>
+              <SelectItem value="on_leave" className="dynamic-text">{t("onLeave")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label>{t("date")}</Label>
+        <Label className="dynamic-text">{t("date")}</Label>
         <Calendar
           mode="single"
           selected={date}
@@ -127,7 +136,9 @@ export function AttendanceForm({ type, onSuccess }: AttendanceFormProps) {
         />
       </div>
 
-      <Button type="submit">{t("markAttendance")}</Button>
+      <Button type="submit">
+        <span className="dynamic-text">{t("markAttendance")}</span>
+      </Button>
     </form>
   );
 }

@@ -1,3 +1,4 @@
+
 import { Header } from "@/components/layout/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AttendanceForm } from "@/components/attendance/AttendanceForm";
@@ -20,16 +21,16 @@ export default function AttendancePage() {
     <div className="min-h-screen bg-gray-50">
       <Header />
       <main className="container mx-auto py-6 px-4">
-        <h1 className="text-2xl font-semibold mb-6">{t('attendanceManagement')}</h1>
+        <h1 className="text-2xl font-semibold mb-6 dynamic-text">{t('attendanceManagement')}</h1>
         
         <Tabs defaultValue="trainee">
           <TabsList className="mb-4">
-            <TabsTrigger value="trainee">{t('traineeAttendance')}</TabsTrigger>
-            <TabsTrigger value="staff">{t('staffAttendance')}</TabsTrigger>
+            <TabsTrigger value="trainee" className="dynamic-text">{t('traineeAttendance')}</TabsTrigger>
+            <TabsTrigger value="staff" className="dynamic-text">{t('staffAttendance')}</TabsTrigger>
           </TabsList>
           
           <TabsContent value="trainee" className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">{t('markTraineeAttendance')}</h2>
+            <h2 className="text-xl font-semibold mb-4 dynamic-text">{t('markTraineeAttendance')}</h2>
             <AttendanceForm 
               key={`trainee-${key}`}
               type="trainee"
@@ -38,7 +39,7 @@ export default function AttendancePage() {
           </TabsContent>
           
           <TabsContent value="staff" className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">{t('markStaffAttendance')}</h2>
+            <h2 className="text-xl font-semibold mb-4 dynamic-text">{t('markStaffAttendance')}</h2>
             <AttendanceForm 
               key={`staff-${key}`}
               type="staff"

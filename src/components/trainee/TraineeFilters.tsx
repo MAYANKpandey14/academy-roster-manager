@@ -25,14 +25,6 @@ export function TraineeFilters({
   const [rollNo, setRollNo] = useState("");
   const { t, i18n } = useTranslation();
 
-  // Update input language when the app language changes
-  useEffect(() => {
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach(input => {
-      input.lang = i18n.language;
-    });
-  }, [i18n.language]);
-
   const handleSearch = async () => {
     if (!pno && !chestNo && !rollNo) {
       toast.error("Please enter at least one search criteria");
@@ -54,11 +46,11 @@ export function TraineeFilters({
 
   return (
     <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-4">
-      <h3 className="text-lg font-medium mb-4">{t("searchTrainees")}</h3>
+      <h3 className="text-lg font-medium mb-4 dynamic-text">{t("searchTrainees")}</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="pno">{t("pnoNumber")}</Label>
+          <Label htmlFor="pno" className="dynamic-text">{t("pnoNumber")}</Label>
           <Input
             id="pno"
             placeholder={`${t("enterPNO")} (9-digit)`}
@@ -72,7 +64,7 @@ export function TraineeFilters({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="chestNo">{t("chestNumber")}</Label>
+          <Label htmlFor="chestNo" className="dynamic-text">{t("chestNumber")}</Label>
           <Input
             id="chestNo"
             placeholder={`${t("enterPNO")} (4-digit)`}
@@ -86,7 +78,7 @@ export function TraineeFilters({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="rollNo">{t("rollNo")} {t("uniqueId")}</Label>
+          <Label htmlFor="rollNo" className="dynamic-text">{t("rollNo")} {t("uniqueId")}</Label>
           <Input
             id="rollNo"
             placeholder={`${t("enterPNO")} (12-digit)`}
@@ -103,15 +95,15 @@ export function TraineeFilters({
       <div className="flex flex-wrap justify-end gap-2">
         <Button onClick={() => navigate('/add-trainee')} variant="outline">
           <UserPlus className="mr-2 h-4 w-4" />
-          {t("addNewTrainee")}
+          <span className="dynamic-text">{t("addNewTrainee")}</span>
         </Button>
         <Button onClick={onShowAll} variant="outline" disabled={disabled}>
           <List className="mr-2 h-4 w-4" />
-          {t("showAllTrainees")}
+          <span className="dynamic-text">{t("showAllTrainees")}</span>
         </Button>
         <Button onClick={handleSearch} disabled={disabled}>
           <Search className="mr-2 h-4 w-4" />
-          {t("searchTraineeBtn")}
+          <span className="dynamic-text">{t("searchTraineeBtn")}</span>
         </Button>
       </div>
     </div>

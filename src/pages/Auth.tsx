@@ -57,7 +57,7 @@ export default function Auth() {
 
   return (
     <div 
-      className="min-h-screen relative flex flex-col items-center justify-center p-4 md:p-6"
+      className="min-h-screen relative flex flex-col items-center p-4 md:p-6"
       style={{
         backgroundImage: imageLoaded ? "url('/login.jpeg')" : "none",
         backgroundSize: "cover",
@@ -68,21 +68,21 @@ export default function Auth() {
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       
-      {/* Language Switcher - Now positioned relative to the container */}
+      {/* Language Switcher - Positioned on top for better visibility on all devices */}
       <div className="relative z-20 w-full flex justify-end mb-4">
         <LanguageSwitcher />
       </div>
       
-      {/* Auth Form Container */}
-      <div className="w-full max-w-md relative z-10">
+      {/* Auth Form Container - Added better responsive positioning */}
+      <div className="w-full max-w-md relative z-10 mt-10 sm:mt-20">
         <div className="bg-white/95 backdrop-blur-md p-6 md:p-8 rounded-xl shadow-2xl">
           <div className="text-center">
             <img 
               src="/upp_logo.png" 
               alt="Logo" 
-              className="mx-auto h-20 w-20 md:h-28 md:h-28" 
+              className="mx-auto h-20 w-20 md:h-28 md:w-28" 
             />
-            <h2 className="mt-6 text-2xl md:text-3xl font-bold text-gray-900">
+            <h2 className="mt-6 text-2xl md:text-3xl font-bold text-gray-900 dynamic-text">
               {resetPassword ? t("resetPassword") : t("signInToAccount")}
             </h2>
           </div>
@@ -90,7 +90,7 @@ export default function Auth() {
           <form onSubmit={handleAuth} className="mt-8 space-y-6">
             <div className="rounded-md space-y-4">
               <div>
-                <Label htmlFor="email" className="text-gray-900">
+                <Label htmlFor="email" className="text-gray-900 dynamic-text">
                   {t("emailAddress")}
                 </Label>
                 <Input
@@ -106,7 +106,7 @@ export default function Auth() {
               
               {!resetPassword && (
                 <div>
-                  <Label htmlFor="password" className="text-gray-900">
+                  <Label htmlFor="password" className="text-gray-900 dynamic-text">
                     {t("password")}
                   </Label>
                   <Input
@@ -128,9 +128,11 @@ export default function Auth() {
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 disabled={loading}
               >
-                {loading ? t("processing") : resetPassword 
-                  ? t("sendResetLink") 
-                  : t("signIn")}
+                <span className="dynamic-text">
+                  {loading ? t("processing") : resetPassword 
+                    ? t("sendResetLink") 
+                    : t("signIn")}
+                </span>
               </Button>
               
               {!resetPassword ? (
@@ -140,7 +142,7 @@ export default function Auth() {
                   onClick={() => setResetPassword(true)}
                   className="text-blue-600"
                 >
-                  {t("forgotPassword")}
+                  <span className="dynamic-text">{t("forgotPassword")}</span>
                 </Button>
               ) : (
                 <Button
@@ -149,7 +151,7 @@ export default function Auth() {
                   onClick={() => setResetPassword(false)}
                   className="text-blue-600"
                 >
-                  {t("backToLogin")}
+                  <span className="dynamic-text">{t("backToLogin")}</span>
                 </Button>
               )}
             </div>

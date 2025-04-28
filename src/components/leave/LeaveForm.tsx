@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
 import {
   Form,
   FormControl,
@@ -41,6 +42,8 @@ interface LeaveFormProps {
 }
 
 export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
+  const { t, i18n } = useTranslation();
+  
   const form = useForm<LeaveFormValues>({
     resolver: zodResolver(leaveFormSchema),
     defaultValues: {
@@ -136,11 +139,16 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
           name="pno"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>PNO Number</FormLabel>
+              <FormLabel className="dynamic-text">{t("pnoNumber")}</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Enter PNO" maxLength={9} />
+                <Input 
+                  {...field} 
+                  placeholder={t("enterPNO")} 
+                  maxLength={9}
+                  lang={i18n.language}
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="dynamic-text" />
             </FormItem>
           )}
         />
@@ -150,7 +158,7 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
           name="start_date"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>Start Date</FormLabel>
+              <FormLabel className="dynamic-text">{t("startDate")}</FormLabel>
               <Calendar
                 mode="single"
                 selected={field.value}
@@ -158,7 +166,7 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
                 disabled={(date) => date < new Date()}
                 className="rounded-md border"
               />
-              <FormMessage />
+              <FormMessage className="dynamic-text" />
             </FormItem>
           )}
         />
@@ -168,7 +176,7 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
           name="end_date"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>End Date</FormLabel>
+              <FormLabel className="dynamic-text">{t("endDate")}</FormLabel>
               <Calendar
                 mode="single"
                 selected={field.value}
@@ -176,7 +184,7 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
                 disabled={(date) => date < form.getValues("start_date") || date < new Date()}
                 className="rounded-md border"
               />
-              <FormMessage />
+              <FormMessage className="dynamic-text" />
             </FormItem>
           )}
         />
@@ -186,16 +194,22 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
           name="reason"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Reason for Leave</FormLabel>
+              <FormLabel className="dynamic-text">{t("reasonForLeave")}</FormLabel>
               <FormControl>
-                <Textarea {...field} placeholder="Enter reason for leave" />
+                <Textarea 
+                  {...field} 
+                  placeholder={t("enterReason")} 
+                  lang={i18n.language}
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="dynamic-text" />
             </FormItem>
           )}
         />
 
-        <Button type="submit">Submit Leave Request</Button>
+        <Button type="submit">
+          <span className="dynamic-text">{t("submitLeaveRequest")}</span>
+        </Button>
       </form>
     </Form>
   );
