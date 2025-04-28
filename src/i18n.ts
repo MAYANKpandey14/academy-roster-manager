@@ -127,18 +127,15 @@ i18n
   .init({
     resources,
     fallbackLng: 'en',
-    debug: false, // Set to false for production
-
+    debug: false,
     interpolation: {
       escapeValue: false, // React already escapes by default
     },
-
     detection: {
       order: ['localStorage', 'navigator'],
       lookupLocalStorage: 'language',
       caches: ['localStorage'],
     },
-
     react: {
       useSuspense: false,
     },
