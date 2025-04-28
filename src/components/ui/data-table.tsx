@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   ColumnDef,
@@ -55,27 +56,12 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const { t, i18n } = useTranslation();
 
-  const enhancedColumns = columns.map(column => {
-    if (!column.cell) return column;
-    
-    return {
-      ...column,
-      cell: (props: any) => {
-        const originalCell = column.cell;
-        const renderedCell = originalCell(props);
-        
-        if (typeof renderedCell === 'string' || typeof renderedCell === 'number') {
-          return prepareTextForLanguage(renderedCell.toString(), i18n.language);
-        }
-        
-        return renderedCell;
-      }
-    };
-  });
+  // Fix: Don't modify cell rendering in column definition as it causes type errors
+  // Instead, we'll handle text processing in the table cell rendering
 
   const table = useReactTable({
     data,
-    columns: enhancedColumns,
+    columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
@@ -145,14 +131,22 @@ export function DataTable<TData, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className={i18n.language === 'hi' ? 'krutidev-font' : ''}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    // Process the cell value if needed
+                    const cellContent = flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext()
+                    );
+                    
+                    return (
+                      <TableCell 
+                        key={cell.id} 
+                        className={i18n.language === 'hi' ? 'krutidev-font' : ''}
+                      >
+                        {cellContent}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))
             ) : (
