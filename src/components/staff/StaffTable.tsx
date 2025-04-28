@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Staff, StaffRank } from "@/types/staff";
 import { 
   ColumnDef, 
@@ -21,6 +21,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { deleteStaff } from "@/services/staffApi";
+import { createStaffPrintContent, createStaffCSVContent, handlePrint, handleDownload } from "@/utils/staffExportUtils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface StaffTableProps {
   staff: Staff[];
@@ -34,6 +37,29 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
+  const [selectedCount, setSelectedCount] = useState(0);
+  const isMobile = useIsMobile();
+  
+  useEffect(() => {
+    // Update selected count when rowSelection changes
+    setSelectedCount(Object.keys(rowSelection).length);
+  }, [rowSelection]);
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Are you sure you want to delete this staff member?")) {
+      try {
+        const { error } = await deleteStaff(id);
+        
+        if (error) throw error;
+        
+        toast.success("Staff deleted successfully");
+        onRefresh();
+      } catch (error) {
+        console.error("Error deleting staff:", error);
+        toast.error("Failed to delete staff");
+      }
+    }
+  };
 
   const columns: ColumnDef<Staff>[] = [
     {
@@ -49,6 +75,7 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
+          disabled={isLoading}
         />
       ),
       cell: ({ row }) => (
@@ -56,6 +83,7 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
+          disabled={isLoading}
         />
       ),
       enableSorting: false,
@@ -121,11 +149,11 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
                 <Edit className="mr-2 h-4 w-4" />
                 <span>Edit</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handlePrintAction([staff])}>
                 <Printer className="mr-2 h-4 w-4" />
                 <span>Print</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleDownloadAction([staff])}>
                 <Download className="mr-2 h-4 w-4" />
                 <span>Download</span>
               </DropdownMenuItem>
@@ -136,32 +164,79 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
     },
   ];
 
+  function getSelectedStaff(): Staff[] {
+    const selectedIndices = Object.keys(rowSelection).map(Number);
+    return selectedIndices.map(index => staff[index]);
+  }
+
+  function handlePrintAction(staffToPrint: Staff[] = []) {
+    const selectedStaff = staffToPrint.length ? staffToPrint : getSelectedStaff();
+    
+    if (selectedStaff.length === 0) {
+      toast.error("Please select at least one staff member to print");
+      return;
+    }
+    
+    const content = createStaffPrintContent(selectedStaff);
+    handlePrint(content);
+    toast.success(`Printing ${selectedStaff.length} staff member(s)`);
+  }
+
+  function handleDownloadAction(staffToDownload: Staff[] = []) {
+    const selectedStaff = staffToDownload.length ? staffToDownload : getSelectedStaff();
+    
+    if (selectedStaff.length === 0) {
+      toast.error("Please select at least one staff member to download");
+      return;
+    }
+    
+    const content = createStaffCSVContent(selectedStaff);
+    handleDownload(content, `selected_staff_${new Date().toISOString().split('T')[0]}.csv`);
+    toast.success(`CSV file with ${selectedStaff.length} staff member(s) downloaded successfully`);
+  }
+
   return (
     <div className="space-y-4">
+      <div className="flex flex-wrap gap-2 justify-end">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handlePrintAction()}
+          className="print-button"
+          disabled={isLoading || selectedCount === 0}
+        >
+          <Printer className="h-4 w-4" />
+          {!isMobile && <span className="ml-2">
+            {selectedCount > 0
+              ? `Print Selected${selectedCount > 0 ? ` (${selectedCount})` : ''}`
+              : "Print Selected"}
+          </span>}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handleDownloadAction()}
+          className="download-button"
+          disabled={isLoading || selectedCount === 0}
+        >
+          <Download className="h-4 w-4" />
+          {!isMobile && <span className="ml-2">
+            {selectedCount > 0
+              ? `Download Selected${selectedCount > 0 ? ` (${selectedCount})` : ''}`
+              : "Download CSV"}
+          </span>}
+        </Button>
+      </div>
+      
       <DataTable
         columns={columns}
         data={staff}
         filterColumn="name"
         filterPlaceholder="Search by name..."
         isLoading={isLoading}
-        rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
+        rowSelection={rowSelection}
       />
-
-      <div className="flex gap-2 justify-end">
-        <Button variant="outline" onClick={() => {
-          toast.info("Print functionality will be implemented soon");
-        }}>
-          <Printer className="mr-2 h-4 w-4" />
-          Print Selected
-        </Button>
-        <Button variant="outline" onClick={() => {
-          toast.info("Download functionality will be implemented soon");
-        }}>
-          <Download className="mr-2 h-4 w-4" />
-          Download CSV
-        </Button>
-      </div>
     </div>
   );
 };
