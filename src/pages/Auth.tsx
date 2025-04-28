@@ -31,7 +31,7 @@ export default function Auth() {
           password,
         });
         if (error) throw error;
-        navigate("/");
+        navigate("/welcome");
         toast.success("Logged in successfully!");
       }
     } catch (error: any) {

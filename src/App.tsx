@@ -11,6 +11,7 @@ import EditTrainee from "./pages/EditTrainee";
 import ViewTrainee from "./pages/ViewTrainee";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
+<<<<<<< Updated upstream
 import TraineesPage from "./pages/TraineesPage";
 import StaffPage from "./pages/StaffPage";
 import AttendancePage from "./pages/AttendancePage";
@@ -18,6 +19,9 @@ import LeavePage from "./pages/LeavePage";
 import AddStaff from "./pages/AddStaff";
 import EditStaff from "./pages/EditStaff";
 import ViewStaff from "./pages/ViewStaff";
+=======
+import Welcome from "./pages/welcome";
+>>>>>>> Stashed changes
 
 const queryClient = new QueryClient();
 
@@ -30,6 +34,12 @@ const App = () => (
         <Routes>
           <Route path="/auth" element={<Auth />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route
+            path="/welcome"
+            element={
+              <ProtectedRoute>
+                <Welcome />
+              </ProtectedRoute>} />
           <Route
             path="/"
             element={
