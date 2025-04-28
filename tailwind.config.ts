@@ -67,6 +67,16 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				}
 			},
+			width: {
+				'small': '12rem',
+				'mid': '16rem',
+				'large': '20rem',
+			  },
+			  height: {
+				'small': '14rem',
+				'mid': '20rem',
+				'large': '24rem',
+			  },
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',

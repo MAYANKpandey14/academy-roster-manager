@@ -64,7 +64,7 @@ export default function Auth() {
       <div className="max-w-md w-full mx-4 relative z-10">
         <div className="bg-white/95 backdrop-blur-md p-8 rounded-xl shadow-2xl">
           <div className="text-center">
-            <img src="/upp_logo.png" alt="Logo" className="mx-auto h-24 w-24" />
+            <img src="/upp_logo.png" alt="Logo" className="mx-auto h-28 w-28" />
             <h2 className="mt-6 text-2xl md:text-3xl font-extrabold text-gray-900">
               {resetPassword ? "Reset Password" : "Sign in to your account"}
             </h2>

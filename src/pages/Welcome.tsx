@@ -33,7 +33,7 @@ const Welcome = () => {
                 className="absolute inset-0 w-full h-full "
                 style={{
                     backgroundImage: imageLoaded ? "url('/images.svg')" : "none",
-                    backgroundSize: "44rem 44rem",
+                    backgroundSize: "36rem 36rem",
                     backgroundPosition: "center",
                     backgroundRepeat: "no-repeat",
                     backgroundColor: "#ffff", // Fallback color while loading
@@ -45,10 +45,10 @@ const Welcome = () => {
 
             {/* Content positioned over the background */}
             <div className="flex flex-col items-center justify-center z-10 relative">
-                <img src="/commando.png" alt="" className="w-[26rem] h-[30rem] " style={{
+                <img src="/commando.png" alt="" className="w-mid h-mid md:w-large md:h-large" style={{
                     filter: "drop-shadow(0.5rem .75rem .75rem rgba(0, 0, 0, 1))",
                 }} />
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-center text-black m-2">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-black m-2">
                     RTC POLICE LINE, MORADABAD
                 </h1>
                 <button
