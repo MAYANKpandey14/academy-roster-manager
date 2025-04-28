@@ -2,11 +2,12 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { prepareTextForLanguage } from "@/utils/textUtils";
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, lang, ...props }, ref) => {
+  ({ className, type, lang, value, ...props }, ref) => {
     const { i18n } = useTranslation();
     
     // Use the provided lang or default to current app language
@@ -15,6 +16,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     // Determine if KrutiDev font should be applied
     const isHindi = inputLang === 'hi';
     const fontClass = isHindi ? 'krutidev-font' : '';
+    
+    // Process value for proper encoding if it's a string
+    const processedValue = typeof value === 'string' 
+      ? prepareTextForLanguage(value, inputLang) 
+      : value;
     
     return (
       <input
@@ -28,6 +34,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         lang={inputLang}
         dir="ltr" // Always LTR as specified
         inputMode={isHindi ? "text" : undefined}
+        value={processedValue}
+        accept-charset="UTF-8"
         {...props}
       />
     );

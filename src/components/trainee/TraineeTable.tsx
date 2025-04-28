@@ -16,6 +16,7 @@ import { createPrintContent, createCSVContent, handlePrint, handleDownload } fro
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
+import { prepareTextForLanguage } from "@/utils/textUtils";
 
 interface TraineeTableProps {
   trainees: Trainee[];
@@ -28,7 +29,7 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [selectedCount, setSelectedCount] = useState(0);
   const isMobile = useIsMobile();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   
   // Apply language inputs hook
   useLanguageInputs();
@@ -66,21 +67,34 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
     {
       accessorKey: "pno",
       header: () => <span className="dynamic-text">{t("pno", "PNO")}</span>,
+      cell: ({ row }) => {
+        const value = row.getValue("pno") as string;
+        return <span className="dynamic-text">{prepareTextForLanguage(value, i18n.language)}</span>;
+      }
     },
     {
       accessorKey: "name",
       header: () => <span className="dynamic-text">{t("name", "Name")}</span>,
-      cell: ({ row }) => <span className="dynamic-text">{row.getValue("name")}</span>
+      cell: ({ row }) => {
+        const value = row.getValue("name") as string;
+        return <span className="dynamic-text">{prepareTextForLanguage(value, i18n.language)}</span>;
+      }
     },
     {
       accessorKey: "father_name",
       header: () => <span className="dynamic-text">{t("fatherName", "Father's Name")}</span>,
-      cell: ({ row }) => <span className="dynamic-text">{row.getValue("father_name")}</span>
+      cell: ({ row }) => {
+        const value = row.getValue("father_name") as string;
+        return <span className="dynamic-text">{prepareTextForLanguage(value, i18n.language)}</span>;
+      }
     },
     {
       accessorKey: "current_posting_district",
       header: () => <span className="dynamic-text">{t("district", "District")}</span>,
-      cell: ({ row }) => <span className="dynamic-text">{row.getValue("current_posting_district")}</span>
+      cell: ({ row }) => {
+        const value = row.getValue("current_posting_district") as string;
+        return <span className="dynamic-text">{prepareTextForLanguage(value, i18n.language)}</span>;
+      }
     },
     {
       accessorKey: "arrival_date",
@@ -101,6 +115,10 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
     {
       accessorKey: "mobile_number",
       header: () => <span className="dynamic-text">{t("mobile", "Mobile")}</span>,
+      cell: ({ row }) => {
+        const value = row.getValue("mobile_number") as string;
+        return <span>{value}</span>; // Mobile numbers don't need encoding transformation
+      }
     },
     {
       id: "actions",

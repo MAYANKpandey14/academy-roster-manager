@@ -2,12 +2,13 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { prepareTextForLanguage } from "@/utils/textUtils";
 
 export interface TextareaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, lang, ...props }, ref) => {
+  ({ className, lang, value, ...props }, ref) => {
     const { i18n } = useTranslation();
     
     // Use the provided lang or default to current app language
@@ -16,6 +17,11 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     // Determine if KrutiDev font should be applied
     const isHindi = textareaLang === 'hi';
     const fontClass = isHindi ? 'krutidev-font' : '';
+    
+    // Process value for proper encoding if it's a string
+    const processedValue = typeof value === 'string' 
+      ? prepareTextForLanguage(value, textareaLang) 
+      : value;
     
     return (
       <textarea
@@ -28,6 +34,8 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         lang={textareaLang}
         dir="ltr" // Always LTR as specified
         inputMode={isHindi ? "text" : undefined}
+        value={processedValue}
+        accept-charset="UTF-8"
         {...props}
       />
     );

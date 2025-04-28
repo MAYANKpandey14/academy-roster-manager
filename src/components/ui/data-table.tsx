@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   ColumnDef,
@@ -29,6 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useTranslation } from "react-i18next";
+import { prepareTextForLanguage } from "@/utils/textUtils";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -55,9 +55,27 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const { t, i18n } = useTranslation();
 
+  const enhancedColumns = columns.map(column => {
+    if (!column.cell) return column;
+    
+    return {
+      ...column,
+      cell: (props: any) => {
+        const originalCell = column.cell;
+        const renderedCell = originalCell(props);
+        
+        if (typeof renderedCell === 'string' || typeof renderedCell === 'number') {
+          return prepareTextForLanguage(renderedCell.toString(), i18n.language);
+        }
+        
+        return renderedCell;
+      }
+    };
+  });
+
   const table = useReactTable({
     data,
-    columns,
+    columns: enhancedColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
@@ -128,7 +146,7 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className={i18n.language === 'hi' ? 'krutidev-font' : ''}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -151,12 +169,12 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
       <div className="flex items-center justify-between space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
+        <div className="flex-1 text-sm text-muted-foreground dynamic-text">
           {table.getFilteredRowModel().rows.length} {t(totalLabel)}.
         </div>
         <div className="flex items-center space-x-6 lg:space-x-8">
           <div className="flex items-center space-x-2">
-            <p className="text-sm font-medium">{t("rowsPerPage")}</p>
+            <p className="text-sm font-medium dynamic-text">{t("rowsPerPage")}</p>
             <Select
               value={`${table.getState().pagination.pageSize}`}
               onValueChange={(value) => {
@@ -194,8 +212,8 @@ export function DataTable<TData, TValue>({
               {"<"}
             </Button>
             <div className="flex items-center gap-1">
-              <p className="text-sm font-medium">{t("page")}</p>
-              <strong className="text-sm font-medium">
+              <p className="text-sm font-medium dynamic-text">{t("page")}</p>
+              <strong className="text-sm font-medium dynamic-text">
                 {table.getState().pagination.pageIndex + 1} {t("of")}{" "}
                 {table.getPageCount()}
               </strong>

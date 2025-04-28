@@ -121,6 +121,13 @@
   font-family: 'KrutiDev', sans-serif;
 }
 
+/* Ensure proper text rendering for Hindi */
+input[lang="hi"], 
+textarea[lang="hi"], 
+.dynamic-text[lang="hi"] {
+  font-family: 'KrutiDev', sans-serif;
+}
+
 /* Print styles */
 @media print {
   .no-print {

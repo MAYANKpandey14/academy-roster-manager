@@ -5,6 +5,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.21.0';
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Content-Type": "application/json; charset=utf-8",
 };
 
 serve(async (req) => {
@@ -18,7 +19,14 @@ serve(async (req) => {
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+      { 
+        global: { 
+          headers: { 
+            Authorization: req.headers.get('Authorization')!,
+            "Content-Type": "application/json; charset=utf-8"
+          } 
+        } 
+      }
     );
 
     // Parse request body if it exists
@@ -77,7 +85,7 @@ serve(async (req) => {
     
     return new Response(
       JSON.stringify(data),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: corsHeaders }
     );
     
   } catch (error) {
@@ -86,7 +94,7 @@ serve(async (req) => {
       JSON.stringify({ error: error.message || "An unknown error occurred" }),
       { 
         status: 400, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        headers: corsHeaders
       }
     );
   }

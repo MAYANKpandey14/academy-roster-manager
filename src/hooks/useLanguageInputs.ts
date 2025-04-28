@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -10,6 +11,7 @@ export const useLanguageInputs = () => {
       inputs.forEach(input => {
         if (input instanceof HTMLElement) {
           input.lang = i18n.language;
+          input.setAttribute('accept-charset', 'UTF-8');
           
           // Set special attributes for Hindi with KrutiDev font
           if (i18n.language === 'hi') {
@@ -26,6 +28,9 @@ export const useLanguageInputs = () => {
       const textElements = document.querySelectorAll('.dynamic-text');
       textElements.forEach(el => {
         if (el instanceof HTMLElement) {
+          // Set language and charset for all dynamic text elements
+          el.lang = i18n.language;
+          
           if (i18n.language === 'hi') {
             el.classList.add('krutidev-font');
           } else {
@@ -59,7 +64,32 @@ export const useLanguageInputs = () => {
       }
     };
 
+    // Ensure document has correct meta charset
+    const ensureDocumentCharset = () => {
+      // Check if charset meta tag exists
+      let charsetMeta = document.querySelector('meta[charset]');
+      if (!charsetMeta) {
+        charsetMeta = document.createElement('meta');
+        charsetMeta.setAttribute('charset', 'UTF-8');
+        document.head.prepend(charsetMeta);
+      } else {
+        charsetMeta.setAttribute('charset', 'UTF-8');
+      }
+      
+      // Check if Content-Type meta exists
+      let contentTypeMeta = document.querySelector('meta[http-equiv="Content-Type"]');
+      if (!contentTypeMeta) {
+        contentTypeMeta = document.createElement('meta');
+        contentTypeMeta.setAttribute('http-equiv', 'Content-Type');
+        contentTypeMeta.setAttribute('content', 'text/html; charset=utf-8');
+        document.head.appendChild(contentTypeMeta);
+      } else {
+        contentTypeMeta.setAttribute('content', 'text/html; charset=utf-8');
+      }
+    };
+
     addKrutiDevFont();
+    ensureDocumentCharset();
     setInputLanguage();
     
     // Set document direction
