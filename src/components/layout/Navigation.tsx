@@ -2,15 +2,17 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export function Navigation() {
   const location = useLocation();
+  const { t } = useTranslation();
   
   const routes = [
-    { name: "Trainee", path: "/trainees" },
-    { name: "Staff", path: "/staff" },
-    { name: "Attendance", path: "/attendance" },
-    { name: "Leave", path: "/leave" },
+    { name: t("trainees"), path: "/trainees" },
+    { name: t("staff"), path: "/staff" },
+    { name: t("attendance"), path: "/attendance" },
+    { name: t("leave"), path: "/leave" },
   ];
 
   return (

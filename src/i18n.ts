@@ -44,7 +44,6 @@ interface Resources {
   };
 }
 
-// Translation resources directly in-memory
 const resources: Resources = {
   en: {
     translation: {
@@ -80,6 +79,11 @@ const resources: Resources = {
       email: "Email",
       phone: "Phone",
       address: "Address",
+
+      headerTitle: "RTC TRAINING CENTRE POLICE LINE, MORADABAD",
+      home: "Home",
+      logoutSuccess: "Logged out successfully",
+      logoutError: "Error logging out"
     },
   },
   hi: {
@@ -116,11 +120,16 @@ const resources: Resources = {
       email: "ईमेल",
       phone: "फोन",
       address: "पता",
+
+      headerTitle: "आरटीसी ट्रेनिंग सेंटर पुलिस लाइन, मुरादाबाद",
+      home: "होम",
+      logoutSuccess: "सफलतापूर्वक लॉगआउट किया गया",
+      logoutError: "लॉगआउट करने में त्रुटि"
     },
   },
 };
 
-// Initialize i18n
+// Initialize i18n with updated configuration
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
@@ -129,7 +138,7 @@ i18n
     fallbackLng: 'en',
     debug: false,
     interpolation: {
-      escapeValue: false, // React already escapes by default
+      escapeValue: false,
     },
     detection: {
       order: ['localStorage', 'navigator'],

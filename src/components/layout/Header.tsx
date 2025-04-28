@@ -6,10 +6,13 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Navigation } from "./Navigation";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../languageswitch/LanguageSwitcher";
 
 export function Header() {
   const [today, setToday] = useState<string>("");
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const date = new Date();
@@ -25,9 +28,9 @@ export function Header() {
     try {
       await supabase.auth.signOut();
       navigate("/auth");
-      toast.success("Logged out successfully");
+      toast.success(t("logoutSuccess"));
     } catch (error) {
-      toast.error("Error logging out");
+      toast.error(t("logoutError"));
     }
   };
 
@@ -39,7 +42,7 @@ export function Header() {
             <div className="flex items-center text-white p-1.5 rounded">
               <img src="/images.svg" alt="logo" className="w-[96px] h-[96px]" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold">RTC TRAINING CENTRE POLICE LINE,MORADABAD</h1>
+            <h1 className="text-xl sm:text-2xl font-bold">{t("headerTitle")}</h1>
           </div>
           
           <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -53,7 +56,7 @@ export function Header() {
                 className="sm:w-auto"
               >
                 <ArrowLeft className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Back</span>
+                <span className="hidden sm:inline">{t("back")}</span>
               </Button>
               
               <Button
@@ -63,7 +66,7 @@ export function Header() {
                 className="sm:w-auto"
               >
                 <Home className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Home</span>
+                <span className="hidden sm:inline">{t("home")}</span>
               </Button>
               
               <Button
@@ -73,13 +76,14 @@ export function Header() {
                 className="sm:w-auto"
               >
                 <LogOut className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Logout</span>
+                <span className="hidden sm:inline">{t("logout")}</span>
               </Button>
             </div>
           </div>
         </div>
       </div>
       <Navigation />
+      <LanguageSwitcher />
     </header>
   );
 }
