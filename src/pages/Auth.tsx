@@ -12,6 +12,12 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [resetPassword, setResetPassword] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  const img = new Image();
+  img.src = '/login.jpeg';
+  img.onload = () => setImageLoaded(true);
+
   const navigate = useNavigate();
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -45,19 +51,20 @@ export default function Auth() {
     <div 
       className="min-h-screen flex items-center justify-center relative"
       style={{
-        backgroundImage: "url('/lovable-uploads/770f1f52-7dee-4ccb-8b0e-2ef941d6ab59.png')",
+        backgroundImage: imageLoaded ? "url('/login.jpeg')" : "none",
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundRepeat: "no-repeat"
+        backgroundRepeat: "no-repeat",
+
       }}
     >
       {/* Overlay for better text readability */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       
       <div className="max-w-md w-full mx-4 relative z-10">
-        <div className="bg-white/95 backdrop-blur-md p-8 rounded-lg shadow-2xl">
+        <div className="bg-white/95 backdrop-blur-md p-8 rounded-xl shadow-2xl">
           <div className="text-center">
-            <img src="/images.svg" alt="Logo" className="mx-auto h-24 w-24" />
+            <img src="/upp_logo.png" alt="Logo" className="mx-auto h-24 w-24" />
             <h2 className="mt-6 text-2xl md:text-3xl font-extrabold text-gray-900">
               {resetPassword ? "Reset Password" : "Sign in to your account"}
             </h2>
