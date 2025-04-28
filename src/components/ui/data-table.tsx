@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslation } from "react-i18next";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -37,6 +38,7 @@ interface DataTableProps<TData, TValue> {
   isLoading?: boolean;
   rowSelection?: Record<string, boolean>;
   onRowSelectionChange?: (value: Record<string, boolean>) => void;
+  totalLabel?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -47,9 +49,11 @@ export function DataTable<TData, TValue>({
   isLoading = false,
   rowSelection = {},
   onRowSelectionChange = () => {},
+  totalLabel = "totalTrainees",
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const { t, i18n } = useTranslation();
 
   const table = useReactTable({
     data,
@@ -80,12 +84,13 @@ export function DataTable<TData, TValue>({
             }
             className="max-w-sm"
             disabled={isLoading}
+            lang={i18n.language}
           />
         </div>
         <div className="flex items-center space-x-2">
           <p className="text-sm text-gray-500">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected
+            {table.getFilteredSelectedRowModel().rows.length} {t("of")}{" "}
+            {table.getFilteredRowModel().rows.length} {t("rowsSelected")}
           </p>
         </div>
       </div>
@@ -113,7 +118,7 @@ export function DataTable<TData, TValue>({
             {isLoading ? (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-16 text-center">
-                  Loading data...
+                  {t("loading")}
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows?.length ? (
@@ -138,7 +143,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results found.
+                  {t("noResults")}
                 </TableCell>
               </TableRow>
             )}
@@ -147,11 +152,11 @@ export function DataTable<TData, TValue>({
       </div>
       <div className="flex items-center justify-between space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredRowModel().rows.length} trainee(s) total.
+          {table.getFilteredRowModel().rows.length} {t(totalLabel)}.
         </div>
         <div className="flex items-center space-x-6 lg:space-x-8">
           <div className="flex items-center space-x-2">
-            <p className="text-sm font-medium">Rows per page</p>
+            <p className="text-sm font-medium">{t("rowsPerPage")}</p>
             <Select
               value={`${table.getState().pagination.pageSize}`}
               onValueChange={(value) => {
@@ -189,9 +194,9 @@ export function DataTable<TData, TValue>({
               {"<"}
             </Button>
             <div className="flex items-center gap-1">
-              <p className="text-sm font-medium">Page</p>
+              <p className="text-sm font-medium">{t("page")}</p>
               <strong className="text-sm font-medium">
-                {table.getState().pagination.pageIndex + 1} of{" "}
+                {table.getState().pagination.pageIndex + 1} {t("of")}{" "}
                 {table.getPageCount()}
               </strong>
             </div>

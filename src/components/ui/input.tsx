@@ -1,9 +1,15 @@
-import * as React from "react"
 
+import * as React from "react"
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils"
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
-  ({ className, type, ...props }, ref) => {
+  ({ className, type, lang, ...props }, ref) => {
+    const { i18n } = useTranslation();
+    
+    // Use the provided lang or default to current app language
+    const inputLang = lang || i18n.language;
+    
     return (
       <input
         type={type}
@@ -12,6 +18,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
           className
         )}
         ref={ref}
+        lang={inputLang}
         {...props}
       />
     )

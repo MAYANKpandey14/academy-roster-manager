@@ -1,11 +1,12 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, List, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface StaffFiltersProps {
   onSearch: (pno: string) => Promise<boolean>;
@@ -20,6 +21,15 @@ export function StaffFilters({
 }: StaffFiltersProps) {
   const navigate = useNavigate();
   const [pno, setPno] = useState("");
+  const { t, i18n } = useTranslation();
+
+  // Update input language when the app language changes
+  useEffect(() => {
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+      input.lang = i18n.language;
+    });
+  }, [i18n.language]);
 
   const handleSearch = async () => {
     if (!pno) {
@@ -42,35 +52,36 @@ export function StaffFilters({
 
   return (
     <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-4">
-      <h3 className="text-lg font-medium mb-4">Search Staff</h3>
+      <h3 className="text-lg font-medium mb-4">{t("searchStaff")}</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="pno">PNO Number</Label>
+          <Label htmlFor="pno">{t("pnoNumber")}</Label>
           <Input
             id="pno"
-            placeholder="Enter 9-digit PNO"
+            placeholder={`${t("enterPNO")} (9-digit)`}
             value={pno}
             onChange={(e) => setPno(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={disabled}
             maxLength={9}
+            lang={i18n.language}
           />
         </div>
       </div>
       
-      <div className="flex justify-end gap-2">
+      <div className="flex flex-wrap justify-end gap-2">
         <Button onClick={() => navigate('/add-staff')} variant="outline">
           <UserPlus className="mr-2 h-4 w-4" />
-          Add Staff
+          {t("addStaff")}
         </Button>
         <Button onClick={onShowAll} variant="outline" disabled={disabled}>
           <List className="mr-2 h-4 w-4" />
-          Show All Staff
+          {t("showAll")} {t("staff")}
         </Button>
         <Button onClick={handleSearch} disabled={disabled}>
           <Search className="mr-2 h-4 w-4" />
-          Search Staff
+          {t("searchStaff")}
         </Button>
       </div>
     </div>

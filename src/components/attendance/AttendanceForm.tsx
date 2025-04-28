@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
 
 interface AttendanceFormProps {
   type: 'trainee' | 'staff';
@@ -17,6 +18,15 @@ export function AttendanceForm({ type, onSuccess }: AttendanceFormProps) {
   const [date, setDate] = useState<Date>(new Date());
   const [pno, setPno] = useState("");
   const [status, setStatus] = useState<'absent' | 'on_leave'>('absent');
+  const { t, i18n } = useTranslation();
+
+  // Update input language when the app language changes
+  useEffect(() => {
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+      input.lang = i18n.language;
+    });
+  }, [i18n.language]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,36 +88,37 @@ export function AttendanceForm({ type, onSuccess }: AttendanceFormProps) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="pno">PNO Number</Label>
+          <Label htmlFor="pno">{t("pnoNumber")}</Label>
           <Input
             id="pno"
             value={pno}
             onChange={(e) => setPno(e.target.value)}
-            placeholder="Enter PNO"
+            placeholder={t("enterPNO")}
             maxLength={9}
             required
+            lang={i18n.language}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="status">Status</Label>
+          <Label htmlFor="status">{t("status")}</Label>
           <Select 
             value={status} 
             onValueChange={(value: 'absent' | 'on_leave') => setStatus(value)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select status" />
+              <SelectValue placeholder={t("status")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="absent">Absent</SelectItem>
-              <SelectItem value="on_leave">On Leave</SelectItem>
+              <SelectItem value="absent">{t("absent")}</SelectItem>
+              <SelectItem value="on_leave">{t("onLeave")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label>Date</Label>
+        <Label>{t("date")}</Label>
         <Calendar
           mode="single"
           selected={date}
@@ -116,7 +127,7 @@ export function AttendanceForm({ type, onSuccess }: AttendanceFormProps) {
         />
       </div>
 
-      <Button type="submit">Mark Attendance</Button>
+      <Button type="submit">{t("markAttendance")}</Button>
     </form>
   );
 }

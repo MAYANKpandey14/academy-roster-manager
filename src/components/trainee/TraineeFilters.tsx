@@ -1,11 +1,12 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, List, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface TraineeFiltersProps {
   onSearch: (pno: string, chestNo: string, rollNo: string) => Promise<boolean>;
@@ -22,6 +23,15 @@ export function TraineeFilters({
   const [pno, setPno] = useState("");
   const [chestNo, setChestNo] = useState("");
   const [rollNo, setRollNo] = useState("");
+  const { t, i18n } = useTranslation();
+
+  // Update input language when the app language changes
+  useEffect(() => {
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+      input.lang = i18n.language;
+    });
+  }, [i18n.language]);
 
   const handleSearch = async () => {
     if (!pno && !chestNo && !rollNo) {
@@ -44,61 +54,64 @@ export function TraineeFilters({
 
   return (
     <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-4">
-      <h3 className="text-lg font-medium mb-4">Search Trainees</h3>
+      <h3 className="text-lg font-medium mb-4">{t("searchTrainees")}</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="pno">PNO Number</Label>
+          <Label htmlFor="pno">{t("pnoNumber")}</Label>
           <Input
             id="pno"
-            placeholder="Enter 9-digit PNO"
+            placeholder={`${t("enterPNO")} (9-digit)`}
             value={pno}
             onChange={(e) => setPno(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={disabled}
             maxLength={9}
+            lang={i18n.language}
           />
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="chestNo">Chest Number</Label>
+          <Label htmlFor="chestNo">{t("chestNumber")}</Label>
           <Input
             id="chestNo"
-            placeholder="Enter 4-digit Chest No"
+            placeholder={`${t("enterPNO")} (4-digit)`}
             value={chestNo}
             onChange={(e) => setChestNo(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={disabled}
             maxLength={4}
+            lang={i18n.language}
           />
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="rollNo">Roll No / Unique Id</Label>
+          <Label htmlFor="rollNo">{t("rollNo")} {t("uniqueId")}</Label>
           <Input
             id="rollNo"
-            placeholder="Enter 12-digit Roll No"
+            placeholder={`${t("enterPNO")} (12-digit)`}
             value={rollNo}
             onChange={(e) => setRollNo(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={disabled}
             maxLength={12}
+            lang={i18n.language}
           />
         </div>
       </div>
       
-      <div className="flex justify-end gap-2">
+      <div className="flex flex-wrap justify-end gap-2">
         <Button onClick={() => navigate('/add-trainee')} variant="outline">
           <UserPlus className="mr-2 h-4 w-4" />
-          Add Trainee
+          {t("addNewTrainee")}
         </Button>
         <Button onClick={onShowAll} variant="outline" disabled={disabled}>
           <List className="mr-2 h-4 w-4" />
-          Show All Trainees
+          {t("showAllTrainees")}
         </Button>
         <Button onClick={handleSearch} disabled={disabled}>
           <Search className="mr-2 h-4 w-4" />
-          Search Trainee
+          {t("searchTraineeBtn")}
         </Button>
       </div>
     </div>

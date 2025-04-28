@@ -78,6 +78,69 @@ interface TranslationKeys {
   emailAddress: string;
   resetYourPassword: string;
   signInToAccount: string;
+
+  // Added translations for trainee search
+  searchTrainee: string;
+  searchTrainees: string;
+  searchStaff: string;
+  pnoNumber: string;
+  chestNumber: string;
+  rollNo: string;
+  uniqueId: string;
+  addNewTrainee: string;
+  showAllTrainees: string;
+  searchTraineeBtn: string;
+
+  // Added translations for table elements
+  rowsPerPage: string;
+  totalTrainees: string;
+  totalStaff: string;
+  page: string;
+  of: string;
+  noResults: string;
+  rowsSelected: string;
+
+  // Added translations for trainee table columns
+  district: string;
+  arrivalDate: string;
+  departureDate: string;
+  mobile: string;
+  actions: string;
+
+  // Added translations for staff table columns
+  rank: string;
+  postingDistrict: string;
+
+  // Added translations for attendance and leave
+  markAttendance: string;
+  markTraineeAttendance: string;
+  markStaffAttendance: string;
+  attendanceManagement: string;
+  traineeAttendance: string;
+  staffAttendance: string;
+  date: string;
+  status: string;
+  absent: string;
+  onLeave: string;
+
+  // Added translations for leave management
+  leaveManagement: string;
+  traineeLeave: string;
+  staffLeave: string;
+  submitTraineeLeaveRequest: string;
+  submitStaffLeaveRequest: string;
+  startDate: string;
+  endDate: string;
+  reasonForLeave: string;
+  submitLeaveRequest: string;
+  enterPNO: string;
+  enterReason: string;
+
+  // Added translations for printing and download options
+  print: string;
+  download: string;
+  printSelected: string;
+  downloadCSV: string;
 }
 
 interface Resources {
@@ -161,7 +224,70 @@ const resources: Resources = {
       // Added translations for auth and reset password
       emailAddress: "Email address",
       resetYourPassword: "Reset your password",
-      signInToAccount: "Sign in to your account"
+      signInToAccount: "Sign in to your account",
+
+      // Added translations for trainee search
+      searchTrainee: "Search Trainee",
+      searchTrainees: "Search Trainees",
+      searchStaff: "Search Staff",
+      pnoNumber: "PNO Number",
+      chestNumber: "Chest Number",
+      rollNo: "Roll No",
+      uniqueId: "/ Unique Id",
+      addNewTrainee: "Add Trainee",
+      showAllTrainees: "Show All Trainees", 
+      searchTraineeBtn: "Search Trainee",
+
+      // Added translations for table elements
+      rowsPerPage: "Rows per page",
+      totalTrainees: "trainee(s) total",
+      totalStaff: "staff member(s) total",
+      page: "Page",
+      of: "of",
+      noResults: "No results found.",
+      rowsSelected: "row(s) selected",
+
+      // Added translations for trainee table columns
+      district: "District",
+      arrivalDate: "Arrival Date",
+      departureDate: "Departure Date",
+      mobile: "Mobile",
+      actions: "Actions",
+
+      // Added translations for staff table columns
+      rank: "Rank",
+      postingDistrict: "Posting District",
+
+      // Added translations for attendance and leave
+      markAttendance: "Mark Attendance",
+      markTraineeAttendance: "Mark Trainee Attendance",
+      markStaffAttendance: "Mark Staff Attendance",
+      attendanceManagement: "Attendance Management",
+      traineeAttendance: "Trainee Attendance",
+      staffAttendance: "Staff Attendance",
+      date: "Date",
+      status: "Status",
+      absent: "Absent",
+      onLeave: "On Leave",
+
+      // Added translations for leave management
+      leaveManagement: "Leave Management",
+      traineeLeave: "Trainee Leave",
+      staffLeave: "Staff Leave", 
+      submitTraineeLeaveRequest: "Submit Trainee Leave Request",
+      submitStaffLeaveRequest: "Submit Staff Leave Request",
+      startDate: "Start Date",
+      endDate: "End Date",
+      reasonForLeave: "Reason For Leave",
+      submitLeaveRequest: "Submit Leave Request",
+      enterPNO: "Enter PNO",
+      enterReason: "Enter reason for leave",
+
+      // Added translations for printing and download options
+      print: "Print",
+      download: "Download",
+      printSelected: "Print Selected",
+      downloadCSV: "Download CSV"
     },
   },
   hi: {
@@ -238,7 +364,70 @@ const resources: Resources = {
       // Added translations for auth and reset password
       emailAddress: "ईमेल पता",
       resetYourPassword: "अपना पासवर्ड रीसेट करें",
-      signInToAccount: "अपने खाते में साइन इन करें"
+      signInToAccount: "अपने खाते में साइन इन करें",
+      
+      // Added translations for trainee search
+      searchTrainee: "प्रशिक्षु खोजें",
+      searchTrainees: "प्रशिक्षुओं को खोजें",
+      searchStaff: "स्टाफ खोजें",
+      pnoNumber: "पीएनओ नंबर",
+      chestNumber: "छाती संख्या",
+      rollNo: "रोल नंबर",
+      uniqueId: "/ विशिष्ट आईडी",
+      addNewTrainee: "प्रशिक्षु जोड़ें",
+      showAllTrainees: "सभी प्रशिक्षु दिखाएं",
+      searchTraineeBtn: "प्रशिक्षु खोजें",
+      
+      // Added translations for table elements
+      rowsPerPage: "प्रति पेज पंक्तियां",
+      totalTrainees: "कुल प्रशिक्षु",
+      totalStaff: "कुल स्टाफ सदस्य",
+      page: "पेज",
+      of: "का",
+      noResults: "कोई परिणाम नहीं मिला।",
+      rowsSelected: "पंक्तियां चयनित",
+      
+      // Added translations for trainee table columns
+      district: "जिला",
+      arrivalDate: "आगमन तिथि",
+      departureDate: "प्रस्थान तिथि",
+      mobile: "मोबाइल",
+      actions: "कार्रवाई",
+      
+      // Added translations for staff table columns
+      rank: "रैंक",
+      postingDistrict: "पोस्टिंग जिला",
+      
+      // Added translations for attendance and leave
+      markAttendance: "उपस्थिति दर्ज करें",
+      markTraineeAttendance: "प्रशिक्षु उपस्थिति दर्ज करें",
+      markStaffAttendance: "स्टाफ उपस्थिति दर्ज करें",
+      attendanceManagement: "उपस्थिति प्रबंधन",
+      traineeAttendance: "प्रशिक्षु उपस्थिति",
+      staffAttendance: "स्टाफ उपस्थिति",
+      date: "तारीख",
+      status: "स्थिति",
+      absent: "अनुपस्थित",
+      onLeave: "अवकाश पर",
+      
+      // Added translations for leave management
+      leaveManagement: "अवकाश प्रबंधन",
+      traineeLeave: "प्रशिक्षु अवकाश",
+      staffLeave: "स्टाफ अवकाश",
+      submitTraineeLeaveRequest: "प्रशिक्षु अवकाश अनुरोध जमा करें",
+      submitStaffLeaveRequest: "स्टाफ अवकाश अनुरोध जमा करें",
+      startDate: "प्रारंभ तिथि",
+      endDate: "अंतिम तिथि",
+      reasonForLeave: "अवकाश का कारण",
+      submitLeaveRequest: "अवकाश अनुरोध जमा करें",
+      enterPNO: "पीएनओ दर्ज करें",
+      enterReason: "अवकाश का कारण दर्ज करें",
+      
+      // Added translations for printing and download options
+      print: "प्रिंट",
+      download: "डाउनलोड",
+      printSelected: "चयनित प्रिंट करें",
+      downloadCSV: "CSV डाउनलोड करें"
     },
   },
 };

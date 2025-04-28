@@ -1,16 +1,26 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { StaffTable } from "@/components/staff/StaffTable";
 import { StaffFilters } from "@/components/staff/StaffFilters";
 import { Staff, StaffRank } from "@/types/staff";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const StaffPage = () => {
   const [staff, setStaff] = useState<Staff[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showTable, setShowTable] = useState(false);
+  const { t, i18n } = useTranslation();
+
+  // Set input language for all inputs when component loads or language changes
+  useEffect(() => {
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+      input.lang = i18n.language;
+    });
+  }, [i18n.language]);
 
   const handleSearch = async (pno: string): Promise<boolean> => {
     setIsLoading(true);
@@ -34,7 +44,7 @@ const StaffPage = () => {
       return typedStaff.length > 0;
     } catch (error) {
       console.error('Error searching staff:', error);
-      toast.error('Failed to search staff');
+      toast.error(t('error'));
       return false;
     } finally {
       setIsLoading(false);
@@ -62,7 +72,7 @@ const StaffPage = () => {
       setShowTable(true);
     } catch (error) {
       console.error('Error fetching all staff:', error);
-      toast.error('Failed to load staff');
+      toast.error(t('error'));
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +83,7 @@ const StaffPage = () => {
       <Header />
       <main className="container mx-auto py-6 px-4">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold mb-6">Staff</h1>
+          <h1 className="text-2xl font-semibold mb-6">{t('staff')}</h1>
           <StaffFilters
             onSearch={handleSearch}
             onShowAll={handleShowAll}

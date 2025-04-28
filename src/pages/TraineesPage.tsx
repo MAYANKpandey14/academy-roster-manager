@@ -1,16 +1,26 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { TraineeTable } from "@/components/trainee/TraineeTable";
 import { TraineeFilters } from "@/components/trainee/TraineeFilters";
 import { Trainee, BloodGroup } from "@/types/trainee";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const TraineesPage = () => {
   const [trainees, setTrainees] = useState<Trainee[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showTable, setShowTable] = useState(false);
+  const { t, i18n } = useTranslation();
+
+  // Set input language for all inputs when component loads or language changes
+  useEffect(() => {
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+      input.lang = i18n.language;
+    });
+  }, [i18n.language]);
 
   const handleSearch = async (pno: string, chestNo: string, rollNo: string): Promise<boolean> => {
     setIsLoading(true);
@@ -36,7 +46,7 @@ const TraineesPage = () => {
       return typedTrainees.length > 0;
     } catch (error) {
       console.error('Error searching trainees:', error);
-      toast.error('Failed to search trainees');
+      toast.error(t('error'));
       return false;
     } finally {
       setIsLoading(false);
@@ -63,7 +73,7 @@ const TraineesPage = () => {
       setShowTable(true);
     } catch (error) {
       console.error('Error fetching all trainees:', error);
-      toast.error('Failed to load trainees');
+      toast.error(t('error'));
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +84,7 @@ const TraineesPage = () => {
       <Header />
       <main className="container mx-auto py-6 px-4">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold mb-6">Trainees</h1>
+          <h1 className="text-2xl font-semibold mb-6">{t('trainees')}</h1>
           <TraineeFilters
             onSearch={handleSearch}
             onShowAll={handleShowAll}

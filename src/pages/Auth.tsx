@@ -40,7 +40,7 @@ export default function Auth() {
         await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/reset-password`,
         });
-        toast.success("Password reset email sent!");
+        toast.success(t("passwordUpdated"));
         setResetPassword(false);
       } else {
         const { error } = await supabase.auth.signInWithPassword({

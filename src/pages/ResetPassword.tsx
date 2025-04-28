@@ -25,10 +25,10 @@ export default function ResetPassword() {
   const { t, i18n } = useTranslation();
 
   const formSchema = z.object({
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    password: z.string().min(6, t("passwordUpdated")),
     confirmPassword: z.string(),
   }).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: t("passwordUpdated"),
     path: ["confirmPassword"],
   });
 
@@ -90,7 +90,11 @@ export default function ResetPassword() {
                 <FormItem>
                   <FormLabel>{t("newPassword")}</FormLabel>
                   <FormControl>
-                    <Input type="password" {...field} lang={i18n.language} />
+                    <Input 
+                      type="password" 
+                      {...field} 
+                      lang={i18n.language} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -104,7 +108,11 @@ export default function ResetPassword() {
                 <FormItem>
                   <FormLabel>{t("confirmPassword")}</FormLabel>
                   <FormControl>
-                    <Input type="password" {...field} lang={i18n.language} />
+                    <Input 
+                      type="password" 
+                      {...field} 
+                      lang={i18n.language} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
