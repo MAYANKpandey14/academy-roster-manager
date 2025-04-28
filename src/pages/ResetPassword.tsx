@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -7,22 +6,19 @@ import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 import LanguageSwitcher from "@/components/languageswitch/LanguageSwitcher";
 
 export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  
+  // Use the language inputs hook
+  useLanguageInputs();
 
   const formSchema = z.object({
     password: z.string().min(6, t("passwordUpdated")),
@@ -69,9 +65,9 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
-      {/* Language Switcher positioned at top-right */}
-      <div className="absolute top-4 right-4 z-10">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+      {/* Language Switcher - Positioned consistently with Auth page */}
+      <div className="w-full max-w-md flex justify-end mb-4">
         <LanguageSwitcher />
       </div>
       

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 import LanguageSwitcher from "@/components/languageswitch/LanguageSwitcher";
 
 export default function Auth() {
@@ -15,23 +16,17 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [resetPassword, setResetPassword] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const { t, i18n } = useTranslation();
-
-  const img = new Image();
-  img.src = '/login.jpeg';
-  img.onload = () => setImageLoaded(true);
-
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
-  // Set the HTML input language based on the selected language
+  // Use the language inputs hook
+  useLanguageInputs();
+
   useEffect(() => {
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach(input => {
-      if (input instanceof HTMLElement) {
-        input.lang = i18n.language;
-      }
-    });
-  }, [i18n.language]);
+    const img = new Image();
+    img.src = '/login.jpeg';
+    img.onload = () => setImageLoaded(true);
+  }, []);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +57,7 @@ export default function Auth() {
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center relative"
+      className="min-h-screen relative flex flex-col items-center justify-center p-4 md:p-6"
       style={{
         backgroundImage: imageLoaded ? "url('/login.jpeg')" : "none",
         backgroundSize: "cover",
@@ -70,27 +65,34 @@ export default function Auth() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Overlay for better text readability */}
+      {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       
-      {/* Language Switcher positioned at top-right */}
-      <div className="absolute top-4 right-4 z-10">
+      {/* Language Switcher - Now positioned relative to the container */}
+      <div className="relative z-20 w-full flex justify-end mb-4">
         <LanguageSwitcher />
       </div>
       
-      <div className="max-w-md w-full mx-4 relative z-10">
-        <div className="bg-white/95 backdrop-blur-md p-8 rounded-xl shadow-2xl">
+      {/* Auth Form Container */}
+      <div className="w-full max-w-md relative z-10">
+        <div className="bg-white/95 backdrop-blur-md p-6 md:p-8 rounded-xl shadow-2xl">
           <div className="text-center">
-            <img src="/upp_logo.png" alt="Logo" className="mx-auto h-28 w-28" />
-            <h2 className="mt-6 text-2xl md:text-3xl font-extrabold text-gray-900">
+            <img 
+              src="/upp_logo.png" 
+              alt="Logo" 
+              className="mx-auto h-20 w-20 md:h-28 md:h-28" 
+            />
+            <h2 className="mt-6 text-2xl md:text-3xl font-bold text-gray-900">
               {resetPassword ? t("resetPassword") : t("signInToAccount")}
             </h2>
           </div>
           
-          <form className="mt-8 space-y-6" onSubmit={handleAuth}>
+          <form onSubmit={handleAuth} className="mt-8 space-y-6">
             <div className="rounded-md space-y-4">
               <div>
-                <Label htmlFor="email" className="text-gray-900">{t("emailAddress")}</Label>
+                <Label htmlFor="email" className="text-gray-900">
+                  {t("emailAddress")}
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -99,13 +101,14 @@ export default function Auth() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t("emailAddress")}
                   className="bg-white/80"
-                  lang={i18n.language}
                 />
               </div>
               
               {!resetPassword && (
                 <div>
-                  <Label htmlFor="password" className="text-gray-900">{t("password")}</Label>
+                  <Label htmlFor="password" className="text-gray-900">
+                    {t("password")}
+                  </Label>
                   <Input
                     id="password"
                     type="password"
@@ -114,7 +117,6 @@ export default function Auth() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder={t("password")}
                     className="bg-white/80"
-                    lang={i18n.language}
                   />
                 </div>
               )}
@@ -131,7 +133,7 @@ export default function Auth() {
                   : t("signIn")}
               </Button>
               
-              {!resetPassword && (
+              {!resetPassword ? (
                 <Button
                   type="button"
                   variant="link"
@@ -140,9 +142,7 @@ export default function Auth() {
                 >
                   {t("forgotPassword")}
                 </Button>
-              )}
-              
-              {resetPassword && (
+              ) : (
                 <Button
                   type="button"
                   variant="link"

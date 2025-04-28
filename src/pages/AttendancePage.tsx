@@ -1,26 +1,19 @@
-
 import { Header } from "@/components/layout/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AttendanceForm } from "@/components/attendance/AttendanceForm";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 
 export default function AttendancePage() {
-  const [key, setKey] = useState(0); // Used to force re-render of forms
-  const { t, i18n } = useTranslation();
-
-  // Set input language for all inputs when component loads or language changes
-  useEffect(() => {
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach(input => {
-      if (input instanceof HTMLElement) {
-        input.lang = i18n.language;
-      }
-    });
-  }, [i18n.language]);
+  const [key, setKey] = useState(0);
+  const { t } = useTranslation();
+  
+  // Use the language inputs hook
+  useLanguageInputs();
 
   const handleSuccess = () => {
-    setKey(prev => prev + 1); // Force re-render the form
+    setKey(prev => prev + 1);
   };
 
   return (

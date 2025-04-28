@@ -1,23 +1,16 @@
-
 import { Header } from "@/components/layout/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LeaveForm } from "@/components/leave/LeaveForm";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 
 const LeavePage = () => {
   const [key, setKey] = useState(0);
-  const { t, i18n } = useTranslation();
-
-  // Set input language for all inputs when component loads or language changes
-  useEffect(() => {
-    const inputs = document.querySelectorAll('input, textarea');
-    inputs.forEach(input => {
-      if (input instanceof HTMLElement) {
-        input.lang = i18n.language;
-      }
-    });
-  }, [i18n.language]);
+  const { t } = useTranslation();
+  
+  // Use the language inputs hook
+  useLanguageInputs();
 
   const handleSuccess = () => {
     setKey(prev => prev + 1);
