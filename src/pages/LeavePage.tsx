@@ -13,7 +13,9 @@ const LeavePage = () => {
   useEffect(() => {
     const inputs = document.querySelectorAll('input, textarea');
     inputs.forEach(input => {
-      input.lang = i18n.language;
+      if (input instanceof HTMLElement) {
+        input.lang = i18n.language;
+      }
     });
   }, [i18n.language]);
 

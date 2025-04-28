@@ -1,12 +1,18 @@
-import * as React from "react"
 
+import * as React from "react"
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils"
 
 export interface TextareaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, lang, ...props }, ref) => {
+    const { i18n } = useTranslation();
+    
+    // Use the provided lang or default to current app language
+    const textareaLang = lang || i18n.language;
+    
     return (
       <textarea
         className={cn(
@@ -14,6 +20,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           className
         )}
         ref={ref}
+        lang={textareaLang}
         {...props}
       />
     )

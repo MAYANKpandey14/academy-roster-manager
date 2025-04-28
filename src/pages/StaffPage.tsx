@@ -18,7 +18,9 @@ const StaffPage = () => {
   useEffect(() => {
     const inputs = document.querySelectorAll('input');
     inputs.forEach(input => {
-      input.lang = i18n.language;
+      if (input instanceof HTMLElement) {
+        input.lang = i18n.language;
+      }
     });
   }, [i18n.language]);
 
