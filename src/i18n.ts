@@ -127,10 +127,10 @@ i18n
   .init({
     resources,
     fallbackLng: 'en',
-    debug: false, // Deno functions should not leak logs in production
+    debug: false, // Set to false for production
 
     interpolation: {
-      escapeValue: false, // React handles XSS protection
+      escapeValue: false, // React already escapes by default
     },
 
     detection: {
