@@ -36,6 +36,11 @@ interface TranslationKeys {
   email: string;
   phone: string;
   address: string;
+  
+  headerTitle: string;
+  home: string;
+  logoutSuccess: string;
+  logoutError: string;
 }
 
 interface Resources {
