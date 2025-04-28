@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -16,18 +16,21 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { toast } from "sonner";
-
-const formSchema = z.object({
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/languageswitch/LanguageSwitcher";
 
 export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+
+  const formSchema = z.object({
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string(),
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -36,6 +39,14 @@ export default function ResetPassword() {
       confirmPassword: "",
     },
   });
+  
+  // Set input language based on selected language
+  useEffect(() => {
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+      input.lang = i18n.language;
+    });
+  }, [i18n.language]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -46,7 +57,7 @@ export default function ResetPassword() {
 
       if (error) throw error;
 
-      toast.success("Password updated successfully!");
+      toast.success(t("passwordUpdated"));
       navigate("/auth");
     } catch (error: any) {
       toast.error(error.message);
@@ -57,11 +68,16 @@ export default function ResetPassword() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+      {/* Language Switcher positioned at top-right */}
+      <div className="absolute top-4 right-4 z-10">
+        <LanguageSwitcher />
+      </div>
+      
       <div className="w-full max-w-md space-y-8">
         <div>
           <img src="/images.svg" alt="Logo" className="mx-auto h-24 w-24" />
           <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-            Reset your password
+            {t("resetYourPassword")}
           </h2>
         </div>
 
@@ -72,9 +88,9 @@ export default function ResetPassword() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>New Password</FormLabel>
+                  <FormLabel>{t("newPassword")}</FormLabel>
                   <FormControl>
-                    <Input type="password" {...field} />
+                    <Input type="password" {...field} lang={i18n.language} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -86,9 +102,9 @@ export default function ResetPassword() {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
+                  <FormLabel>{t("confirmPassword")}</FormLabel>
                   <FormControl>
-                    <Input type="password" {...field} />
+                    <Input type="password" {...field} lang={i18n.language} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -96,7 +112,7 @@ export default function ResetPassword() {
             />
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Updating..." : "Update Password"}
+              {loading ? t("processing") : t("updatePassword")}
             </Button>
           </form>
         </Form>
