@@ -5,6 +5,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'KrutiDev';
+  src: url('/font/KrutiDev.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   :root {
     --background: 210 40% 98%;
@@ -96,12 +104,21 @@
   }
 }
 
-.print-button {
-  @apply bg-blue-600 hover:bg-blue-700 text-white;
+/* Language-specific styles */
+.krutidev-font {
+  font-family: 'KrutiDev', sans-serif;
 }
 
-.download-button {
-  @apply bg-green-600 hover:bg-green-700 text-white;
+.lang-hi {
+  /* Hindi language specific styling */
+}
+
+.dynamic-text {
+  transition: font-family 0.2s ease;
+}
+
+.dynamic-text.lang-hi {
+  font-family: 'KrutiDev', sans-serif;
 }
 
 /* Print styles */
@@ -125,4 +142,13 @@
     margin: 0;
     padding: 0;
   }
+}
+
+/* Form element styles */
+.print-button {
+  @apply bg-blue-600 hover:bg-blue-700 text-white;
+}
+
+.download-button {
+  @apply bg-green-600 hover:bg-green-700 text-white;
 }

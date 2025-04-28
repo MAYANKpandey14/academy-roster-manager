@@ -13,6 +13,8 @@ import { DateFields } from "./form/DateFields";
 import { ContactFields } from "./form/ContactFields";
 import { useNavigate } from "react-router-dom";
 import { updateTrainee } from "@/services/api";
+import { useTranslation } from "react-i18next";
+import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 
 interface EditTraineeFormProps {
   trainee: Trainee;
@@ -22,6 +24,10 @@ interface EditTraineeFormProps {
 export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  
+  // Apply language inputs hook for form fields
+  useLanguageInputs();
 
   // Format dates for form input fields (YYYY-MM-DD)
   const formatDateForInput = (dateString: string): string => {
@@ -80,7 +86,7 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
         throw response.error;
       }
       
-      toast.success("Trainee updated successfully");
+      toast.success(t("traineeUpdated", "Trainee updated successfully"));
       
       if (onSuccess) {
         onSuccess();
@@ -88,7 +94,9 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
       navigate('/');
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to update trainee data");
+      toast.error(error instanceof Error 
+        ? error.message 
+        : t("failedToUpdateTrainee", "Failed to update trainee data"));
     } finally {
       setIsSubmitting(false);
     }
@@ -97,7 +105,7 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
   return (
     <div className="container mx-auto py-6">
       <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-        <h2 className="text-2xl font-semibold mb-6">Edit Trainee</h2>
+        <h2 className="text-2xl font-semibold mb-6 dynamic-text">{t("editTrainee", "Edit Trainee")}</h2>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="space-y-6">
@@ -115,10 +123,14 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
                   onClick={() => navigate('/')}
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  <span className="dynamic-text">{t("cancel", "Cancel")}</span>
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Saving..." : "Update Trainee"}
+                  <span className="dynamic-text">
+                    {isSubmitting 
+                      ? t("saving", "Saving...") 
+                      : t("updateTrainee", "Update Trainee")}
+                  </span>
                 </Button>
               </div>
             </div>

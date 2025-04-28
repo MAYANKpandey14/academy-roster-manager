@@ -4,12 +4,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { UseFormReturn } from "react-hook-form";
 import { TraineeFormValues } from "../TraineeFormSchema";
+import { useTranslation } from "react-i18next";
 
 interface ContactFieldsProps {
   form: UseFormReturn<TraineeFormValues>;
 }
 
 export function ContactFields({ form }: ContactFieldsProps) {
+  const { t } = useTranslation();
+
   return (
     <>
       <FormField
@@ -17,11 +20,11 @@ export function ContactFields({ form }: ContactFieldsProps) {
         name="mobile_number"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Mobile Number</FormLabel>
+            <FormLabel className="dynamic-text">{t("mobileNumber", "Mobile Number")}</FormLabel>
             <FormControl>
-              <Input maxLength={10} placeholder="Enter mobile number" type="tel" {...field} />
+              <Input maxLength={10} placeholder={t("enterMobileNumber", "Enter mobile number")} type="tel" {...field} />
             </FormControl>
-            <FormMessage />
+            <FormMessage className="dynamic-text" />
           </FormItem>
         )}
       />
@@ -31,15 +34,15 @@ export function ContactFields({ form }: ContactFieldsProps) {
         name="home_address"
         render={({ field }) => (
           <FormItem className="col-span-full">
-            <FormLabel>Home Address</FormLabel>
+            <FormLabel className="dynamic-text">{t("homeAddress", "Home Address")}</FormLabel>
             <FormControl>
               <Textarea 
-                placeholder="Enter full home address" 
+                placeholder={t("enterFullHomeAddress", "Enter full home address")} 
                 className="min-h-[80px]" 
                 {...field} 
               />
             </FormControl>
-            <FormMessage />
+            <FormMessage className="dynamic-text" />
           </FormItem>
         )}
       />

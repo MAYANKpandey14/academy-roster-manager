@@ -3,12 +3,15 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { TraineeFormValues } from "../TraineeFormSchema";
+import { useTranslation } from "react-i18next";
 
 interface DateFieldsProps {
   form: UseFormReturn<TraineeFormValues>;
 }
 
 export function DateFields({ form }: DateFieldsProps) {
+  const { t } = useTranslation();
+
   return (
     <>
       <FormField
@@ -16,7 +19,7 @@ export function DateFields({ form }: DateFieldsProps) {
         name="date_of_birth"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Date of Birth</FormLabel>
+            <FormLabel className="dynamic-text">{t("dateOfBirth", "Date of Birth")}</FormLabel>
             <FormControl>
               <Input 
                 type="date" 
@@ -24,7 +27,7 @@ export function DateFields({ form }: DateFieldsProps) {
                 {...field}
               />
             </FormControl>
-            <FormMessage />
+            <FormMessage className="dynamic-text" />
           </FormItem>
         )}
       />
@@ -34,7 +37,7 @@ export function DateFields({ form }: DateFieldsProps) {
         name="date_of_joining"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Date of Joining</FormLabel>
+            <FormLabel className="dynamic-text">{t("dateOfJoining", "Date of Joining")}</FormLabel>
             <FormControl>
               <Input 
                 type="date" 
@@ -42,7 +45,7 @@ export function DateFields({ form }: DateFieldsProps) {
                 {...field}
               />
             </FormControl>
-            <FormMessage />
+            <FormMessage className="dynamic-text" />
           </FormItem>
         )}
       />
@@ -52,7 +55,7 @@ export function DateFields({ form }: DateFieldsProps) {
         name="arrival_date"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Date of Arrival</FormLabel>
+            <FormLabel className="dynamic-text">{t("dateOfArrival", "Date of Arrival")}</FormLabel>
             <FormControl>
               <Input 
                 type="date" 
@@ -60,7 +63,7 @@ export function DateFields({ form }: DateFieldsProps) {
                 {...field}
               />
             </FormControl>
-            <FormMessage />
+            <FormMessage className="dynamic-text" />
           </FormItem>
         )}
       />
@@ -70,7 +73,7 @@ export function DateFields({ form }: DateFieldsProps) {
         name="departure_date"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Date of Departure</FormLabel>
+            <FormLabel className="dynamic-text">{t("dateOfDeparture", "Date of Departure")}</FormLabel>
             <FormControl>
               <Input 
                 type="date" 
@@ -78,7 +81,7 @@ export function DateFields({ form }: DateFieldsProps) {
                 {...field}
               />
             </FormControl>
-            <FormMessage />
+            <FormMessage className="dynamic-text" />
           </FormItem>
         )}
       />

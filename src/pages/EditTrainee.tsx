@@ -6,12 +6,18 @@ import { EditTraineeForm } from "@/components/trainee/EditTraineeForm";
 import { Trainee } from "@/types/trainee";
 import { toast } from "sonner";
 import { getTrainees } from "@/services/api";
+import { useTranslation } from "react-i18next";
+import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 
 const EditTraineePage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [trainee, setTrainee] = useState<Trainee | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useTranslation();
+  
+  // Apply language inputs hook
+  useLanguageInputs();
 
   useEffect(() => {
     const fetchTrainee = async () => {
@@ -29,13 +35,13 @@ const EditTraineePage = () => {
           if (traineeData) {
             setTrainee(traineeData);
           } else {
-            toast.error("Trainee not found");
+            toast.error(t("traineeNotFound", "Trainee not found"));
             navigate("/");
           }
         }
       } catch (error) {
         console.error("Error fetching trainee:", error);
-        toast.error("Failed to load trainee data");
+        toast.error(t("failedToLoadTrainee", "Failed to load trainee data"));
         navigate("/");
       } finally {
         setIsLoading(false);
@@ -43,7 +49,7 @@ const EditTraineePage = () => {
     };
 
     fetchTrainee();
-  }, [id, navigate]);
+  }, [id, navigate, t]);
 
   if (isLoading) {
     return (
@@ -51,7 +57,7 @@ const EditTraineePage = () => {
         <Header />
         <main className="container mx-auto py-6 px-4">
           <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-            <p className="text-center">Loading trainee data...</p>
+            <p className="text-center dynamic-text">{t("loading", "Loading trainee data...")}</p>
           </div>
         </main>
       </div>
@@ -64,7 +70,7 @@ const EditTraineePage = () => {
         <Header />
         <main className="container mx-auto py-6 px-4">
           <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-            <p className="text-center text-red-500">Trainee not found</p>
+            <p className="text-center text-red-500 dynamic-text">{t("traineeNotFound", "Trainee not found")}</p>
           </div>
         </main>
       </div>

@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Staff } from "@/types/staff";
 import { staffFormSchema, StaffFormValues, bloodGroups, staffRanks } from "./StaffFormSchema";
+import { useTranslation } from "react-i18next";
+import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 
 interface StaffFormProps {
   initialData?: Staff;
@@ -22,6 +24,11 @@ interface StaffFormProps {
 }
 
 export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: StaffFormProps) => {
+  const { t } = useTranslation();
+  
+  // Apply language inputs hook
+  useLanguageInputs();
+
   const form = useForm<StaffFormValues>({
     resolver: zodResolver(staffFormSchema),
     defaultValues: initialData || {
@@ -49,11 +56,11 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="pno"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>PNO</FormLabel>
+                <FormLabel className="dynamic-text">{t("pno", "PNO")}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="dynamic-text" />
               </FormItem>
             )}
           />
@@ -63,11 +70,11 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel className="dynamic-text">{t("name", "Name")}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="dynamic-text" />
               </FormItem>
             )}
           />
@@ -77,11 +84,11 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="father_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Father's Name</FormLabel>
+                <FormLabel className="dynamic-text">{t("fatherName", "Father's Name")}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="dynamic-text" />
               </FormItem>
             )}
           />
@@ -91,11 +98,11 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="rank"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Rank</FormLabel>
+                <FormLabel className="dynamic-text">{t("rank", "Rank")}</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select rank" />
+                      <SelectValue placeholder={t("selectRank", "Select rank")} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -106,7 +113,7 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
                     ))}
                   </SelectContent>
                 </Select>
-                <FormMessage />
+                <FormMessage className="dynamic-text" />
               </FormItem>
             )}
           />
@@ -116,11 +123,11 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="current_posting_district"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Current Posting District</FormLabel>
+                <FormLabel className="dynamic-text">{t("currentPostingDistrict", "Current Posting District")}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="dynamic-text" />
               </FormItem>
             )}
           />
@@ -130,11 +137,11 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="mobile_number"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Mobile Number</FormLabel>
+                <FormLabel className="dynamic-text">{t("mobileNumber", "Mobile Number")}</FormLabel>
                 <FormControl>
                   <Input {...field} type="tel" />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="dynamic-text" />
               </FormItem>
             )}
           />
@@ -144,11 +151,11 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="education"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Education</FormLabel>
+                <FormLabel className="dynamic-text">{t("education", "Education")}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="dynamic-text" />
               </FormItem>
             )}
           />
@@ -158,11 +165,11 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="date_of_birth"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date of Birth</FormLabel>
+                <FormLabel className="dynamic-text">{t("dateOfBirth", "Date of Birth")}</FormLabel>
                 <FormControl>
                   <Input {...field} type="date" />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="dynamic-text" />
               </FormItem>
             )}
           />
@@ -172,11 +179,11 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="date_of_joining"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date of Joining</FormLabel>
+                <FormLabel className="dynamic-text">{t("dateOfJoining", "Date of Joining")}</FormLabel>
                 <FormControl>
                   <Input {...field} type="date" />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="dynamic-text" />
               </FormItem>
             )}
           />
@@ -186,11 +193,11 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="blood_group"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Blood Group</FormLabel>
+                <FormLabel className="dynamic-text">{t("bloodGroup", "Blood Group")}</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select blood group" />
+                      <SelectValue placeholder={t("selectBloodGroup", "Select blood group")} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -201,7 +208,7 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
                     ))}
                   </SelectContent>
                 </Select>
-                <FormMessage />
+                <FormMessage className="dynamic-text" />
               </FormItem>
             )}
           />
@@ -211,11 +218,11 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="nominee"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nominee</FormLabel>
+                <FormLabel className="dynamic-text">{t("nominee", "Nominee")}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="dynamic-text" />
               </FormItem>
             )}
           />
@@ -225,11 +232,11 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="home_address"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Home Address</FormLabel>
+                <FormLabel className="dynamic-text">{t("homeAddress", "Home Address")}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="dynamic-text" />
               </FormItem>
             )}
           />
@@ -239,11 +246,11 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="toli_no"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Toli No (Optional)</FormLabel>
+                <FormLabel className="dynamic-text">{t("toliNo", "Toli No (Optional)")}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="dynamic-text" />
               </FormItem>
             )}
           />
@@ -253,11 +260,11 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="class_no"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Class No (Optional)</FormLabel>
+                <FormLabel className="dynamic-text">{t("classNo", "Class No (Optional)")}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="dynamic-text" />
               </FormItem>
             )}
           />
@@ -267,18 +274,25 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="class_subject"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Class Subject (Optional)</FormLabel>
+                <FormLabel className="dynamic-text">{t("classSubject", "Class Subject (Optional)")}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="dynamic-text" />
               </FormItem>
             )}
           />
         </div>
 
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : initialData ? "Update Staff" : "Add Staff"}
+          <span className="dynamic-text">
+            {isSubmitting 
+              ? t("saving", "Saving...") 
+              : initialData 
+                ? t("updateStaff", "Update Staff") 
+                : t("addStaff", "Add Staff")
+            }
+          </span>
         </Button>
       </form>
     </Form>

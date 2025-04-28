@@ -14,6 +14,8 @@ import { useNavigate } from "react-router-dom";
 import { addTrainee } from "@/services/api";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 
 interface AddTraineeFormProps {
   onSuccess?: () => void;
@@ -23,6 +25,10 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  
+  // Apply language inputs hook for form fields
+  useLanguageInputs();
 
   const form = useForm<TraineeFormValues>({
     resolver: zodResolver(traineeFormSchema),
@@ -55,7 +61,7 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
       }
       
       console.log("API response:", response);
-      toast.success("Trainee added successfully");
+      toast.success(t("traineeAdded", "Trainee added successfully"));
       
       if (onSuccess) {
         onSuccess();
@@ -65,7 +71,7 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
       console.error("Error submitting form:", error);
       const errorMessage = error instanceof Error 
         ? error.message 
-        : "Failed to save trainee data. Please try again.";
+        : t("failedToSaveTrainee", "Failed to save trainee data. Please try again.");
       
       setFormError(errorMessage);
       toast.error(errorMessage);
@@ -76,12 +82,12 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
 
   return (
     <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-      <h2 className="text-2xl font-semibold mb-6">Add New Trainee</h2>
+      <h2 className="text-2xl font-semibold mb-6 dynamic-text">{t("addNewTrainee", "Add New Trainee")}</h2>
       
       {formError && (
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{formError}</AlertDescription>
+          <AlertDescription className="dynamic-text">{formError}</AlertDescription>
         </Alert>
       )}
       
@@ -102,10 +108,14 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
                 onClick={() => navigate('/')}
                 disabled={isSubmitting}
               >
-                Cancel
+                <span className="dynamic-text">{t("cancel", "Cancel")}</span>
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Add Trainee"}
+                <span className="dynamic-text">
+                  {isSubmitting 
+                    ? t("saving", "Saving...") 
+                    : t("addTrainee", "Add Trainee")}
+                </span>
               </Button>
             </div>
           </div>

@@ -42,7 +42,7 @@ const TraineesPage = () => {
       return typedTrainees.length > 0;
     } catch (error) {
       console.error('Error searching trainees:', error);
-      toast.error(t('error'));
+      toast.error(t('error', 'An error occurred'));
       return false;
     } finally {
       setIsLoading(false);
@@ -69,7 +69,7 @@ const TraineesPage = () => {
       setShowTable(true);
     } catch (error) {
       console.error('Error fetching all trainees:', error);
-      toast.error(t('error'));
+      toast.error(t('error', 'An error occurred'));
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +80,7 @@ const TraineesPage = () => {
       <Header />
       <main className="container mx-auto py-6 px-4">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold mb-6 dynamic-text">{t('trainees')}</h1>
+          <h1 className="text-2xl font-semibold mb-6 dynamic-text">{t('trainees', 'Trainees')}</h1>
           <TraineeFilters
             onSearch={handleSearch}
             onShowAll={handleShowAll}

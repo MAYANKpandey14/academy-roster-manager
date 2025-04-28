@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/exportUtils";
 import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
+import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 
 interface TraineeTableProps {
   trainees: Trainee[];
@@ -26,6 +28,10 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [selectedCount, setSelectedCount] = useState(0);
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
+  
+  // Apply language inputs hook
+  useLanguageInputs();
   
   useEffect(() => {
     // Update selected count when rowSelection changes
@@ -59,42 +65,46 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
     },
     {
       accessorKey: "pno",
-      header: "PNO",
+      header: () => <span className="dynamic-text">{t("pno", "PNO")}</span>,
     },
     {
       accessorKey: "name",
-      header: "Name",
+      header: () => <span className="dynamic-text">{t("name", "Name")}</span>,
+      cell: ({ row }) => <span className="dynamic-text">{row.getValue("name")}</span>
     },
     {
       accessorKey: "father_name",
-      header: "Father's Name",
+      header: () => <span className="dynamic-text">{t("fatherName", "Father's Name")}</span>,
+      cell: ({ row }) => <span className="dynamic-text">{row.getValue("father_name")}</span>
     },
     {
       accessorKey: "current_posting_district",
-      header: "District",
+      header: () => <span className="dynamic-text">{t("district", "District")}</span>,
+      cell: ({ row }) => <span className="dynamic-text">{row.getValue("current_posting_district")}</span>
     },
     {
       accessorKey: "arrival_date",
-      header: "Arrival Date",
+      header: () => <span className="dynamic-text">{t("arrivalDate", "Arrival Date")}</span>,
       cell: ({ row }) => {
         const date = row.getValue("arrival_date") as string;
-        return date ? format(new Date(date), "PP") : "N/A";
+        return <span>{date ? format(new Date(date), "PP") : "N/A"}</span>;
       },
     },
     {
       accessorKey: "departure_date",
-      header: "Departure Date",
+      header: () => <span className="dynamic-text">{t("departureDate", "Departure Date")}</span>,
       cell: ({ row }) => {
         const date = row.getValue("departure_date") as string;
-        return date ? format(new Date(date), "PP") : "N/A";
+        return <span>{date ? format(new Date(date), "PP") : "N/A"}</span>;
       },
     },
     {
       accessorKey: "mobile_number",
-      header: "Mobile",
+      header: () => <span className="dynamic-text">{t("mobile", "Mobile")}</span>,
     },
     {
       id: "actions",
+      header: () => <span className="dynamic-text">{t("actions", "Actions")}</span>,
       cell: ({ row }) => {
         const trainee = row.original;
         return (
@@ -120,26 +130,26 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
     const selectedTrainees = getSelectedTrainees();
     
     if (selectedTrainees.length === 0) {
-      toast.error("Please select at least one trainee to print");
+      toast.error(t("selectTraineesToPrint", "Please select at least one trainee to print"));
       return;
     }
     
     const content = createPrintContent(selectedTrainees);
     handlePrint(content);
-    toast.success(`Printing ${selectedTrainees.length} trainee(s)`);
+    toast.success(t("printingTrainees", `Printing ${selectedTrainees.length} trainee(s)`));
   }
 
   function handleDownloadAction() {
     const selectedTrainees = getSelectedTrainees();
     
     if (selectedTrainees.length === 0) {
-      toast.error("Please select at least one trainee to download");
+      toast.error(t("selectTraineesToDownload", "Please select at least one trainee to download"));
       return;
     }
     
     const content = createCSVContent(selectedTrainees);
     handleDownload(content, `selected_trainees_${new Date().toISOString().split('T')[0]}.csv`);
-    toast.success(`CSV file with ${selectedTrainees.length} trainees downloaded successfully`);
+    toast.success(t("traineeCSVDownloaded", `CSV file with ${selectedTrainees.length} trainees downloaded successfully`));
   }
 
   return (
@@ -153,8 +163,8 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
           disabled={isLoading || selectedCount === 0}
         >
           <Printer className="h-4 w-4" />
-          {!isMobile && <span className="ml-2">
-            Print {selectedCount > 0 ? `Selected (${selectedCount})` : ""}
+          {!isMobile && <span className="ml-2 dynamic-text">
+            {t("print", "Print")} {selectedCount > 0 ? `${t("selected", "Selected")} (${selectedCount})` : ""}
           </span>}
         </Button>
         <Button
@@ -165,8 +175,8 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
           disabled={isLoading || selectedCount === 0}
         >
           <Download className="h-4 w-4" />
-          {!isMobile && <span className="ml-2">
-            Download {selectedCount > 0 ? `Selected (${selectedCount})` : ""}
+          {!isMobile && <span className="ml-2 dynamic-text">
+            {t("download", "Download")} {selectedCount > 0 ? `${t("selected", "Selected")} (${selectedCount})` : ""}
           </span>}
         </Button>
       </div>
@@ -175,7 +185,7 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
         columns={columns}
         data={trainees}
         filterColumn="name"
-        filterPlaceholder="Search by name..."
+        filterPlaceholder={t("searchByName", "Search by name...")}
         isLoading={isLoading}
         onRowSelectionChange={setRowSelection}
         rowSelection={rowSelection}

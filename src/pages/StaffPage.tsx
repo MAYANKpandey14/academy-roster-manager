@@ -40,7 +40,7 @@ const StaffPage = () => {
       return typedStaff.length > 0;
     } catch (error) {
       console.error('Error searching staff:', error);
-      toast.error(t('error'));
+      toast.error(t('error', 'An error occurred'));
       return false;
     } finally {
       setIsLoading(false);
@@ -68,7 +68,7 @@ const StaffPage = () => {
       setShowTable(true);
     } catch (error) {
       console.error('Error fetching all staff:', error);
-      toast.error(t('error'));
+      toast.error(t('error', 'An error occurred'));
     } finally {
       setIsLoading(false);
     }
@@ -79,7 +79,7 @@ const StaffPage = () => {
       <Header />
       <main className="container mx-auto py-6 px-4">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold mb-6 dynamic-text">{t('staff')}</h1>
+          <h1 className="text-2xl font-semibold mb-6 dynamic-text">{t('staff', 'Staff')}</h1>
           <StaffFilters
             onSearch={handleSearch}
             onShowAll={handleShowAll}

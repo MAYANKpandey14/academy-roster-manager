@@ -5,12 +5,15 @@ import { UseFormReturn } from "react-hook-form";
 import { TraineeFormValues } from "../TraineeFormSchema";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { bloodGroups } from "../TraineeFormSchema";
+import { useTranslation } from "react-i18next";
 
 interface PersonalInfoFieldsProps {
   form: UseFormReturn<TraineeFormValues>;
 }
 
 export function PersonalInfoFields({ form }: PersonalInfoFieldsProps) {
+  const { t } = useTranslation();
+
   return (
     <>
       <FormField
@@ -18,11 +21,11 @@ export function PersonalInfoFields({ form }: PersonalInfoFieldsProps) {
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Name</FormLabel>
+            <FormLabel className="dynamic-text">{t("name", "Name")}</FormLabel>
             <FormControl>
-              <Input placeholder="Enter full name" {...field} />
+              <Input placeholder={t("enterFullName", "Enter full name")} {...field} />
             </FormControl>
-            <FormMessage />
+            <FormMessage className="dynamic-text" />
           </FormItem>
         )}
       />
@@ -32,11 +35,11 @@ export function PersonalInfoFields({ form }: PersonalInfoFieldsProps) {
         name="father_name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Father's Name</FormLabel>
+            <FormLabel className="dynamic-text">{t("fatherName", "Father's Name")}</FormLabel>
             <FormControl>
-              <Input placeholder="Enter father's name" {...field} />
+              <Input placeholder={t("enterFatherName", "Enter father's name")} {...field} />
             </FormControl>
-            <FormMessage />
+            <FormMessage className="dynamic-text" />
           </FormItem>
         )}
       />
@@ -46,11 +49,11 @@ export function PersonalInfoFields({ form }: PersonalInfoFieldsProps) {
         name="blood_group"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Blood Group</FormLabel>
+            <FormLabel className="dynamic-text">{t("bloodGroup", "Blood Group")}</FormLabel>
             <Select onValueChange={field.onChange} defaultValue={field.value}>
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select blood group" />
+                  <SelectValue placeholder={t("selectBloodGroup", "Select blood group")} />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
@@ -61,7 +64,7 @@ export function PersonalInfoFields({ form }: PersonalInfoFieldsProps) {
                 ))}
               </SelectContent>
             </Select>
-            <FormMessage />
+            <FormMessage className="dynamic-text" />
           </FormItem>
         )}
       />
@@ -71,11 +74,11 @@ export function PersonalInfoFields({ form }: PersonalInfoFieldsProps) {
         name="nominee"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Nominee</FormLabel>
+            <FormLabel className="dynamic-text">{t("nominee", "Nominee")}</FormLabel>
             <FormControl>
-              <Input placeholder="Enter nominee name" {...field} />
+              <Input placeholder={t("enterNomineeName", "Enter nominee name")} {...field} />
             </FormControl>
-            <FormMessage />
+            <FormMessage className="dynamic-text" />
           </FormItem>
         )}
       />

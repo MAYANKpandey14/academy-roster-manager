@@ -1,8 +1,12 @@
 
 import { Header } from "@/components/layout/Header";
 import { AddTraineeForm } from "@/components/trainee/AddTraineeForm";
+import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 
 const AddTraineePage = () => {
+  // Apply language inputs hook
+  useLanguageInputs();
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />

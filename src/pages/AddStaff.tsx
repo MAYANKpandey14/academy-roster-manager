@@ -8,10 +8,16 @@ import { StaffForm } from "@/components/staff/StaffForm";
 import { StaffFormValues } from "@/components/staff/StaffFormSchema";
 import { addStaff } from "@/services/staffApi";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
+import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 
 const AddStaff = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  
+  // Apply language inputs hook
+  useLanguageInputs();
 
   const handleSubmit = async (data: StaffFormValues) => {
     try {
@@ -20,11 +26,11 @@ const AddStaff = () => {
       
       if (error) throw error;
       
-      toast.success("Staff added successfully");
+      toast.success(t("staffAddedSuccessfully", "Staff added successfully"));
       navigate("/staff");
     } catch (error) {
       console.error("Error adding staff:", error);
-      toast.error("Failed to add staff");
+      toast.error(t("failedToAddStaff", "Failed to add staff"));
     } finally {
       setIsSubmitting(false);
     }
@@ -35,9 +41,9 @@ const AddStaff = () => {
       <Header />
       <main className="container mx-auto py-6 px-4">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-semibold">Add New Staff</h1>
+          <h1 className="text-2xl font-semibold dynamic-text">{t("addNewStaff", "Add New Staff")}</h1>
           <Button variant="outline" onClick={() => navigate("/staff")}>
-            Cancel
+            <span className="dynamic-text">{t("cancel", "Cancel")}</span>
           </Button>
         </div>
 

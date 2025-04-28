@@ -9,6 +9,8 @@ import { StaffFormValues } from "@/components/staff/StaffFormSchema";
 import { getStaffById, updateStaff } from "@/services/staffApi";
 import { toast } from "sonner";
 import { Staff } from "@/types/staff";
+import { useTranslation } from "react-i18next";
+import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 
 const EditStaff = () => {
   const { id } = useParams();
@@ -16,6 +18,10 @@ const EditStaff = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [staff, setStaff] = useState<Staff | null>(null);
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  
+  // Apply language inputs hook
+  useLanguageInputs();
 
   useEffect(() => {
     const fetchStaff = async () => {
@@ -29,7 +35,7 @@ const EditStaff = () => {
         setStaff(data);
       } catch (error) {
         console.error("Error fetching staff:", error);
-        toast.error("Failed to load staff details");
+        toast.error(t("failedToLoadStaffDetails", "Failed to load staff details"));
         navigate("/staff");
       } finally {
         setIsLoading(false);
@@ -37,7 +43,7 @@ const EditStaff = () => {
     };
 
     fetchStaff();
-  }, [id, navigate]);
+  }, [id, navigate, t]);
 
   const handleSubmit = async (data: StaffFormValues) => {
     if (!id) return;
@@ -48,11 +54,11 @@ const EditStaff = () => {
       
       if (error) throw error;
       
-      toast.success("Staff updated successfully");
+      toast.success(t("staffUpdatedSuccessfully", "Staff updated successfully"));
       navigate("/staff");
     } catch (error) {
       console.error("Error updating staff:", error);
-      toast.error("Failed to update staff");
+      toast.error(t("failedToUpdateStaff", "Failed to update staff"));
     } finally {
       setIsSubmitting(false);
     }
@@ -63,7 +69,7 @@ const EditStaff = () => {
       <div className="min-h-screen bg-gray-50">
         <Header />
         <main className="container mx-auto py-6 px-4">
-          <p className="text-center">Loading...</p>
+          <p className="text-center dynamic-text">{t("loading", "Loading...")}</p>
         </main>
       </div>
     );
@@ -74,7 +80,7 @@ const EditStaff = () => {
       <div className="min-h-screen bg-gray-50">
         <Header />
         <main className="container mx-auto py-6 px-4">
-          <p className="text-center text-red-500">Staff not found</p>
+          <p className="text-center text-red-500 dynamic-text">{t("staffNotFound", "Staff not found")}</p>
         </main>
       </div>
     );
@@ -85,9 +91,9 @@ const EditStaff = () => {
       <Header />
       <main className="container mx-auto py-6 px-4">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-semibold">Edit Staff</h1>
+          <h1 className="text-2xl font-semibold dynamic-text">{t("editStaff", "Edit Staff")}</h1>
           <Button variant="outline" onClick={() => navigate("/staff")}>
-            Cancel
+            <span className="dynamic-text">{t("cancel", "Cancel")}</span>
           </Button>
         </div>
 
