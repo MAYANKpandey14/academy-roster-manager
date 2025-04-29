@@ -1,7 +1,9 @@
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { format } from "date-fns";
 import {
   Form,
   FormControl,
@@ -21,10 +23,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { AttendanceRecord } from "./types";
-import { attendanceFormSchema, AttendanceFormValues } from "./AttendanceFormSchema";
+import { attendanceFormSchema, AttendanceFormValues } from "./schema";
 import { useAttendance } from "@/hooks/useAttendance";
 import { useQueryClient } from "@tanstack/react-query";
+
+interface AttendanceRecord {
+  id?: string;
+  pno: string;
+  name: string;
+  rank?: string;
+  phone?: string;
+  type: 'Absent' | 'On Leave';
+  leave_type?: 'CL' | 'EL' | 'ML' | 'Maternity Leave' | null;
+  date_from: string;
+  date_to: string;
+  reason?: string;
+  created_at?: string;
+}
 
 export function AttendanceForm({ onSuccess }: { onSuccess?: () => void }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,8 +54,9 @@ export function AttendanceForm({ onSuccess }: { onSuccess?: () => void }) {
       type: "Absent",
       rank: "",
       phone: "",
-      date_from: new Date().toISOString().split('T')[0],
-      date_to: new Date().toISOString().split('T')[0],
+      status: "absent",
+      start_date: new Date(),
+      end_date: new Date(),
       reason: "",
       leave_type: undefined,
     },
@@ -54,11 +70,11 @@ export function AttendanceForm({ onSuccess }: { onSuccess?: () => void }) {
       const record: AttendanceRecord = {
         pno: values.pno || '', // Ensure pno is always provided
         name: values.name || '',
-        type: values.type as 'Absent' | 'On Leave',
+        type: values.type,
         rank: values.rank,
         phone: values.phone,
-        date_from: values.date_from,
-        date_to: values.date_to,
+        date_from: format(values.start_date, 'yyyy-MM-dd'),
+        date_to: format(values.end_date, 'yyyy-MM-dd'),
         reason: values.reason,
         leave_type: values.type === 'On Leave' ? values.leave_type as 'CL' | 'EL' | 'ML' | 'Maternity Leave' : null
       };
@@ -132,7 +148,7 @@ export function AttendanceForm({ onSuccess }: { onSuccess?: () => void }) {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>फ़ोन</FormLabel>
+                  <FormLabel>फ़ोन</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -188,12 +204,13 @@ export function AttendanceForm({ onSuccess }: { onSuccess?: () => void }) {
             )}
             <FormField
               control={form.control}
-              name="date_from"
+              name="start_date"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>कब से</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Input type="date" value={field.value ? field.value.toISOString().split('T')[0] : ''} 
+                      onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -201,12 +218,13 @@ export function AttendanceForm({ onSuccess }: { onSuccess?: () => void }) {
             />
             <FormField
               control={form.control}
-              name="date_to"
+              name="end_date"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>कब तक</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Input type="date" value={field.value ? field.value.toISOString().split('T')[0] : ''} 
+                      onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

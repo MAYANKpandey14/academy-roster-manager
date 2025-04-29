@@ -1,60 +1,49 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "sonner";
-import { AttendanceLeaveForm } from "./AttendanceLeaveForm";
-import { LeaveHistoryTable } from "./LeaveHistoryTable";
-import { PersonType } from "./types";
+import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import { AttendanceTable } from "./AttendanceTable";
+import { LeaveHistoryTableContent } from "./components/LeaveHistoryTableContent";
 
 interface AttendanceTabsProps {
-  activeTab: PersonType;
-  setActiveTab: (tab: PersonType) => void;
-  personData: any | null;
+  personId?: string;
+  personType: 'trainee' | 'staff';
+  searchData?: any;
 }
 
-export function AttendanceTabs({ activeTab, setActiveTab, personData }: AttendanceTabsProps) {
+export function AttendanceTabs({ personId, personType, searchData }: AttendanceTabsProps) {
+  const [key, setKey] = useState(0);
+
+  const handleSuccess = () => {
+    setKey(prev => prev + 1);
+  };
+
   return (
-    <Tabs 
-      defaultValue="trainee" 
-      value={activeTab} 
-      onValueChange={(value) => setActiveTab(value as PersonType)}
-    >
-      <TabsList className="mb-4">
-        <TabsTrigger value="trainee" className="dynamic-text">प्रशिक्षु उपस्थिति</TabsTrigger>
-        <TabsTrigger value="staff" className="dynamic-text">स्टाफ उपस्थिति</TabsTrigger>
+    <Tabs defaultValue="attendance" className="w-full">
+      <TabsList>
+        <TabsTrigger value="attendance">उपस्थिति रिकॉर्ड</TabsTrigger>
+        <TabsTrigger value="leave">अवकाश इतिहास</TabsTrigger>
       </TabsList>
-      
-      <TabsContent value="trainee" className="space-y-6">
-        <AttendanceLeaveForm 
-          type="trainee" 
-          personId={personData?.id} 
-          onSuccess={() => {
-            toast.success("डेटा सफलतापूर्वक सहेजा गया");
-          }}
-        />
-        
-        {personData?.id && (
-          <LeaveHistoryTable 
-            type="trainee"
-            personId={personData.id}
+      <TabsContent value="attendance">
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">उपस्थिति रिकॉर्ड</h2>
+          <AttendanceTable
+            key={`attendance-${key}`}
+            personId={personId}
+            personType={personType}
+            searchData={searchData}
           />
-        )}
+        </Card>
       </TabsContent>
-      
-      <TabsContent value="staff" className="space-y-6">
-        <AttendanceLeaveForm 
-          type="staff" 
-          personId={personData?.id}
-          onSuccess={() => {
-            toast.success("डेटा सफलतापूर्वक सहेजा गया");
-          }}
-        />
-        
-        {personData?.id && (
-          <LeaveHistoryTable 
-            type="staff"
-            personId={personData.id}
+      <TabsContent value="leave">
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">अनुपस्थिति और अवकाश इतिहास</h2>
+          <LeaveHistoryTableContent
+            key={`leave-${key}`}
+            personId={personId}
+            personType={personType}
           />
-        )}
+        </Card>
       </TabsContent>
     </Tabs>
   );

@@ -12,6 +12,11 @@ export const attendanceFormSchema = z.object({
     required_error: "Please select an end date",
   }),
   reason: z.string().optional(),
+  pno: z.string().optional(),
+  name: z.string().optional(),
+  rank: z.string().optional(),
+  phone: z.string().optional(),
+  type: z.enum(["Absent", "On Leave"]),
 });
 
 export type AttendanceFormValues = z.infer<typeof attendanceFormSchema>;
