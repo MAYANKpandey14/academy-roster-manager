@@ -14,7 +14,6 @@ import ResetPassword from "./pages/ResetPassword";
 import TraineesPage from "./pages/TraineesPage";
 import StaffPage from "./pages/StaffPage";
 import AttendancePage from "./pages/AttendancePage";
-import LeavePage from "./pages/LeavePage";
 import AddStaff from "./pages/AddStaff";
 import EditStaff from "./pages/EditStaff";
 import ViewStaff from "./pages/ViewStaff";
@@ -75,14 +74,6 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <AttendancePage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/leave"
-              element={
-                <ProtectedRoute>
-                  <LeavePage />
                 </ProtectedRoute>
               }
             />
