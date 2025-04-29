@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { AttendanceTable } from "./AttendanceTable";
-import { LeaveHistoryTableContent } from "./components/LeaveHistoryTableContent";
+import { LeaveHistoryTable } from "./components/LeaveHistoryTable";
 
 interface AttendanceTabsProps {
   personId?: string;
@@ -29,16 +29,13 @@ export function AttendanceTabs({ personId, personType, searchData }: AttendanceT
           <h2 className="text-xl font-semibold mb-4">उपस्थिति रिकॉर्ड</h2>
           <AttendanceTable
             key={`attendance-${key}`}
-            personId={personId}
-            personType={personType}
-            searchData={searchData}
           />
         </Card>
       </TabsContent>
       <TabsContent value="leave">
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-4">अनुपस्थिति और अवकाश इतिहास</h2>
-          <LeaveHistoryTableContent
+          <LeaveHistoryTable
             key={`leave-${key}`}
             personId={personId}
             personType={personType}

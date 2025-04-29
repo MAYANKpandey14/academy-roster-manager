@@ -21,3 +21,21 @@ export interface LeaveRecord {
   created_at: string;
   updated_at: string;
 }
+
+export interface HistoryRecord {
+  id: string;
+  type: 'absent' | 'leave';
+  start_date: string;
+  end_date: string;
+  reason?: string;
+  leave_type?: string | null;
+}
+
+export interface LeaveHistoryProps {
+  personId?: string;
+  personType: 'trainee' | 'staff';
+}
+
+export interface LeaveHistoryTableContentProps {
+  historyData: HistoryRecord[];
+}

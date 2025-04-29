@@ -1,14 +1,13 @@
 
 import { Card } from "@/components/ui/card";
-import { format } from "date-fns";
 import { LeaveHistoryProps } from "../types/leaveHistory";
 import { useLeaveHistory } from "../hooks/useLeaveHistory";
 import { LeaveHistoryTableContent } from "./LeaveHistoryTableContent";
 import { LeaveHistoryTableEmpty } from "./LeaveHistoryTableEmpty";
 import { LeaveHistoryTableLoading } from "./LeaveHistoryTableLoading";
 
-export function LeaveHistoryTable({ type, personId }: LeaveHistoryProps) {
-  const { historyData, isLoading } = useLeaveHistory(type, personId);
+export function LeaveHistoryTable({ personType, personId }: LeaveHistoryProps) {
+  const { historyData, isLoading } = useLeaveHistory(personId, personType);
 
   if (isLoading) {
     return <LeaveHistoryTableLoading />;

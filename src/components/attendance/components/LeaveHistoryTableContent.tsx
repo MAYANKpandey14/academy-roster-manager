@@ -8,11 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { HistoryRecord } from "../types/leaveHistory";
-
-interface LeaveHistoryTableContentProps {
-  historyData: HistoryRecord[];
-}
+import { HistoryRecord, LeaveHistoryTableContentProps } from "../types/leaveHistory";
 
 export function LeaveHistoryTableContent({ historyData }: LeaveHistoryTableContentProps) {
   return (

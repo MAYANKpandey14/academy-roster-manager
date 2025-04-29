@@ -6,12 +6,12 @@ import { TableView } from "@/components/ui/table-view";
 import { supabase } from "@/integrations/supabase/client";
 import { AttendanceRecord } from "@/components/attendance/types";
 import { format } from 'date-fns';
-import { DatePicker } from "@/components/ui/date-picker";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { ActionType, TableAction } from "../ui/table-view/types";
+import { Calendar } from "@/components/ui/calendar";
 
 export function AttendanceTable() {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -135,11 +135,12 @@ export function AttendanceTable() {
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="center" side="bottom">
-            <DatePicker
+            <Calendar
               mode="single"
               selected={date}
               onSelect={handleDateChange}
-              className="border-none shadow-none"
+              initialFocus
+              className="border-none shadow-none pointer-events-auto"
             />
           </PopoverContent>
         </Popover>
