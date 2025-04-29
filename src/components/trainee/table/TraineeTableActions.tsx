@@ -1,10 +1,11 @@
 
-import { Button } from "@/components/ui/button";
 import { Download, Printer, RefreshCw } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Trainee } from "@/types/trainee";
 import { toast } from "sonner";
 import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/export";
+import { ActionButton } from "@/components/ui/action-button";
+import { ButtonGroup } from "@/components/ui/button-group";
 
 interface TraineeTableActionsProps {
   trainees: Trainee[];
@@ -21,8 +22,6 @@ export function TraineeTableActions({
   getSelectedTrainees,
   onRefresh
 }: TraineeTableActionsProps) {
-  const isMobile = useIsMobile();
-  
   function handlePrintAction() {
     const selectedTrainees = getSelectedTrainees();
     
@@ -59,46 +58,43 @@ export function TraineeTableActions({
   }
 
   return (
-    <div className="flex flex-wrap gap-2 justify-end">
+    <ButtonGroup className="mb-3">
       {onRefresh && (
-        <Button
+        <ActionButton
           variant="outline"
           size="sm"
           onClick={onRefresh}
           disabled={isLoading}
+          icon={<RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />}
+          showTextOnMobile={false}
         >
-          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-          {!isMobile && <span className="ml-2">
-            रिफ्रेश
-          </span>}
-        </Button>
+          रिफ्रेश
+        </ActionButton>
       )}
       
-      <Button
+      <ActionButton
         variant="outline"
         size="sm"
         onClick={handlePrintAction}
         className="print-button"
         disabled={isLoading || selectedCount === 0}
+        icon={<Printer className="h-4 w-4" />}
+        showTextOnMobile={false}
       >
-        <Printer className="h-4 w-4" />
-        {!isMobile && <span className="ml-2">
-          प्रिंट करें {selectedCount > 0 ? `चयनित (${selectedCount})` : ""}
-        </span>}
-      </Button>
+        प्रिंट करें {selectedCount > 0 ? `(${selectedCount})` : ""}
+      </ActionButton>
       
-      <Button
+      <ActionButton
         variant="outline"
         size="sm"
         onClick={handleDownloadAction}
         className="download-button"
         disabled={isLoading || selectedCount === 0}
+        icon={<Download className="h-4 w-4" />}
+        showTextOnMobile={false}
       >
-        <Download className="h-4 w-4" />
-        {!isMobile && <span className="ml-2">
-          डाउनलोड CSV {selectedCount > 0 ? `चयनित (${selectedCount})` : ""}
-        </span>}
-      </Button>
-    </div>
+        डाउनलोड CSV {selectedCount > 0 ? `(${selectedCount})` : ""}
+      </ActionButton>
+    </ButtonGroup>
   );
 }

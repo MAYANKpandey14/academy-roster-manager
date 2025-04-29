@@ -12,6 +12,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useUser } from "@/hooks/useUser";
+import { Loader2 } from "lucide-react";
 
 const authFormSchema = z.object({
   email: z.string().email({
@@ -67,26 +68,30 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+      <div className="max-w-md w-full space-y-8 animate-fade-in">
         <div className="text-center">
-          <img className="mx-auto h-20 w-20" src="/images.svg" alt="Logo" />
-          <h1 className="mt-6 text-3xl font-bold">
+          <img 
+            className="mx-auto h-20 w-20 animate-slide-in" 
+            src="/images.svg" 
+            alt="Logo" 
+          />
+          <h1 className="mt-6 text-3xl font-bold text-gray-900">
             आरटीसी प्रशिक्षु प्रबंधन प्रणाली
           </h1>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>
+        <Card className="border-2 shadow-lg">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl text-center">
               लॉग इन
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-center">
               अपने खाते में लॉग इन करें
             </CardDescription>
           </CardHeader>
           <CardContent>
             {error && (
-              <Alert variant="destructive" className="mb-4">
+              <Alert variant="destructive" className="mb-4 animate-slide-in">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
@@ -105,6 +110,7 @@ export default function Auth() {
                           {...field} 
                           className="auth-input"
                           autoComplete="email"
+                          disabled={isLoading}
                         />
                       </FormControl>
                       <FormMessage />
@@ -124,6 +130,7 @@ export default function Auth() {
                           {...field} 
                           className="auth-input"
                           autoComplete="current-password"
+                          disabled={isLoading}
                         />
                       </FormControl>
                       <FormMessage />
@@ -136,9 +143,14 @@ export default function Auth() {
                   className="w-full" 
                   disabled={isLoading}
                 >
-                  <span>
-                    {isLoading ? "प्रोसेसिंग..." : "लॉग इन करें"}
-                  </span>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <span>प्रोसेसिंग...</span>
+                    </>
+                  ) : (
+                    <span>लॉग इन करें</span>
+                  )}
                 </Button>
               </form>
             </Form>

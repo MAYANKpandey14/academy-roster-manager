@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Loader2 } from "lucide-react";
 
 interface TableWrapperProps {
   table: any;
@@ -20,14 +21,14 @@ export function TableWrapper({ table, columns, isLoading }: TableWrapperProps) {
   const { t, i18n } = useTranslation();
   
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
+    <div className="responsive-table-container animate-fade-in">
+      <Table className="responsive-table">
+        <TableHeader className="responsive-table-header">
           {table.getHeaderGroups().map((headerGroup: any) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header: any) => {
                 return (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="bg-muted/50 h-11">
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -43,10 +44,13 @@ export function TableWrapper({ table, columns, isLoading }: TableWrapperProps) {
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-16 text-center">
-                <span className="dynamic-text">
-                  {t("loading")}
-                </span>
+              <TableCell colSpan={columns.length} className="h-60 text-center">
+                <div className="flex flex-col items-center justify-center gap-2">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <span className="dynamic-text text-muted-foreground">
+                    {t("loading")}
+                  </span>
+                </div>
               </TableCell>
             </TableRow>
           ) : table.getRowModel().rows?.length ? (
@@ -54,10 +58,11 @@ export function TableWrapper({ table, columns, isLoading }: TableWrapperProps) {
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
+                className="animate-slide-in hover:bg-muted/50 transition-colors"
               >
                 {row.getVisibleCells().map((cell: any) => {
                   return (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="py-3">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   );
@@ -70,7 +75,7 @@ export function TableWrapper({ table, columns, isLoading }: TableWrapperProps) {
                 colSpan={columns.length}
                 className="h-24 text-center"
               >
-                <span className="dynamic-text">
+                <span className="dynamic-text text-muted-foreground">
                   {t("noResults")}
                 </span>
               </TableCell>

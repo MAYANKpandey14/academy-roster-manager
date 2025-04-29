@@ -1,86 +1,111 @@
 
 import { Trainee } from "@/types/trainee";
-import { format } from "date-fns";
 
-/**
- * Creates HTML content for printing trainee(s)
- * 
- * @param trainees Trainee data (single trainee or array of trainees)
- * @returns HTML string content for printing
- */
-export const createPrintContent = (trainees: Trainee | Trainee[]): string => {
-  // Convert single trainee to array if needed
+// Helper function to create print-friendly HTML content for a single trainee or multiple trainees
+export function createPrintContent(trainees: Trainee | Trainee[]): string {
+  // Convert single trainee to array for consistent processing
   const traineeArray = Array.isArray(trainees) ? trainees : [trainees];
   
-  if (traineeArray.length === 0) {
-    return "<h1>No trainee data available</h1>";
-  }
+  let htmlContent = `
+    <html>
+      <head>
+        <title>Trainee Details</title>
+        <style>
+          body { font-family: system-ui, sans-serif; padding: 20px; }
+          .page-break { page-break-after: always; }
+          .trainee-card { margin-bottom: 30px; border: 1px solid #ddd; padding: 20px; border-radius: 5px; }
+          .trainee-card:last-child { margin-bottom: 0; }
+          h2 { margin-top: 0; }
+          .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+          .field { margin-bottom: 10px; }
+          .label { font-weight: bold; color: #555; font-size: 12px; }
+          .value { margin-top: 4px; font-size: 14px; }
+          .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+          .logo { height: 60px; }
+          .title { font-size: 24px; font-weight: bold; }
+          .krutidev { font-family: 'Kruti Dev 010', system-ui, sans-serif; }
+          @media print {
+            .trainee-card { break-inside: avoid; }
+          }
+        </style>
+      </head>
+      <body>
+  `;
   
-  // Create the HTML content
-  const htmlContent = `
-    <div style="font-family: 'Kruti Dev 010', Arial, sans-serif; max-width: 800px; margin: 0 auto;">
-      <h1 style="text-align: center; margin-bottom: 20px;">RTC POLICE LINE, MORADABAD</h1>
-      ${traineeArray.map(trainee => createTraineeCard(trainee)).join('<div style="page-break-after: always;"></div>')}
-    </div>
+  traineeArray.forEach((trainee, index) => {
+    // Add page break between trainees except for the first one
+    if (index > 0) {
+      htmlContent += '<div class="page-break"></div>';
+    }
+    
+    htmlContent += `
+      <div class="trainee-card">
+        <div class="header">
+          <div class="title">प्रशिक्षु विवरण</div>
+          <img src="/images.svg" class="logo" alt="Logo" />
+        </div>
+        <div class="grid">
+          <div class="field">
+            <div class="label">पीएनओ</div>
+            <div class="value">${trainee.pno}</div>
+          </div>
+          <div class="field">
+            <div class="label">चेस्ट नंबर</div>
+            <div class="value">${trainee.chest_no}</div>
+          </div>
+          <div class="field">
+            <div class="label">नाम</div>
+            <div class="value krutidev">${trainee.name}</div>
+          </div>
+          <div class="field">
+            <div class="label">पिता का नाम</div>
+            <div class="value krutidev">${trainee.father_name}</div>
+          </div>
+          <div class="field">
+            <div class="label">वर्तमान तैनाती जिला</div>
+            <div class="value krutidev">${trainee.current_posting_district}</div>
+          </div>
+          <div class="field">
+            <div class="label">मोबाइल नंबर</div>
+            <div class="value">${trainee.mobile_number}</div>
+          </div>
+          <div class="field">
+            <div class="label">शिक्षा</div>
+            <div class="value krutidev">${trainee.education}</div>
+          </div>
+          <div class="field">
+            <div class="label">रक्त समूह</div>
+            <div class="value">${trainee.blood_group}</div>
+          </div>
+          <div class="field">
+            <div class="label">नामिती</div>
+            <div class="value krutidev">${trainee.nominee}</div>
+          </div>
+          <div class="field">
+            <div class="label">घर का पता</div>
+            <div class="value krutidev">${trainee.home_address}</div>
+          </div>
+          <div class="field">
+            <div class="label">जन्म तिथि</div>
+            <div class="value">${new Date(trainee.date_of_birth).toLocaleDateString()}</div>
+          </div>
+          <div class="field">
+            <div class="label">नियुक्ति तिथि</div>
+            <div class="value">${new Date(trainee.date_of_joining).toLocaleDateString()}</div>
+          </div>
+          <div class="field">
+            <div class="label">प्रशिक्षण अवधि</div>
+            <div class="value">${new Date(trainee.arrival_date).toLocaleDateString()} - ${new Date(trainee.departure_date).toLocaleDateString()}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  
+  htmlContent += `
+      </body>
+    </html>
   `;
   
   return htmlContent;
-};
-
-/**
- * Creates HTML content for a single trainee
- * 
- * @param trainee Trainee data
- * @returns HTML string for printing
- */
-const createTraineeCard = (trainee: Trainee): string => {
-  return `
-    <div style="border: 1px solid #ccc; padding: 20px; margin-bottom: 30px; border-radius: 5px;">
-      <h2 style="text-align: center; margin-bottom: 20px;">${trainee.name} का विवरण</h2>
-      
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <div style="margin-bottom: 10px;">
-          <strong>पी.एन.ओ.:</strong> ${trainee.pno}
-        </div>
-        <div style="margin-bottom: 10px;">
-          <strong>चेस्ट नंबर:</strong> ${trainee.chest_no}
-        </div>
-        <div style="margin-bottom: 10px;">
-          <strong>नाम:</strong> ${trainee.name}
-        </div>
-        <div style="margin-bottom: 10px;">
-          <strong>पिता का नाम:</strong> ${trainee.father_name}
-        </div>
-        <div style="margin-bottom: 10px;">
-          <strong>जन्म तिथि:</strong> ${format(new Date(trainee.date_of_birth), 'PP')}
-        </div>
-        <div style="margin-bottom: 10px;">
-          <strong>नियुक्ति तिथि:</strong> ${format(new Date(trainee.date_of_joining), 'PP')}
-        </div>
-        <div style="margin-bottom: 10px;">
-          <strong>वर्तमान तैनाती जिला:</strong> ${trainee.current_posting_district}
-        </div>
-        <div style="margin-bottom: 10px;">
-          <strong>मोबाइल नंबर:</strong> ${trainee.mobile_number}
-        </div>
-        <div style="margin-bottom: 10px;">
-          <strong>शिक्षा:</strong> ${trainee.education}
-        </div>
-        <div style="margin-bottom: 10px;">
-          <strong>रक्त समूह:</strong> ${trainee.blood_group}
-        </div>
-        <div style="margin-bottom: 10px;">
-          <strong>नामिती:</strong> ${trainee.nominee}
-        </div>
-      </div>
-      
-      <div style="margin-top: 15px;">
-        <strong>घर का पता:</strong> ${trainee.home_address}
-      </div>
-      
-      <div style="margin-top: 15px;">
-        <strong>प्रशिक्षण अवधि:</strong> ${format(new Date(trainee.arrival_date), 'PP')} से ${format(new Date(trainee.departure_date), 'PP')} तक
-      </div>
-    </div>
-  `;
-};
+}

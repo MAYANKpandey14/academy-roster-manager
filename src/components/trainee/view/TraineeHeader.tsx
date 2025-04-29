@@ -1,8 +1,9 @@
 
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Edit, Printer, Download } from "lucide-react";
 import { Trainee } from "@/types/trainee";
+import { ActionButton } from "@/components/ui/action-button";
+import { ButtonGroup } from "@/components/ui/button-group";
 
 interface TraineeHeaderProps {
   trainee: Trainee;
@@ -14,41 +15,40 @@ export function TraineeHeader({ trainee, onPrint, onDownload }: TraineeHeaderPro
   const navigate = useNavigate();
 
   return (
-    <div className="flex justify-between items-center mb-6">
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
       <h1 className="text-2xl font-bold krutidev-heading">
         प्रशिक्षु विवरण
       </h1>
-      <div className="flex gap-2">
-        <Button 
+      <ButtonGroup>
+        <ActionButton 
           variant="outline" 
           className="print-button"
           onClick={onPrint}
+          icon={<Printer className="h-4 w-4" />}
         >
-          <Printer className="h-4 w-4 mr-2" />
           <span className="krutidev-text">
             प्रिंट करें
           </span>
-        </Button>
-        <Button 
+        </ActionButton>
+        <ActionButton 
           variant="outline"
           className="download-button"
           onClick={onDownload}
+          icon={<Download className="h-4 w-4" />}
         >
-          <Download className="h-4 w-4 mr-2" />
           <span className="krutidev-text">
             डाउनलोड करें
           </span>
-        </Button>
-        <Button 
+        </ActionButton>
+        <ActionButton 
           onClick={() => navigate(`/edit-trainee/${trainee?.id}`)}
-          className="flex items-center gap-2"
+          icon={<Edit className="h-4 w-4" />}
         >
-          <Edit className="h-4 w-4" />
           <span className="krutidev-text">
             संपादित करें
           </span>
-        </Button>
-      </div>
+        </ActionButton>
+      </ButtonGroup>
     </div>
   );
 }

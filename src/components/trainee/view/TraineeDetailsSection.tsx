@@ -9,7 +9,7 @@ interface TraineeDetailsSectionProps {
 
 export function TraineeDetailsSection({ trainee }: TraineeDetailsSectionProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-fade-in">
       <div className="space-y-4">
         <TraineeInfoField 
           label="पीएनओ" 
@@ -29,14 +29,14 @@ export function TraineeDetailsSection({ trainee }: TraineeDetailsSectionProps) {
           value={trainee.father_name}
           isDbValue={true}
         />
+      </div>
+
+      <div className="space-y-4">
         <TraineeInfoField 
           label="वर्तमान तैनाती जिला" 
           value={trainee.current_posting_district}
           isDbValue={true}
         />
-      </div>
-
-      <div className="space-y-4">
         <TraineeInfoField 
           label="मोबाइल नंबर" 
           value={trainee.mobile_number} 
@@ -50,6 +50,9 @@ export function TraineeDetailsSection({ trainee }: TraineeDetailsSectionProps) {
           label="रक्त समूह" 
           value={trainee.blood_group} 
         />
+      </div>
+
+      <div className="space-y-4">
         <TraineeInfoField 
           label="नामिती" 
           value={trainee.nominee}
@@ -60,9 +63,6 @@ export function TraineeDetailsSection({ trainee }: TraineeDetailsSectionProps) {
           value={trainee.home_address}
           isDbValue={true}
         />
-      </div>
-
-      <div className="space-y-4">
         <TraineeInfoField 
           label="जन्म तिथि" 
           value={format(new Date(trainee.date_of_birth), 'PP')} 

@@ -1,60 +1,54 @@
 
 import { Trainee } from "@/types/trainee";
-import { formatDate } from "@/utils/textUtils";
 
-/**
- * Creates CSV content for a trainee or array of trainees
- * 
- * @param trainees Trainee object or array of trainees
- * @returns CSV content as string
- */
-export const createCSVContent = (trainees: Trainee | Trainee[]): string => {
-  // Convert single trainee to array if needed
+// Helper function to create CSV content for a trainee or multiple trainees
+export function createCSVContent(trainees: Trainee | Trainee[]): string {
+  // Convert single trainee to array for consistent processing
   const traineeArray = Array.isArray(trainees) ? trainees : [trainees];
   
-  // Only proceed if there are trainees
-  if (traineeArray.length === 0) {
-    return "";
-  }
-  
-  // Define CSV headers - first row
+  // Define CSV header row
   const headers = [
-    "PNO", 
-    "Chest No",
-    "Name",
-    "Father's Name",
-    "Mobile Number",
-    "Education",
-    "Blood Group",
-    "Date of Birth",
-    "Date of Joining",
-    "Arrival Date",
-    "Departure Date",
-    "Current Posting District",
-    "Nominee",
-    "Home Address"
-  ].join(",");
+    'PNO', 
+    'Chest No', 
+    'Name', 
+    'Father\'s Name', 
+    'Current Posting District',
+    'Mobile Number',
+    'Education',
+    'Blood Group',
+    'Nominee',
+    'Home Address',
+    'Date of Birth',
+    'Date of Joining',
+    'Arrival Date',
+    'Departure Date'
+  ];
   
-  // Create CSV rows for each trainee
-  const rows = traineeArray.map(trainee => {
-    return [
-      trainee.pno || "",
-      trainee.chest_no || "",
-      trainee.name || "",
-      trainee.father_name || "",
-      trainee.mobile_number || "",
-      trainee.education || "",
-      trainee.blood_group || "",
-      formatDate(trainee.date_of_birth) || "",
-      formatDate(trainee.date_of_joining) || "",
-      formatDate(trainee.arrival_date) || "",
-      formatDate(trainee.departure_date) || "",
-      trainee.current_posting_district || "",
-      trainee.nominee || "",
-      trainee.home_address || ""
-    ].map(field => `"${field.replace(/"/g, '""')}"`).join(",");
-  });
+  // Create CSV rows
+  const rows = traineeArray.map(trainee => [
+    trainee.pno,
+    trainee.chest_no,
+    trainee.name,
+    trainee.father_name,
+    trainee.current_posting_district,
+    trainee.mobile_number,
+    trainee.education,
+    trainee.blood_group,
+    trainee.nominee,
+    trainee.home_address,
+    new Date(trainee.date_of_birth).toLocaleDateString(),
+    new Date(trainee.date_of_joining).toLocaleDateString(),
+    new Date(trainee.arrival_date).toLocaleDateString(),
+    new Date(trainee.departure_date).toLocaleDateString()
+  ]);
   
-  // Combine headers and rows
-  return headers + "\n" + rows.join("\n");
-};
+  // Combine header and rows
+  const allRows = [headers, ...rows];
+  
+  // Convert to CSV string
+  const csvContent = allRows
+    .map(row => row.map(cell => `"${cell}"`).join(','))
+    .join('\n');
+  
+  return csvContent;
+}

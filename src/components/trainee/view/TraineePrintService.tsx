@@ -1,40 +1,37 @@
 
 import { Trainee } from "@/types/trainee";
-import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/export";
 import { toast } from "sonner";
+import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/export";
 
-export function useTraineePrintService(trainee: Trainee | null) {
-  if (!trainee) {
-    return {
-      handlePrintTrainee: () => toast.error("No trainee data available for printing"),
-      handleDownloadTrainee: () => toast.error("No trainee data available for download")
-    };
-  }
-  
+export function useTraineePrintService(trainee: Trainee) {
   const handlePrintTrainee = () => {
-    // Create print content for single trainee
-    const printContent = createPrintContent([trainee]);
-    const printSuccess = handlePrint(printContent);
+    if (!trainee) {
+      toast.error("प्रशिक्षु विवरण उपलब्ध नहीं है");
+      return;
+    }
     
-    if (!printSuccess) {
-      toast.error("प्रिंट विंडो खोलने में विफल। कृपया अपनी पॉप-अप ब्लॉकर सेटिंग्स जांचें।");
+    const printContent = createPrintContent(trainee);
+    const success = handlePrint(printContent);
+    
+    if (success) {
+      toast.success("प्रशिक्षु का प्रिंट हो रहा है");
     } else {
-      toast.success("प्रशिक्षु विवरण प्रिंट हो रहा है");
+      toast.error("प्रिंट विंडो खोलने में विफल। कृपया अपनी पॉप-अप ब्लॉकर सेटिंग्स जांचें।");
     }
   };
-
+  
   const handleDownloadTrainee = () => {
-    // Create CSV content for single trainee
-    const csvContent = createCSVContent([trainee]);
-    handleDownload(
-      csvContent, 
-      `trainee_${trainee.pno}_${trainee.name.replace(/\s+/g, '_')}.csv`
-    );
-    toast.success("सीएसवी फ़ाइल सफलतापूर्वक डाउनलोड की गई");
+    if (!trainee) {
+      toast.error("प्रशिक्षु विवरण उपलब्ध नहीं है");
+      return;
+    }
+    
+    const csvContent = createCSVContent(trainee);
+    const filename = `trainee_${trainee.pno}_${new Date().toISOString().split('T')[0]}.csv`;
+    
+    handleDownload(csvContent, filename);
+    toast.success("प्रशिक्षु CSV फ़ाइल सफलतापूर्वक डाउनलोड की गई");
   };
-
-  return {
-    handlePrintTrainee,
-    handleDownloadTrainee
-  };
+  
+  return { handlePrintTrainee, handleDownloadTrainee };
 }

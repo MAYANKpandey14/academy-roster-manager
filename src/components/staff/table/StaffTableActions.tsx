@@ -1,8 +1,8 @@
 
-import { Button } from "@/components/ui/button";
 import { Download, Printer } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { ActionButton } from "@/components/ui/action-button"; 
+import { ButtonGroup } from "@/components/ui/button-group";
 
 interface StaffTableActionsProps {
   selectedCount: number;
@@ -17,35 +17,33 @@ export function StaffTableActions({
   handleDownloadAction,
   isLoading
 }: StaffTableActionsProps) {
-  const isMobile = useIsMobile();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   return (
-    <div className="flex flex-wrap gap-2 justify-end">
-      <Button
+    <ButtonGroup className="mb-3">
+      <ActionButton
         variant="outline"
         size="sm"
         onClick={handlePrintAction}
         className="print-button"
         disabled={isLoading || selectedCount === 0}
+        icon={<Printer className="h-4 w-4" />}
+        showTextOnMobile={false}
       >
-        <Printer className="h-4 w-4" />
-        {!isMobile && <span className={`ml-2 dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-          {t("printSelected", "Print Selected")}{selectedCount > 0 ? ` (${selectedCount})` : ''}
-        </span>}
-      </Button>
-      <Button
+        {t("printSelected", "Print Selected")}{selectedCount > 0 ? ` (${selectedCount})` : ''}
+      </ActionButton>
+      
+      <ActionButton
         variant="outline"
         size="sm"
         onClick={handleDownloadAction}
         className="download-button"
         disabled={isLoading || selectedCount === 0}
+        icon={<Download className="h-4 w-4" />}
+        showTextOnMobile={false}
       >
-        <Download className="h-4 w-4" />
-        {!isMobile && <span className={`ml-2 dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-          {t("downloadCSV", "Download CSV")}{selectedCount > 0 ? ` (${selectedCount})` : ''}
-        </span>}
-      </Button>
-    </div>
+        {t("downloadCSV", "Download CSV")}{selectedCount > 0 ? ` (${selectedCount})` : ''}
+      </ActionButton>
+    </ButtonGroup>
   );
 }
