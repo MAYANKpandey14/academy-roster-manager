@@ -20,7 +20,14 @@ import EditStaff from "./pages/EditStaff";
 import ViewStaff from "./pages/ViewStaff";
 import Welcome from "./pages/Welcome";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  }
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

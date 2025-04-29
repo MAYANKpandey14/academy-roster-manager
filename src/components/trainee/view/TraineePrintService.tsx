@@ -4,6 +4,7 @@ import { createPrintContent, createCSVContent, handlePrint, handleDownload } fro
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { prepareTextForLanguage } from "@/utils/textUtils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface TraineePrintServiceProps {
   trainee: Trainee;
@@ -11,9 +12,10 @@ export interface TraineePrintServiceProps {
 
 export function useTraineePrintService({ trainee }: TraineePrintServiceProps) {
   const { t, i18n } = useTranslation();
+  const { currentLanguage } = useLanguage();
 
   const handlePrintTrainee = () => {
-    const printContent = createPrintContent([trainee], i18n.language, t);
+    const printContent = createPrintContent([trainee], currentLanguage, t);
     const printSuccess = handlePrint(printContent);
     
     if (!printSuccess) {
@@ -24,7 +26,7 @@ export function useTraineePrintService({ trainee }: TraineePrintServiceProps) {
   };
 
   const handleDownloadTrainee = () => {
-    const csvContent = createCSVContent([trainee], i18n.language, t);
+    const csvContent = createCSVContent([trainee], currentLanguage, t);
     handleDownload(
       csvContent, 
       `trainee_${trainee.pno}_${trainee.name.replace(/\s+/g, '_')}.csv`

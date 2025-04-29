@@ -1,16 +1,15 @@
 
-import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Trainee } from "@/types/trainee";
 import { Checkbox } from "@/components/ui/checkbox";
-import { format } from "date-fns";
-import { TraineeActions } from "../TraineeActions";
+import { TraineeActions } from "@/components/trainee/TraineeActions";
 import { useTranslation } from "react-i18next";
+import { format } from "date-fns";
 import { prepareTextForLanguage } from "@/utils/textUtils";
 
-export function useTraineeTableColumns(isLoading: boolean): ColumnDef<Trainee>[] {
+export function useTraineeTableColumns(isLoading = false): ColumnDef<Trainee>[] {
   const { t, i18n } = useTranslation();
-  
+
   return [
     {
       id: "select",
@@ -18,7 +17,7 @@ export function useTraineeTableColumns(isLoading: boolean): ColumnDef<Trainee>[]
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() ? "indeterminate" : false)
+            (table.getIsSomePageRowsSelected() && "indeterminate")
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
@@ -49,6 +48,18 @@ export function useTraineeTableColumns(isLoading: boolean): ColumnDef<Trainee>[]
       }
     },
     {
+      accessorKey: "chest_no",
+      header: () => {
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+          {t("chestNo", "Chest No")}
+        </span>
+      },
+      cell: ({ row }) => {
+        const value = row.getValue("chest_no") as string;
+        return <span>{value}</span>;
+      }
+    },
+    {
       accessorKey: "name",
       header: () => {
         return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
@@ -57,21 +68,7 @@ export function useTraineeTableColumns(isLoading: boolean): ColumnDef<Trainee>[]
       },
       cell: ({ row }) => {
         const value = row.getValue("name") as string;
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-          {prepareTextForLanguage(value, i18n.language)}
-        </span>;
-      }
-    },
-    {
-      accessorKey: "father_name",
-      header: () => {
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("fatherName", "Father's Name")}
-        </span>
-      },
-      cell: ({ row }) => {
-        const value = row.getValue("father_name") as string;
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''} font-medium`}>
           {prepareTextForLanguage(value, i18n.language)}
         </span>;
       }
@@ -98,9 +95,10 @@ export function useTraineeTableColumns(isLoading: boolean): ColumnDef<Trainee>[]
         </span>
       },
       cell: ({ row }) => {
-        const date = row.getValue("arrival_date") as string;
-        return <span>{date ? format(new Date(date), "PP") : "N/A"}</span>;
-      },
+        const value = row.getValue("arrival_date") as string;
+        if (!value) return null;
+        return format(new Date(value), "PP");
+      }
     },
     {
       accessorKey: "departure_date",
@@ -110,9 +108,10 @@ export function useTraineeTableColumns(isLoading: boolean): ColumnDef<Trainee>[]
         </span>
       },
       cell: ({ row }) => {
-        const date = row.getValue("departure_date") as string;
-        return <span>{date ? format(new Date(date), "PP") : "N/A"}</span>;
-      },
+        const value = row.getValue("departure_date") as string;
+        if (!value) return null;
+        return format(new Date(value), "PP");
+      }
     },
     {
       accessorKey: "mobile_number",
@@ -123,7 +122,7 @@ export function useTraineeTableColumns(isLoading: boolean): ColumnDef<Trainee>[]
       },
       cell: ({ row }) => {
         const value = row.getValue("mobile_number") as string;
-        return <span>{value}</span>; // Mobile numbers don't need encoding transformation
+        return <span>{value}</span>;
       }
     },
     {

@@ -3,10 +3,10 @@ import { useState, useEffect } from "react";
 import { ColumnFiltersState } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import { Trainee } from "@/types/trainee";
-import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 import { useTranslation } from "react-i18next";
 import { TraineeTableActions } from "./table/TraineeTableActions";
 import { useTraineeTableColumns } from "./table/TraineeTableColumns";
+import { useLanguageSync } from "@/hooks/useLanguageSync";
 
 interface TraineeTableProps {
   trainees: Trainee[];
@@ -18,10 +18,10 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
   const [rowSelection, setRowSelection] = useState({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [selectedCount, setSelectedCount] = useState(0);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   
-  // Apply language inputs hook
-  useLanguageInputs();
+  // Apply the language sync hook instead of useLanguageInputs
+  useLanguageSync();
   
   // Get table columns
   const columns = useTraineeTableColumns(isLoading);
@@ -43,6 +43,7 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
         isLoading={isLoading}
         selectedCount={selectedCount}
         getSelectedTrainees={getSelectedTrainees}
+        onRefresh={onRefresh}
       />
       
       <DataTable

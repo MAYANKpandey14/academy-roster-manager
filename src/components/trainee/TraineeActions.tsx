@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { 
   MoreHorizontal, 
   Edit,
@@ -21,10 +20,9 @@ import { useTraineePrintService } from "@/components/trainee/view/TraineePrintSe
 
 interface TraineeActionsProps {
   trainee: Trainee;
-  onEdit?: (trainee: Trainee) => void;
 }
 
-export function TraineeActions({ trainee, onEdit }: TraineeActionsProps) {
+export function TraineeActions({ trainee }: TraineeActionsProps) {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const { handlePrintTrainee, handleDownloadTrainee } = useTraineePrintService({ trainee });

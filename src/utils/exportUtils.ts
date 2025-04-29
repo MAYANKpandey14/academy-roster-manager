@@ -16,13 +16,15 @@ export const createPrintContent = (trainees: Trainee[], language = 'en', t?: TFu
           @font-face {
             font-family: 'KrutiDev';
             src: url('/font/KrutiDev.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
           }
           body { 
             font-family: Arial, sans-serif; 
-            padding: 20px; 
-            direction: ${language === 'hi' ? 'rtl' : 'ltr'};
+            padding: 20px;
           }
-          .krutidev-text { 
+          .hindi-text { 
             font-family: 'KrutiDev', Arial, sans-serif; 
           }
           h1 { text-align: center; margin-bottom: 5px; }
@@ -47,8 +49,12 @@ export const createPrintContent = (trainees: Trainee[], language = 'en', t?: TFu
         </style>
       </head>
       <body>
-        <h1>${translate("rtcPolice", "RTC POLICE LINE, MORADABAD")}</h1>
-        <h2>${translate("traineeInfo", "TRAINEE INFORMATION")}</h2>
+        <h1 class="${language === 'hi' ? 'hindi-text' : ''}">
+          ${prepareTextForLanguage(translate("rtcPolice", "RTC POLICE LINE, MORADABAD"), language)}
+        </h1>
+        <h2 class="${language === 'hi' ? 'hindi-text' : ''}">
+          ${prepareTextForLanguage(translate("traineeInfo", "TRAINEE INFORMATION"), language)}
+        </h2>
   `;
   
   // Process each trainee
@@ -56,52 +62,98 @@ export const createPrintContent = (trainees: Trainee[], language = 'en', t?: TFu
     return `
       <div class="trainee-info">
         <div class="field">
-          <span class="field-label">${translate("name", "Name")}:</span> 
-          <span class="${language === 'hi' ? 'krutidev-text' : ''}">${prepareTextForLanguage(trainee.name, language)}</span>
+          <span class="field-label ${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(translate("name", "Name"), language)}:
+          </span> 
+          <span class="${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(trainee.name, language)}
+          </span>
         </div>
         <div class="field">
-          <span class="field-label">${translate("pno", "PNO")}:</span> ${trainee.pno}
+          <span class="field-label ${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(translate("pno", "PNO"), language)}:
+          </span> 
+          ${trainee.pno}
         </div>
         <div class="field">
-          <span class="field-label">${translate("chestNo", "Chest No")}:</span> ${trainee.chest_no}
+          <span class="field-label ${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(translate("chestNo", "Chest No"), language)}:
+          </span> 
+          ${trainee.chest_no}
         </div>
         <div class="field">
-          <span class="field-label">${translate("fatherName", "Father's Name")}:</span> 
-          <span class="${language === 'hi' ? 'krutidev-text' : ''}">${prepareTextForLanguage(trainee.father_name, language)}</span>
+          <span class="field-label ${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(translate("fatherName", "Father's Name"), language)}:
+          </span> 
+          <span class="${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(trainee.father_name, language)}
+          </span>
         </div>
         <div class="field">
-          <span class="field-label">${translate("dateOfBirth", "Date of Birth")}:</span> 
+          <span class="field-label ${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(translate("dateOfBirth", "Date of Birth"), language)}:
+          </span> 
           ${new Date(trainee.date_of_birth).toLocaleDateString()}
         </div>
         <div class="field">
-          <span class="field-label">${translate("dateOfJoining", "Date of Joining")}:</span> 
+          <span class="field-label ${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(translate("dateOfJoining", "Date of Joining"), language)}:
+          </span> 
           ${new Date(trainee.date_of_joining).toLocaleDateString()}
         </div>
         <div class="field">
-          <span class="field-label">${translate("trainingPeriod", "Training Period")}:</span> 
-          ${new Date(trainee.arrival_date).toLocaleDateString()} ${translate("trainingPeriodTo", "to")} ${new Date(trainee.departure_date).toLocaleDateString()}
+          <span class="field-label ${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(translate("trainingPeriod", "Training Period"), language)}:
+          </span> 
+          ${new Date(trainee.arrival_date).toLocaleDateString()} 
+          <span class="${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(translate("trainingPeriodTo", "to"), language)}
+          </span> 
+          ${new Date(trainee.departure_date).toLocaleDateString()}
         </div>
         <div class="field">
-          <span class="field-label">${translate("currentPosting", "Current Posting")}:</span> 
-          <span class="${language === 'hi' ? 'krutidev-text' : ''}">${prepareTextForLanguage(trainee.current_posting_district, language)}</span>
+          <span class="field-label ${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(translate("currentPosting", "Current Posting"), language)}:
+          </span> 
+          <span class="${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(trainee.current_posting_district, language)}
+          </span>
         </div>
         <div class="field">
-          <span class="field-label">${translate("mobile", "Mobile")}:</span> ${trainee.mobile_number}
+          <span class="field-label ${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(translate("mobile", "Mobile"), language)}:
+          </span> 
+          ${trainee.mobile_number}
         </div>
         <div class="field">
-          <span class="field-label">${translate("education", "Education")}:</span> 
-          <span class="${language === 'hi' ? 'krutidev-text' : ''}">${prepareTextForLanguage(trainee.education, language)}</span>
+          <span class="field-label ${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(translate("education", "Education"), language)}:
+          </span> 
+          <span class="${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(trainee.education, language)}
+          </span>
         </div>
         <div class="field">
-          <span class="field-label">${translate("bloodGroup", "Blood Group")}:</span> ${trainee.blood_group}
+          <span class="field-label ${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(translate("bloodGroup", "Blood Group"), language)}:
+          </span> 
+          ${trainee.blood_group}
         </div>
         <div class="field">
-          <span class="field-label">${translate("nominee", "Nominee")}:</span> 
-          <span class="${language === 'hi' ? 'krutidev-text' : ''}">${prepareTextForLanguage(trainee.nominee, language)}</span>
+          <span class="field-label ${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(translate("nominee", "Nominee"), language)}:
+          </span> 
+          <span class="${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(trainee.nominee, language)}
+          </span>
         </div>
         <div class="field">
-          <span class="field-label">${translate("homeAddress", "Home Address")}:</span> 
-          <span class="${language === 'hi' ? 'krutidev-text' : ''}">${prepareTextForLanguage(trainee.home_address, language)}</span>
+          <span class="field-label ${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(translate("homeAddress", "Home Address"), language)}:
+          </span> 
+          <span class="${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(trainee.home_address, language)}
+          </span>
         </div>
       </div>
     `;
@@ -110,7 +162,10 @@ export const createPrintContent = (trainees: Trainee[], language = 'en', t?: TFu
   // Generate footer with current date
   const printFooter = `
         <div class="footer">
-          <p>${translate("documentGenerated", "This document was generated on")} ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
+          <p class="${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(translate("documentGenerated", "This document was generated on"), language)}
+            ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
+          </p>
         </div>
       </body>
     </html>
