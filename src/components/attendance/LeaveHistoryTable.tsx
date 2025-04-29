@@ -19,36 +19,35 @@ interface LeaveHistoryTableProps {
   personId: string;
 }
 
-// Define simplified types to avoid deep type instantiation
-interface AbsenceRecord {
+// Define simple type interfaces instead of complex conditional types
+interface BaseRecord {
   id: string;
-  date: string;
-  status: string;
-  created_at?: string;
-  updated_at?: string;
-  reason?: string;
-  type: 'absent';
   start_date: string;
   end_date: string;
+  type: 'absent' | 'leave';
+  status: string;
+  reason?: string;
+  leave_type?: string | null;
+}
+
+interface AbsenceRecord extends BaseRecord {
+  type: 'absent';
+  date: string;
+  status: 'absent';
   leave_type: null;
 }
 
-interface LeaveRecord {
-  id: string;
-  start_date: string;
-  end_date: string;
-  reason: string;
-  status: string;
-  leave_type?: string;
-  created_at?: string;
-  updated_at?: string;
+interface LeaveRecord extends BaseRecord {
   type: 'leave';
+  status: 'on_leave';
+  reason: string;
+  leave_type?: string;
 }
 
 type HistoryRecord = AbsenceRecord | LeaveRecord;
 
 export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
-  // Fetch absences with simplified return type handling
+  // Fetch absences with explicit typing
   const { data: absences, isLoading: absencesLoading } = useQuery({
     queryKey: [`${type}-absences`, personId],
     queryFn: async () => {
@@ -61,21 +60,18 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
 
       if (error) throw error;
       
-      // Use type assertion instead of mapping to avoid deep type instantiation
-      const result = data || [];
-      const transformedResult = result.map(item => ({
+      // Transform data with explicit type casting
+      return (data || []).map(item => ({
         ...item,
         type: 'absent' as const,
         start_date: item.date,
         end_date: item.date,
         leave_type: null
-      }));
-      
-      return transformedResult as AbsenceRecord[];
+      })) as AbsenceRecord[];
     },
   });
 
-  // Fetch leaves with simplified return type handling
+  // Fetch leaves with explicit typing
   const { data: leaves, isLoading: leavesLoading } = useQuery({
     queryKey: [`${type}-leaves`, personId],
     queryFn: async () => {
@@ -87,19 +83,16 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
 
       if (error) throw error;
       
-      // Use type assertion instead of mapping to avoid deep type instantiation
-      const result = data || [];
-      const transformedResult = result.map(item => ({
+      // Transform data with explicit type casting
+      return (data || []).map(item => ({
         ...item,
         type: 'leave' as const,
         status: 'on_leave'
-      }));
-      
-      return transformedResult as LeaveRecord[];
+      })) as LeaveRecord[];
     },
   });
 
-  // Combine and format data for the table
+  // Combine and format data for the table with explicit typing
   const historyData: HistoryRecord[] = [
     ...(absences || []), 
     ...(leaves || [])
