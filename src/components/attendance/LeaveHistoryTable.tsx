@@ -43,15 +43,33 @@ interface LeaveRecord {
 
 type HistoryRecord = AbsenceRecord | LeaveRecord;
 
+// Define what we expect from Supabase
+interface AttendanceResponse {
+  id: string;
+  date: string;
+  status: string;
+  [key: string]: any;
+}
+
+interface LeaveResponse {
+  id: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  status: string;
+  leave_type?: string | null;
+  [key: string]: any;
+}
+
 export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
   const [absencesData, setAbsencesData] = useState<AbsenceRecord[]>([]);
   const [leavesData, setLeavesData] = useState<LeaveRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Fetch absence data - Fix: Simplify query function to reduce type complexity
+  // Fetch absence data - Fix: Add explicit return type to prevent excessive type instantiation
   const fetchAbsences = useQuery({
     queryKey: [`${type}-absences`, personId],
-    queryFn: async () => {
+    queryFn: async (): Promise<AttendanceResponse[]> => {
       try {
         const { data, error } = await supabase
           .from(`${type}_attendance`)
@@ -70,10 +88,10 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
     enabled: !!personId,
   });
 
-  // Fetch leave data - Fix: Simplify query function to reduce type complexity
+  // Fetch leave data - Fix: Add explicit return type to prevent excessive type instantiation
   const fetchLeaves = useQuery({
     queryKey: [`${type}-leaves`, personId],
-    queryFn: async () => {
+    queryFn: async (): Promise<LeaveResponse[]> => {
       try {
         const { data, error } = await supabase
           .from(`${type}_leave`)

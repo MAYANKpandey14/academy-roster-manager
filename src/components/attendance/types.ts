@@ -45,3 +45,17 @@ export interface FormValues {
   end_date: Date;
   reason?: string;
 }
+
+export interface AttendanceRecord {
+  id?: string;
+  pno: string;
+  name: string;
+  rank?: string;
+  phone?: string;
+  type: 'Absent' | 'On Leave';
+  leave_type?: 'CL' | 'EL' | 'ML' | 'Maternity Leave' | null;
+  date_from: string;
+  date_to: string;
+  reason?: string;
+  created_at?: string;
+}

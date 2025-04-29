@@ -1,156 +1,157 @@
-
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { useQuery } from "@tanstack/react-query";
+import { Eye, Edit, Trash } from "lucide-react";
+import { TableView } from "@/components/ui/table-view";
+import { supabase } from "@/integrations/supabase/client";
+import { AttendanceRecord } from "@/components/attendance/types";
+import { format } from 'date-fns';
+import { DatePicker } from "@/components/ui/date-picker";
 import { Button } from "@/components/ui/button";
-import { TableView } from "@/components/ui/table-view/TableView";
-import { useAttendance } from "@/hooks/useAttendance";
-import { Eye, Download, Printer, RefreshCw, Search, FileDown } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { TableAction } from "@/components/ui/table-view/types";
+import { CalendarIcon } from "@radix-ui/react-icons";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { ActionType, TableAction } from "../ui/table-view/types";
 
-export default function AttendanceTable() {
-  const [pnoFilter, setPnoFilter] = useState("");
-  const [searchPno, setSearchPno] = useState("");
-  const queryClient = useQueryClient();
-  
-  const { data: attendance, isLoading, refetch } = useAttendance().fetchAttendance(pnoFilter || undefined);
+export function AttendanceTable() {
+  const [date, setDate] = useState<Date | undefined>(new Date());
 
-  const handleSearch = () => {
-    setPnoFilter(searchPno);
-  };
+  const { data: attendanceData, isLoading, refetch } = useQuery({
+    queryKey: ['attendance', date],
+    queryFn: async () => {
+      if (!date) return [];
 
-  const handleShowAll = () => {
-    setPnoFilter("");
-    setSearchPno("");
-  };
+      const formattedDate = format(date, 'yyyy-MM-dd');
 
-  const handleRefresh = () => {
-    refetch();
-  };
+      try {
+        const { data, error } = await supabase
+          .from('attendance')
+          .select('*')
+          .eq('date', formattedDate);
 
-  const columns = [
-    {
-      accessorKey: "pno",
-      header: "पीएनओ",
-      cell: ({ row }) => <span className="font-mangal">{row.getValue("pno")}</span>
-    },
-    {
-      accessorKey: "name",
-      header: "नाम",
-      cell: ({ row }) => <span className="font-mangal">{row.getValue("name")}</span>
-    },
-    {
-      accessorKey: "type",
-      header: "प्रकार",
-      cell: ({ row }) => {
-        const type = row.getValue("type");
-        return (
-          <Badge variant={type === "Absent" ? "destructive" : "outline"} className="font-mangal">
-            {type === "Absent" ? "अनुपस्थित" : "छुट्टी पर"}
-          </Badge>
-        );
+        if (error) {
+          console.error("Error fetching attendance:", error);
+          throw error;
+        }
+
+        return data as AttendanceRecord[];
+      } catch (error) {
+        console.error("Error fetching attendance:", error);
+        return [];
       }
     },
-    {
-      accessorKey: "leave_type",
-      header: "छुट्टी प्रकार",
-      cell: ({ row }) => {
-        const leaveType = row.getValue("leave_type");
-        return leaveType ? <span className="font-mangal">{leaveType}</span> : "-";
-      }
-    },
-    {
-      accessorKey: "date_from",
-      header: "तिथि से",
-      cell: ({ row }) => format(new Date(row.getValue("date_from")), "dd/MM/yyyy")
-    },
-    {
-      accessorKey: "date_to",
-      header: "तिथि तक",
-      cell: ({ row }) => format(new Date(row.getValue("date_to")), "dd/MM/yyyy")
-    }
-  ];
+    enabled: !!date,
+  });
 
-  // Fixed: Explicitly define actions with correct ActionType values
-  const actions: TableAction<any>[] = [
+  const handleDateChange = (newDate: Date | undefined) => {
+    setDate(newDate);
+  };
+
+  const actions: TableAction<AttendanceRecord>[] = [
     {
-      type: "view",
+      type: "view" as ActionType,
       label: "देखें",
       icon: <Eye className="h-4 w-4" />,
       onClick: (record) => {
-        // View attendance details
-        console.log("View attendance", record);
+        console.log("View record:", record);
+        // Open view modal logic
       }
     },
     {
-      type: "print",
-      label: "प्रिंट",
-      icon: <Printer className="h-4 w-4" />,
+      type: "edit" as ActionType,
+      label: "संपादित करें",
+      icon: <Edit className="h-4 w-4" />,
       onClick: (record) => {
-        // Print attendance
-        console.log("Print attendance", record);
+        console.log("Edit record:", record);
+        // Open edit modal logic
       }
     },
     {
-      type: "download",
-      label: "डाउनलोड",
-      icon: <FileDown className="h-4 w-4" />,
+      type: "delete" as ActionType,
+      label: "हटाएं",
+      icon: <Trash className="h-4 w-4" />,
       onClick: (record) => {
-        // Download attendance
-        console.log("Download attendance", record);
+        console.log("Delete record:", record);
+        if (window.confirm("क्या आप वाकई इस रिकॉर्ड को हटाना चाहते हैं?")) {
+          // Delete logic
+        }
       }
     }
   ];
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="font-mangal">अनुपस्थिति रिकॉर्ड</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col gap-4 md:flex-row md:items-end mb-6">
-          <div className="flex-1">
-            <label className="block text-sm font-medium mb-1 font-mangal">
-              पीएनओ से खोजें
-            </label>
-            <div className="flex gap-2">
-              <Input
-                value={searchPno}
-                onChange={(e) => setSearchPno(e.target.value)}
-                placeholder="पीएनओ दर्ज करें"
-                className="font-mangal"
-              />
-              <Button onClick={handleSearch} className="shrink-0 font-mangal">
-                <Search className="h-4 w-4 mr-1" />
-                खोजें
-              </Button>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={handleShowAll} className="font-mangal">
-              सभी दिखाएं
-            </Button>
-            <Button variant="outline" onClick={handleRefresh} className="font-mangal">
-              <RefreshCw className="h-4 w-4 mr-1" />
-              रिफ्रेश
-            </Button>
-          </div>
-        </div>
+  const columns = [
+    {
+      accessorKey: 'pno',
+      header: 'पी.एन.ओ.',
+    },
+    {
+      accessorKey: 'name',
+      header: 'नाम',
+    },
+    {
+      accessorKey: 'rank',
+      header: 'पद',
+    },
+    {
+      accessorKey: 'phone',
+      header: 'फ़ोन',
+    },
+    {
+      accessorKey: 'type',
+      header: 'प्रकार',
+    },
+    {
+      accessorKey: 'leave_type',
+      header: 'छुट्टी का प्रकार',
+    },
+    {
+      accessorKey: 'date_from',
+      header: 'से',
+    },
+    {
+      accessorKey: 'date_to',
+      header: 'तक',
+    },
+    {
+      accessorKey: 'reason',
+      header: 'कारण',
+    },
+  ];
 
-        <TableView
-          data={attendance || []}
-          columns={columns}
-          isLoading={isLoading}
-          filterColumn="name"
-          filterPlaceholder="नाम से खोजें..."
-          actions={actions}
-          onRefresh={handleRefresh}
-          totalLabelKey="totalItems"
-        />
-      </CardContent>
-    </Card>
+  return (
+    <div>
+      <div className="flex items-center space-x-2 mb-4">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant={"outline"}
+              className={cn(
+                "w-[300px] justify-start text-left font-normal",
+                !date && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {date ? format(date, "PPP") : <span>तारीख चुनें</span>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="center" side="bottom">
+            <DatePicker
+              mode="single"
+              selected={date}
+              onSelect={handleDateChange}
+              className="border-none shadow-none"
+            />
+          </PopoverContent>
+        </Popover>
+        <Button onClick={() => refetch()} disabled={isLoading}>रीफ्रेश</Button>
+      </div>
+
+      <TableView
+        data={attendanceData || []}
+        columns={columns}
+        isLoading={isLoading}
+        actions={actions}
+        onRefresh={() => refetch()}
+      />
+    </div>
   );
 }
