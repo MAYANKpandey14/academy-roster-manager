@@ -66,39 +66,65 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
     },
     {
       accessorKey: "pno",
-      header: () => <span className="dynamic-text">{t("pno", "PNO")}</span>,
+      header: () => {
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+          {t("pno", "PNO")}
+        </span>
+      },
       cell: ({ row }) => {
         const value = row.getValue("pno") as string;
-        return <span className="dynamic-text">{prepareTextForLanguage(value, i18n.language)}</span>;
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>{value}</span>;
       }
     },
     {
       accessorKey: "name",
-      header: () => <span className="dynamic-text">{t("name", "Name")}</span>,
+      header: () => {
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+          {t("name", "Name")}
+        </span>
+      },
       cell: ({ row }) => {
         const value = row.getValue("name") as string;
-        return <span className="dynamic-text">{prepareTextForLanguage(value, i18n.language)}</span>;
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+          {prepareTextForLanguage(value, i18n.language)}
+        </span>;
       }
     },
     {
       accessorKey: "father_name",
-      header: () => <span className="dynamic-text">{t("fatherName", "Father's Name")}</span>,
+      header: () => {
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+          {t("fatherName", "Father's Name")}
+        </span>
+      },
       cell: ({ row }) => {
         const value = row.getValue("father_name") as string;
-        return <span className="dynamic-text">{prepareTextForLanguage(value, i18n.language)}</span>;
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+          {prepareTextForLanguage(value, i18n.language)}
+        </span>;
       }
     },
     {
       accessorKey: "current_posting_district",
-      header: () => <span className="dynamic-text">{t("district", "District")}</span>,
+      header: () => {
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+          {t("district", "District")}
+        </span>
+      },
       cell: ({ row }) => {
         const value = row.getValue("current_posting_district") as string;
-        return <span className="dynamic-text">{prepareTextForLanguage(value, i18n.language)}</span>;
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+          {prepareTextForLanguage(value, i18n.language)}
+        </span>;
       }
     },
     {
       accessorKey: "arrival_date",
-      header: () => <span className="dynamic-text">{t("arrivalDate", "Arrival Date")}</span>,
+      header: () => {
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+          {t("arrivalDate", "Arrival Date")}
+        </span>
+      },
       cell: ({ row }) => {
         const date = row.getValue("arrival_date") as string;
         return <span>{date ? format(new Date(date), "PP") : "N/A"}</span>;
@@ -106,7 +132,11 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
     },
     {
       accessorKey: "departure_date",
-      header: () => <span className="dynamic-text">{t("departureDate", "Departure Date")}</span>,
+      header: () => {
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+          {t("departureDate", "Departure Date")}
+        </span>
+      },
       cell: ({ row }) => {
         const date = row.getValue("departure_date") as string;
         return <span>{date ? format(new Date(date), "PP") : "N/A"}</span>;
@@ -114,7 +144,11 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
     },
     {
       accessorKey: "mobile_number",
-      header: () => <span className="dynamic-text">{t("mobile", "Mobile")}</span>,
+      header: () => {
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+          {t("mobile", "Mobile")}
+        </span>
+      },
       cell: ({ row }) => {
         const value = row.getValue("mobile_number") as string;
         return <span>{value}</span>; // Mobile numbers don't need encoding transformation
@@ -122,7 +156,11 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
     },
     {
       id: "actions",
-      header: () => <span className="dynamic-text">{t("actions", "Actions")}</span>,
+      header: () => {
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+          {t("actions", "Actions")}
+        </span>
+      },
       cell: ({ row }) => {
         const trainee = row.original;
         return (
@@ -152,7 +190,7 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
       return;
     }
     
-    const content = createPrintContent(selectedTrainees);
+    const content = createPrintContent(selectedTrainees, i18n.language, t);
     handlePrint(content);
     toast.success(t("printingTrainees", `Printing ${selectedTrainees.length} trainee(s)`));
   }
@@ -165,7 +203,7 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
       return;
     }
     
-    const content = createCSVContent(selectedTrainees);
+    const content = createCSVContent(selectedTrainees, i18n.language, t);
     handleDownload(content, `selected_trainees_${new Date().toISOString().split('T')[0]}.csv`);
     toast.success(t("traineeCSVDownloaded", `CSV file with ${selectedTrainees.length} trainees downloaded successfully`));
   }
@@ -181,7 +219,7 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
           disabled={isLoading || selectedCount === 0}
         >
           <Printer className="h-4 w-4" />
-          {!isMobile && <span className="ml-2 dynamic-text">
+          {!isMobile && <span className={`ml-2 dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
             {t("print", "Print")} {selectedCount > 0 ? `${t("selected", "Selected")} (${selectedCount})` : ""}
           </span>}
         </Button>
@@ -193,7 +231,7 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
           disabled={isLoading || selectedCount === 0}
         >
           <Download className="h-4 w-4" />
-          {!isMobile && <span className="ml-2 dynamic-text">
+          {!isMobile && <span className={`ml-2 dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
             {t("download", "Download")} {selectedCount > 0 ? `${t("selected", "Selected")} (${selectedCount})` : ""}
           </span>}
         </Button>

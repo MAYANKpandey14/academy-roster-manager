@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Search, List, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,13 +27,13 @@ export function TraineeFilters({
 
   const handleSearch = async () => {
     if (!pno && !chestNo && !rollNo) {
-      toast.error("Please enter at least one search criteria");
+      toast.error(t("selectTraineesToPrint", "Please enter at least one search criteria"));
       return;
     }
     
     const found = await onSearch(pno, chestNo, rollNo);
     if (!found) {
-      toast.error("No trainee found matching your search criteria");
+      toast.error(t("noResults", "No trainee found matching your search criteria"));
     }
   };
 
@@ -46,14 +46,18 @@ export function TraineeFilters({
 
   return (
     <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-4">
-      <h3 className="text-lg font-medium mb-4 dynamic-text">{t("searchTrainees")}</h3>
+      <h3 className="text-lg font-medium mb-4">
+        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+          {t("searchTrainees")}
+        </span>
+      </h3>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
           <Label htmlFor="pno" className="dynamic-text">{t("pnoNumber")}</Label>
           <Input
             id="pno"
-            placeholder={`${t("enter PNO")} (9-digit)`}
+            placeholder={t("enterPNO")}
             value={pno}
             onChange={(e) => setPno(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -67,7 +71,7 @@ export function TraineeFilters({
           <Label htmlFor="chestNo" className="dynamic-text">{t("chestNumber")}</Label>
           <Input
             id="chestNo"
-            placeholder={`${t("enter Chest No")} (4-digit)`}
+            placeholder={t("enterChestNo")}
             value={chestNo}
             onChange={(e) => setChestNo(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -81,7 +85,7 @@ export function TraineeFilters({
           <Label htmlFor="rollNo" className="dynamic-text">{t("rollNo")} {t("uniqueId")}</Label>
           <Input
             id="rollNo"
-            placeholder={`${t("enter Roll No / Unique ID")} (12-digit)`}
+            placeholder={t("enterRollNo")}
             value={rollNo}
             onChange={(e) => setRollNo(e.target.value)}
             onKeyDown={handleKeyDown}

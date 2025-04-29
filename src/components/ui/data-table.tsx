@@ -56,9 +56,6 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const { t, i18n } = useTranslation();
 
-  // Fix: Don't modify cell rendering in column definition as it causes type errors
-  // Instead, we'll handle text processing in the table cell rendering
-
   const table = useReactTable({
     data,
     columns,
@@ -92,7 +89,7 @@ export function DataTable<TData, TValue>({
           />
         </div>
         <div className="flex items-center space-x-2">
-          <p className="text-sm text-gray-500">
+          <p className={`text-sm text-gray-500 dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
             {table.getFilteredSelectedRowModel().rows.length} {t("of")}{" "}
             {table.getFilteredRowModel().rows.length} {t("rowsSelected")}
           </p>
@@ -105,7 +102,7 @@ export function DataTable<TData, TValue>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className={i18n.language === 'hi' ? 'krutidev-heading' : ''}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -122,7 +119,9 @@ export function DataTable<TData, TValue>({
             {isLoading ? (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-16 text-center">
-                  {t("loading")}
+                  <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                    {t("loading")}
+                  </span>
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows?.length ? (
@@ -132,18 +131,9 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => {
-                    // Process the cell value if needed
-                    const cellContent = flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext()
-                    );
-                    
                     return (
-                      <TableCell 
-                        key={cell.id} 
-                        className={i18n.language === 'hi' ? 'krutidev-font' : ''}
-                      >
-                        {cellContent}
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     );
                   })}
@@ -155,7 +145,9 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  {t("noResults")}
+                  <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                    {t("noResults")}
+                  </span>
                 </TableCell>
               </TableRow>
             )}
@@ -163,12 +155,14 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
       <div className="flex items-center justify-between space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground dynamic-text">
+        <div className={`flex-1 text-sm text-muted-foreground dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
           {table.getFilteredRowModel().rows.length} {t(totalLabel)}.
         </div>
         <div className="flex items-center space-x-6 lg:space-x-8">
           <div className="flex items-center space-x-2">
-            <p className="text-sm font-medium dynamic-text">{t("rowsPerPage")}</p>
+            <p className={`text-sm font-medium dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+              {t("rowsPerPage")}
+            </p>
             <Select
               value={`${table.getState().pagination.pageSize}`}
               onValueChange={(value) => {
@@ -206,8 +200,10 @@ export function DataTable<TData, TValue>({
               {"<"}
             </Button>
             <div className="flex items-center gap-1">
-              <p className="text-sm font-medium dynamic-text">{t("page")}</p>
-              <strong className="text-sm font-medium dynamic-text">
+              <p className={`text-sm font-medium dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                {t("page")}
+              </p>
+              <strong className={`text-sm font-medium dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
                 {table.getState().pagination.pageIndex + 1} {t("of")}{" "}
                 {table.getPageCount()}
               </strong>

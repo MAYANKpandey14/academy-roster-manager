@@ -5,6 +5,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 // Define translation keys
 interface TranslationKeys {
+  // General UI
   welcome: string;
   loading: string;
   error: string;
@@ -14,7 +15,13 @@ interface TranslationKeys {
   delete: string;
   view: string;
   back: string;
+  yes: string;
+  no: string;
+  confirm: string;
+  success: string;
+  failure: string;
 
+  // Authentication
   login: string;
   logout: string;
   username: string;
@@ -30,11 +37,14 @@ interface TranslationKeys {
   passwordUpdated: string;
   openDashboard: string;
 
+  // Main Navigation
   trainees: string;
   staff: string;
   attendance: string;
   leave: string;
+  dashboard: string;
 
+  // CRUD Operations
   addTrainee: string;
   editTrainee: string;
   viewTrainee: string;
@@ -45,13 +55,14 @@ interface TranslationKeys {
   email: string;
   phone: string;
   address: string;
-  
+
+  // Header and Navigation
   headerTitle: string;
   home: string;
   logoutSuccess: string;
   logoutError: string;
-
-  // Added translation keys for trainee form
+  
+  // Form Fields - Person Information
   pno: string;
   chestNo: string;
   fatherName: string;
@@ -66,20 +77,25 @@ interface TranslationKeys {
   nominee: string;
   homeAddress: string;
   
-  // Added translation keys for actions
+  // Actions
   processing: string;
   search: string;
   showAll: string;
   refresh: string;
   printAll: string;
   downloadAll: string;
-  
-  // Added translation keys for auth and reset password
+  print: string;
+  download: string;
+  printSelected: string;
+  downloadCSV: string;
+  selected: string;
+
+  // Auth and Password Reset
   emailAddress: string;
   resetYourPassword: string;
   signInToAccount: string;
 
-  // Added translations for trainee search
+  // Search Forms
   searchTrainee: string;
   searchTrainees: string;
   searchStaff: string;
@@ -89,9 +105,13 @@ interface TranslationKeys {
   uniqueId: string;
   addNewTrainee: string;
   showAllTrainees: string;
+  showAllStaff: string;
   searchTraineeBtn: string;
+  enterPNO: string;
+  enterChestNo: string;
+  enterRollNo: string;
 
-  // Added translations for table elements
+  // Table Elements
   rowsPerPage: string;
   totalTrainees: string;
   totalStaff: string;
@@ -100,18 +120,55 @@ interface TranslationKeys {
   noResults: string;
   rowsSelected: string;
 
-  // Added translations for trainee table columns
+  // Table Columns
   district: string;
   arrivalDate: string;
   departureDate: string;
   mobile: string;
   actions: string;
-
-  // Added translations for staff table columns
   rank: string;
   postingDistrict: string;
 
-  // Added translations for attendance and leave
+  // View Details Page
+  traineeDetails: string;
+  staffDetails: string;
+  viewStaffDetails: string;
+  personalInformation: string;
+  additionalInformation: string;
+  dates: string;
+  toliNumber: string;
+  classNumber: string;
+  classSubject: string;
+  traineeNotFound: string;
+  staffNotFound: string;
+  failedToFetchTrainee: string;
+  failedToFetchStaff: string;
+  loadingTraineeDetails: string;
+  loadingStaffDetails: string;
+  returnToTraineeList: string;
+  returnToStaffList: string;
+
+  // Training Period
+  trainingPeriod: string;
+  trainingPeriodFrom: string;
+  trainingPeriodTo: string;
+
+  // Print and Export
+  documentGenerated: string;
+  printingTrainees: string;
+  printingStaff: string;
+  traineeCSVDownloaded: string;
+  staffCSVDownloaded: string;
+  selectTraineesToPrint: string;
+  selectTraineesToDownload: string;
+  failedToPrint: string;
+  csvDownloaded: string;
+  searchByName: string;
+  rtcPolice: string;
+  traineeInfo: string;
+  currentPosting: string;
+
+  // Attendance Management
   markAttendance: string;
   markTraineeAttendance: string;
   markStaffAttendance: string;
@@ -122,8 +179,9 @@ interface TranslationKeys {
   status: string;
   absent: string;
   onLeave: string;
+  present: string;
 
-  // Added translations for leave management
+  // Leave Management
   leaveManagement: string;
   traineeLeave: string;
   staffLeave: string;
@@ -133,14 +191,7 @@ interface TranslationKeys {
   endDate: string;
   reasonForLeave: string;
   submitLeaveRequest: string;
-  enterPNO: string;
   enterReason: string;
-
-  // Added translations for printing and download options
-  print: string;
-  download: string;
-  printSelected: string;
-  downloadCSV: string;
 }
 
 interface Resources {
@@ -152,6 +203,7 @@ interface Resources {
 const resources: Resources = {
   en: {
     translation: {
+      // General UI
       welcome: "Welcome to RTC Police Line Management System",
       loading: "Loading...",
       error: "An error occurred",
@@ -161,7 +213,13 @@ const resources: Resources = {
       delete: "Delete",
       view: "View",
       back: "Back",
+      yes: "Yes",
+      no: "No",
+      confirm: "Confirm",
+      success: "Success",
+      failure: "Failure",
 
+      // Authentication
       login: "Login",
       logout: "Logout",
       username: "Username",
@@ -177,11 +235,14 @@ const resources: Resources = {
       passwordUpdated: "Password updated successfully!",
       openDashboard: "Open Dashboard",
 
+      // Main Navigation
       trainees: "Trainees",
       staff: "Staff",
       attendance: "Attendance",
       leave: "Leave",
+      dashboard: "Dashboard",
 
+      // CRUD Operations
       addTrainee: "Add Trainee",
       editTrainee: "Edit Trainee",
       viewTrainee: "View Trainee",
@@ -193,12 +254,13 @@ const resources: Resources = {
       phone: "Phone",
       address: "Address",
 
+      // Header and Navigation
       headerTitle: "RTC TRAINING CENTRE POLICE LINE, MORADABAD",
       home: "Home",
       logoutSuccess: "Logged out successfully",
       logoutError: "Error logging out",
       
-      // Added translations for trainee form
+      // Form Fields - Person Information
       pno: "PNO",
       chestNo: "Chest No",
       fatherName: "Father's Name",
@@ -213,20 +275,25 @@ const resources: Resources = {
       nominee: "Nominee",
       homeAddress: "Home Address",
       
-      // Added translations for actions
+      // Actions
       processing: "Processing...",
       search: "Search",
       showAll: "Show All",
       refresh: "Refresh",
       printAll: "Print All",
       downloadAll: "Download All",
+      print: "Print",
+      download: "Download",
+      printSelected: "Print Selected",
+      downloadCSV: "Download CSV",
+      selected: "Selected",
       
-      // Added translations for auth and reset password
+      // Auth and Password Reset
       emailAddress: "Email address",
       resetYourPassword: "Reset your password",
       signInToAccount: "Sign in to your account",
 
-      // Added translations for trainee search
+      // Search Forms
       searchTrainee: "Search Trainee",
       searchTrainees: "Search Trainees",
       searchStaff: "Search Staff",
@@ -236,9 +303,13 @@ const resources: Resources = {
       uniqueId: "/ Unique Id",
       addNewTrainee: "Add Trainee",
       showAllTrainees: "Show All Trainees", 
+      showAllStaff: "Show All Staff",
       searchTraineeBtn: "Search Trainee",
+      enterPNO: "Enter PNO (9-digit)",
+      enterChestNo: "Enter Chest No (4-digit)",
+      enterRollNo: "Enter Roll No / Unique ID (12-digit)",
 
-      // Added translations for table elements
+      // Table Elements
       rowsPerPage: "Rows per page",
       totalTrainees: "trainee(s) total",
       totalStaff: "staff member(s) total",
@@ -247,18 +318,55 @@ const resources: Resources = {
       noResults: "No results found.",
       rowsSelected: "row(s) selected",
 
-      // Added translations for trainee table columns
+      // Table Columns
       district: "District",
       arrivalDate: "Arrival Date",
       departureDate: "Departure Date",
       mobile: "Mobile",
       actions: "Actions",
-
-      // Added translations for staff table columns
       rank: "Rank",
       postingDistrict: "Posting District",
 
-      // Added translations for attendance and leave
+      // View Details Page
+      traineeDetails: "Trainee Details",
+      staffDetails: "Staff Details",
+      viewStaffDetails: "View Staff Details",
+      personalInformation: "Personal Information",
+      additionalInformation: "Additional Information",
+      dates: "Dates",
+      toliNumber: "Toli Number",
+      classNumber: "Class Number",
+      classSubject: "Class Subject",
+      traineeNotFound: "Trainee not found or has been deleted.",
+      staffNotFound: "Staff not found or has been deleted.",
+      failedToFetchTrainee: "Failed to fetch trainee details",
+      failedToFetchStaff: "Failed to fetch staff details",
+      loadingTraineeDetails: "Loading trainee details...",
+      loadingStaffDetails: "Loading staff details...",
+      returnToTraineeList: "Return to Trainee List",
+      returnToStaffList: "Return to Staff List",
+
+      // Training Period
+      trainingPeriod: "Training Period",
+      trainingPeriodFrom: "From",
+      trainingPeriodTo: "To",
+
+      // Print and Export
+      documentGenerated: "This document was generated on",
+      printingTrainees: "Printing trainee(s)",
+      printingStaff: "Printing staff member(s)",
+      traineeCSVDownloaded: "CSV file with trainee(s) downloaded successfully",
+      staffCSVDownloaded: "CSV file with staff member(s) downloaded successfully",
+      selectTraineesToPrint: "Please select at least one trainee to print",
+      selectTraineesToDownload: "Please select at least one trainee to download",
+      failedToPrint: "Failed to open print window. Please check your pop-up blocker settings.",
+      csvDownloaded: "CSV file downloaded successfully",
+      searchByName: "Search by name...",
+      rtcPolice: "RTC Police Line, Moradabad",
+      traineeInfo: "RTC Trainee Information",
+      currentPosting: "Current Posting",
+
+      // Attendance and Leave Management
       markAttendance: "Mark Attendance",
       markTraineeAttendance: "Mark Trainee Attendance",
       markStaffAttendance: "Mark Staff Attendance",
@@ -269,8 +377,9 @@ const resources: Resources = {
       status: "Status",
       absent: "Absent",
       onLeave: "On Leave",
+      present: "Present",
 
-      // Added translations for leave management
+      // Leave Management
       leaveManagement: "Leave Management",
       traineeLeave: "Trainee Leave",
       staffLeave: "Staff Leave", 
@@ -280,18 +389,12 @@ const resources: Resources = {
       endDate: "End Date",
       reasonForLeave: "Reason For Leave",
       submitLeaveRequest: "Submit Leave Request",
-      enterPNO: "Enter PNO",
-      enterReason: "Enter reason for leave",
-
-      // Added translations for printing and download options
-      print: "Print",
-      download: "Download",
-      printSelected: "Print Selected",
-      downloadCSV: "Download CSV"
+      enterReason: "Enter reason for leave"
     },
   },
   hi: {
     translation: {
+      // General UI
       welcome: "आरटीसी पुलिस लाइन प्रबंधन प्रणाली में आपका स्वागत है",
       loading: "लोड हो रहा है...",
       error: "एक त्रुटि हुई",
@@ -301,7 +404,13 @@ const resources: Resources = {
       delete: "हटाएं",
       view: "देखें",
       back: "वापस",
+      yes: "हां",
+      no: "नहीं",
+      confirm: "पुष्टि करें",
+      success: "सफलता",
+      failure: "विफलता",
 
+      // Authentication
       login: "लॉग इन करें",
       logout: "लॉग आउट",
       username: "उपयोगकर्ता नाम",
@@ -317,11 +426,14 @@ const resources: Resources = {
       passwordUpdated: "पासवर्ड सफलतापूर्वक अपडेट किया गया!",
       openDashboard: "डैशबोर्ड खोलें",
 
+      // Main Navigation
       trainees: "प्रशिक्षु",
       staff: "स्टाफ",
       attendance: "उपस्थिति",
       leave: "अवकाश",
+      dashboard: "डैशबोर्ड",
 
+      // CRUD Operations
       addTrainee: "प्रशिक्षु जोड़ें",
       editTrainee: "प्रशिक्षु संपादित करें",
       viewTrainee: "प्रशिक्षु देखें",
@@ -333,12 +445,13 @@ const resources: Resources = {
       phone: "फोन",
       address: "पता",
 
+      // Header and Navigation
       headerTitle: "आरटीसी ट्रेनिंग सेंटर पुलिस लाइन, मुरादाबाद",
       home: "होम",
       logoutSuccess: "सफलतापूर्वक लॉगआउट किया गया",
       logoutError: "लॉगआउट करने में त्रुटि",
       
-      // Added translations for trainee form
+      // Form Fields - Person Information
       pno: "पीएनओ",
       chestNo: "छाती संख्या",
       fatherName: "पिता का नाम",
@@ -353,20 +466,25 @@ const resources: Resources = {
       nominee: "नामिती",
       homeAddress: "घर का पता",
       
-      // Added translations for actions
+      // Actions
       processing: "प्रोसेसिंग...",
       search: "खोज",
       showAll: "सभी दिखाएं",
       refresh: "रिफ्रेश",
       printAll: "सभी प्रिंट करें",
       downloadAll: "सभी डाउनलोड करें",
+      print: "प्रिंट",
+      download: "डाउनलोड",
+      printSelected: "चयनित प्रिंट करें",
+      downloadCSV: "CSV डाउनलोड करें",
+      selected: "चयनित",
       
-      // Added translations for auth and reset password
+      // Auth and Password Reset
       emailAddress: "ईमेल पता",
       resetYourPassword: "अपना पासवर्ड रीसेट करें",
       signInToAccount: "अपने खाते में साइन इन करें",
       
-      // Added translations for trainee search
+      // Search Forms
       searchTrainee: "प्रशिक्षु खोजें",
       searchTrainees: "प्रशिक्षुओं को खोजें",
       searchStaff: "स्टाफ खोजें",
@@ -376,9 +494,13 @@ const resources: Resources = {
       uniqueId: "/ विशिष्ट आईडी",
       addNewTrainee: "प्रशिक्षु जोड़ें",
       showAllTrainees: "सभी प्रशिक्षु दिखाएं",
+      showAllStaff: "सभी स्टाफ दिखाएं",
       searchTraineeBtn: "प्रशिक्षु खोजें",
+      enterPNO: "पीएनओ दर्ज करें (9-अंक)",
+      enterChestNo: "छाती संख्या दर्ज करें (4-अंक)",
+      enterRollNo: "रोल नंबर / विशिष्ट आईडी दर्ज करें (12-अंक)",
       
-      // Added translations for table elements
+      // Table Elements
       rowsPerPage: "प्रति पेज पंक्तियां",
       totalTrainees: "कुल प्रशिक्षु",
       totalStaff: "कुल स्टाफ सदस्य",
@@ -387,18 +509,55 @@ const resources: Resources = {
       noResults: "कोई परिणाम नहीं मिला।",
       rowsSelected: "पंक्तियां चयनित",
       
-      // Added translations for trainee table columns
+      // Table Columns
       district: "जिला",
       arrivalDate: "आगमन तिथि",
       departureDate: "प्रस्थान तिथि",
       mobile: "मोबाइल",
       actions: "कार्रवाई",
-      
-      // Added translations for staff table columns
       rank: "रैंक",
       postingDistrict: "पोस्टिंग जिला",
       
-      // Added translations for attendance and leave
+      // View Details Page
+      traineeDetails: "प्रशिक्षु विवरण",
+      staffDetails: "स्टाफ विवरण",
+      viewStaffDetails: "स्टाफ विवरण देखें",
+      personalInformation: "व्यक्तिगत जानकारी",
+      additionalInformation: "अतिरिक्त जानकारी",
+      dates: "तिथियां",
+      toliNumber: "टोली नंबर",
+      classNumber: "कक्षा संख्या",
+      classSubject: "कक्षा विषय",
+      traineeNotFound: "प्रशिक्षु नहीं मिला या हटा दिया गया है।",
+      staffNotFound: "स्टाफ नहीं मिला या हटा दिया गया है।",
+      failedToFetchTrainee: "प्रशिक्षु विवरण प्राप्त करने में विफल",
+      failedToFetchStaff: "स्टाफ विवरण प्राप्त करने में विफल",
+      loadingTraineeDetails: "प्रशिक्षु विवरण लोड हो रहा है...",
+      loadingStaffDetails: "स्टाफ विवरण लोड हो रहा है...",
+      returnToTraineeList: "प्रशिक्षु सूची पर वापस जाएं",
+      returnToStaffList: "स्टाफ सूची पर वापस जाएं",
+
+      // Training Period
+      trainingPeriod: "प्रशिक्षण अवधि",
+      trainingPeriodFrom: "से",
+      trainingPeriodTo: "तक",
+
+      // Print and Export
+      documentGenerated: "यह दस्तावेज़ इस तिथि पर उत्पन्न किया गया था",
+      printingTrainees: "प्रशिक्षु(ओं) को प्रिंट किया जा रहा है",
+      printingStaff: "स्टाफ सदस्य(ओं) को प्रिंट किया जा रहा है",
+      traineeCSVDownloaded: "प्रशिक्षु(ओं) के साथ CSV फ़ाइल सफलतापूर्वक डाउनलोड की गई",
+      staffCSVDownloaded: "स्टाफ सदस्य(ओं) के साथ CSV फ़ाइल सफलतापूर्वक डाउनलोड की गई",
+      selectTraineesToPrint: "कृपया प्रिंट करने के लिए कम से कम एक प्रशिक्षु का चयन करें",
+      selectTraineesToDownload: "कृपया डाउनलोड करने के लिए कम से कम एक प्रशिक्षु का चयन करें",
+      failedToPrint: "प्रिंट विंडो खोलने में विफल। कृपया अपनी पॉप-अप ब्लॉकर सेटिंग्स जांचें।",
+      csvDownloaded: "CSV फ़ाइल सफलतापूर्वक डाउनलोड की गई",
+      searchByName: "नाम से खोजें...",
+      rtcPolice: "आरटीसी पुलिस लाइन, मुरादाबाद",
+      traineeInfo: "आरटीसी प्रशिक्षु जानकारी",
+      currentPosting: "वर्तमान पोस्टिंग",
+      
+      // Attendance and Leave Management
       markAttendance: "उपस्थिति दर्ज करें",
       markTraineeAttendance: "प्रशिक्षु उपस्थिति दर्ज करें",
       markStaffAttendance: "स्टाफ उपस्थिति दर्ज करें",
@@ -409,8 +568,9 @@ const resources: Resources = {
       status: "स्थिति",
       absent: "अनुपस्थित",
       onLeave: "अवकाश पर",
+      present: "उपस्थित",
       
-      // Added translations for leave management
+      // Leave Management
       leaveManagement: "अवकाश प्रबंधन",
       traineeLeave: "प्रशिक्षु अवकाश",
       staffLeave: "स्टाफ अवकाश",
@@ -420,14 +580,7 @@ const resources: Resources = {
       endDate: "अंतिम तिथि",
       reasonForLeave: "अवकाश का कारण",
       submitLeaveRequest: "अवकाश अनुरोध जमा करें",
-      enterPNO: "पीएनओ दर्ज करें",
-      enterReason: "अवकाश का कारण दर्ज करें",
-      
-      // Added translations for printing and download options
-      print: "प्रिंट",
-      download: "डाउनलोड",
-      printSelected: "चयनित प्रिंट करें",
-      downloadCSV: "CSV डाउनलोड करें"
+      enterReason: "अवकाश का कारण दर्ज करें"
     },
   },
 };

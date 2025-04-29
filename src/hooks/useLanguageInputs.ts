@@ -24,10 +24,14 @@ export const useLanguageInputs = () => {
           // Set special attributes for Hindi with KrutiDev font
           if (inputLang === 'hi') {
             inputElement.setAttribute('inputmode', 'text');
-            inputElement.classList.add('krutidev-font');
+            if (inputElement.hasAttribute('placeholder')) {
+              inputElement.classList.add('krutidev-placeholder');
+            } else {
+              inputElement.classList.add('krutidev-text');
+            }
           } else {
             inputElement.removeAttribute('inputmode');
-            inputElement.classList.remove('krutidev-font');
+            inputElement.classList.remove('krutidev-placeholder', 'krutidev-text');
           }
         }
       });
@@ -36,16 +40,38 @@ export const useLanguageInputs = () => {
       const textElements = document.querySelectorAll('.dynamic-text');
       textElements.forEach(el => {
         if (el instanceof HTMLElement) {
-          // Set language and charset for all dynamic text elements
+          // Set language for all dynamic text elements
           el.lang = i18n.language;
           
           if (i18n.language === 'hi') {
-            el.classList.add('krutidev-font');
             el.classList.add('lang-hi');
+            
+            // Apply appropriate font size based on element type or parent
+            if (el.tagName === 'H1' || el.tagName === 'H2' || el.tagName === 'H3' ||
+                el.classList.contains('text-2xl') || el.classList.contains('text-xl') ||
+                el.classList.contains('font-semibold')) {
+              el.classList.add('krutidev-heading');
+            } else {
+              el.classList.add('krutidev-text');
+            }
           } else {
-            el.classList.remove('krutidev-font');
-            el.classList.remove('lang-hi');
+            el.classList.remove('lang-hi', 'krutidev-heading', 'krutidev-text', 'krutidev-placeholder');
           }
+        }
+      });
+      
+      // Specific handling for table headers and cells to ensure consistent font size
+      const tableHeaders = document.querySelectorAll('th .dynamic-text');
+      tableHeaders.forEach(header => {
+        if (header instanceof HTMLElement && i18n.language === 'hi') {
+          header.classList.add('krutidev-heading');
+        }
+      });
+      
+      const tableCells = document.querySelectorAll('td .dynamic-text');
+      tableCells.forEach(cell => {
+        if (cell instanceof HTMLElement && i18n.language === 'hi') {
+          cell.classList.add('krutidev-text');
         }
       });
     };
@@ -63,18 +89,6 @@ export const useLanguageInputs = () => {
             font-weight: normal;
             font-style: normal;
             font-display: swap;
-          }
-          
-          .krutidev-font {
-            font-family: 'KrutiDev', sans-serif !important;
-            direction: ltr;
-          }
-          
-          /* Keep date and number fields in English */
-          input[type="date"],
-          input[type="number"],
-          input[type="tel"] {
-            font-family: 'Space Grotesk', sans-serif !important;
           }
         `;
         document.head.appendChild(style);

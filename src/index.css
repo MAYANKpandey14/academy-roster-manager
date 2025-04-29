@@ -112,6 +112,26 @@
   line-height: inherit;
 }
 
+/* New Hindi font size classes */
+.krutidev-heading {
+  font-family: 'KrutiDev', sans-serif;
+  font-size: 1.25rem !important; /* 20px */
+  font-weight: 600 !important;
+  line-height: 1.5 !important;
+}
+
+.krutidev-text {
+  font-family: 'KrutiDev', sans-serif;
+  font-size: 1.125rem !important; /* 18px */
+  line-height: 1.5 !important;
+}
+
+.krutidev-placeholder {
+  font-family: 'KrutiDev', sans-serif;
+  font-size: 1rem !important; /* 16px */
+  line-height: 1.5 !important;
+}
+
 .lang-hi {
   /* Hindi language specific styling */
 }
@@ -120,17 +140,46 @@
   transition: font-family 0.2s ease;
 }
 
+/* Apply proper Hindi styling based on context */
+h1.dynamic-text.lang-hi,
+h2.dynamic-text.lang-hi,
+h3.dynamic-text.lang-hi,
+.text-2xl.dynamic-text.lang-hi,
+.text-xl.dynamic-text.lang-hi,
+.font-semibold.dynamic-text.lang-hi {
+  @apply krutidev-heading;
+}
+
+p.dynamic-text.lang-hi,
+span.dynamic-text.lang-hi,
+div.dynamic-text.lang-hi,
+td .dynamic-text.lang-hi,
+.card-content .dynamic-text.lang-hi {
+  @apply krutidev-text;
+}
+
 .dynamic-text.lang-hi {
   font-family: 'KrutiDev', sans-serif;
-  font-size: inherit;
-  font-weight: inherit;
+}
+
+/* Table specific styles */
+th .dynamic-text.lang-hi {
+  @apply krutidev-heading;
+}
+
+td .dynamic-text.lang-hi {
+  @apply krutidev-text;
 }
 
 /* Ensure proper text rendering for Hindi */
 input[lang="hi"], 
-textarea[lang="hi"], 
-.dynamic-text[lang="hi"] {
-  font-family: 'KrutiDev', sans-serif;
+textarea[lang="hi"] {
+  @apply krutidev-placeholder;
+}
+
+input[lang="hi"]::placeholder, 
+textarea[lang="hi"]::placeholder {
+  @apply krutidev-placeholder;
 }
 
 /* Always render dates and numbers in English */
@@ -171,4 +220,3 @@ input[type="tel"] {
 .download-button {
   @apply bg-green-600 hover:bg-green-700 text-white;
 }
-

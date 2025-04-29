@@ -15,7 +15,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Edit, Trash, Eye, Download, Printer } from "lucide-react";
+import { MoreHorizontal, Edit, Eye, Download, Printer } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
@@ -24,6 +24,8 @@ import { toast } from "sonner";
 import { deleteStaff } from "@/services/staffApi";
 import { createStaffPrintContent, createStaffCSVContent, handlePrint, handleDownload } from "@/utils/staffExportUtils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useTranslation } from "react-i18next";
+import { prepareTextForLanguage } from "@/utils/textUtils";
 
 interface StaffTableProps {
   staff: Staff[];
@@ -39,6 +41,7 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
   const [rowSelection, setRowSelection] = useState({});
   const [selectedCount, setSelectedCount] = useState(0);
   const isMobile = useIsMobile();
+  const { t, i18n } = useTranslation();
   
   useEffect(() => {
     // Update selected count when rowSelection changes
@@ -46,17 +49,17 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
   }, [rowSelection]);
 
   const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to delete this staff member?")) {
+    if (confirm(t("confirm", "Are you sure you want to delete this staff member?"))) {
       try {
         const { error } = await deleteStaff(id);
         
         if (error) throw error;
         
-        toast.success("Staff deleted successfully");
+        toast.success(t("success", "Staff deleted successfully"));
         onRefresh();
       } catch (error) {
         console.error("Error deleting staff:", error);
-        toast.error("Failed to delete staff");
+        toast.error(t("failure", "Failed to delete staff"));
       }
     }
   };
@@ -91,17 +94,37 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
     },
     {
       accessorKey: "pno",
-      header: "PNO",
-      cell: ({ row }) => <div>{row.getValue("pno")}</div>,
+      header: () => {
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+          {t("pno", "PNO")}
+        </span>
+      },
+      cell: ({ row }) => {
+        const value = row.getValue("pno") as string;
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>{value}</span>;
+      }
     },
     {
       accessorKey: "name",
-      header: "Name",
-      cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
+      header: () => {
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+          {t("name", "Name")}
+        </span>
+      },
+      cell: ({ row }) => {
+        const value = row.getValue("name") as string;
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''} font-medium`}>
+          {prepareTextForLanguage(value, i18n.language)}
+        </span>;
+      }
     },
     {
       accessorKey: "rank",
-      header: "Rank",
+      header: () => {
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+          {t("rank", "Rank")}
+        </span>
+      },
       cell: ({ row }) => {
         const rank = row.getValue("rank") as StaffRank;
         return (
@@ -112,23 +135,46 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
                 : "outline"
             }
           >
-            {rank}
+            <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+              {rank}
+            </span>
           </Badge>
         );
       },
     },
     {
       accessorKey: "current_posting_district",
-      header: "Posting District",
-      cell: ({ row }) => <div>{row.getValue("current_posting_district")}</div>,
+      header: () => {
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+          {t("postingDistrict", "Posting District")}
+        </span>
+      },
+      cell: ({ row }) => {
+        const value = row.getValue("current_posting_district") as string;
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+          {prepareTextForLanguage(value, i18n.language)}
+        </span>;
+      }
     },
     {
       accessorKey: "mobile_number",
-      header: "Mobile",
-      cell: ({ row }) => <div>{row.getValue("mobile_number")}</div>,
+      header: () => {
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+          {t("mobile", "Mobile")}
+        </span>
+      },
+      cell: ({ row }) => {
+        const value = row.getValue("mobile_number") as string;
+        return <span>{value}</span>;
+      }
     },
     {
       id: "actions",
+      header: () => {
+        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+          {t("actions", "Actions")}
+        </span>
+      },
       cell: ({ row }) => {
         const staff = row.original;
 
@@ -143,19 +189,27 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => navigate(`/view-staff/${staff.id}`)}>
                 <Eye className="mr-2 h-4 w-4" />
-                <span>View</span>
+                <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                  {t("view", "View")}
+                </span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate(`/edit-staff/${staff.id}`)}>
                 <Edit className="mr-2 h-4 w-4" />
-                <span>Edit</span>
+                <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                  {t("edit", "Edit")}
+                </span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handlePrintAction([staff])}>
                 <Printer className="mr-2 h-4 w-4" />
-                <span>Print</span>
+                <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                  {t("print", "Print")}
+                </span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleDownloadAction([staff])}>
                 <Download className="mr-2 h-4 w-4" />
-                <span>Download</span>
+                <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                  {t("download", "Download")}
+                </span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -173,26 +227,26 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
     const selectedStaff = staffToPrint.length ? staffToPrint : getSelectedStaff();
     
     if (selectedStaff.length === 0) {
-      toast.error("Please select at least one staff member to print");
+      toast.error(t("selectTraineesToPrint", "Please select at least one staff member to print"));
       return;
     }
     
-    const content = createStaffPrintContent(selectedStaff);
+    const content = createStaffPrintContent(selectedStaff, i18n.language, t);
     handlePrint(content);
-    toast.success(`Printing ${selectedStaff.length} staff member(s)`);
+    toast.success(t("printingStaff", `Printing ${selectedStaff.length} staff member(s)`));
   }
 
   function handleDownloadAction(staffToDownload: Staff[] = []) {
     const selectedStaff = staffToDownload.length ? staffToDownload : getSelectedStaff();
     
     if (selectedStaff.length === 0) {
-      toast.error("Please select at least one staff member to download");
+      toast.error(t("selectTraineesToDownload", "Please select at least one staff member to download"));
       return;
     }
     
-    const content = createStaffCSVContent(selectedStaff);
+    const content = createStaffCSVContent(selectedStaff, i18n.language, t);
     handleDownload(content, `selected_staff_${new Date().toISOString().split('T')[0]}.csv`);
-    toast.success(`CSV file with ${selectedStaff.length} staff member(s) downloaded successfully`);
+    toast.success(t("staffCSVDownloaded", `CSV file with ${selectedStaff.length} staff member(s) downloaded successfully`));
   }
 
   return (
@@ -206,10 +260,8 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
           disabled={isLoading || selectedCount === 0}
         >
           <Printer className="h-4 w-4" />
-          {!isMobile && <span className="ml-2">
-            {selectedCount > 0
-              ? `Print Selected${selectedCount > 0 ? ` (${selectedCount})` : ''}`
-              : "Print Selected"}
+          {!isMobile && <span className={`ml-2 dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+            {t("printSelected", "Print Selected")}{selectedCount > 0 ? ` (${selectedCount})` : ''}
           </span>}
         </Button>
         <Button
@@ -220,10 +272,8 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
           disabled={isLoading || selectedCount === 0}
         >
           <Download className="h-4 w-4" />
-          {!isMobile && <span className="ml-2">
-            {selectedCount > 0
-              ? `Download Selected${selectedCount > 0 ? ` (${selectedCount})` : ''}`
-              : "Download CSV"}
+          {!isMobile && <span className={`ml-2 dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+            {t("downloadCSV", "Download CSV")}{selectedCount > 0 ? ` (${selectedCount})` : ''}
           </span>}
         </Button>
       </div>
@@ -232,10 +282,11 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
         columns={columns}
         data={staff}
         filterColumn="name"
-        filterPlaceholder="Search by name..."
+        filterPlaceholder={t("searchByName", "Search by name...")}
         isLoading={isLoading}
         onRowSelectionChange={setRowSelection}
         rowSelection={rowSelection}
+        totalLabel="totalStaff"
       />
     </div>
   );

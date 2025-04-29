@@ -58,7 +58,7 @@ const ViewStaff = () => {
     
     const content = createStaffCSVContent([staff], i18n.language, t);
     handleDownload(content, `staff_${staff.pno}_${new Date().toISOString().split('T')[0]}.csv`);
-    toast.success(t("staffDetailsDownloaded", "Staff details downloaded as CSV"));
+    toast.success(t("staffCSVDownloaded", "Staff details downloaded as CSV"));
   };
 
   if (isLoading) {
@@ -67,11 +67,19 @@ const ViewStaff = () => {
         <Header />
         <main className="container mx-auto py-6 px-4">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-semibold dynamic-text">{t("viewStaffDetails", "View Staff Details")}</h1>
+            <h1 className="text-2xl font-semibold">
+              <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+                {t("viewStaffDetails", "View Staff Details")}
+              </span>
+            </h1>
           </div>
           <Card>
             <CardContent className="p-6 flex justify-center items-center min-h-[200px]">
-              <p className="text-muted-foreground dynamic-text">{t("loadingStaffDetails", "Loading staff details...")}</p>
+              <p className="text-muted-foreground">
+                <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                  {t("loadingStaffDetails", "Loading staff details...")}
+                </span>
+              </p>
             </CardContent>
           </Card>
         </main>
@@ -85,16 +93,28 @@ const ViewStaff = () => {
         <Header />
         <main className="container mx-auto py-6 px-4">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-semibold dynamic-text">{t("viewStaffDetails", "View Staff Details")}</h1>
+            <h1 className="text-2xl font-semibold">
+              <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+                {t("viewStaffDetails", "View Staff Details")}
+              </span>
+            </h1>
             <Button variant="outline" onClick={() => navigate("/staff")}>
-              <span className="dynamic-text">{t("back", "Back")}</span>
+              <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                {t("back", "Back")}
+              </span>
             </Button>
           </div>
           <Card>
             <CardContent className="p-6 text-center">
-              <p className="text-red-500 my-8 dynamic-text">{t("staffNotFound", "Staff not found or has been deleted.")}</p>
+              <p className="text-red-500 my-8">
+                <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                  {t("staffNotFound", "Staff not found or has been deleted.")}
+                </span>
+              </p>
               <Button onClick={() => navigate("/staff")}>
-                <span className="dynamic-text">{t("returnToStaffList", "Return to Staff List")}</span>
+                <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                  {t("returnToStaffList", "Return to Staff List")}
+                </span>
               </Button>
             </CardContent>
           </Card>
@@ -108,21 +128,33 @@ const ViewStaff = () => {
       <Header />
       <main className="container mx-auto py-6 px-4">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-semibold dynamic-text">{t("viewStaffDetails", "View Staff Details")}</h1>
+          <h1 className="text-2xl font-semibold">
+            <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+              {t("viewStaffDetails", "View Staff Details")}
+            </span>
+          </h1>
           <div className="flex space-x-2">
             <Button variant="outline" onClick={handlePrintStaff}>
               <Printer className="mr-2 h-4 w-4" />
-              <span className="dynamic-text">{t("print", "Print")}</span>
+              <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                {t("print", "Print")}
+              </span>
             </Button>
             <Button variant="outline" onClick={handleDownloadStaff}>
               <Download className="mr-2 h-4 w-4" />
-              <span className="dynamic-text">{t("download", "Download")}</span>
+              <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                {t("download", "Download")}
+              </span>
             </Button>
             <Button variant="outline" onClick={() => navigate(`/edit-staff/${id}`)}>
-              <span className="dynamic-text">{t("edit", "Edit")}</span>
+              <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                {t("edit", "Edit")}
+              </span>
             </Button>
             <Button variant="outline" onClick={() => navigate("/staff")}>
-              <span className="dynamic-text">{t("back", "Back")}</span>
+              <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                {t("back", "Back")}
+              </span>
             </Button>
           </div>
         </div>
@@ -132,86 +164,186 @@ const ViewStaff = () => {
             <CardContent className="p-6">
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-xl font-semibold mb-4 dynamic-text">{t("personalInformation", "Personal Information")}</h2>
+                  <h2 className="text-xl font-semibold mb-4">
+                    <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+                      {t("personalInformation", "Personal Information")}
+                    </span>
+                  </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground dynamic-text">{t("pno", "PNO")}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                          {t("pno", "PNO")}
+                        </span>
+                      </p>
                       <p>{staff.pno}</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground dynamic-text">{t("name", "Name")}</p>
-                      <p className="dynamic-text" lang={i18n.language}>{staff.name}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                          {t("name", "Name")}
+                        </span>
+                      </p>
+                      <p>
+                        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
+                          {staff.name}
+                        </span>
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground dynamic-text">{t("fatherName", "Father's Name")}</p>
-                      <p className="dynamic-text" lang={i18n.language}>{staff.father_name}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                          {t("fatherName", "Father's Name")}
+                        </span>
+                      </p>
+                      <p>
+                        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
+                          {staff.father_name}
+                        </span>
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground dynamic-text">{t("rank", "Rank")}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                          {t("rank", "Rank")}
+                        </span>
+                      </p>
                       <p>{staff.rank}</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground dynamic-text">{t("mobileNumber", "Mobile Number")}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                          {t("mobileNumber", "Mobile Number")}
+                        </span>
+                      </p>
                       <p>{staff.mobile_number}</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground dynamic-text">{t("currentPostingDistrict", "Current Posting District")}</p>
-                      <p className="dynamic-text" lang={i18n.language}>{staff.current_posting_district}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                          {t("currentPostingDistrict", "Current Posting District")}
+                        </span>
+                      </p>
+                      <p>
+                        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
+                          {staff.current_posting_district}
+                        </span>
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground dynamic-text">{t("education", "Education")}</p>
-                      <p className="dynamic-text" lang={i18n.language}>{staff.education}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                          {t("education", "Education")}
+                        </span>
+                      </p>
+                      <p>
+                        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
+                          {staff.education}
+                        </span>
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground dynamic-text">{t("bloodGroup", "Blood Group")}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                          {t("bloodGroup", "Blood Group")}
+                        </span>
+                      </p>
                       <p>{staff.blood_group}</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground dynamic-text">{t("nominee", "Nominee")}</p>
-                      <p className="dynamic-text" lang={i18n.language}>{staff.nominee}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                          {t("nominee", "Nominee")}
+                        </span>
+                      </p>
+                      <p>
+                        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
+                          {staff.nominee}
+                        </span>
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <h2 className="text-xl font-semibold mb-4 dynamic-text">{t("dates", "Dates")}</h2>
+                  <h2 className="text-xl font-semibold mb-4">
+                    <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+                      {t("dates", "Dates")}
+                    </span>
+                  </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground dynamic-text">{t("dateOfBirth", "Date of Birth")}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                          {t("dateOfBirth", "Date of Birth")}
+                        </span>
+                      </p>
                       <p>{staff.date_of_birth ? format(new Date(staff.date_of_birth), "PPP") : "N/A"}</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground dynamic-text">{t("dateOfJoining", "Date of Joining")}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                          {t("dateOfJoining", "Date of Joining")}
+                        </span>
+                      </p>
                       <p>{staff.date_of_joining ? format(new Date(staff.date_of_joining), "PPP") : "N/A"}</p>
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <h2 className="text-xl font-semibold mb-4 dynamic-text">{t("address", "Address")}</h2>
-                  <p className="dynamic-text" lang={i18n.language}>{staff.home_address}</p>
+                  <h2 className="text-xl font-semibold mb-4">
+                    <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+                      {t("address", "Address")}
+                    </span>
+                  </h2>
+                  <p>
+                    <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
+                      {staff.home_address}
+                    </span>
+                  </p>
                 </div>
                 
                 {(staff.toli_no || staff.class_no || staff.class_subject) && (
                   <div>
-                    <h2 className="text-xl font-semibold mb-4 dynamic-text">{t("additionalInformation", "Additional Information")}</h2>
+                    <h2 className="text-xl font-semibold mb-4">
+                      <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+                        {t("additionalInformation", "Additional Information")}
+                      </span>
+                    </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {staff.toli_no && (
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground dynamic-text">{t("toliNumber", "Toli Number")}</p>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                              {t("toliNumber", "Toli Number")}
+                            </span>
+                          </p>
                           <p>{staff.toli_no}</p>
                         </div>
                       )}
                       {staff.class_no && (
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground dynamic-text">{t("classNumber", "Class Number")}</p>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                              {t("classNumber", "Class Number")}
+                            </span>
+                          </p>
                           <p>{staff.class_no}</p>
                         </div>
                       )}
                       {staff.class_subject && (
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground dynamic-text">{t("classSubject", "Class Subject")}</p>
-                          <p className="dynamic-text" lang={i18n.language}>{staff.class_subject}</p>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                              {t("classSubject", "Class Subject")}
+                            </span>
+                          </p>
+                          <p>
+                            <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
+                              {staff.class_subject}
+                            </span>
+                          </p>
                         </div>
                       )}
                     </div>
