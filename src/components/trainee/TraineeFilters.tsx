@@ -53,7 +53,7 @@ export function TraineeFilters({
           <Label htmlFor="pno" className="krutidev-text">पीएनओ नंबर</Label>
           <Input
             id="pno"
-            placeholder="पीएनओ दर्ज करें (9-अंक)"
+            placeholder="पीएनओ दर्ज करें"
             value={pno}
             onChange={(e) => setPno(e.target.value)}
             onKeyDown={handleKeyDown}
