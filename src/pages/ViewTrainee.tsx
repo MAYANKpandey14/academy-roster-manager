@@ -19,7 +19,7 @@ const ViewTrainee = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { t, i18n } = useTranslation();
   
-  // Apply language inputs hook
+  // Apply language inputs hook - make sure it runs on language change
   useLanguageInputs();
 
   useEffect(() => {
@@ -53,6 +53,11 @@ const ViewTrainee = () => {
     fetchTrainee();
   }, [id, navigate, t]);
 
+  // Force re-render when language changes
+  useEffect(() => {
+    // This empty dependency will trigger a re-render when i18n.language changes
+  }, [i18n.language]);
+
   const handlePrint = () => {
     const printContent = `
       <html>
@@ -68,9 +73,20 @@ const ViewTrainee = () => {
             .header { text-align: center; margin-bottom: 30px; }
             .header h1 { margin-bottom: 5px; }
             .header p { margin-top: 0; }
+            ${i18n.language === 'hi' ? `
+              @font-face {
+                font-family: 'KrutiDev';
+                src: url('/font/KrutiDev.woff') format('woff');
+                font-weight: normal;
+                font-style: normal;
+              }
+              .hindi-text {
+                font-family: 'KrutiDev', sans-serif;
+              }
+            ` : ''}
           </style>
         </head>
-        <body>
+        <body class="${i18n.language === 'hi' ? 'hindi-text' : ''}">
           <div class="header">
             <h1>${t("rtcPolice", "RTC Police Line, Moradabad")}</h1>
             <p>${t("traineeInfo", "RTC Trainee Information")}</p>
@@ -270,7 +286,7 @@ const ViewTrainee = () => {
                 </h3>
                 <p className="mt-1">
                   <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
-                    {trainee.name}
+                    {prepareTextForLanguage(trainee.name, i18n.language)}
                   </span>
                 </p>
               </div>
@@ -282,7 +298,7 @@ const ViewTrainee = () => {
                 </h3>
                 <p className="mt-1">
                   <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
-                    {trainee.father_name}
+                    {prepareTextForLanguage(trainee.father_name, i18n.language)}
                   </span>
                 </p>
               </div>
@@ -294,7 +310,7 @@ const ViewTrainee = () => {
                 </h3>
                 <p className="mt-1">
                   <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
-                    {trainee.current_posting_district}
+                    {prepareTextForLanguage(trainee.current_posting_district, i18n.language)}
                   </span>
                 </p>
               </div>
@@ -317,7 +333,7 @@ const ViewTrainee = () => {
                 </h3>
                 <p className="mt-1">
                   <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
-                    {trainee.education}
+                    {prepareTextForLanguage(trainee.education, i18n.language)}
                   </span>
                 </p>
               </div>
@@ -337,7 +353,7 @@ const ViewTrainee = () => {
                 </h3>
                 <p className="mt-1">
                   <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
-                    {trainee.nominee}
+                    {prepareTextForLanguage(trainee.nominee, i18n.language)}
                   </span>
                 </p>
               </div>
@@ -349,7 +365,7 @@ const ViewTrainee = () => {
                 </h3>
                 <p className="mt-1">
                   <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
-                    {trainee.home_address}
+                    {prepareTextForLanguage(trainee.home_address, i18n.language)}
                   </span>
                 </p>
               </div>

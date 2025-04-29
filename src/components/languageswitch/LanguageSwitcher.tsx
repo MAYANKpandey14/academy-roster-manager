@@ -2,6 +2,7 @@
 import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button";
 import { Globe } from "lucide-react";
+import { useEffect } from 'react';
 
 const LanguageSwitcher = () => {
   const { i18n } = useTranslation();
@@ -17,7 +18,26 @@ const LanguageSwitcher = () => {
     } else {
       document.body.classList.remove('lang-hi');
     }
+    
+    // Force a repaint to ensure the language change is applied
+    document.body.style.opacity = '0.99';
+    setTimeout(() => {
+      document.body.style.opacity = '1';
+    }, 10);
+    
+    // Dispatch a custom event that components can listen for
+    const event = new CustomEvent('languageChanged', { detail: { language: lang } });
+    document.dispatchEvent(event);
   };
+
+  // Make sure language styling is applied on component mount
+  useEffect(() => {
+    if (i18n.language === 'hi') {
+      document.body.classList.add('lang-hi');
+    } else {
+      document.body.classList.remove('lang-hi');
+    }
+  }, [i18n.language]);
 
   return (
     <div className="flex items-center gap-2">

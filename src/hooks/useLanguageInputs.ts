@@ -90,6 +90,19 @@ export const useLanguageInputs = () => {
             font-style: normal;
             font-display: swap;
           }
+          
+          .krutidev-heading {
+            font-family: 'KrutiDev', sans-serif;
+            font-size: 120%;
+          }
+          
+          .krutidev-text {
+            font-family: 'KrutiDev', sans-serif;
+          }
+          
+          .krutidev-placeholder::placeholder {
+            font-family: 'KrutiDev', sans-serif;
+          }
         `;
         document.head.appendChild(style);
       }
@@ -129,9 +142,20 @@ export const useLanguageInputs = () => {
     // Add a class to the HTML element for global styling
     if (i18n.language === 'hi') {
       document.documentElement.classList.add('lang-hi');
+      // Force browser repaint to apply the hindi font styling
+      document.body.style.opacity = '0.99';
+      setTimeout(() => {
+        document.body.style.opacity = '1';
+      }, 10);
     } else {
       document.documentElement.classList.remove('lang-hi');
     }
+
+    // Apply the language change immediately
+    setTimeout(setInputLanguage, 0);
+    
+    // And then apply it again after a short delay to catch any dynamically rendered elements
+    setTimeout(setInputLanguage, 100);
 
     return () => {
       // Cleanup if needed

@@ -12,6 +12,7 @@ import { Printer, Download } from "lucide-react";
 import { createStaffPrintContent, createStaffCSVContent, handlePrint, handleDownload } from "@/utils/staffExportUtils";
 import { useTranslation } from "react-i18next";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
+import { prepareTextForLanguage } from "@/utils/textUtils";
 
 const ViewStaff = () => {
   const { id } = useParams();
@@ -44,6 +45,11 @@ const ViewStaff = () => {
 
     fetchStaff();
   }, [id, t]);
+
+  // Force re-render when language changes
+  useEffect(() => {
+    // This empty dependency will trigger a re-render when i18n.language changes
+  }, [i18n.language]);
 
   const handlePrintStaff = () => {
     if (!staff) return;
@@ -186,7 +192,7 @@ const ViewStaff = () => {
                       </p>
                       <p>
                         <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
-                          {staff.name}
+                          {prepareTextForLanguage(staff.name, i18n.language)}
                         </span>
                       </p>
                     </div>
@@ -198,7 +204,7 @@ const ViewStaff = () => {
                       </p>
                       <p>
                         <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
-                          {staff.father_name}
+                          {prepareTextForLanguage(staff.father_name, i18n.language)}
                         </span>
                       </p>
                     </div>
@@ -226,7 +232,7 @@ const ViewStaff = () => {
                       </p>
                       <p>
                         <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
-                          {staff.current_posting_district}
+                          {prepareTextForLanguage(staff.current_posting_district, i18n.language)}
                         </span>
                       </p>
                     </div>
@@ -238,7 +244,7 @@ const ViewStaff = () => {
                       </p>
                       <p>
                         <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
-                          {staff.education}
+                          {prepareTextForLanguage(staff.education, i18n.language)}
                         </span>
                       </p>
                     </div>
@@ -258,7 +264,7 @@ const ViewStaff = () => {
                       </p>
                       <p>
                         <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
-                          {staff.nominee}
+                          {prepareTextForLanguage(staff.nominee, i18n.language)}
                         </span>
                       </p>
                     </div>
@@ -299,7 +305,7 @@ const ViewStaff = () => {
                   </h2>
                   <p>
                     <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
-                      {staff.home_address}
+                      {prepareTextForLanguage(staff.home_address, i18n.language)}
                     </span>
                   </p>
                 </div>
@@ -341,7 +347,7 @@ const ViewStaff = () => {
                           </p>
                           <p>
                             <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
-                              {staff.class_subject}
+                              {prepareTextForLanguage(staff.class_subject, i18n.language)}
                             </span>
                           </p>
                         </div>
