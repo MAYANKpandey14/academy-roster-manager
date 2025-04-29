@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -34,35 +35,35 @@ import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 
 // Type definitions for database tables
-type StaffLeave = {
+interface StaffLeave {
   staff_id: string;
   start_date: string;
   end_date: string;
   reason: string;
   status: string;
   leave_type?: string | null;
-};
+}
 
-type TraineeLeave = {
+interface TraineeLeave {
   trainee_id: string;
   start_date: string;
   end_date: string;
   reason: string;
   status: string;
   leave_type?: string | null;
-};
+}
 
-type StaffAttendance = {
+interface StaffAttendance {
   staff_id: string;
   date: string;
   status: string;
-};
+}
 
-type TraineeAttendance = {
+interface TraineeAttendance {
   trainee_id: string;
   date: string;
   status: string;
-};
+}
 
 const attendanceFormSchema = z.object({
   status: z.string().min(1, "स्थिति आवश्यक है"),

@@ -3,6 +3,7 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TableRowActions } from "./TableRowActions";
 import { TableAction } from "./types";
+import { CheckedState } from "@radix-ui/react-checkbox";
 
 /**
  * Utility hook for creating table columns with selection and actions
@@ -18,8 +19,11 @@ export function useTableColumns<T extends Record<string, any>>(
     header: ({ table }) => (
       <Checkbox
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          table.getIsAllPageRowsSelected() 
+            ? true 
+            : table.getIsSomePageRowsSelected() 
+              ? "indeterminate" 
+              : false
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"

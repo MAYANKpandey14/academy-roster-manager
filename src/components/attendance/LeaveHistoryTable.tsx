@@ -12,12 +12,14 @@ import {
 } from "@/components/ui/table";
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
+import { Tables } from "@/integrations/supabase/types";
 
 interface LeaveHistoryTableProps {
   type: 'trainee' | 'staff';
   personId: string;
 }
 
+// Define simplified types to avoid deep type instantiation
 interface AbsenceRecord {
   id: string;
   date: string;
@@ -46,7 +48,7 @@ interface LeaveRecord {
 type HistoryRecord = AbsenceRecord | LeaveRecord;
 
 export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
-  // Fetch absences
+  // Fetch absences with simplified return type handling
   const { data: absences, isLoading: absencesLoading } = useQuery({
     queryKey: [`${type}-absences`, personId],
     queryFn: async () => {
@@ -59,18 +61,18 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
 
       if (error) throw error;
       
-      // Transform to our record format
-      return (data || []).map((item: any) => ({
+      // Transform to our record format with explicit type
+      return (data || []).map((item) => ({
         ...item,
         type: 'absent' as const,
         start_date: item.date,
         end_date: item.date,
         leave_type: null
-      }));
+      })) as AbsenceRecord[];
     },
   });
 
-  // Fetch leaves
+  // Fetch leaves with simplified return type handling
   const { data: leaves, isLoading: leavesLoading } = useQuery({
     queryKey: [`${type}-leaves`, personId],
     queryFn: async () => {
@@ -82,12 +84,12 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
 
       if (error) throw error;
       
-      // Transform to our record format
-      return (data || []).map((item: any) => ({
+      // Transform to our record format with explicit type
+      return (data || []).map((item) => ({
         ...item,
         type: 'leave' as const,
         status: 'on_leave'
-      }));
+      })) as LeaveRecord[];
     },
   });
 
