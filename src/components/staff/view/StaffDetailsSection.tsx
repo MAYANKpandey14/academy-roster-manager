@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { Staff } from "@/types/staff";
 import { StaffInfoField } from "./StaffInfoField";
+import { prepareTextForLanguage } from "@/utils/textUtils";
 
 interface StaffDetailsSectionProps {
   staff: Staff;
