@@ -53,7 +53,7 @@ export function TraineeFilters({
           <Label htmlFor="pno" className="dynamic-text">{t("pnoNumber")}</Label>
           <Input
             id="pno"
-            placeholder={`${t("enterPNO")} (9-digit)`}
+            placeholder={`${t("enter PNO")} (9-digit)`}
             value={pno}
             onChange={(e) => setPno(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -67,7 +67,7 @@ export function TraineeFilters({
           <Label htmlFor="chestNo" className="dynamic-text">{t("chestNumber")}</Label>
           <Input
             id="chestNo"
-            placeholder={`${t("enterPNO")} (4-digit)`}
+            placeholder={`${t("enter Chest No")} (4-digit)`}
             value={chestNo}
             onChange={(e) => setChestNo(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -81,7 +81,7 @@ export function TraineeFilters({
           <Label htmlFor="rollNo" className="dynamic-text">{t("rollNo")} {t("uniqueId")}</Label>
           <Input
             id="rollNo"
-            placeholder={`${t("enterPNO")} (12-digit)`}
+            placeholder={`${t("enter Roll No / Unique ID")} (12-digit)`}
             value={rollNo}
             onChange={(e) => setRollNo(e.target.value)}
             onKeyDown={handleKeyDown}
