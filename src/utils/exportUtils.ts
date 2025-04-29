@@ -1,7 +1,8 @@
 
 import { Trainee } from "@/types/trainee";
 import { i18n } from "i18next";
-import { TFunction } from "react-i18next";
+// Fix: TFunction should be imported from i18next, not react-i18next
+import { TFunction } from "i18next";
 
 export const createPrintContent = (trainees: Trainee[], language?: string, t?: TFunction): string => {
   // Create content for printing
