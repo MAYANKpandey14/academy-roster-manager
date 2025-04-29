@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Staff, StaffRank } from "@/types/staff";
 import { 
@@ -26,6 +25,7 @@ import { createStaffPrintContent, createStaffCSVContent, handlePrint, handleDown
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTranslation } from "react-i18next";
 import { prepareTextForLanguage } from "@/utils/textUtils";
+import { CheckedState } from "@radix-ui/react-checkbox";
 
 interface StaffTableProps {
   staff: Staff[];
@@ -76,7 +76,7 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
                 ? "indeterminate" 
                 : false
           }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          onCheckedChange={(value: CheckedState) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
           disabled={isLoading}
         />
@@ -84,7 +84,7 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          onCheckedChange={(value: CheckedState) => row.toggleSelected(!!value)}
           aria-label="Select row"
           disabled={isLoading}
         />

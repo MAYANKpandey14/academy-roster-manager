@@ -2,24 +2,29 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Trainee } from "@/types/trainee";
 import { Checkbox } from "@/components/ui/checkbox";
-import { TraineeActions } from "@/components/trainee/TraineeActions";
-import { useTranslation } from "react-i18next";
-import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 import { prepareTextForLanguage } from "@/utils/textUtils";
+import { TraineeActions } from "../TraineeActions";
+import { useTranslation } from "react-i18next";
+import { useState } from "react";
+import { CheckedState } from "@radix-ui/react-checkbox";
 
-export function useTraineeTableColumns(isLoading = false): ColumnDef<Trainee>[] {
+export function useTraineeTableColumns(isLoading: boolean = false) {
   const { t, i18n } = useTranslation();
 
-  return [
+  const columns: ColumnDef<Trainee>[] = [
     {
       id: "select",
       header: ({ table }) => (
         <Checkbox
           checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
+            table.getIsAllPageRowsSelected() 
+              ? true 
+              : table.getIsSomePageRowsSelected() 
+                ? "indeterminate" 
+                : false
           }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          onCheckedChange={(value: CheckedState) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
           disabled={isLoading}
         />
@@ -27,7 +32,7 @@ export function useTraineeTableColumns(isLoading = false): ColumnDef<Trainee>[] 
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          onCheckedChange={(value: CheckedState) => row.toggleSelected(!!value)}
           aria-label="Select row"
           disabled={isLoading}
         />
@@ -43,20 +48,18 @@ export function useTraineeTableColumns(isLoading = false): ColumnDef<Trainee>[] 
         </span>
       },
       cell: ({ row }) => {
-        const value = row.getValue("pno") as string;
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>{value}</span>;
+        return <span className="font-medium">{row.getValue("pno")}</span>;
       }
     },
     {
       accessorKey: "chest_no",
       header: () => {
         return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("chestNo", "Chest No")}
+          {t("chestNumber", "Chest No.")}
         </span>
       },
       cell: ({ row }) => {
-        const value = row.getValue("chest_no") as string;
-        return <span>{value}</span>;
+        return <span>{row.getValue("chest_no")}</span>;
       }
     },
     {
@@ -77,7 +80,7 @@ export function useTraineeTableColumns(isLoading = false): ColumnDef<Trainee>[] 
       accessorKey: "current_posting_district",
       header: () => {
         return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("district", "District")}
+          {t("currentPosting", "Current Posting")}
         </span>
       },
       cell: ({ row }) => {
@@ -91,51 +94,21 @@ export function useTraineeTableColumns(isLoading = false): ColumnDef<Trainee>[] 
       accessorKey: "arrival_date",
       header: () => {
         return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("arrivalDate", "Arrival Date")}
+          {t("trainingStarts", "Training Starts")}
         </span>
       },
       cell: ({ row }) => {
-        const value = row.getValue("arrival_date") as string;
-        if (!value) return null;
-        return format(new Date(value), "PP");
-      }
-    },
-    {
-      accessorKey: "departure_date",
-      header: () => {
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("departureDate", "Departure Date")}
-        </span>
-      },
-      cell: ({ row }) => {
-        const value = row.getValue("departure_date") as string;
-        if (!value) return null;
-        return format(new Date(value), "PP");
-      }
-    },
-    {
-      accessorKey: "mobile_number",
-      header: () => {
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("mobile", "Mobile")}
-        </span>
-      },
-      cell: ({ row }) => {
-        const value = row.getValue("mobile_number") as string;
-        return <span>{value}</span>;
+        const date = new Date(row.getValue("arrival_date") as string);
+        return <span>{date.toLocaleDateString()}</span>;
       }
     },
     {
       id: "actions",
-      header: () => {
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("actions", "Actions")}
-        </span>
-      },
       cell: ({ row }) => {
-        const trainee = row.original;
-        return <TraineeActions trainee={trainee} />;
+        return <TraineeActions trainee={row.original} />;
       },
     },
   ];
+
+  return columns;
 }

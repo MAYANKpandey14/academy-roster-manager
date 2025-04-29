@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { getTrainees, filterTrainees } from "@/services/api";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/exportUtils";
+import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/export";
 
 const Index = () => {
   const navigate = useNavigate();

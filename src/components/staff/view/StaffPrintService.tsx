@@ -8,18 +8,20 @@ import {
   handlePrint, 
   handleDownload 
 } from "@/utils/staffExportUtils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface StaffPrintServiceProps {
   staff: Staff;
 }
 
 export function useStaffPrintService(staff: Staff | null) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const { currentLanguage } = useLanguage();
 
   const handlePrintStaff = () => {
     if (!staff) return;
     
-    const content = createStaffPrintContent([staff], i18n.language, t);
+    const content = createStaffPrintContent([staff], currentLanguage, t);
     const success = handlePrint(content);
     
     if (success) {
@@ -32,7 +34,7 @@ export function useStaffPrintService(staff: Staff | null) {
   const handleDownloadStaff = () => {
     if (!staff) return;
     
-    const content = createStaffCSVContent([staff], i18n.language, t);
+    const content = createStaffCSVContent([staff], currentLanguage, t);
     const success = handleDownload(
       content, 
       `staff_${staff.pno}_${new Date().toISOString().split('T')[0]}.csv`

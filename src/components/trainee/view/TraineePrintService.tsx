@@ -1,6 +1,6 @@
 
 import { Trainee } from "@/types/trainee";
-import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/exportUtils";
+import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/export";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { prepareTextForLanguage } from "@/utils/textUtils";
