@@ -12,7 +12,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const isSpecialField = type === 'date' || type === 'number' || type === 'tel' || isAuthField;
     
     // Apply appropriate font class based on input type
-    const fontClass = isSpecialField ? 'auth-input' : 'krutidev-text';
+    const fontClass = isSpecialField ? 'auth-input' : 'font-krutidev';
     
     return (
       <input

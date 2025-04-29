@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -17,14 +18,9 @@
     font-family: system-ui, sans-serif;
   }
 
-  /* Apply Kruti Dev font to Hindi content */
-  .krutidev-text, .dynamic-text {
+  /* Apply Kruti Dev font ONLY to dynamic content */
+  .font-krutidev {
     font-family: 'Kruti Dev', system-ui, sans-serif;
-  }
-
-  .krutidev-heading {
-    font-family: 'Kruti Dev', system-ui, sans-serif;
-    font-weight: bold;
   }
   
   /* Auth inputs should always use system font */

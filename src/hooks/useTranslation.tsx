@@ -1,5 +1,5 @@
 
-// This custom hook now always returns Hindi text
+// This custom hook now always returns Hindi text without font styling
 export function useTranslation() {
   // Hindi translations for our application
   const translations = {

@@ -7,7 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,7 +25,6 @@ const authFormSchema = z.object({
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const navigate = useNavigate();
   const { user } = useUser();
 
@@ -48,25 +46,17 @@ export default function Auth() {
     setError(null);
     
     try {
-      // Make sure email and password are defined
-      const authValues = {
-        email: values.email,
-        password: values.password
-      };
+      const { email, password } = values;
       
-      if (mode === "signin") {
-        const { error } = await supabase.auth.signInWithPassword(authValues);
-        if (error) throw error;
-        
-        toast.success("सफलतापूर्वक लॉग इन किया गया");
-        navigate("/");
-      } else {
-        const { error } = await supabase.auth.signUp(authValues);
-        if (error) throw error;
-        
-        toast.success("खाता सफलतापूर्वक बनाया गया। आपका ईमेल सत्यापित करें।");
-        setMode("signin");
-      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) throw error;
+      
+      toast.success("सफलतापूर्वक लॉग इन किया गया");
+      navigate("/");
     } catch (e: any) {
       setError(e.message);
       console.error("Auth error:", e);
@@ -80,98 +70,83 @@ export default function Auth() {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <img className="mx-auto h-20 w-20" src="/images.svg" alt="Logo" />
-          <h1 className="mt-6 text-3xl font-bold krutidev-heading">
+          <h1 className="mt-6 text-3xl font-bold">
             आरटीसी प्रशिक्षु प्रबंधन प्रणाली
           </h1>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle className="krutidev-heading">
-              {mode === "signin" ? "लॉग इन" : "रजिस्टर"}
+            <CardTitle>
+              लॉग इन
             </CardTitle>
-            <CardDescription className="krutidev-text">
-              {mode === "signin" 
-                ? "अपने खाते में लॉग इन करें" 
-                : "एक नया खाता बनाएं"}
+            <CardDescription>
+              अपने खाते में लॉग इन करें
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs 
-              defaultValue={mode} 
-              onValueChange={(value) => setMode(value as "signin" | "signup")}
-            >
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin" className="krutidev-text">लॉग इन</TabsTrigger>
-                <TabsTrigger value="signup" className="krutidev-text">रजिस्टर</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value={mode}>
-                {error && (
-                  <Alert variant="destructive" className="mb-4">
-                    <AlertDescription className="krutidev-text">{error}</AlertDescription>
-                  </Alert>
-                )}
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="krutidev-text">ईमेल</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="example@email.com" 
-                              {...field} 
-                              className="auth-input"
-                              autoComplete="email"
-                            />
-                          </FormControl>
-                          <FormMessage className="krutidev-text" />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="krutidev-text">पासवर्ड</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="password" 
-                              {...field} 
-                              className="auth-input"
-                              autoComplete={mode === "signin" ? "current-password" : "new-password"}
-                            />
-                          </FormControl>
-                          <FormMessage className="krutidev-text" />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <Button 
-                      type="submit" 
-                      className="w-full" 
-                      disabled={isLoading}
-                    >
-                      <span className="krutidev-text">
-                        {isLoading ? "प्रोसेसिंग..." : mode === "signin" ? "लॉग इन करें" : "रजिस्टर करें"}
-                      </span>
-                    </Button>
-                  </form>
-                </Form>
-              </TabsContent>
-            </Tabs>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>ईमेल</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="example@email.com" 
+                          {...field} 
+                          className="auth-input"
+                          autoComplete="email"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>पासवर्ड</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="password" 
+                          {...field} 
+                          className="auth-input"
+                          autoComplete="current-password"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={isLoading}
+                >
+                  <span>
+                    {isLoading ? "प्रोसेसिंग..." : "लॉग इन करें"}
+                  </span>
+                </Button>
+              </form>
+            </Form>
           </CardContent>
           <CardFooter className="flex justify-center">
             <Button 
               variant="link" 
               onClick={() => navigate("/reset-password")} 
-              className="krutidev-text"
             >
               पासवर्ड भूल गए?
             </Button>

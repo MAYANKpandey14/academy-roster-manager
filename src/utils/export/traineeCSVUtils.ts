@@ -1,46 +1,54 @@
 
-import { Trainee } from '@/types/trainee';
-import { formatDate } from '@/utils/textUtils';
+import { Trainee } from "@/types/trainee";
+import { formatDate } from "@/utils/textUtils";
 
 /**
- * Creates CSV content for trainee export
+ * Creates CSV content from trainee data
+ * @param trainees Trainee data to convert to CSV
+ * @returns CSV content as string
  */
-export const createCSVContent = (trainee: Trainee) => {
-  // CSV Headers
+export function createCSVContent(trainees: Trainee[]): string {
+  // Define headers
   const headers = [
-    'पी.एन.ओ.',
-    'छाती संख्या',
-    'नाम',
-    'पिता का नाम',
-    'प्रशिक्षण आगमन तिथि',
-    'प्रशिक्षण समाप्ति तिथि',
-    'वर्तमान तैनाती जिला',
-    'मोबाइल नंबर',
-    'शिक्षा',
-    'जन्म तिथि',
-    'नियुक्ति तिथि',
-    'रक्त समूह',
-    'नामांकित व्यक्ति',
-    'घर का पता'
-  ].join(',');
+    "पीएनओ",
+    "चेस्ट नंबर",
+    "नाम",
+    "पिता का नाम",
+    "आगमन की तिथि",
+    "प्रस्थान की तिथि",
+    "वर्तमान तैनाती जिला",
+    "मोबाइल नंबर",
+    "शिक्षा",
+    "जन्म तिथि",
+    "नियुक्ति तिथि",
+    "रक्त समूह",
+    "नामिती",
+    "घर का पता"
+  ];
 
-  // CSV Row for this trainee
-  const row = [
-    trainee.pno || '',
-    trainee.chest_no || '',
-    trainee.name || '',
-    trainee.father_name || '',
-    trainee.arrival_date ? formatDate(trainee.arrival_date) : '',
-    trainee.departure_date ? formatDate(trainee.departure_date) : '',
-    trainee.current_posting_district || '',
-    trainee.mobile_number || '',
-    trainee.education || '',
-    trainee.date_of_birth ? formatDate(trainee.date_of_birth) : '',
-    trainee.date_of_joining ? formatDate(trainee.date_of_joining) : '',
-    trainee.blood_group || '',
-    trainee.nominee || '',
-    trainee.home_address || ''
-  ].join(',');
+  // Create CSV rows
+  const rows = trainees.map(trainee => [
+    trainee.pno || "",
+    trainee.chest_no || "",
+    trainee.name || "",
+    trainee.father_name || "",
+    formatDate(trainee.arrival_date),
+    formatDate(trainee.departure_date),
+    trainee.current_posting_district || "",
+    trainee.mobile_number || "",
+    trainee.education || "",
+    formatDate(trainee.date_of_birth),
+    formatDate(trainee.date_of_joining),
+    trainee.blood_group || "",
+    trainee.nominee || "",
+    trainee.home_address || ""
+  ]);
 
-  return `${headers}\n${row}`;
-};
+  // Combine headers and rows
+  const csvContent = [
+    headers.join(','),
+    ...rows.map(row => row.join(','))
+  ].join('\n');
+
+  return csvContent;
+}

@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -21,6 +20,7 @@ export default {
 		extend: {
 			fontFamily: {
 				sans: ['Space Grotesk', 'sans-serif'],
+				krutidev: ['"Kruti Dev 010"', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -71,12 +71,12 @@ export default {
 				'small': '12rem',
 				'mid': '16rem',
 				'large': '20rem',
-			  },
-			  height: {
+			},
+			height: {
 				'small': '14rem',
 				'mid': '20rem',
 				'large': '24rem',
-			  },
+			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
