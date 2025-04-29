@@ -1,6 +1,6 @@
 
 import { useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useTranslation';
 import { shouldAlwaysUseEnglish } from '@/utils/textUtils';
 
 export const useLanguageInputs = () => {
@@ -63,6 +63,14 @@ export const useLanguageInputs = () => {
         }
       });
       
+      // Handle special character preservation
+      const preserveCharElements = document.querySelectorAll('.preserve-char');
+      preserveCharElements.forEach(el => {
+        if (el instanceof HTMLElement) {
+          el.style.fontFamily = "'Space Grotesk', sans-serif";
+        }
+      });
+      
       // Specific handling for table headers and cells
       const tableHeaders = document.querySelectorAll('th .dynamic-text');
       tableHeaders.forEach(header => {
@@ -104,6 +112,11 @@ export const useLanguageInputs = () => {
           
           .krutidev-placeholder::placeholder {
             font-family: 'KrutiDev', sans-serif;
+          }
+          
+          .preserve-char {
+            font-family: 'Space Grotesk', sans-serif !important;
+            display: inline !important;
           }
         `;
         document.head.appendChild(style);

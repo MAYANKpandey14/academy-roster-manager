@@ -1,6 +1,7 @@
 
 import { useTranslation as useI18nTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useMemo } from 'react';
 
 /**
  * Custom hook that combines react-i18next's useTranslation with our language context
@@ -10,14 +11,17 @@ export const useTranslation = () => {
   const translation = useI18nTranslation();
   const { currentLanguage } = useLanguage();
   
-  // Only override if we have a current language from the context
-  const language = currentLanguage || translation.i18n.language;
-  
-  return {
-    ...translation,
-    i18n: {
-      ...translation.i18n,
-      language: language
-    }
-  };
+  // Memoize the result to avoid unnecessary re-renders
+  return useMemo(() => {
+    // Only override if we have a current language from the context
+    const language = currentLanguage || translation.i18n.language;
+    
+    return {
+      ...translation,
+      i18n: {
+        ...translation.i18n,
+        language: language
+      }
+    };
+  }, [currentLanguage, translation]);
 };

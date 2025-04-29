@@ -132,6 +132,19 @@
   line-height: 1.5 !important;
 }
 
+/* Special character preservation */
+.preserve-char {
+  font-family: 'Space Grotesk', sans-serif !important;
+  display: inline !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+}
+
+input::placeholder .preserve-char,
+textarea::placeholder .preserve-char {
+  font-family: 'Space Grotesk', sans-serif !important;
+}
+
 .lang-hi {
   /* Hindi language specific styling */
 }

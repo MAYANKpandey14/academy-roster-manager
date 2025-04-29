@@ -1,4 +1,3 @@
-
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
@@ -298,8 +297,8 @@ const hiTranslations = {
   searchStaff: "स्टाफ खोजें",
   pnoNumber: "पीएनओ नंबर",
   chestNumber: "छाती संख्या",
-  rollNo: "रोल नंबर",
-  uniqueId: "/ विशिष्ट आईडी", // Keep "/" as literal character
+  rollNo: "रोल नंबर", // Without the slash
+  uniqueId: "विशिष्ट आईडी", // This will be combined with the slash separately in UI components
   addNewTrainee: "प्रशिक्षु जोड़ें",
   showAllTrainees: "सभी प्रशिक्षु दिखाएं",
   showAllStaff: "सभी स्टाफ दिखाएं",
@@ -490,16 +489,16 @@ const resources = {
       searchStaff: "Search Staff",
       pnoNumber: "PNO Number",
       chestNumber: "Chest Number",
-      rollNo: "Roll No",
-      uniqueId: "/ Unique Id",
+      rollNo: "Roll No", // Without the slash
+      uniqueId: "/ Unique Id", // This will be combined with the slash separately in UI components
       addNewTrainee: "Add Trainee",
       showAllTrainees: "Show All Trainees", 
       showAllStaff: "Show All Staff",
       searchTraineeBtn: "Search Trainee",
       enterPNO: "Enter PNO (9-digit)",
       enterChestNo: "Enter Chest No (4-digit)",
-      enterRollNo: "Enter Roll No / Unique ID (12-digit)",
-
+      enterRollNo: "Enter Roll No / Unique ID (12-digit)", // Preserve "/" as literal character
+  
       // Table Elements
       rowsPerPage: "Rows per page",
       totalTrainees: "trainee(s) total",
@@ -508,7 +507,7 @@ const resources = {
       of: "of",
       noResults: "No results found.",
       rowsSelected: "row(s) selected",
-
+  
       // Table Columns
       district: "District",
       arrivalDate: "Arrival Date",
@@ -517,7 +516,7 @@ const resources = {
       actions: "Actions",
       rank: "Rank",
       postingDistrict: "Posting District",
-
+  
       // View Details Page
       traineeDetails: "Trainee Details",
       staffDetails: "Staff Details",
@@ -536,12 +535,12 @@ const resources = {
       loadingStaffDetails: "Loading staff details...",
       returnToTraineeList: "Return to Trainee List",
       returnToStaffList: "Return to Staff List",
-
+  
       // Training Period
       trainingPeriod: "Training Period",
       trainingPeriodFrom: "From",
       trainingPeriodTo: "To",
-
+  
       // Print and Export
       documentGenerated: "This document was generated on",
       printingTrainees: "Printing trainee(s)",
@@ -556,7 +555,7 @@ const resources = {
       rtcPolice: "RTC Police Line, Moradabad",
       traineeInfo: "RTC Trainee Information",
       currentPosting: "Current Posting",
-
+  
       // Attendance and Leave Management
       markAttendance: "Mark Attendance",
       markTraineeAttendance: "Mark Trainee Attendance",
@@ -569,7 +568,7 @@ const resources = {
       absent: "Absent",
       onLeave: "On Leave",
       present: "Present",
-
+  
       // Leave Management
       leaveManagement: "Leave Management",
       traineeLeave: "Trainee Leave",

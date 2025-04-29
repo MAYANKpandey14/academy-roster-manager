@@ -1,6 +1,6 @@
 
-import { useTranslation } from "react-i18next";
-import { prepareTextForLanguage, processSpecialText } from "@/utils/textUtils";
+import { useTranslation } from "@/hooks/useTranslation";
+import { createHtmlWithPreservedSpecialChars, prepareTextForLanguage } from "@/utils/textUtils";
 
 interface TraineeInfoFieldProps {
   label: string;
@@ -11,8 +11,8 @@ interface TraineeInfoFieldProps {
 export function TraineeInfoField({ label, value, isMultilingual = false }: TraineeInfoFieldProps) {
   const { i18n } = useTranslation();
   
-  // Process label to preserve special characters
-  const processedLabel = i18n.language === 'hi' ? processSpecialText(label, i18n.language) : label;
+  // Prepare values with preserved special characters for Hindi mode
+  const isHindi = i18n.language === 'hi';
   
   // Process value for multilingual content
   const processedValue = isMultilingual
@@ -22,15 +22,22 @@ export function TraineeInfoField({ label, value, isMultilingual = false }: Train
   return (
     <div>
       <h3 className="text-sm font-medium text-gray-500">
-        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-          {processedLabel}
-        </span>
+        {isHindi ? (
+          <span 
+            className="dynamic-text krutidev-text" 
+            dangerouslySetInnerHTML={createHtmlWithPreservedSpecialChars(label, i18n.language)} 
+          />
+        ) : (
+          <span className="dynamic-text">{label}</span>
+        )}
       </h3>
       <p className="mt-1">
-        {isMultilingual ? (
-          <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
-            {processedValue}
-          </span>
+        {isMultilingual && isHindi ? (
+          <span 
+            className="dynamic-text krutidev-text" 
+            lang={i18n.language}
+            dangerouslySetInnerHTML={createHtmlWithPreservedSpecialChars(processedValue, i18n.language)}
+          />
         ) : (
           value
         )}

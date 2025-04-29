@@ -35,13 +35,17 @@ export const prepareTextForLanguage = (text: string | null | undefined, language
   
   // Apply any language-specific transformations
   if (language === 'hi') {
-    // For Hindi, we need to handle any processing
-    // but preserve special characters as-is
+    // For Hindi, handle special characters separately
     return preserveSpecialCharacters(encodedText);
   }
   
   return encodedText;
 };
+
+/**
+ * List of special characters that should be preserved and not rendered with Hindi font
+ */
+const SPECIAL_CHARS = /([\/()[\]{}:;,.?!@#$%^&*_+=|\\<>"'\-])/g;
 
 /**
  * Preserves special characters in text when switching languages
@@ -51,23 +55,45 @@ export const prepareTextForLanguage = (text: string | null | undefined, language
 export const preserveSpecialCharacters = (text: string): string => {
   if (!text) return '';
   
-  // Split the text into parts: regular text and special characters
-  const parts = text.split(/([/()[\]{}:;,.?!@#$%^&*_+=|\\<>"'-])/g);
-  
-  // Process and rejoin, preserving the special characters
-  return parts.join('');
+  // Replace special characters with a wrapped version that will be rendered with non-Hindi font
+  return text.replace(SPECIAL_CHARS, '<span class="preserve-char">$1</span>');
 };
 
 /**
- * Restores special characters that were replaced with placeholders
- * @param text Text with special character placeholders
- * @returns Original text with special characters restored
+ * Processes text with special characters for labels/placeholders in Hindi mode
+ * This is specifically for UI elements like labels where we want to keep the punctuation visible
+ * but not render it with the Hindi font
+ * @param text The label or placeholder text containing special characters
+ * @param language Current language code
+ * @returns The processed text with special characters preserved
  */
-export const restoreSpecialCharacters = (text: string): string => {
-  if (!text) return '';
+export const processSpecialText = (text: string, language: string): string => {
+  if (!text || language === 'en') return text;
   
-  // Replace placeholders with the original special characters
-  return text.replace(/{{([/()[\]{}:;,.?!@#$%^&*_+=|\\<>"'-])}}/g, '$1');
+  // For Hindi, wrap each special character in a span to preserve it
+  if (language === 'hi') {
+    return text.replace(SPECIAL_CHARS, '<span class="preserve-char">$1</span>');
+  }
+  
+  return text;
+};
+
+/**
+ * Creates HTML with special characters preserved for display
+ * Safe to use with dangerouslySetInnerHTML because it only wraps punctuation
+ * @param text The text to process
+ * @param language The current language
+ * @returns Object with __html property for dangerouslySetInnerHTML
+ */
+export const createHtmlWithPreservedSpecialChars = (text: string | null | undefined, language: string) => {
+  if (!text) return { __html: '' };
+  
+  if (language === 'hi') {
+    const processed = text.replace(SPECIAL_CHARS, '<span class="preserve-char">$1</span>');
+    return { __html: processed };
+  }
+  
+  return { __html: text };
 };
 
 /**
@@ -145,21 +171,3 @@ export const formatDate = (date: string | Date, formatStr?: string): string => {
     return String(date);
   }
 };
-
-/**
- * Processes special texts that contain both translatable text and non-translatable characters
- * Used for labels and placeholders that have mixed content like "Roll No / Unique Id"
- * @param text The mixed text to process
- * @param language Current language
- * @returns Processed text with special characters preserved
- */
-export const processSpecialText = (text: string, language: string): string => {
-  if (!text || language === 'en') return text;
-  
-  // Split by special characters and preserve them
-  const parts = text.split(/([/()[\]{}:;,.?!@#$%^&*_+=|\\<>"'-])/g);
-  
-  // Return joined text with special characters as-is
-  return parts.join('');
-};
-

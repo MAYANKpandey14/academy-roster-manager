@@ -1,5 +1,4 @@
-
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 import { useTranslation as useI18nTranslation } from 'react-i18next';
 import { shouldAlwaysUseEnglish } from '@/utils/textUtils';
 
@@ -186,10 +185,17 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     } else {
       contentTypeMeta.setAttribute('content', 'text/html; charset=utf-8');
     }
-  }, [i18n.language]);
+  }, []);
+
+  // Memoize the context value to avoid unnecessary re-renders
+  const contextValue = useMemo(() => ({
+    currentLanguage, 
+    changeLanguage, 
+    isLoading
+  }), [currentLanguage, isLoading]);
 
   return (
-    <LanguageContext.Provider value={{ currentLanguage, changeLanguage, isLoading }}>
+    <LanguageContext.Provider value={contextValue}>
       {children}
     </LanguageContext.Provider>
   );
