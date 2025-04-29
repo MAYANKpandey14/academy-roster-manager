@@ -81,27 +81,44 @@ const Index = () => {
 
   const handleRefresh = () => {
     fetchTrainees();
-    toast.success("Data refreshed");
+    toast.success("डेटा रीफ्रेश किया गया");
   };
 
   const handlePrintAll = () => {
     if (filteredTrainees.length === 0) {
-      toast.error("No trainees to print");
+      toast.error("प्रिंट करने के लिए कोई प्रशिक्षु नहीं है");
       return;
     }
-    const content = createPrintContent(filteredTrainees);
-    handlePrint(content);
-    toast.success(`Printing ${filteredTrainees.length} trainees`);
+    
+    // Create consolidated print content for all trainees
+    let allContent = "";
+    filteredTrainees.forEach(trainee => {
+      allContent += createPrintContent(trainee);
+    });
+    
+    handlePrint(allContent);
+    toast.success(`${filteredTrainees.length} प्रशिक्षुओं का प्रिंट हो रहा है`);
   };
 
   const handleDownloadAll = () => {
     if (filteredTrainees.length === 0) {
-      toast.error("No trainees to download");
+      toast.error("डाउनलोड करने के लिए कोई प्रशिक्षु नहीं है");
       return;
     }
-    const content = createCSVContent(filteredTrainees);
-    handleDownload(content, `trainees_export_${new Date().toISOString().split('T')[0]}.csv`);
-    toast.success(`CSV file with ${filteredTrainees.length} trainees downloaded successfully`);
+    
+    // Create consolidated CSV content
+    let allContent = "";
+    // Get CSV header from first trainee
+    allContent = createCSVContent(filteredTrainees[0]).split('\n')[0] + '\n';
+    // Add all rows without duplicating headers
+    filteredTrainees.forEach(trainee => {
+      const content = createCSVContent(trainee);
+      const rows = content.split('\n').slice(1).join('\n');
+      allContent += rows + (rows ? '\n' : '');
+    });
+    
+    handleDownload(allContent, `trainees_export_${new Date().toISOString().split('T')[0]}.csv`);
+    toast.success(`${filteredTrainees.length} प्रशिक्षुओं वाली CSV फ़ाइल सफलतापूर्वक डाउनलोड की गई`);
   };
 
   return (

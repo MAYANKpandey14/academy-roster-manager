@@ -1,3 +1,4 @@
+
 import { Trainee } from '@/types/trainee';
 import { formatDate } from '@/utils/textUtils';
 
@@ -50,11 +51,11 @@ export const createPrintContent = (trainee: Trainee) => {
           <div class="print-grid">
             <div class="print-field">
               <label>नियुक्ति तिथि:</label>
-              <span>${trainee.joining_date ? formatDate(trainee.joining_date) : 'N/A'}</span>
+              <span>${trainee.date_of_joining ? formatDate(trainee.date_of_joining) : 'N/A'}</span>
             </div>
             <div class="print-field">
               <label>वर्तमान तैनाती जिला:</label>
-              <span>${trainee.posting_district || 'N/A'}</span>
+              <span>${trainee.current_posting_district || 'N/A'}</span>
             </div>
             <div class="print-field">
               <label>प्रशिक्षण आगमन तिथि:</label>

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Staff } from "@/types/staff";
 import { DataTable } from "@/components/ui/data-table";
 import { useTranslation } from "react-i18next";
-import { getStaffColumns } from "./table/StaffTableColumns";
+import { staffColumns } from "./table/StaffTableColumns";
 import { StaffTableActions } from "./table/StaffTableActions";
 import { useStaffTable } from "./table/useStaffTable";
 
@@ -25,15 +25,6 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
     handleDownloadAction
   } = useStaffTable(staff, onRefresh);
 
-  const columns = getStaffColumns(
-    t, 
-    i18n, 
-    isLoading, 
-    handlePrintAction,
-    handleDownloadAction,
-    handleDelete
-  );
-
   return (
     <div className="space-y-4">
       <StaffTableActions
@@ -44,10 +35,10 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
       />
       
       <DataTable
-        columns={columns}
+        columns={staffColumns}
         data={staff}
         filterColumn="name"
-        filterPlaceholder={t("searchByName", "Search by name...")}
+        filterPlaceholder={t("searchByName", "नाम से खोजें...")}
         isLoading={isLoading}
         onRowSelectionChange={setRowSelection}
         rowSelection={rowSelection}

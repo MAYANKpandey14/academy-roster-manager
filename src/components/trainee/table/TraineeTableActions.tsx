@@ -31,9 +31,13 @@ export function TraineeTableActions({
       return;
     }
     
-    // Fix parameter count - remove t parameter
-    const content = createPrintContent(selectedTrainees);
-    const success = handlePrint(content);
+    // Create consolidated print content for all selected trainees
+    let allContent = "";
+    selectedTrainees.forEach(trainee => {
+      allContent += createPrintContent(trainee);
+    });
+    
+    const success = handlePrint(allContent);
     
     if (success) {
       toast.success(`${selectedTrainees.length} प्रशिक्षु(ओं) का प्रिंट हो रहा है`);
@@ -50,9 +54,18 @@ export function TraineeTableActions({
       return;
     }
     
-    // Fix parameter count - remove extra parameters
-    const content = createCSVContent(selectedTrainees);
-    handleDownload(content, `selected_trainees_${new Date().toISOString().split('T')[0]}.csv`);
+    // Create consolidated CSV content for all selected trainees
+    let allContent = "";
+    // Get CSV header from first trainee
+    allContent = createCSVContent(selectedTrainees[0]).split('\n')[0] + '\n';
+    // Add all rows without duplicating headers
+    selectedTrainees.forEach(trainee => {
+      const content = createCSVContent(trainee);
+      const rows = content.split('\n').slice(1).join('\n');
+      allContent += rows + (rows ? '\n' : '');
+    });
+    
+    handleDownload(allContent, `selected_trainees_${new Date().toISOString().split('T')[0]}.csv`);
     toast.success(`${selectedTrainees.length} प्रशिक्षुओं वाली CSV फ़ाइल सफलतापूर्वक डाउनलोड की गई`);
   }
 

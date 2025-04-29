@@ -1,14 +1,16 @@
 
 // Re-export all export utility functions
-import { downloadCSV, downloadPDF } from './downloadUtils';
-import { printTrainee } from './printUtils';
+import { handleDownload } from './downloadUtils';
+import { handlePrint, getPrintStyles, createPrintHeader, createPrintFooter } from './printUtils';
 import { createCSVContent } from './traineeCSVUtils';
 import { createPrintContent } from './traineePrintUtils';
 
 export {
-  downloadCSV,
-  downloadPDF,
-  printTrainee,
+  handleDownload,
+  handlePrint,
+  getPrintStyles,
+  createPrintHeader,
+  createPrintFooter,
   createCSVContent,
   createPrintContent
 };

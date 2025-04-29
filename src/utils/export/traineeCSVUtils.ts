@@ -1,10 +1,11 @@
+
 import { Trainee } from '@/types/trainee';
 import { formatDate } from '@/utils/textUtils';
 
 /**
  * Creates CSV content for trainee export
  */
-export const createCSVContent = (trainees: Trainee[]) => {
+export const createCSVContent = (trainee: Trainee) => {
   // CSV Headers
   const headers = [
     'पी.एन.ओ.',
@@ -23,27 +24,23 @@ export const createCSVContent = (trainees: Trainee[]) => {
     'घर का पता'
   ].join(',');
 
-  // CSV Rows
-  const rows = trainees.map(trainee => {
-    return [
-      trainee.pno || '',
-      trainee.chest_no || '',
-      trainee.name || '',
-      trainee.father_name || '',
-      trainee.arrival_date ? formatDate(trainee.arrival_date) : '',
-      trainee.departure_date ? formatDate(trainee.departure_date) : '',
-      trainee.posting_district || '',
-      trainee.mobile_number || '',
-      trainee.education || '',
-      trainee.date_of_birth ? formatDate(trainee.date_of_birth) : '',
-      trainee.joining_date ? formatDate(trainee.joining_date) : '',
-      trainee.blood_group || '',
-      trainee.nominee || '',
-      trainee.home_address || ''
-    ].join(',');
-  });
+  // CSV Row for this trainee
+  const row = [
+    trainee.pno || '',
+    trainee.chest_no || '',
+    trainee.name || '',
+    trainee.father_name || '',
+    trainee.arrival_date ? formatDate(trainee.arrival_date) : '',
+    trainee.departure_date ? formatDate(trainee.departure_date) : '',
+    trainee.current_posting_district || '',
+    trainee.mobile_number || '',
+    trainee.education || '',
+    trainee.date_of_birth ? formatDate(trainee.date_of_birth) : '',
+    trainee.date_of_joining ? formatDate(trainee.date_of_joining) : '',
+    trainee.blood_group || '',
+    trainee.nominee || '',
+    trainee.home_address || ''
+  ].join(',');
 
-  return [headers, ...rows].join('\n');
+  return `${headers}\n${row}`;
 };
-
-// Other utility functions related to CSV export...

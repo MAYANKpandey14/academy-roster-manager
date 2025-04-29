@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Staff } from "@/types/staff";
 import { StaffInfoField } from "./StaffInfoField";
@@ -13,11 +14,11 @@ export function StaffDetailsSection({ staff }: { staff: Staff }) {
         label="जन्म तिथि"
         value={formatDate(staff.date_of_birth)}
       />
-      <StaffInfoField label="लिंग" value={staff.gender || "N/A"} />
+      <StaffInfoField label="रैंक" value={staff.rank || "N/A"} /> 
       <StaffInfoField label="मोबाइल नंबर" value={staff.mobile_number || "N/A"} />
       <StaffInfoField label="शिक्षा" value={staff.education || "N/A"} />
-      <StaffInfoField label="नियुक्ति तिथि" value={formatDate(staff.joining_date)} />
-      <StaffInfoField label="वर्तमान तैनाती जिला" value={staff.posting_district || "N/A"} />
+      <StaffInfoField label="नियुक्ति तिथि" value={formatDate(staff.date_of_joining)} />
+      <StaffInfoField label="वर्तमान तैनाती जिला" value={staff.current_posting_district || "N/A"} />
       <StaffInfoField label="घर का पता" value={staff.home_address || "N/A"} />
       <StaffInfoField label="रक्त समूह" value={staff.blood_group || "N/A"} />
       <StaffInfoField label="नामांकित व्यक्ति" value={staff.nominee || "N/A"} />
