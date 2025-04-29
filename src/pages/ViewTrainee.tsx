@@ -67,7 +67,7 @@ const ViewTrainee = () => {
     return <TraineeNotFound />;
   }
 
-  const { handlePrintTrainee, handleDownloadTrainee } = useTraineePrintService({ trainee });
+  const { handlePrintTrainee, handleDownloadTrainee } = useTraineePrintService(trainee);
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -25,7 +25,7 @@ interface TraineeActionsProps {
 export function TraineeActions({ trainee }: TraineeActionsProps) {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const { handlePrintTrainee, handleDownloadTrainee } = useTraineePrintService({ trainee });
+  const { handlePrintTrainee, handleDownloadTrainee } = useTraineePrintService(trainee);
   
   return (
     <DropdownMenu>
