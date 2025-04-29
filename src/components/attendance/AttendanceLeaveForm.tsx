@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -33,6 +32,37 @@ import {
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
+
+// Type definitions for database tables
+type StaffLeave = {
+  staff_id: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  status: string;
+  leave_type?: string | null;
+};
+
+type TraineeLeave = {
+  trainee_id: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  status: string;
+  leave_type?: string | null;
+};
+
+type StaffAttendance = {
+  staff_id: string;
+  date: string;
+  status: string;
+};
+
+type TraineeAttendance = {
+  trainee_id: string;
+  date: string;
+  status: string;
+};
 
 const attendanceFormSchema = z.object({
   status: z.string().min(1, "स्थिति आवश्यक है"),
@@ -98,26 +128,37 @@ export function AttendanceLeaveForm({ type, personId, onSuccess }: AttendanceLea
       // If status is 'on_leave', create a leave record
       if (values.status === 'on_leave') {
         // Create properly typed leave record
-        const leaveData: Record<string, any> = {
-          start_date: startDate,
-          end_date: endDate,
-          reason: values.reason || 'कोई कारण नहीं दिया गया',
-          status: 'approved', // By default setting as approved
-          leave_type: values.leave_type,
-        };
-        
-        // Add the correct ID field based on type
         if (type === 'trainee') {
-          leaveData.trainee_id = personId;
+          const leaveData: TraineeLeave = {
+            trainee_id: personId,
+            start_date: startDate,
+            end_date: endDate,
+            reason: values.reason || 'कोई कारण नहीं दिया गया',
+            status: 'approved', // By default setting as approved
+            leave_type: values.leave_type,
+          };
+          
+          const { error: leaveError } = await supabase
+            .from(`${type}_leave`)
+            .insert(leaveData);
+          
+          if (leaveError) throw leaveError;
         } else {
-          leaveData.staff_id = personId;
+          const leaveData: StaffLeave = {
+            staff_id: personId,
+            start_date: startDate,
+            end_date: endDate,
+            reason: values.reason || 'कोई कारण नहीं दिया गया',
+            status: 'approved', // By default setting as approved
+            leave_type: values.leave_type,
+          };
+          
+          const { error: leaveError } = await supabase
+            .from(`${type}_leave`)
+            .insert(leaveData);
+          
+          if (leaveError) throw leaveError;
         }
-        
-        const { error: leaveError } = await supabase
-          .from(`${type}_leave`)
-          .insert(leaveData);
-        
-        if (leaveError) throw leaveError;
       }
       
       // Create attendance records for each day in the range
@@ -128,23 +169,31 @@ export function AttendanceLeaveForm({ type, personId, onSuccess }: AttendanceLea
         const formattedDate = format(currentDate, 'yyyy-MM-dd');
         
         // Create properly typed attendance record
-        const attendanceData: Record<string, any> = {
-          date: formattedDate,
-          status: values.status,
-        };
-        
-        // Add the correct ID field based on type
         if (type === 'trainee') {
-          attendanceData.trainee_id = personId;
+          const attendanceData: TraineeAttendance = {
+            trainee_id: personId,
+            date: formattedDate,
+            status: values.status,
+          };
+          
+          const { error: attendanceError } = await supabase
+            .from(`${type}_attendance`)
+            .upsert(attendanceData);
+          
+          if (attendanceError) throw attendanceError;
         } else {
-          attendanceData.staff_id = personId;
+          const attendanceData: StaffAttendance = {
+            staff_id: personId,
+            date: formattedDate,
+            status: values.status,
+          };
+          
+          const { error: attendanceError } = await supabase
+            .from(`${type}_attendance`)
+            .upsert(attendanceData);
+          
+          if (attendanceError) throw attendanceError;
         }
-        
-        const { error: attendanceError } = await supabase
-          .from(`${type}_attendance`)
-          .upsert(attendanceData);
-        
-        if (attendanceError) throw attendanceError;
         
         // Move to next day
         currentDate = addDays(currentDate, 1);

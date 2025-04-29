@@ -60,7 +60,7 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
       if (error) throw error;
       
       // Transform to our record format
-      return (data || []).map(item => ({
+      return (data || []).map((item: any) => ({
         ...item,
         type: 'absent' as const,
         start_date: item.date,
@@ -83,7 +83,7 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
       if (error) throw error;
       
       // Transform to our record format
-      return (data || []).map(item => ({
+      return (data || []).map((item: any) => ({
         ...item,
         type: 'leave' as const,
         status: 'on_leave'
