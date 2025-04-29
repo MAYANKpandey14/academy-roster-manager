@@ -21,7 +21,7 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
           <FormItem>
             <FormLabel className="dynamic-text">{t("pno", "PNO")}</FormLabel>
             <FormControl>
-              <Input maxLength={9} placeholder={t("enterPNO", "Enter PNO")} {...field} />
+              <Input maxLength={9} required {...field} />
             </FormControl>
             <FormMessage className="dynamic-text" />
           </FormItem>
@@ -35,7 +35,7 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
           <FormItem>
             <FormLabel className="dynamic-text">{t("chestNo", "Chest No")}</FormLabel>
             <FormControl>
-              <Input placeholder={t("enterChestNo", "Enter Chest No")} {...field} />
+              <Input required {...field} />
             </FormControl>
             <FormMessage className="dynamic-text" />
           </FormItem>
@@ -49,7 +49,7 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
           <FormItem>
             <FormLabel className="dynamic-text">{t("currentPostingDistrict", "Current Posting District")}</FormLabel>
             <FormControl>
-              <Input placeholder={t("enterDistrict", "Enter district")} {...field} />
+              <Input required {...field} />
             </FormControl>
             <FormMessage className="dynamic-text" />
           </FormItem>
@@ -63,7 +63,7 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
           <FormItem>
             <FormLabel className="dynamic-text">{t("education", "Education")}</FormLabel>
             <FormControl>
-              <Input placeholder={t("enterEducationDetails", "Enter education details")} {...field} />
+              <Input required {...field} />
             </FormControl>
             <FormMessage className="dynamic-text" />
           </FormItem>

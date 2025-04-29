@@ -3,14 +3,13 @@ import { Trainee } from "@/types/trainee";
 import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/export";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { prepareTextForLanguage } from "@/utils/textUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface TraineePrintServiceProps {
   trainee: Trainee;
 }
 
-export function useTraineePrintService({ trainee }: TraineePrintServiceProps) {
+export function useTraineePrintService(trainee: Trainee) {
   const { t, i18n } = useTranslation();
   const { currentLanguage } = useLanguage();
 

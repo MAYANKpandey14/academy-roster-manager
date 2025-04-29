@@ -23,7 +23,7 @@ export function PersonalInfoFields({ form }: PersonalInfoFieldsProps) {
           <FormItem>
             <FormLabel className="dynamic-text">{t("name", "Name")}</FormLabel>
             <FormControl>
-              <Input placeholder={t("enterFullName", "Enter full name")} {...field} />
+              <Input required {...field} />
             </FormControl>
             <FormMessage className="dynamic-text" />
           </FormItem>
@@ -37,7 +37,7 @@ export function PersonalInfoFields({ form }: PersonalInfoFieldsProps) {
           <FormItem>
             <FormLabel className="dynamic-text">{t("fatherName", "Father's Name")}</FormLabel>
             <FormControl>
-              <Input placeholder={t("enterFatherName", "Enter father's name")} {...field} />
+              <Input required {...field} />
             </FormControl>
             <FormMessage className="dynamic-text" />
           </FormItem>
@@ -50,10 +50,10 @@ export function PersonalInfoFields({ form }: PersonalInfoFieldsProps) {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="dynamic-text">{t("bloodGroup", "Blood Group")}</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <Select onValueChange={field.onChange} defaultValue={field.value} required>
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder={t("selectBloodGroup", "Select blood group")} />
+                  <SelectValue />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
@@ -76,7 +76,7 @@ export function PersonalInfoFields({ form }: PersonalInfoFieldsProps) {
           <FormItem>
             <FormLabel className="dynamic-text">{t("nominee", "Nominee")}</FormLabel>
             <FormControl>
-              <Input placeholder={t("enterNomineeName", "Enter nominee name")} {...field} />
+              <Input required {...field} />
             </FormControl>
             <FormMessage className="dynamic-text" />
           </FormItem>

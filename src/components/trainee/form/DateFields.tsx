@@ -23,7 +23,7 @@ export function DateFields({ form }: DateFieldsProps) {
             <FormControl>
               <Input 
                 type="date" 
-                placeholder="YYYY-MM-DD"
+                required
                 {...field}
               />
             </FormControl>
@@ -41,7 +41,7 @@ export function DateFields({ form }: DateFieldsProps) {
             <FormControl>
               <Input 
                 type="date" 
-                placeholder="YYYY-MM-DD"
+                required
                 {...field}
               />
             </FormControl>
@@ -59,7 +59,7 @@ export function DateFields({ form }: DateFieldsProps) {
             <FormControl>
               <Input 
                 type="date" 
-                placeholder="YYYY-MM-DD"
+                required
                 {...field}
               />
             </FormControl>
@@ -77,7 +77,7 @@ export function DateFields({ form }: DateFieldsProps) {
             <FormControl>
               <Input 
                 type="date" 
-                placeholder="YYYY-MM-DD"
+                required
                 {...field}
               />
             </FormControl>

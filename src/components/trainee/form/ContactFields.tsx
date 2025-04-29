@@ -22,7 +22,7 @@ export function ContactFields({ form }: ContactFieldsProps) {
           <FormItem>
             <FormLabel className="dynamic-text">{t("mobileNumber", "Mobile Number")}</FormLabel>
             <FormControl>
-              <Input maxLength={10} placeholder={t("enterMobileNumber", "Enter mobile number")} type="tel" {...field} />
+              <Input maxLength={10} type="tel" required pattern="[0-9]{10}" {...field} />
             </FormControl>
             <FormMessage className="dynamic-text" />
           </FormItem>
@@ -37,8 +37,8 @@ export function ContactFields({ form }: ContactFieldsProps) {
             <FormLabel className="dynamic-text">{t("homeAddress", "Home Address")}</FormLabel>
             <FormControl>
               <Textarea 
-                placeholder={t("enterFullHomeAddress", "Enter full home address")} 
                 className="min-h-[80px]" 
+                required
                 {...field} 
               />
             </FormControl>

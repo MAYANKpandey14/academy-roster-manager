@@ -12,7 +12,6 @@ interface TableFiltersProps {
 export function TableFilters({ 
   table, 
   filterColumn, 
-  filterPlaceholder,
   isLoading 
 }: TableFiltersProps) {
   const { t, i18n } = useTranslation();
@@ -21,7 +20,6 @@ export function TableFilters({
     <div className="flex items-center justify-between py-4">
       <div className="flex items-center gap-2">
         <Input
-          placeholder={filterPlaceholder}
           value={(table.getColumn(filterColumn)?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn(filterColumn)?.setFilterValue(event.target.value)
