@@ -75,6 +75,13 @@ const TraineesPage = () => {
     }
   };
 
+  const handleRefresh = () => {
+    if (trainees.length > 0) {
+      // If we already have trainees, refresh with the same query
+      handleShowAll();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -93,6 +100,7 @@ const TraineesPage = () => {
             <TraineeTable 
               trainees={trainees} 
               isLoading={isLoading}
+              onRefresh={handleRefresh}
             />
           </div>
         )}

@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Download, Printer } from "lucide-react";
+import { Download, Printer, RefreshCw } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Trainee } from "@/types/trainee";
 import { toast } from "sonner";
@@ -12,13 +12,15 @@ interface TraineeTableActionsProps {
   isLoading: boolean;
   selectedCount: number;
   getSelectedTrainees: () => Trainee[];
+  onRefresh?: () => void;
 }
 
 export function TraineeTableActions({ 
   trainees, 
   isLoading, 
   selectedCount,
-  getSelectedTrainees 
+  getSelectedTrainees,
+  onRefresh
 }: TraineeTableActionsProps) {
   const isMobile = useIsMobile();
   const { t, i18n } = useTranslation();
@@ -56,6 +58,20 @@ export function TraineeTableActions({
 
   return (
     <div className="flex flex-wrap gap-2 justify-end">
+      {onRefresh && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onRefresh}
+          disabled={isLoading}
+        >
+          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          {!isMobile && <span className={`ml-2 dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+            {t("refresh", "Refresh")}
+          </span>}
+        </Button>
+      )}
+      
       <Button
         variant="outline"
         size="sm"
@@ -68,6 +84,7 @@ export function TraineeTableActions({
           {t("print", "Print")} {selectedCount > 0 ? `${t("selected", "Selected")} (${selectedCount})` : ""}
         </span>}
       </Button>
+      
       <Button
         variant="outline"
         size="sm"
