@@ -1,58 +1,49 @@
-
-import { Trainee } from "@/types/trainee";
-import { formatDate } from "@/utils/textUtils";
-
-// Headers for CSV export
-const csvHeaders = [
-  "पीएनओ",
-  "चेस्ट नंबर",
-  "नाम",
-  "पिता का नाम",
-  "वर्तमान तैनाती जिला",
-  "मोबाइल नंबर",
-  "शिक्षा",
-  "जन्म तिथि",
-  "नियुक्ति तिथि",
-  "रक्त समूह",
-  "नामिती",
-  "घर का पता",
-  "आगमन की तारीख",
-  "प्रस्थान की तारीख",
-];
+import { Trainee } from '@/types/trainee';
+import { formatDate } from '@/utils/textUtils';
 
 /**
- * Creates CSV content from trainee data
- * @param trainees Array of trainees to export
- * @returns CSV content as a string
+ * Creates CSV content for trainee export
  */
-export const createTraineeCSV = (trainees: Trainee[]): string => {
-  if (!trainees || trainees.length === 0) return "";
+export const createCSVContent = (trainees: Trainee[]) => {
+  // CSV Headers
+  const headers = [
+    'पी.एन.ओ.',
+    'छाती संख्या',
+    'नाम',
+    'पिता का नाम',
+    'प्रशिक्षण आगमन तिथि',
+    'प्रशिक्षण समाप्ति तिथि',
+    'वर्तमान तैनाती जिला',
+    'मोबाइल नंबर',
+    'शिक्षा',
+    'जन्म तिथि',
+    'नियुक्ति तिथि',
+    'रक्त समूह',
+    'नामांकित व्यक्ति',
+    'घर का पता'
+  ].join(',');
 
-  // Create CSV header row
-  const headerRow = csvHeaders.join(",");
-
-  // Process each trainee into a CSV row
-  const rows = trainees.map((trainee) => {
-    const values = [
-      trainee.pno,
-      trainee.chest_no,
-      trainee.name,
-      trainee.father_name,
-      trainee.current_posting_district,
-      trainee.mobile_number,
-      trainee.education,
-      formatDate(trainee.date_of_birth),
-      formatDate(trainee.date_of_joining),
-      trainee.blood_group,
-      trainee.nominee,
-      `"${trainee.home_address.replace(/"/g, '""')}"`, // Escape quotes in address
-      formatDate(trainee.arrival_date),
-      formatDate(trainee.departure_date),
-    ];
-
-    return values.join(",");
+  // CSV Rows
+  const rows = trainees.map(trainee => {
+    return [
+      trainee.pno || '',
+      trainee.chest_no || '',
+      trainee.name || '',
+      trainee.father_name || '',
+      trainee.arrival_date ? formatDate(trainee.arrival_date) : '',
+      trainee.departure_date ? formatDate(trainee.departure_date) : '',
+      trainee.posting_district || '',
+      trainee.mobile_number || '',
+      trainee.education || '',
+      trainee.date_of_birth ? formatDate(trainee.date_of_birth) : '',
+      trainee.joining_date ? formatDate(trainee.joining_date) : '',
+      trainee.blood_group || '',
+      trainee.nominee || '',
+      trainee.home_address || ''
+    ].join(',');
   });
 
-  // Combine header and data rows
-  return [headerRow, ...rows].join("\n");
+  return [headers, ...rows].join('\n');
 };
+
+// Other utility functions related to CSV export...

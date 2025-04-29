@@ -48,14 +48,20 @@ export default function Auth() {
     setError(null);
     
     try {
+      // Make sure email and password are defined
+      const authValues = {
+        email: values.email,
+        password: values.password
+      };
+      
       if (mode === "signin") {
-        const { error } = await supabase.auth.signInWithPassword(values);
+        const { error } = await supabase.auth.signInWithPassword(authValues);
         if (error) throw error;
         
         toast.success("सफलतापूर्वक लॉग इन किया गया");
         navigate("/");
       } else {
-        const { error } = await supabase.auth.signUp(values);
+        const { error } = await supabase.auth.signUp(authValues);
         if (error) throw error;
         
         toast.success("खाता सफलतापूर्वक बनाया गया। आपका ईमेल सत्यापित करें।");
