@@ -1,67 +1,76 @@
 
 import { Staff } from "@/types/staff";
 import { format } from "date-fns";
+import { TFunction } from "i18next";
 
-export const createStaffPrintContent = (staffMembers: Staff[]) => {
+export const createStaffPrintContent = (staff: Staff[], language: string = 'en', t?: TFunction) => {
+  // Use translation function if provided or fallback to English defaults
+  const translate = (key: string, defaultText: string) => {
+    return t ? t(key, defaultText) : defaultText;
+  };
+
+  // Add lang attribute to parts that should use the specified language
+  const langAttr = language ? ` lang="${language}"` : '';
+
+  // Add specialized font class for Hindi text
+  const hindiClass = language === 'hi' ? ' class="krutidev-font"' : '';
+  
+  // Include KrutiDev font for Hindi if needed
+  const hindiFont = language === 'hi' ? `
+    @font-face {
+      font-family: 'KrutiDev';
+      src: url('/font/KrutiDev.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+    .krutidev-font {
+      font-family: 'KrutiDev', sans-serif;
+    }
+  ` : '';
+
   const printContent = `
     <html>
       <head>
-        <title>Staff Information</title>
+        <title>${translate("staffInformation", "Staff Information")}</title>
+        <meta charset="UTF-8">
         <style>
-          @page { size: landscape; margin: 10mm; }
-          body { 
-            font-family: Arial, sans-serif; 
-            margin: 0;
-            padding: 0;
-            -webkit-print-color-adjust: exact;
-          }
-          .header { 
-            text-align: center; 
-            margin-bottom: 15px;
-            padding-top: 10px;
-          }
-          table { 
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            page-break-inside: auto;
-          }
-          tr { 
-            page-break-inside: avoid;
-            page-break-after: auto;
-          }
-          th, td { 
-            border: 1px solid #ddd; 
-            padding: 6px 4px;
-            text-align: left;
-            font-size: 10px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-          th { 
-            background-color: #f2f2f2;
-            font-weight: bold;
-          }
-          .footer {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 9px;
-            color: #666;
-          }
+          ${hindiFont}
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          h1 { text-align: center; margin-bottom: 30px; }
+          .staff-info { border: 1px solid #ddd; padding: 20px; margin-bottom: 30px; }
+          .field { margin-bottom: 15px; }
+          .field-label { font-weight: bold; }
+          .header { text-align: center; margin-bottom: 30px; }
+          .header h1 { margin-bottom: 5px; }
+          .header p { margin-top: 0; }
         </style>
       </head>
       <body>
         <div class="header">
-          <h2 style="margin: 0;">RTC POLICE LINE, MORADABAD</h2>
-          <p style="margin: 5px 0;">STAFF INFORMATION</p>
+          <h1>${translate("rtcPolice", "RTC Police Line, Moradabad")}</h1>
+          <p>${translate("staffInfo", "Staff Information")}</p>
         </div>
-        
-        ${staffMembers.length === 1 
-          ? createSingleStaffContent(staffMembers[0]) 
-          : createMultipleStaffContent(staffMembers)}
-        
-        <div class="footer">
-          <p>Generated on: ${format(new Date(), "dd/MM/yyyy HH:mm")}</p>
+        ${staff.map(person => `
+          <div class="staff-info">
+            <div class="field"><span class="field-label">${translate("pno", "PNO")}:</span> ${person.pno}</div>
+            <div class="field"><span class="field-label">${translate("name", "Name")}:</span> <span${hindiClass}${langAttr}>${person.name}</span></div>
+            <div class="field"><span class="field-label">${translate("fatherName", "Father's Name")}:</span> <span${hindiClass}${langAttr}>${person.father_name}</span></div>
+            <div class="field"><span class="field-label">${translate("rank", "Rank")}:</span> ${person.rank}</div>
+            <div class="field"><span class="field-label">${translate("currentPostingDistrict", "Current Posting District")}:</span> <span${hindiClass}${langAttr}>${person.current_posting_district}</span></div>
+            <div class="field"><span class="field-label">${translate("mobileNumber", "Mobile Number")}:</span> ${person.mobile_number}</div>
+            <div class="field"><span class="field-label">${translate("education", "Education")}:</span> <span${hindiClass}${langAttr}>${person.education}</span></div>
+            <div class="field"><span class="field-label">${translate("dateOfBirth", "Date of Birth")}:</span> ${person.date_of_birth ? format(new Date(person.date_of_birth), "PPP") : "N/A"}</div>
+            <div class="field"><span class="field-label">${translate("dateOfJoining", "Date of Joining")}:</span> ${person.date_of_joining ? format(new Date(person.date_of_joining), "PPP") : "N/A"}</div>
+            <div class="field"><span class="field-label">${translate("bloodGroup", "Blood Group")}:</span> ${person.blood_group}</div>
+            <div class="field"><span class="field-label">${translate("nominee", "Nominee")}:</span> <span${hindiClass}${langAttr}>${person.nominee}</span></div>
+            <div class="field"><span class="field-label">${translate("homeAddress", "Home Address")}:</span> <span${hindiClass}${langAttr}>${person.home_address}</span></div>
+            ${person.toli_no ? `<div class="field"><span class="field-label">${translate("toliNumber", "Toli Number")}:</span> ${person.toli_no}</div>` : ''}
+            ${person.class_no ? `<div class="field"><span class="field-label">${translate("classNumber", "Class Number")}:</span> ${person.class_no}</div>` : ''}
+            ${person.class_subject ? `<div class="field"><span class="field-label">${translate("classSubject", "Class Subject")}:</span> <span${hindiClass}${langAttr}>${person.class_subject}</span></div>` : ''}
+          </div>
+        `).join('')}
+        <div style="text-align: center; margin-top: 30px; font-size: 12px;">
+          <p>${translate("documentGenerated", "This document was generated on")} ${format(new Date(), 'PP')} at ${new Date().toLocaleTimeString()}</p>
         </div>
       </body>
     </html>
@@ -70,162 +79,84 @@ export const createStaffPrintContent = (staffMembers: Staff[]) => {
   return printContent;
 };
 
-const createSingleStaffContent = (staff: Staff) => {
-  return `
-    <div style="margin-bottom: 20px;">
-      <h3 style="margin-bottom: 10px;">Personal Information</h3>
-      <table>
-        <tr>
-          <td><strong>PNO</strong></td>
-          <td>${staff.pno || ''}</td>
-          <td><strong>Name</strong></td>
-          <td>${staff.name || ''}</td>
-          <td><strong>Father's Name</strong></td>
-          <td>${staff.father_name || ''}</td>
-        </tr>
-        <tr>
-          <td><strong>Rank</strong></td>
-          <td>${staff.rank || ''}</td>
-          <td><strong>Current Posting</strong></td>
-          <td>${staff.current_posting_district || ''}</td>
-          <td><strong>Mobile</strong></td>
-          <td>${staff.mobile_number || ''}</td>
-        </tr>
-        <tr>
-          <td><strong>Education</strong></td>
-          <td>${staff.education || ''}</td>
-          <td><strong>DOB</strong></td>
-          <td>${staff.date_of_birth ? format(new Date(staff.date_of_birth), "dd/MM/yyyy") : ''}</td>
-          <td><strong>Date of Joining</strong></td>
-          <td>${staff.date_of_joining ? format(new Date(staff.date_of_joining), "dd/MM/yyyy") : ''}</td>
-        </tr>
-        <tr>
-          <td><strong>Blood Group</strong></td>
-          <td>${staff.blood_group || ''}</td>
-          <td><strong>Nominee</strong></td>
-          <td colspan="3">${staff.nominee || ''}</td>
-        </tr>
-        <tr>
-          <td><strong>Home Address</strong></td>
-          <td colspan="5">${staff.home_address || ''}</td>
-        </tr>
-      </table>
-    </div>
-
-    ${staff.toli_no || staff.class_no || staff.class_subject ? `
-      <div style="margin-top: 20px;">
-        <h3 style="margin-bottom: 10px;">Additional Information</h3>
-        <table>
-          <tr>
-            <td><strong>Toli Number</strong></td>
-            <td>${staff.toli_no || 'N/A'}</td>
-            <td><strong>Class Number</strong></td>
-            <td>${staff.class_no || 'N/A'}</td>
-            <td><strong>Class Subject</strong></td>
-            <td>${staff.class_subject || 'N/A'}</td>
-          </tr>
-        </table>
-      </div>
-    ` : ''}
-  `;
-};
-
-const createMultipleStaffContent = (staffMembers: Staff[]) => {
-  return `
-    <table>
-      <thead>
-        <tr>
-          <th>PNO</th>
-          <th>Name</th>
-          <th>Father's Name</th>
-          <th>Rank</th>
-          <th>DOB</th>
-          <th>DOJ</th>
-          <th>District</th>
-          <th>Mobile</th>
-          <th>Education</th>
-          <th>Blood Group</th>
-          <th>Nominee</th>
-          <th>Address</th>
-          ${staffMembers.some(s => s.toli_no || s.class_no || s.class_subject) ? `
-            <th>Toli No</th>
-            <th>Class No</th>
-            <th>Subject</th>
-          ` : ''}
-        </tr>
-      </thead>
-      <tbody>
-        ${staffMembers.map(staff => `
-          <tr>
-            <td>${staff.pno || ''}</td>
-            <td>${staff.name || ''}</td>
-            <td>${staff.father_name || ''}</td>
-            <td>${staff.rank || ''}</td>
-            <td>${staff.date_of_birth ? format(new Date(staff.date_of_birth), "dd/MM/yyyy") : ''}</td>
-            <td>${staff.date_of_joining ? format(new Date(staff.date_of_joining), "dd/MM/yyyy") : ''}</td>
-            <td>${staff.current_posting_district || ''}</td>
-            <td>${staff.mobile_number || ''}</td>
-            <td>${staff.education || ''}</td>
-            <td>${staff.blood_group || ''}</td>
-            <td>${staff.nominee || ''}</td>
-            <td>${staff.home_address || ''}</td>
-            ${staffMembers.some(s => s.toli_no || s.class_no || s.class_subject) ? `
-              <td>${staff.toli_no || ''}</td>
-              <td>${staff.class_no || ''}</td>
-              <td>${staff.class_subject || ''}</td>
-            ` : ''}
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
-};
-
-export const createStaffCSVContent = (staffMembers: Staff[]) => {
-  // Include conditional headers based on data
-  const additionalHeaders = staffMembers.some(s => s.toli_no || s.class_no || s.class_subject) 
-    ? ["Toli No", "Class No", "Class Subject"] 
-    : [];
+export const createStaffCSVContent = (staff: Staff[], language: string = 'en', t?: TFunction) => {
+  // Use translation function if provided or fallback to English defaults
+  const translate = (key: string, defaultText: string) => {
+    return t ? t(key, defaultText) : defaultText;
+  };
   
   const headers = [
-    "PNO", "Name", "Father's Name", "Rank", "Date of Birth",
-    "Date of Joining", "District", "Mobile", "Education",
-    "Blood Group", "Nominee", "Home Address", ...additionalHeaders
+    translate("pno", "PNO"),
+    translate("name", "Name"),
+    translate("fatherName", "Father's Name"),
+    translate("rank", "Rank"),
+    translate("currentPostingDistrict", "Current Posting District"),
+    translate("mobileNumber", "Mobile Number"),
+    translate("education", "Education"),
+    translate("dateOfBirth", "Date of Birth"),
+    translate("dateOfJoining", "Date of Joining"),
+    translate("bloodGroup", "Blood Group"),
+    translate("nominee", "Nominee"),
+    translate("homeAddress", "Home Address"),
+    translate("toliNumber", "Toli Number"),
+    translate("classNumber", "Class Number"),
+    translate("classSubject", "Class Subject")
   ];
-  
-  const rows = staffMembers.map(staff => {
-    const basicData = [
-      staff.pno || '',
-      staff.name || '',
-      staff.father_name || '',
-      staff.rank || '',
-      staff.date_of_birth ? format(new Date(staff.date_of_birth), "dd/MM/yyyy") : '',
-      staff.date_of_joining ? format(new Date(staff.date_of_joining), "dd/MM/yyyy") : '',
-      staff.current_posting_district || '',
-      staff.mobile_number || '',
-      staff.education || '',
-      staff.blood_group || '',
-      staff.nominee || '',
-      (staff.home_address || '').replace(/,/g, ' ') // Remove commas to not break CSV format
+
+  // CSV header row
+  let csvContent = headers.join(',') + '\n';
+
+  // Data rows
+  staff.forEach(person => {
+    const values = [
+      person.pno,
+      `"${person.name}"`,
+      `"${person.father_name}"`,
+      person.rank,
+      `"${person.current_posting_district}"`,
+      person.mobile_number,
+      `"${person.education}"`,
+      person.date_of_birth ? format(new Date(person.date_of_birth), "PPP") : "N/A",
+      person.date_of_joining ? format(new Date(person.date_of_joining), "PPP") : "N/A",
+      person.blood_group,
+      `"${person.nominee}"`,
+      `"${person.home_address}"`,
+      person.toli_no || "N/A",
+      person.class_no || "N/A",
+      `"${person.class_subject || "N/A"}"`
     ];
-    
-    // Add additional data if headers exist
-    if (additionalHeaders.length > 0) {
-      return [
-        ...basicData,
-        staff.toli_no || '',
-        staff.class_no || '',
-        staff.class_subject || ''
-      ];
-    }
-    
-    return basicData;
+    csvContent += values.join(',') + '\n';
   });
-  
-  return [headers, ...rows]
-    .map(row => row.map(cell => `"${cell}"`).join(','))
-    .join('\n');
+
+  return csvContent;
 };
 
-// Re-export the print and download handlers from exportUtils
-export { handlePrint, handleDownload } from '@/utils/exportUtils';
+export const handlePrint = (content: string) => {
+  const printWindow = window.open('', '_blank');
+  if (printWindow) {
+    printWindow.document.write(content);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 250);
+    return true;
+  } else {
+    return false;
+  }
+};
+
+export const handleDownload = (content: string, filename: string) => {
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+  return true;
+};

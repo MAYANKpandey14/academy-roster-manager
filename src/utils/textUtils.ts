@@ -55,3 +55,13 @@ export const isHindiText = (text: string | null | undefined): boolean => {
   const hindiPattern = /[\u0900-\u097F]/;
   return hindiPattern.test(text);
 };
+
+/**
+ * Determines if the field should always be rendered in English regardless of language mode
+ * @param fieldType The type of field (e.g., 'date', 'number')
+ * @returns Boolean indicating if field should always use English
+ */
+export const shouldAlwaysUseEnglish = (fieldType: string): boolean => {
+  const englishOnlyTypes = ['date', 'number', 'tel'];
+  return englishOnlyTypes.includes(fieldType.toLowerCase());
+};

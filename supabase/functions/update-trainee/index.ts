@@ -5,6 +5,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.21.0';
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
   "Content-Type": "application/json; charset=utf-8",
 };
 
@@ -30,7 +31,23 @@ serve(async (req) => {
     );
 
     // Get the request body
-    const { id, ...updateData } = await req.json();
+    let body;
+    const contentType = req.headers.get('content-type') || '';
+    
+    if (contentType.includes('application/json')) {
+      body = await req.json();
+    } else {
+      const text = await req.text();
+      try {
+        body = JSON.parse(text);
+      } catch (e) {
+        console.error("Failed to parse request body:", e);
+        console.log("Raw request body:", text);
+        throw new Error("Invalid JSON in request body");
+      }
+    }
+
+    const { id, ...updateData } = body;
     
     if (!id) {
       throw new Error("Trainee ID is required");

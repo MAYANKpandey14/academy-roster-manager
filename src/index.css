@@ -107,6 +107,9 @@
 /* Language-specific styles */
 .krutidev-font {
   font-family: 'KrutiDev', sans-serif;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
 }
 
 .lang-hi {
@@ -119,6 +122,8 @@
 
 .dynamic-text.lang-hi {
   font-family: 'KrutiDev', sans-serif;
+  font-size: inherit;
+  font-weight: inherit;
 }
 
 /* Ensure proper text rendering for Hindi */
@@ -126,6 +131,13 @@ input[lang="hi"],
 textarea[lang="hi"], 
 .dynamic-text[lang="hi"] {
   font-family: 'KrutiDev', sans-serif;
+}
+
+/* Always render dates and numbers in English */
+input[type="date"],
+input[type="number"],
+input[type="tel"] {
+  font-family: 'Space Grotesk', sans-serif !important;
 }
 
 /* Print styles */
@@ -159,3 +171,4 @@ textarea[lang="hi"],
 .download-button {
   @apply bg-green-600 hover:bg-green-700 text-white;
 }
+

@@ -1,6 +1,7 @@
 
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { shouldAlwaysUseEnglish } from '@/utils/textUtils';
 
 export const useLanguageInputs = () => {
   const { i18n } = useTranslation();
@@ -10,16 +11,23 @@ export const useLanguageInputs = () => {
       const inputs = document.querySelectorAll('input, textarea');
       inputs.forEach(input => {
         if (input instanceof HTMLElement) {
-          input.lang = i18n.language;
-          input.setAttribute('accept-charset', 'UTF-8');
+          const inputElement = input as HTMLInputElement;
+          const inputType = inputElement.type || 'text';
+          
+          // Always use 'en' for date, number and tel inputs
+          const shouldUseEnglish = shouldAlwaysUseEnglish(inputType);
+          const inputLang = shouldUseEnglish ? 'en' : i18n.language;
+          
+          inputElement.lang = inputLang;
+          inputElement.setAttribute('accept-charset', 'UTF-8');
           
           // Set special attributes for Hindi with KrutiDev font
-          if (i18n.language === 'hi') {
-            input.setAttribute('inputmode', 'text');
-            input.classList.add('krutidev-font');
+          if (inputLang === 'hi') {
+            inputElement.setAttribute('inputmode', 'text');
+            inputElement.classList.add('krutidev-font');
           } else {
-            input.removeAttribute('inputmode');
-            input.classList.remove('krutidev-font');
+            inputElement.removeAttribute('inputmode');
+            inputElement.classList.remove('krutidev-font');
           }
         }
       });
@@ -33,8 +41,10 @@ export const useLanguageInputs = () => {
           
           if (i18n.language === 'hi') {
             el.classList.add('krutidev-font');
+            el.classList.add('lang-hi');
           } else {
             el.classList.remove('krutidev-font');
+            el.classList.remove('lang-hi');
           }
         }
       });
@@ -58,6 +68,13 @@ export const useLanguageInputs = () => {
           .krutidev-font {
             font-family: 'KrutiDev', sans-serif !important;
             direction: ltr;
+          }
+          
+          /* Keep date and number fields in English */
+          input[type="date"],
+          input[type="number"],
+          input[type="tel"] {
+            font-family: 'Space Grotesk', sans-serif !important;
           }
         `;
         document.head.appendChild(style);

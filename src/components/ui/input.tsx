@@ -2,7 +2,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
-import { prepareTextForLanguage } from "@/utils/textUtils";
+import { prepareTextForLanguage, shouldAlwaysUseEnglish } from "@/utils/textUtils";
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
@@ -10,11 +10,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, lang, value, ...props }, ref) => {
     const { i18n } = useTranslation();
     
-    // Use the provided lang or default to current app language
-    const inputLang = lang || i18n.language;
+    // Always use 'en' language for date and number inputs
+    const isSpecialField = type && shouldAlwaysUseEnglish(type);
     
-    // Determine if KrutiDev font should be applied
-    const isHindi = inputLang === 'hi';
+    // Use the provided lang or default to current app language
+    const inputLang = isSpecialField ? 'en' : (lang || i18n.language);
+    
+    // Determine if KrutiDev font should be applied, never for date/number fields
+    const isHindi = inputLang === 'hi' && !isSpecialField;
     const fontClass = isHindi ? 'krutidev-font' : '';
     
     // Process value for proper encoding if it's a string
