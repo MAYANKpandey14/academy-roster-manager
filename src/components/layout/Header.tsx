@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Navigation } from "./Navigation";
 
 export function Header() {
   const [today, setToday] = useState<string>("");
@@ -88,7 +87,6 @@ export function Header() {
           </div>
         </div>
       </div>
-      <Navigation />
       
       {/* Mobile navigation buttons */}
       <div className="sm:hidden flex justify-center items-center gap-2 py-2 border-t border-gray-200">

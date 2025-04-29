@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Eye, Edit, Trash } from "lucide-react";
@@ -7,9 +8,9 @@ import { AttendanceRecord } from "@/components/attendance/types";
 import { format } from 'date-fns';
 import { DatePicker } from "@/components/ui/date-picker";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "@radix-ui/react-icons";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
 import { ActionType, TableAction } from "../ui/table-view/types";
 
 export function AttendanceTable() {
@@ -23,10 +24,10 @@ export function AttendanceTable() {
       const formattedDate = format(date, 'yyyy-MM-dd');
 
       try {
-        const { data, error } = await supabase
-          .from('attendance')
-          .select('*')
-          .eq('date', formattedDate);
+        // Instead of querying a non-existent table, call the edge function
+        const { data, error } = await supabase.functions.invoke('get-attendance', {
+          body: { date: formattedDate }
+        });
 
         if (error) {
           console.error("Error fetching attendance:", error);
@@ -93,7 +94,7 @@ export function AttendanceTable() {
     },
     {
       accessorKey: 'phone',
-      header: 'फ़ोन',
+      header: 'फ़ोन',
     },
     {
       accessorKey: 'type',

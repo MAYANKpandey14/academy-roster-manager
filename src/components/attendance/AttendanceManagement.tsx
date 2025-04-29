@@ -2,8 +2,8 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AttendanceForm from "./AttendanceForm";
-import AttendanceTable from "./AttendanceTable";
+import { AttendanceForm } from "./AttendanceForm";
+import { AttendanceTable } from "./AttendanceTable";
 
 export function AttendanceManagement() {
   const [activeTab, setActiveTab] = useState("add");

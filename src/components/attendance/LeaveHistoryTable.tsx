@@ -43,7 +43,7 @@ interface LeaveRecord {
 
 type HistoryRecord = AbsenceRecord | LeaveRecord;
 
-// Define what we expect from Supabase
+// Define explicit response types from Supabase
 interface AttendanceResponse {
   id: string;
   date: string;
@@ -66,44 +66,42 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
   const [leavesData, setLeavesData] = useState<LeaveRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Fetch absence data - Fix: Add explicit return type to prevent excessive type instantiation
+  // Fetch absence data with explicit return type
   const fetchAbsences = useQuery({
     queryKey: [`${type}-absences`, personId],
-    queryFn: async (): Promise<AttendanceResponse[]> => {
+    queryFn: async () => {
       try {
         const { data, error } = await supabase
           .from(`${type}_attendance`)
           .select('*')
           .eq(`${type}_id`, personId)
-          .eq('status', 'absent')
-          .order('date', { ascending: false });
+          .eq('status', 'absent');
 
         if (error) throw error;
-        return data || [];
+        return (data || []) as AttendanceResponse[];
       } catch (error) {
         console.error('Error fetching absences:', error);
-        return [];
+        return [] as AttendanceResponse[];
       }
     },
     enabled: !!personId,
   });
 
-  // Fetch leave data - Fix: Add explicit return type to prevent excessive type instantiation
+  // Fetch leave data with explicit return type
   const fetchLeaves = useQuery({
     queryKey: [`${type}-leaves`, personId],
-    queryFn: async (): Promise<LeaveResponse[]> => {
+    queryFn: async () => {
       try {
         const { data, error } = await supabase
           .from(`${type}_leave`)
           .select('*')
-          .eq(`${type}_id`, personId)
-          .order('start_date', { ascending: false });
+          .eq(`${type}_id`, personId);
 
         if (error) throw error;
-        return data || [];
+        return (data || []) as LeaveResponse[];
       } catch (error) {
         console.error('Error fetching leaves:', error);
-        return [];
+        return [] as LeaveResponse[];
       }
     },
     enabled: !!personId,
