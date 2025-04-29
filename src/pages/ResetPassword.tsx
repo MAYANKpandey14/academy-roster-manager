@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -82,7 +82,6 @@ export default function ResetPassword() {
                     <Input 
                       type="password" 
                       {...field} 
-                      lang={i18n.language} 
                     />
                   </FormControl>
                   <FormMessage className="dynamic-text" />
@@ -100,7 +99,6 @@ export default function ResetPassword() {
                     <Input 
                       type="password" 
                       {...field} 
-                      lang={i18n.language} 
                     />
                   </FormControl>
                   <FormMessage className="dynamic-text" />

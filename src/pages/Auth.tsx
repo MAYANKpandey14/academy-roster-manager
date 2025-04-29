@@ -16,7 +16,7 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [resetPassword, setResetPassword] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   // Use the language inputs hook
@@ -112,7 +112,7 @@ export default function Auth() {
                   <Input
                     id="password"
                     type="password"
-                    required
+                    required={!resetPassword}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder={t("password")}

@@ -19,7 +19,6 @@ export const useLanguageInputs = () => {
           const inputLang = shouldUseEnglish ? 'en' : i18n.language;
           
           inputElement.lang = inputLang;
-          inputElement.setAttribute('accept-charset', 'UTF-8');
           
           // Set special attributes for Hindi with KrutiDev font
           if (inputLang === 'hi') {
@@ -155,10 +154,10 @@ export const useLanguageInputs = () => {
     setTimeout(setInputLanguage, 0);
     
     // And then apply it again after a short delay to catch any dynamically rendered elements
-    setTimeout(setInputLanguage, 100);
+    const timeoutId = setTimeout(setInputLanguage, 100);
 
     return () => {
-      // Cleanup if needed
+      clearTimeout(timeoutId);
     };
   }, [i18n.language]);
 };
