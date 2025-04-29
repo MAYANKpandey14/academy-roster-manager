@@ -112,7 +112,7 @@
   line-height: inherit;
 }
 
-/* New Hindi font size classes */
+/* Hindi font size classes */
 .krutidev-heading {
   font-family: 'KrutiDev', sans-serif;
   font-size: 1.25rem !important; /* 20px */
@@ -138,8 +138,12 @@
   display: inline !important;
   font-size: inherit !important;
   font-weight: inherit !important;
+  line-height: inherit !important;
+  vertical-align: baseline !important;
 }
 
+/* Apply preserve-char styles to specific elements that need it */
+label .preserve-char,
 input::placeholder .preserve-char,
 textarea::placeholder .preserve-char {
   font-family: 'Space Grotesk', sans-serif !important;
@@ -195,10 +199,30 @@ textarea[lang="hi"]::placeholder {
   @apply krutidev-placeholder;
 }
 
-/* Always render dates and numbers in English */
+/* Always render dates, numbers, emails, and passwords in English */
 input[type="date"],
 input[type="number"],
-input[type="tel"] {
+input[type="tel"],
+input[type="email"],
+input[type="password"] {
+  font-family: 'Space Grotesk', sans-serif !important;
+}
+
+/* Extra special character handling */
+[lang="hi"] .preserve-char,
+.lang-hi .preserve-char,
+.krutidev-text .preserve-char,
+.krutidev-heading .preserve-char {
+  font-family: 'Space Grotesk', sans-serif !important;
+  vertical-align: baseline !important;
+  display: inline !important;
+}
+
+/* Prevent Hindi font from affecting special characters */
+.auth-page,
+.auth-page input,
+.auth-page label,
+.auth-page button {
   font-family: 'Space Grotesk', sans-serif !important;
 }
 

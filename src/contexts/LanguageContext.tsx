@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
+
+import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react';
 import { useTranslation as useI18nTranslation } from 'react-i18next';
-import { shouldAlwaysUseEnglish } from '@/utils/textUtils';
+import { shouldAlwaysUseEnglish, isAuthPage } from '@/utils/textUtils';
 
 interface LanguageContextType {
   currentLanguage: string;
@@ -26,16 +27,22 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
   const [isLoading, setIsLoading] = useState(false);
   
-  // Apply language changes globally
-  const applyLanguageStyles = (lang: string) => {
+  // Extract DOM manipulation into a memoized callback for better performance
+  const applyLanguageStyles = useCallback((lang: string) => {
     // Guard against server-side rendering
     if (typeof document === 'undefined') return;
+    
+    // Check if we're on an auth page where we should force English
+    const authPageActive = isAuthPage();
+    if (authPageActive && lang === 'hi') {
+      lang = 'en'; // Force English for auth pages
+    }
     
     // Set language attributes on document
     document.documentElement.lang = lang;
     
-    // Apply or remove KrutiDev font class to body based on language
-    if (lang === 'hi') {
+    // Apply or remove KrutiDev font class based on language
+    if (lang === 'hi' && !authPageActive) {
       document.body.classList.add('lang-hi');
       document.documentElement.classList.add('lang-hi');
     } else {
@@ -46,10 +53,24 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     // Update all dynamic text elements with the appropriate classes
     const dynamicTextElements = document.querySelectorAll('.dynamic-text');
     dynamicTextElements.forEach(element => {
-      if (lang === 'hi') {
-        element.classList.add('krutidev-text');
-      } else {
-        element.classList.remove('krutidev-text');
+      if (element instanceof HTMLElement) {
+        element.lang = lang;
+        
+        if (lang === 'hi' && !authPageActive) {
+          // Determine the appropriate Hindi class based on element type
+          if (element.tagName === 'H1' || element.tagName === 'H2' || 
+              element.tagName === 'H3' || element.classList.contains('text-xl') ||
+              element.classList.contains('text-2xl') || 
+              element.classList.contains('font-semibold')) {
+            element.classList.add('krutidev-heading');
+            element.classList.remove('krutidev-text');
+          } else {
+            element.classList.add('krutidev-text');
+            element.classList.remove('krutidev-heading');
+          }
+        } else {
+          element.classList.remove('krutidev-text', 'krutidev-heading');
+        }
       }
     });
     
@@ -60,20 +81,21 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
         const inputElement = input as HTMLInputElement;
         const inputType = inputElement.type || 'text';
         
-        // Always use 'en' for date, number and tel inputs
+        // Always use 'en' for date, number, tel, email and password inputs
         const shouldUseEnglish = shouldAlwaysUseEnglish(inputType);
-        const inputLang = shouldUseEnglish ? 'en' : lang;
+        const inputLang = shouldUseEnglish || authPageActive ? 'en' : lang;
         
         inputElement.lang = inputLang;
-        inputElement.setAttribute('accept-charset', 'UTF-8');
         
         // Set special attributes for Hindi with KrutiDev font
         if (inputLang === 'hi') {
           inputElement.setAttribute('inputmode', 'text');
           if (inputElement.hasAttribute('placeholder')) {
             inputElement.classList.add('krutidev-placeholder');
+            inputElement.classList.remove('krutidev-text');
           } else {
             inputElement.classList.add('krutidev-text');
+            inputElement.classList.remove('krutidev-placeholder');
           }
         } else {
           inputElement.removeAttribute('inputmode');
@@ -82,45 +104,38 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       }
     });
     
-    // Apply font to table headers and cells
-    const tableHeaders = document.querySelectorAll('th .dynamic-text');
-    tableHeaders.forEach(header => {
-      if (header instanceof HTMLElement && lang === 'hi') {
-        header.classList.add('krutidev-heading');
-      } else if (header instanceof HTMLElement) {
-        header.classList.remove('krutidev-heading');
+    // Handle special character preservation
+    const preserveCharElements = document.querySelectorAll('.preserve-char');
+    preserveCharElements.forEach(el => {
+      if (el instanceof HTMLElement) {
+        el.style.fontFamily = "'Space Grotesk', sans-serif";
       }
     });
-    
-    const tableCells = document.querySelectorAll('td .dynamic-text');
-    tableCells.forEach(cell => {
-      if (cell instanceof HTMLElement && lang === 'hi') {
-        cell.classList.add('krutidev-text');
-      } else if (cell instanceof HTMLElement) {
-        cell.classList.remove('krutidev-text');
-      }
-    });
-  };
+  }, []);
 
   const changeLanguage = async (lang: string) => {
     try {
       setIsLoading(true);
       
+      // Check if we're on an auth page where we should force English
+      const authPageActive = isAuthPage();
+      const finalLang = authPageActive ? 'en' : lang;
+      
       // Change i18next language
-      await i18n.changeLanguage(lang);
+      await i18n.changeLanguage(finalLang);
       
       // Save to localStorage
-      localStorage.setItem('language', lang);
+      localStorage.setItem('language', finalLang);
       
       // Update state
-      setCurrentLanguage(lang);
+      setCurrentLanguage(finalLang);
       
       // Apply styling changes
-      applyLanguageStyles(lang);
+      applyLanguageStyles(finalLang);
       
       // Dispatch a custom event that components can listen for
       if (typeof document !== 'undefined') {
-        const event = new CustomEvent('languageChanged', { detail: { language: lang } });
+        const event = new CustomEvent('languageChanged', { detail: { language: finalLang } });
         document.dispatchEvent(event);
       }
     } finally {
@@ -133,59 +148,31 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     // Don't run in SSR context
     if (typeof document === 'undefined') return;
 
-    // Apply styles for current language
-    applyLanguageStyles(i18n.language);
-    
-    // Add the KrutiDev font to the document if not already present
-    if (!document.getElementById('krutidev-font-style')) {
-      const style = document.createElement('style');
-      style.id = 'krutidev-font-style';
-      style.textContent = `
-        @font-face {
-          font-family: 'KrutiDev';
-          src: url('/font/KrutiDev.woff') format('woff');
-          font-weight: normal;
-          font-style: normal;
-          font-display: swap;
-        }
-        
-        .krutidev-heading {
-          font-family: 'KrutiDev', sans-serif;
-          font-size: 120%;
-        }
-        
-        .krutidev-text {
-          font-family: 'KrutiDev', sans-serif;
-        }
-        
-        .krutidev-placeholder::placeholder {
-          font-family: 'KrutiDev', sans-serif;
-        }
-      `;
-      document.head.appendChild(style);
-    }
-    
-    // Ensure document has correct meta charset
-    let charsetMeta = document.querySelector('meta[charset]');
-    if (!charsetMeta) {
-      charsetMeta = document.createElement('meta');
-      charsetMeta.setAttribute('charset', 'UTF-8');
-      document.head.prepend(charsetMeta);
+    // Force English for auth pages
+    const authPageActive = isAuthPage();
+    if (authPageActive && i18n.language !== 'en') {
+      changeLanguage('en');
     } else {
-      charsetMeta.setAttribute('charset', 'UTF-8');
+      // Apply styles for current language
+      applyLanguageStyles(i18n.language);
     }
+  }, [applyLanguageStyles, i18n.language]);
+
+  // Listen for route changes to enforce English on auth pages
+  useEffect(() => {
+    const handleRouteChange = () => {
+      const authPageActive = isAuthPage();
+      if (authPageActive && currentLanguage !== 'en') {
+        changeLanguage('en');
+      }
+    };
     
-    // Check if Content-Type meta exists
-    let contentTypeMeta = document.querySelector('meta[http-equiv="Content-Type"]');
-    if (!contentTypeMeta) {
-      contentTypeMeta = document.createElement('meta');
-      contentTypeMeta.setAttribute('http-equiv', 'Content-Type');
-      contentTypeMeta.setAttribute('content', 'text/html; charset=utf-8');
-      document.head.appendChild(contentTypeMeta);
-    } else {
-      contentTypeMeta.setAttribute('content', 'text/html; charset=utf-8');
-    }
-  }, []);
+    window.addEventListener('popstate', handleRouteChange);
+    
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
+    };
+  }, [currentLanguage]);
 
   // Memoize the context value to avoid unnecessary re-renders
   const contextValue = useMemo(() => ({

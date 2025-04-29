@@ -89,6 +89,7 @@ export function TraineeFilters({
         
         <div className="space-y-2">
           <Label htmlFor="rollNo" className="dynamic-text">
+            {/* Use dangerouslySetInnerHTML to properly render the slash preserved */}
             <span dangerouslySetInnerHTML={{ 
               __html: i18n.language === 'hi' 
                 ? `${t("rollNo")} <span class="preserve-char">/</span> ${t("uniqueId")}` 

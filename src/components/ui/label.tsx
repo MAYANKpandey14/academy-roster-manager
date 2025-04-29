@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 import { useTranslation } from "react-i18next"
-import { createHtmlWithPreservedSpecialChars } from "@/utils/textUtils"
+import { createHtmlWithPreservedSpecialChars, isAuthPage } from "@/utils/textUtils"
 
 const labelVariants = cva(
   "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -23,7 +23,11 @@ const Label = React.forwardRef<
 >(({ className, children, preserveSpecialChars = true, ...props }, ref) => {
   const { i18n } = useTranslation();
   
-  const isHindi = i18n.language === 'hi';
+  // Disable Hindi for Auth pages
+  const isAuthPageActive = isAuthPage();
+  const inputLang = isAuthPageActive ? 'en' : i18n.language;
+  
+  const isHindi = inputLang === 'hi' && !isAuthPageActive;
   const needsSpecialHandling = isHindi && preserveSpecialChars && typeof children === 'string';
   
   return (
@@ -37,7 +41,7 @@ const Label = React.forwardRef<
     >
       {needsSpecialHandling ? (
         <span 
-          dangerouslySetInnerHTML={createHtmlWithPreservedSpecialChars(children as string, i18n.language)} 
+          dangerouslySetInnerHTML={createHtmlWithPreservedSpecialChars(children as string, inputLang)} 
         />
       ) : (
         children

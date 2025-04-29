@@ -43,9 +43,10 @@ export const prepareTextForLanguage = (text: string | null | undefined, language
 };
 
 /**
- * List of special characters that should be preserved and not rendered with Hindi font
+ * Enhanced list of special characters that should be preserved and not rendered with Hindi font
+ * This includes all punctuation, brackets, and special characters
  */
-const SPECIAL_CHARS = /([\/()[\]{}:;,.?!@#$%^&*_+=|\\<>"'\-])/g;
+const SPECIAL_CHARS = /([\/\\()[\]{}:;,.?!@#$%^&*_+=|<>"'\-\d])/g;
 
 /**
  * Preserves special characters in text when switching languages
@@ -57,25 +58,6 @@ export const preserveSpecialCharacters = (text: string): string => {
   
   // Replace special characters with a wrapped version that will be rendered with non-Hindi font
   return text.replace(SPECIAL_CHARS, '<span class="preserve-char">$1</span>');
-};
-
-/**
- * Processes text with special characters for labels/placeholders in Hindi mode
- * This is specifically for UI elements like labels where we want to keep the punctuation visible
- * but not render it with the Hindi font
- * @param text The label or placeholder text containing special characters
- * @param language Current language code
- * @returns The processed text with special characters preserved
- */
-export const processSpecialText = (text: string, language: string): string => {
-  if (!text || language === 'en') return text;
-  
-  // For Hindi, wrap each special character in a span to preserve it
-  if (language === 'hi') {
-    return text.replace(SPECIAL_CHARS, '<span class="preserve-char">$1</span>');
-  }
-  
-  return text;
 };
 
 /**
@@ -116,7 +98,8 @@ export const isHindiText = (text: string | null | undefined): boolean => {
  * @returns Boolean indicating if field should always use English
  */
 export const shouldAlwaysUseEnglish = (fieldType: string): boolean => {
-  const englishOnlyTypes = ['date', 'number', 'tel'];
+  // Auth fields, date fields, number fields, and tel fields should always be in English
+  const englishOnlyTypes = ['date', 'number', 'tel', 'email', 'password'];
   return englishOnlyTypes.includes(fieldType.toLowerCase());
 };
 
@@ -170,4 +153,37 @@ export const formatDate = (date: string | Date, formatStr?: string): string => {
     console.warn('Error formatting date:', e);
     return String(date);
   }
+};
+
+/**
+ * Checks if the current page is an auth page where Hindi should be disabled
+ * @returns Boolean indicating if Hindi should be disabled
+ */
+export const isAuthPage = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  
+  const path = window.location.pathname;
+  return path.includes('/auth') || 
+         path.includes('/reset-password') || 
+         path.includes('/forgot-password');
+};
+
+/**
+ * Process text for display, ensuring any inline HTML is properly managed
+ * @param text Text to process which might contain HTML-like syntax
+ * @param language Current language
+ * @returns Processed text safe for display
+ */
+export const safeProcessText = (text: string | null | undefined, language: string): string => {
+  if (!text) return '';
+  
+  // Simply return text for English or auth pages
+  if (language !== 'hi') return text;
+  
+  // For Hindi, handle special characters but avoid processing potential HTML
+  return text.replace(SPECIAL_CHARS, (match) => {
+    // Only wrap if not part of an HTML tag
+    if (match === '<' || match === '>') return match;
+    return `<span class="preserve-char">${match}</span>`;
+  });
 };

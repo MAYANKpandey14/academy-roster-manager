@@ -2,7 +2,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
-import { prepareTextForLanguage, shouldAlwaysUseEnglish, createHtmlWithPreservedSpecialChars } from "@/utils/textUtils";
+import { prepareTextForLanguage, shouldAlwaysUseEnglish, createHtmlWithPreservedSpecialChars, isAuthPage } from "@/utils/textUtils";
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   preserveSpecialChars?: boolean;
@@ -12,14 +12,18 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, lang, value, placeholder, preserveSpecialChars = true, ...props }, ref) => {
     const { i18n } = useTranslation();
     
-    // Always use 'en' language for date and number inputs
+    // Disable Hindi for Auth pages and specific field types
+    const isAuthPageActive = isAuthPage();
+    
+    // Always use 'en' language for auth pages, date and number inputs
     const isSpecialField = type && shouldAlwaysUseEnglish(type);
+    const forceEnglish = isAuthPageActive || isSpecialField;
     
     // Use the provided lang or default to current app language
-    const inputLang = isSpecialField ? 'en' : (lang || i18n.language);
+    const inputLang = forceEnglish ? 'en' : (lang || i18n.language);
     
-    // Determine if KrutiDev font should be applied, never for date/number fields
-    const isHindi = inputLang === 'hi' && !isSpecialField;
+    // Determine if KrutiDev font should be applied, never for date/number/auth fields
+    const isHindi = inputLang === 'hi' && !forceEnglish;
     
     // Apply appropriate font class based on input type
     let fontClass = '';

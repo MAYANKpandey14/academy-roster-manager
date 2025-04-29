@@ -1,91 +1,109 @@
 
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { shouldAlwaysUseEnglish } from '@/utils/textUtils';
+import { shouldAlwaysUseEnglish, isAuthPage } from '@/utils/textUtils';
 
 export const useLanguageInputs = () => {
   const { i18n } = useTranslation();
 
+  // Extract DOM manipulation into reusable function for performance
+  const setInputLanguage = useCallback(() => {
+    // Check if we're on an auth page where we should only use English
+    const isAuthPageActive = isAuthPage();
+    if (isAuthPageActive && i18n.language !== 'en') {
+      return; // Skip processing for auth pages
+    }
+    
+    // Process DOM elements only if the component is mounted
+    if (!document.body) return; 
+
+    // Process inputs
+    const inputs = document.querySelectorAll('input, textarea');
+    inputs.forEach(input => {
+      if (input instanceof HTMLElement) {
+        const inputElement = input as HTMLInputElement;
+        const inputType = inputElement.type || 'text';
+        
+        // Always use 'en' for date, number, tel, email and password inputs
+        const shouldUseEnglish = shouldAlwaysUseEnglish(inputType);
+        const inputLang = shouldUseEnglish || isAuthPageActive ? 'en' : i18n.language;
+        
+        inputElement.lang = inputLang;
+        
+        // Set special attributes for Hindi with KrutiDev font
+        if (inputLang === 'hi') {
+          inputElement.setAttribute('inputmode', 'text');
+          if (inputElement.hasAttribute('placeholder')) {
+            inputElement.classList.add('krutidev-placeholder');
+          } else {
+            inputElement.classList.add('krutidev-text');
+          }
+        } else {
+          inputElement.removeAttribute('inputmode');
+          inputElement.classList.remove('krutidev-placeholder', 'krutidev-text');
+        }
+      }
+    });
+
+    // Apply font to table cells and other text elements that may need it
+    const textElements = document.querySelectorAll('.dynamic-text');
+    textElements.forEach(el => {
+      if (el instanceof HTMLElement) {
+        // Set language for all dynamic text elements
+        el.lang = i18n.language;
+        
+        if (i18n.language === 'hi' && !isAuthPageActive) {
+          el.classList.add('lang-hi');
+          
+          // Apply appropriate font size based on element type or parent
+          if (el.tagName === 'H1' || el.tagName === 'H2' || el.tagName === 'H3' ||
+              el.classList.contains('text-2xl') || el.classList.contains('text-xl') ||
+              el.classList.contains('font-semibold')) {
+            el.classList.add('krutidev-heading');
+          } else {
+            el.classList.add('krutidev-text');
+          }
+        } else {
+          el.classList.remove('lang-hi', 'krutidev-heading', 'krutidev-text', 'krutidev-placeholder');
+        }
+      }
+    });
+    
+    // Handle special character preservation
+    const preserveCharElements = document.querySelectorAll('.preserve-char');
+    preserveCharElements.forEach(el => {
+      if (el instanceof HTMLElement) {
+        el.style.fontFamily = "'Space Grotesk', sans-serif";
+      }
+    });
+    
+    // Specific handling for table headers and cells
+    const tableHeaders = document.querySelectorAll('th .dynamic-text');
+    tableHeaders.forEach(header => {
+      if (header instanceof HTMLElement && i18n.language === 'hi' && !isAuthPageActive) {
+        header.classList.add('krutidev-heading');
+      } else if (header instanceof HTMLElement) {
+        header.classList.remove('krutidev-heading');
+      }
+    });
+    
+    const tableCells = document.querySelectorAll('td .dynamic-text');
+    tableCells.forEach(cell => {
+      if (cell instanceof HTMLElement && i18n.language === 'hi' && !isAuthPageActive) {
+        cell.classList.add('krutidev-text');
+      } else if (cell instanceof HTMLElement) {
+        cell.classList.remove('krutidev-text');
+      }
+    });
+  }, [i18n.language]);
+
   useEffect(() => {
-    const setInputLanguage = () => {
-      // Process DOM elements only if the component is mounted
-      if (!document.body) return; 
-
-      // Process inputs
-      const inputs = document.querySelectorAll('input, textarea');
-      inputs.forEach(input => {
-        if (input instanceof HTMLElement) {
-          const inputElement = input as HTMLInputElement;
-          const inputType = inputElement.type || 'text';
-          
-          // Always use 'en' for date, number and tel inputs
-          const shouldUseEnglish = shouldAlwaysUseEnglish(inputType);
-          const inputLang = shouldUseEnglish ? 'en' : i18n.language;
-          
-          inputElement.lang = inputLang;
-          
-          // Set special attributes for Hindi with KrutiDev font
-          if (inputLang === 'hi') {
-            inputElement.setAttribute('inputmode', 'text');
-            if (inputElement.hasAttribute('placeholder')) {
-              inputElement.classList.add('krutidev-placeholder');
-            } else {
-              inputElement.classList.add('krutidev-text');
-            }
-          } else {
-            inputElement.removeAttribute('inputmode');
-            inputElement.classList.remove('krutidev-placeholder', 'krutidev-text');
-          }
-        }
-      });
-
-      // Apply font to table cells and other text elements that may need it
-      const textElements = document.querySelectorAll('.dynamic-text');
-      textElements.forEach(el => {
-        if (el instanceof HTMLElement) {
-          // Set language for all dynamic text elements
-          el.lang = i18n.language;
-          
-          if (i18n.language === 'hi') {
-            el.classList.add('lang-hi');
-            
-            // Apply appropriate font size based on element type or parent
-            if (el.tagName === 'H1' || el.tagName === 'H2' || el.tagName === 'H3' ||
-                el.classList.contains('text-2xl') || el.classList.contains('text-xl') ||
-                el.classList.contains('font-semibold')) {
-              el.classList.add('krutidev-heading');
-            } else {
-              el.classList.add('krutidev-text');
-            }
-          } else {
-            el.classList.remove('lang-hi', 'krutidev-heading', 'krutidev-text', 'krutidev-placeholder');
-          }
-        }
-      });
-      
-      // Handle special character preservation
-      const preserveCharElements = document.querySelectorAll('.preserve-char');
-      preserveCharElements.forEach(el => {
-        if (el instanceof HTMLElement) {
-          el.style.fontFamily = "'Space Grotesk', sans-serif";
-        }
-      });
-      
-      // Specific handling for table headers and cells
-      const tableHeaders = document.querySelectorAll('th .dynamic-text');
-      tableHeaders.forEach(header => {
-        if (header instanceof HTMLElement && i18n.language === 'hi') {
-          header.classList.add('krutidev-heading');
-        }
-      });
-      
-      const tableCells = document.querySelectorAll('td .dynamic-text');
-      tableCells.forEach(cell => {
-        if (cell instanceof HTMLElement && i18n.language === 'hi') {
-          cell.classList.add('krutidev-text');
-        }
-      });
+    // Add an event listener for the 'languageChanged' custom event
+    const handleLanguageChange = () => {
+      setInputLanguage();
     };
+    
+    document.addEventListener('languageChanged', handleLanguageChange);
 
     // Add the KrutiDev font to the document only if it doesn't exist
     const addKrutiDevFont = () => {
@@ -159,7 +177,7 @@ export const useLanguageInputs = () => {
       document.documentElement.dir = 'ltr'; // Always keep LTR as specified
       
       // Add a class to the HTML element for global styling
-      if (i18n.language === 'hi') {
+      if (i18n.language === 'hi' && !isAuthPage()) {
         document.documentElement.classList.add('lang-hi');
       } else {
         document.documentElement.classList.remove('lang-hi');
@@ -167,17 +185,10 @@ export const useLanguageInputs = () => {
       
       // Apply the language change immediately
       setInputLanguage();
-      
-      // Apply it again after a short delay to catch any dynamically rendered elements
-      const timeoutId = setTimeout(setInputLanguage, 100);
-      
-      // Clean up function
-      return () => {
-        clearTimeout(timeoutId);
-      };
     }
     
-    // If document is not available, return empty cleanup function
-    return () => {};
-  }, [i18n.language]); // Only re-run when language changes
+    return () => {
+      document.removeEventListener('languageChanged', handleLanguageChange);
+    };
+  }, [i18n.language, setInputLanguage]);
 };
