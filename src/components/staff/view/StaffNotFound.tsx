@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 
-export function TraineeNotFound() {
+export function StaffNotFound() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
@@ -16,10 +16,10 @@ export function TraineeNotFound() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-semibold">
             <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-              {t("viewTraineeDetails", "View Trainee Details")}
+              {t("viewStaffDetails", "View Staff Details")}
             </span>
           </h1>
-          <Button variant="outline" onClick={() => navigate("/trainees")}>
+          <Button variant="outline" onClick={() => navigate("/staff")}>
             <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
               {t("back", "Back")}
             </span>
@@ -29,12 +29,12 @@ export function TraineeNotFound() {
           <CardContent className="p-6 text-center">
             <p className="text-red-500 my-8">
               <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-                {t("traineeNotFound", "Trainee not found or has been deleted.")}
+                {t("staffNotFound", "Staff not found or has been deleted.")}
               </span>
             </p>
-            <Button onClick={() => navigate("/trainees")}>
+            <Button onClick={() => navigate("/staff")}>
               <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-                {t("returnToTraineeList", "Return to Trainee List")}
+                {t("returnToStaffList", "Return to Staff List")}
               </span>
             </Button>
           </CardContent>
