@@ -1,5 +1,5 @@
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Trainee } from "@/types/trainee";
@@ -20,53 +20,44 @@ const ViewTrainee = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { t, i18n } = useTranslation();
   
-  // Apply language inputs hook for synchronizing language settings
+  // Apply language inputs hook - make sure it runs on language change
   useLanguageInputs();
 
-  // Fetch trainee data using useCallback to avoid recreation on every render
-  const fetchTrainee = useCallback(async () => {
-    if (!id) return;
-    
-    try {
-      setIsLoading(true);
-      const { data, error } = await getTrainees();
-      
-      if (error) {
-        throw error;
-      }
-      
-      if (data) {
-        const traineeData = data.find(t => t.id === id);
+  useEffect(() => {
+    const fetchTrainee = async () => {
+      try {
+        const { data, error } = await getTrainees();
         
-        if (traineeData) {
-          setTrainee(traineeData);
-        } else {
-          toast.error(t("traineeNotFound", "Trainee not found"));
-          navigate("/");
+        if (error) {
+          throw error;
         }
+        
+        if (data) {
+          const traineeData = data.find(t => t.id === id);
+          
+          if (traineeData) {
+            setTrainee(traineeData);
+          } else {
+            toast.error(t("traineeNotFound", "Trainee not found"));
+            navigate("/");
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching trainee:", error);
+        toast.error(t("failedToFetchTrainee", "Failed to load trainee data"));
+        navigate("/");
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching trainee:", error);
-      toast.error(t("failedToFetchTrainee", "Failed to load trainee data"));
-      navigate("/");
-    } finally {
-      setIsLoading(false);
-    }
+    };
+
+    fetchTrainee();
   }, [id, navigate, t]);
 
-  // Fetch data on mount and when dependencies change
+  // Force re-render when language changes
   useEffect(() => {
-    fetchTrainee();
-  }, [fetchTrainee]);
-
-  // Handle language changes
-  useEffect(() => {
-    // Re-fetch or re-render when language changes
-    if (trainee) {
-      // Just trigger a re-render when language changes if trainee is already loaded
-      setTrainee({...trainee});
-    }
-  }, [i18n.language, trainee]);
+    // This empty dependency will trigger a re-render when i18n.language changes
+  }, [i18n.language]);
 
   if (isLoading) {
     return <TraineeLoadingState />;
@@ -75,12 +66,8 @@ const ViewTrainee = () => {
   if (!trainee) {
     return <TraineeNotFound />;
   }
-  
-  // Initialize print service hooks with the correct props structure
-  const printService = useTraineePrintService({ trainee });
-  
-  // Extract handlers from the service
-  const { handlePrintTrainee, handleDownloadTrainee } = printService;
+
+  const { handlePrintTrainee, handleDownloadTrainee } = useTraineePrintService({ trainee });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -89,7 +76,7 @@ const ViewTrainee = () => {
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
           <TraineeHeader 
             trainee={trainee} 
-            onPrint={handlePrintTrainee}
+            onPrint={handlePrintTrainee} 
             onDownload={handleDownloadTrainee}
           />
           

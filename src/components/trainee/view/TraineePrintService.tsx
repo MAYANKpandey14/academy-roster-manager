@@ -1,8 +1,10 @@
 
 import { Trainee } from "@/types/trainee";
 import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/export";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { prepareTextForLanguage } from "@/utils/textUtils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface TraineePrintServiceProps {
   trainee: Trainee;
@@ -10,9 +12,10 @@ export interface TraineePrintServiceProps {
 
 export function useTraineePrintService({ trainee }: TraineePrintServiceProps) {
   const { t, i18n } = useTranslation();
+  const { currentLanguage } = useLanguage();
 
   const handlePrintTrainee = () => {
-    const printContent = createPrintContent([trainee], i18n.language, t);
+    const printContent = createPrintContent([trainee], currentLanguage, t);
     const printSuccess = handlePrint(printContent);
     
     if (!printSuccess) {
@@ -23,13 +26,10 @@ export function useTraineePrintService({ trainee }: TraineePrintServiceProps) {
   };
 
   const handleDownloadTrainee = () => {
-    // Process trainee name for file name to handle special characters
-    const safeName = trainee.name.replace(/[^a-zA-Z0-9_\-]/g, '_');
-    
-    const csvContent = createCSVContent([trainee], i18n.language, t);
+    const csvContent = createCSVContent([trainee], currentLanguage, t);
     handleDownload(
       csvContent, 
-      `trainee_${trainee.pno}_${safeName}.csv`
+      `trainee_${trainee.pno}_${trainee.name.replace(/\s+/g, '_')}.csv`
     );
     toast.success(t("csvDownloaded", "CSV file downloaded successfully"));
   };

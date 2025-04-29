@@ -105,132 +105,87 @@
 }
 
 /* Language-specific styles */
-html[lang="hi"] body {
-  /* Apply global Hindi settings when html lang is set to Hindi */
+.krutidev-font {
+  font-family: 'KrutiDev', sans-serif;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
 }
 
-/* Hindi font classes with direct styling instead of circular @apply */
+/* New Hindi font size classes */
 .krutidev-heading {
-  font-family: 'KrutiDev', sans-serif !important;
+  font-family: 'KrutiDev', sans-serif;
   font-size: 1.25rem !important; /* 20px */
   font-weight: 600 !important;
   line-height: 1.5 !important;
 }
 
 .krutidev-text {
-  font-family: 'KrutiDev', sans-serif !important;
+  font-family: 'KrutiDev', sans-serif;
   font-size: 1.125rem !important; /* 18px */
   line-height: 1.5 !important;
 }
 
 .krutidev-placeholder {
-  font-family: 'KrutiDev', sans-serif !important;
+  font-family: 'KrutiDev', sans-serif;
   font-size: 1rem !important; /* 16px */
   line-height: 1.5 !important;
-}
-
-/* Special character preservation with higher specificity */
-.preserve-char {
-  font-family: 'Space Grotesk', sans-serif !important;
-  display: inline !important;
-  font-size: inherit !important;
-  font-weight: inherit !important;
-  line-height: inherit !important;
-  vertical-align: baseline !important;
-}
-
-/* Optimize CSS selectors for better performance */
-label .preserve-char,
-input::placeholder .preserve-char,
-textarea::placeholder .preserve-char,
-h1 .preserve-char,
-h2 .preserve-char,
-h3 .preserve-char,
-p .preserve-char,
-div .preserve-char,
-span .preserve-char {
-  font-family: 'Space Grotesk', sans-serif !important;
 }
 
 .lang-hi {
   /* Hindi language specific styling */
 }
 
-/* Transition optimization - only transition font-family */
 .dynamic-text {
   transition: font-family 0.2s ease;
 }
 
-/* Optimized selector hierarchy for Hindi styling */
-.dynamic-text.krutidev-heading,
+/* Apply proper Hindi styling based on context */
 h1.dynamic-text.lang-hi,
 h2.dynamic-text.lang-hi,
 h3.dynamic-text.lang-hi,
 .text-2xl.dynamic-text.lang-hi,
 .text-xl.dynamic-text.lang-hi,
 .font-semibold.dynamic-text.lang-hi {
-  font-family: 'KrutiDev', sans-serif !important;
-  font-size: 1.25rem !important;
-  font-weight: 600 !important;
-  line-height: 1.5 !important;
+  @apply krutidev-heading;
 }
 
-.dynamic-text.krutidev-text,
 p.dynamic-text.lang-hi,
 span.dynamic-text.lang-hi,
 div.dynamic-text.lang-hi,
 td .dynamic-text.lang-hi,
 .card-content .dynamic-text.lang-hi {
-  font-family: 'KrutiDev', sans-serif !important;
-  font-size: 1.125rem !important;
-  line-height: 1.5 !important;
+  @apply krutidev-text;
 }
 
-/* Higher specificity selector for Hindi text */
 .dynamic-text.lang-hi {
   font-family: 'KrutiDev', sans-serif;
 }
 
 /* Table specific styles */
 th .dynamic-text.lang-hi {
-  font-family: 'KrutiDev', sans-serif !important;
-  font-size: 1.25rem !important;
-  font-weight: 600 !important;
+  @apply krutidev-heading;
 }
 
 td .dynamic-text.lang-hi {
-  font-family: 'KrutiDev', sans-serif !important;
-  font-size: 1.125rem !important;
+  @apply krutidev-text;
 }
 
-/* Optimized form input styles for Hindi */
+/* Ensure proper text rendering for Hindi */
 input[lang="hi"], 
 textarea[lang="hi"] {
-  font-family: 'KrutiDev', sans-serif !important;
-  font-size: 1rem !important;
+  @apply krutidev-placeholder;
 }
 
 input[lang="hi"]::placeholder, 
 textarea[lang="hi"]::placeholder {
-  font-family: 'KrutiDev', sans-serif !important;
-  font-size: 1rem !important;
-  color: var(--muted-foreground);
+  @apply krutidev-placeholder;
 }
 
-/* Always render dates, numbers, emails, and passwords in English */
+/* Always render dates and numbers in English */
 input[type="date"],
 input[type="number"],
-input[type="tel"],
-input[type="email"],
-input[type="password"] {
-  font-family: 'Space Grotesk', sans-serif !important;
-}
-
-/* Explicit component styling for auth pages */
-.auth-page,
-.auth-page input,
-.auth-page label,
-.auth-page button {
+input[type="tel"] {
   font-family: 'Space Grotesk', sans-serif !important;
 }
 
@@ -257,17 +212,11 @@ input[type="password"] {
   }
 }
 
-/* Placeholder font override for krutidev font fields */
-.krutidev-font::placeholder {
-  font-family: 'KrutiDev', sans-serif !important;
+/* Form element styles */
+.print-button {
+  @apply bg-blue-600 hover:bg-blue-700 text-white;
 }
 
-/* Fix for special characters in placeholders */
-input.krutidev-placeholder::placeholder {
-  font-family: 'KrutiDev', sans-serif !important;
-}
-
-/* Ensure special characters always have the right font in placeholders */
-::placeholder .preserve-char {
-  font-family: 'Space Grotesk', sans-serif !important;
+.download-button {
+  @apply bg-green-600 hover:bg-green-700 text-white;
 }

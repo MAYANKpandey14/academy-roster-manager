@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "react-i18next";
 
 interface TraineeFiltersProps {
   onSearch: (pno: string, chestNo: string, rollNo: string) => Promise<boolean>;
@@ -54,9 +54,7 @@ export function TraineeFilters({
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="pno" className="dynamic-text">
-            {t("pnoNumber")}
-          </Label>
+          <Label htmlFor="pno" className="dynamic-text">{t("pnoNumber")}</Label>
           <Input
             id="pno"
             placeholder={t("enterPNO")}
@@ -66,14 +64,11 @@ export function TraineeFilters({
             disabled={disabled}
             maxLength={9}
             lang={i18n.language}
-            preserveSpecialChars={true}
           />
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="chestNo" className="dynamic-text">
-            {t("chestNumber")}
-          </Label>
+          <Label htmlFor="chestNo" className="dynamic-text">{t("chestNumber")}</Label>
           <Input
             id="chestNo"
             placeholder={t("enterChestNo")}
@@ -83,18 +78,12 @@ export function TraineeFilters({
             disabled={disabled}
             maxLength={4}
             lang={i18n.language}
-            preserveSpecialChars={true}
           />
         </div>
         
         <div className="space-y-2">
           <Label htmlFor="rollNo" className="dynamic-text">
-            {/* Use dangerouslySetInnerHTML to properly render the slash preserved */}
-            <span dangerouslySetInnerHTML={{ 
-              __html: i18n.language === 'hi' 
-                ? `${t("rollNo")} <span class="preserve-char">/</span> ${t("uniqueId")}` 
-                : `${t("rollNo")} / ${t("uniqueId")}` 
-            }} />
+            {t("rollNo")} {i18n.language === 'hi' ? '/ विशिष्ट आईडी' : '/ Unique Id'}
           </Label>
           <Input
             id="rollNo"
@@ -105,7 +94,6 @@ export function TraineeFilters({
             disabled={disabled}
             maxLength={12}
             lang={i18n.language}
-            preserveSpecialChars={true}
           />
         </div>
       </div>

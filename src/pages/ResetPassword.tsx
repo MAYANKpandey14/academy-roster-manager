@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -20,13 +20,6 @@ export default function ResetPassword() {
   
   // Use the language inputs hook
   useLanguageInputs();
-  
-  // Force English language for auth pages
-  useEffect(() => {
-    if (i18n.language !== 'en') {
-      i18n.changeLanguage('en');
-    }
-  }, [i18n]);
 
   const formSchema = z.object({
     password: z.string().min(6, t("passwordUpdated")),
@@ -64,7 +57,7 @@ export default function ResetPassword() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
-      {/* Language Switcher - only visible UI indicator, but will force English regardless */}
+      {/* Language Switcher - Positioned consistently with Auth page */}
       <div className="w-full max-w-md flex justify-end mb-4">
         <LanguageSwitcher />
       </div>
@@ -72,7 +65,7 @@ export default function ResetPassword() {
       <div className="w-full max-w-md space-y-8">
         <div>
           <img src="/images.svg" alt="Logo" className="mx-auto h-24 w-24" />
-          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 dynamic-text">
             {t("resetYourPassword")}
           </h2>
         </div>
@@ -84,14 +77,14 @@ export default function ResetPassword() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("newPassword")}</FormLabel>
+                  <FormLabel className="dynamic-text">{t("newPassword")}</FormLabel>
                   <FormControl>
                     <Input 
                       type="password" 
                       {...field} 
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="dynamic-text" />
                 </FormItem>
               )}
             />
@@ -101,20 +94,22 @@ export default function ResetPassword() {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("confirmPassword")}</FormLabel>
+                  <FormLabel className="dynamic-text">{t("confirmPassword")}</FormLabel>
                   <FormControl>
                     <Input 
                       type="password" 
                       {...field} 
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="dynamic-text" />
                 </FormItem>
               )}
             />
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? t("processing") : t("updatePassword")}
+              <span className="dynamic-text">
+                {loading ? t("processing") : t("updatePassword")}
+              </span>
             </Button>
           </form>
         </Form>

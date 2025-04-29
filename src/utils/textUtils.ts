@@ -23,24 +23,6 @@ export const ensureUtf8Encoding = (text: string | null | undefined): string => {
 };
 
 /**
- * Enhanced list of special characters that should be preserved and not rendered with Hindi font
- * This includes all punctuation, brackets, and special characters
- */
-const SPECIAL_CHARS = /([\/\\()[\]{}:;,.?!@#$%^&*_+=|<>"'\-\d])/g;
-
-/**
- * Preserves special characters in text when switching languages
- * @param text Text that may contain special characters
- * @returns Text with special characters preserved
- */
-export const preserveSpecialCharacters = (text: string): string => {
-  if (!text) return '';
-  
-  // Replace special characters with a wrapped version that will be rendered with non-Hindi font
-  return text.replace(SPECIAL_CHARS, '<span class="preserve-char">$1</span>');
-};
-
-/**
  * Prepares text content for display based on the current language
  * @param text The text to prepare
  * @param language The current language code (e.g., 'en', 'hi')
@@ -51,48 +33,38 @@ export const prepareTextForLanguage = (text: string | null | undefined, language
   
   const encodedText = ensureUtf8Encoding(text);
   
-  // Apply any language-specific transformations
+  // Apply any language-specific transformations if needed
   if (language === 'hi') {
-    // For Hindi, handle special characters separately
-    return preserveSpecialCharacters(encodedText);
+    // Preserve special characters and punctuation in Hindi text
+    return encodedText;
   }
   
   return encodedText;
 };
 
 /**
- * Specially prepare placeholder text for proper display
- * Ensures special characters render properly in Hindi mode
- * @param text Placeholder text
- * @param language Current language
- * @returns Processed placeholder text suitable for display
+ * Preserves special characters in translated text
+ * This function can be used to keep certain characters intact during translation
+ * @param text Text that may contain special characters
+ * @returns Text with special characters preserved
  */
-export const preparePlaceholderForLanguage = (text: string | null | undefined, language: string): string => {
+export const preserveSpecialCharacters = (text: string): string => {
   if (!text) return '';
   
-  if (language !== 'hi') return ensureUtf8Encoding(text);
-  
-  // For Hindi placeholders, we need to handle special chars differently
-  // Do NOT wrap them in span elements as placeholders don't support HTML
-  return ensureUtf8Encoding(text);
+  // Replace special characters with placeholders before translation
+  return text.replace(/[/()[\]{}:;,.?!@#$%^&*_+=|\\<>"-]/g, match => `{{${match}}}`);
 };
 
 /**
- * Creates HTML with special characters preserved for display
- * Safe to use with dangerouslySetInnerHTML because it only wraps punctuation
- * @param text The text to process
- * @param language The current language
- * @returns Object with __html property for dangerouslySetInnerHTML
+ * Restores special characters that were replaced with placeholders
+ * @param text Text with special character placeholders
+ * @returns Original text with special characters restored
  */
-export const createHtmlWithPreservedSpecialChars = (text: string | null | undefined, language: string) => {
-  if (!text) return { __html: '' };
+export const restoreSpecialCharacters = (text: string): string => {
+  if (!text) return '';
   
-  if (language === 'hi') {
-    const processed = text.replace(SPECIAL_CHARS, '<span class="preserve-char">$1</span>');
-    return { __html: processed };
-  }
-  
-  return { __html: text };
+  // Replace placeholders with the original special characters
+  return text.replace(/{{([/()[\]{}:;,.?!@#$%^&*_+=|\\<>"-])}}/g, '$1');
 };
 
 /**
@@ -115,8 +87,7 @@ export const isHindiText = (text: string | null | undefined): boolean => {
  * @returns Boolean indicating if field should always use English
  */
 export const shouldAlwaysUseEnglish = (fieldType: string): boolean => {
-  // Auth fields, date fields, number fields, and tel fields should always be in English
-  const englishOnlyTypes = ['date', 'number', 'tel', 'email', 'password'];
+  const englishOnlyTypes = ['date', 'number', 'tel'];
   return englishOnlyTypes.includes(fieldType.toLowerCase());
 };
 
@@ -142,34 +113,32 @@ export const getHindiFontClass = (elementType: 'heading' | 'text' | 'placeholder
 };
 
 /**
- * Checks if the current page is an auth page where Hindi should be disabled
- * @returns Boolean indicating if Hindi should be disabled
+ * Formats a date value for display in the specified language
+ * Dates are always displayed in English format even in Hindi mode
+ * @param date The date to format
+ * @param formatStr Optional format string
+ * @returns Formatted date string
  */
-export const isAuthPage = (): boolean => {
-  if (typeof window === 'undefined') return false;
+export const formatDate = (date: string | Date, formatStr?: string): string => {
+  if (!date) return 'N/A';
   
-  const path = window.location.pathname;
-  return path.includes('/auth') || 
-         path.includes('/reset-password') || 
-         path.includes('/forgot-password');
-};
-
-/**
- * Process text for display, ensuring any inline HTML is properly managed
- * @param text Text to process which might contain HTML-like syntax
- * @param language Current language
- * @returns Processed text safe for display
- */
-export const safeProcessText = (text: string | null | undefined, language: string): string => {
-  if (!text) return '';
-  
-  // Simply return text for English or auth pages
-  if (language !== 'hi') return text;
-  
-  // For Hindi, handle special characters but avoid processing potential HTML
-  return text.replace(SPECIAL_CHARS, (match) => {
-    // Only wrap if not part of an HTML tag
-    if (match === '<' || match === '>') return match;
-    return `<span class="preserve-char">${match}</span>`;
-  });
+  try {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    
+    // Default to simple date format if none specified
+    if (!formatStr) {
+      return dateObj.toLocaleDateString('en-US', {
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric'
+      });
+    }
+    
+    // For now just return basic formatted date
+    // In the future, this could be expanded to use a date formatting library
+    return dateObj.toLocaleDateString('en-US');
+  } catch (e) {
+    console.warn('Error formatting date:', e);
+    return String(date);
+  }
 };
