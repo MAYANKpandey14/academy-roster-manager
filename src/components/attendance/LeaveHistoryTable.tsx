@@ -30,24 +30,30 @@ interface BaseRecord {
   leave_type?: string | null;
 }
 
-interface AbsenceRecord extends BaseRecord {
-  type: 'absent';
+type AbsenceRecord = {
+  id: string;
   date: string;
-  status: 'absent';
+  status: string;
+  type: 'absent';
+  start_date: string;
+  end_date: string;
   leave_type: null;
 }
 
-interface LeaveRecord extends BaseRecord {
-  type: 'leave';
-  status: 'on_leave';
+type LeaveRecord = {
+  id: string;
+  start_date: string;
+  end_date: string;
   reason: string;
+  status: string;
   leave_type?: string;
+  type: 'leave';
 }
 
 type HistoryRecord = AbsenceRecord | LeaveRecord;
 
 export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
-  // Fetch absences with explicit typing
+  // Fetch absences
   const { data: absences, isLoading: absencesLoading } = useQuery({
     queryKey: [`${type}-absences`, personId],
     queryFn: async () => {
@@ -60,18 +66,28 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
 
       if (error) throw error;
       
-      // Transform data with explicit type casting
-      return (data || []).map(item => ({
-        ...item,
-        type: 'absent' as const,
-        start_date: item.date,
-        end_date: item.date,
-        leave_type: null
-      })) as AbsenceRecord[];
+      // Directly transform and return data without complex type manipulations
+      const result: AbsenceRecord[] = [];
+      
+      if (data) {
+        for (const item of data) {
+          result.push({
+            id: item.id,
+            date: item.date,
+            status: item.status,
+            type: 'absent',
+            start_date: item.date,
+            end_date: item.date,
+            leave_type: null
+          });
+        }
+      }
+      
+      return result;
     },
   });
 
-  // Fetch leaves with explicit typing
+  // Fetch leaves
   const { data: leaves, isLoading: leavesLoading } = useQuery({
     queryKey: [`${type}-leaves`, personId],
     queryFn: async () => {
@@ -83,16 +99,28 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
 
       if (error) throw error;
       
-      // Transform data with explicit type casting
-      return (data || []).map(item => ({
-        ...item,
-        type: 'leave' as const,
-        status: 'on_leave'
-      })) as LeaveRecord[];
+      // Directly transform and return data without complex type manipulations
+      const result: LeaveRecord[] = [];
+      
+      if (data) {
+        for (const item of data) {
+          result.push({
+            id: item.id,
+            start_date: item.start_date,
+            end_date: item.end_date,
+            reason: item.reason,
+            status: 'on_leave',
+            leave_type: item.leave_type,
+            type: 'leave'
+          });
+        }
+      }
+      
+      return result;
     },
   });
 
-  // Combine and format data for the table with explicit typing
+  // Combine and format data for the table
   const historyData: HistoryRecord[] = [
     ...(absences || []), 
     ...(leaves || [])
@@ -139,7 +167,7 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
                 return (
                   <TableRow key={record.id}>
                     <TableCell>
-                      {record.status === 'absent' ? 'अनुपस्थित' : 'छुट्टी पर'}
+                      {record.type === 'absent' ? 'अनुपस्थित' : 'छुट्टी पर'}
                     </TableCell>
                     <TableCell>
                       {record.type === 'leave' && record.leave_type ? record.leave_type : '-'}
