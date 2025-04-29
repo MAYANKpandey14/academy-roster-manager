@@ -190,7 +190,8 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
       return;
     }
     
-    const content = createPrintContent(selectedTrainees, i18n.language, t);
+    // Fix: Pass only the first argument, as the function signature expects
+    const content = createPrintContent(selectedTrainees);
     handlePrint(content);
     toast.success(t("printingTrainees", `Printing ${selectedTrainees.length} trainee(s)`));
   }
@@ -203,7 +204,8 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
       return;
     }
     
-    const content = createCSVContent(selectedTrainees, i18n.language, t);
+    // Fix: Pass only the first argument, as the function signature expects
+    const content = createCSVContent(selectedTrainees);
     handleDownload(content, `selected_trainees_${new Date().toISOString().split('T')[0]}.csv`);
     toast.success(t("traineeCSVDownloaded", `CSV file with ${selectedTrainees.length} trainees downloaded successfully`));
   }
