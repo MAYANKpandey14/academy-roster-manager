@@ -5,9 +5,10 @@ import { Eye, Edit, Printer, Download } from "lucide-react";
 import { Trainee } from "@/types/trainee";
 import { useTranslation } from "react-i18next";
 import { ColumnDef } from "@tanstack/react-table";
-import { TableView, TableAction, useTableColumns } from "@/components/ui/table-view";
+import { TableView, TableAction } from "@/components/ui/table-view";
 import { useTraineePrintService } from "./view/TraineePrintService";
 import { toast } from "sonner";
+import { useTableColumns } from "@/components/ui/table-view/useTableColumns";
 
 // Base column definitions without selection and actions
 const createBaseColumns = (): ColumnDef<Trainee, any>[] => [

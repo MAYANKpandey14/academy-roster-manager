@@ -5,13 +5,15 @@ import { TableRowActions } from "./TableRowActions";
 import { TableAction } from "./types";
 
 /**
- * Utility hook for creating selection and action columns for table views
+ * Utility hook for creating table columns with selection and actions
  */
-export function useTableColumns<T extends Record<string, any>>() {
-  /**
-   * Creates a selection column with checkbox for row selection
-   */
-  const createSelectionColumn = (): ColumnDef<T, any> => ({
+export function useTableColumns<T extends Record<string, any>>(
+  baseColumns: ColumnDef<T, any>[] = [],
+  actions: TableAction<T>[] = [],
+  isLoading: boolean = false
+): ColumnDef<T, any>[] {
+  // Create selection column with checkbox
+  const selectionColumn: ColumnDef<T, any> = {
     id: "select",
     header: ({ table }) => (
       <Checkbox
@@ -32,22 +34,29 @@ export function useTableColumns<T extends Record<string, any>>() {
     ),
     enableSorting: false,
     enableHiding: false,
-  });
+  };
 
-  /**
-   * Creates an actions column with customizable row actions
-   */
-  const createActionsColumn = (
-    actions: TableAction<T>[]
-  ): ColumnDef<T, any> => ({
+  // Create actions column with row actions
+  const actionsColumn: ColumnDef<T, any> = {
     id: "actions",
     cell: ({ row }: { row: Row<T> }) => <TableRowActions row={row} actions={actions} />,
     enableSorting: false,
     enableHiding: false,
-  });
-
-  return {
-    createSelectionColumn,
-    createActionsColumn,
   };
+
+  // Return all columns with selection and actions
+  let columns = [...baseColumns];
+  
+  // Only add selection and actions columns if not in loading state
+  if (!isLoading) {
+    // Add selection column first
+    columns.unshift(selectionColumn);
+    
+    // Add actions column last if we have actions
+    if (actions.length > 0) {
+      columns.push(actionsColumn);
+    }
+  }
+  
+  return columns;
 }

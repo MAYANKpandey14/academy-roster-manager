@@ -18,6 +18,33 @@ interface LeaveHistoryTableProps {
   personId: string;
 }
 
+interface AbsenceRecord {
+  id: string;
+  date: string;
+  status: string;
+  created_at?: string;
+  updated_at?: string;
+  reason?: string;
+  type: 'absent';
+  start_date: string;
+  end_date: string;
+  leave_type: null;
+}
+
+interface LeaveRecord {
+  id: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  status: string;
+  leave_type?: string;
+  created_at?: string;
+  updated_at?: string;
+  type: 'leave';
+}
+
+type HistoryRecord = AbsenceRecord | LeaveRecord;
+
 export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
   // Fetch absences
   const { data: absences, isLoading: absencesLoading } = useQuery({
@@ -31,7 +58,15 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
         .order('date', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      
+      // Transform to our record format
+      return (data || []).map(item => ({
+        ...item,
+        type: 'absent' as const,
+        start_date: item.date,
+        end_date: item.date,
+        leave_type: null
+      }));
     },
   });
 
@@ -46,22 +81,21 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
         .order('start_date', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      
+      // Transform to our record format
+      return (data || []).map(item => ({
+        ...item,
+        type: 'leave' as const,
+        status: 'on_leave'
+      }));
     },
   });
 
   // Combine and format data for the table
-  const historyData = [...(absences || []).map(item => ({
-    ...item,
-    type: 'absent',
-    start_date: item.date,
-    end_date: item.date,
-    leave_type: null,
-  })), ...(leaves || []).map(item => ({
-    ...item,
-    type: 'leave',
-    status: 'on_leave'
-  }))].sort((a, b) => {
+  const historyData: HistoryRecord[] = [
+    ...(absences || []), 
+    ...(leaves || [])
+  ].sort((a, b) => {
     // Sort by date (most recent first)
     const dateA = new Date(a.start_date).getTime();
     const dateB = new Date(b.start_date).getTime();
@@ -107,7 +141,7 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
                       {record.status === 'absent' ? 'अनुपस्थित' : 'छुट्टी पर'}
                     </TableCell>
                     <TableCell>
-                      {record.leave_type || '-'}
+                      {record.type === 'leave' && record.leave_type ? record.leave_type : '-'}
                     </TableCell>
                     <TableCell className="font-krutidev">
                       {format(new Date(record.start_date), 'dd/MM/yyyy')}
@@ -117,7 +151,7 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
                     </TableCell>
                     <TableCell>{daysDiff}</TableCell>
                     <TableCell className="font-krutidev max-w-xs truncate">
-                      {record.reason || '-'}
+                      {record.type === 'leave' ? (record.reason || '-') : '-'}
                     </TableCell>
                   </TableRow>
                 );

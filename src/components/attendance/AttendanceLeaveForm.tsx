@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
 
 const attendanceFormSchema = z.object({
   status: z.string().min(1, "स्थिति आवश्यक है"),
@@ -96,14 +97,21 @@ export function AttendanceLeaveForm({ type, personId, onSuccess }: AttendanceLea
       
       // If status is 'on_leave', create a leave record
       if (values.status === 'on_leave') {
-        const leaveData = {
-          [`${type}_id`]: personId,
+        // Create properly typed leave record
+        const leaveData: Record<string, any> = {
           start_date: startDate,
           end_date: endDate,
           reason: values.reason || 'कोई कारण नहीं दिया गया',
           status: 'approved', // By default setting as approved
           leave_type: values.leave_type,
         };
+        
+        // Add the correct ID field based on type
+        if (type === 'trainee') {
+          leaveData.trainee_id = personId;
+        } else {
+          leaveData.staff_id = personId;
+        }
         
         const { error: leaveError } = await supabase
           .from(`${type}_leave`)
@@ -119,12 +127,18 @@ export function AttendanceLeaveForm({ type, personId, onSuccess }: AttendanceLea
       while (currentDate <= lastDate) {
         const formattedDate = format(currentDate, 'yyyy-MM-dd');
         
-        // Create attendance record
-        const attendanceData = {
-          [`${type}_id`]: personId,
+        // Create properly typed attendance record
+        const attendanceData: Record<string, any> = {
           date: formattedDate,
           status: values.status,
         };
+        
+        // Add the correct ID field based on type
+        if (type === 'trainee') {
+          attendanceData.trainee_id = personId;
+        } else {
+          attendanceData.staff_id = personId;
+        }
         
         const { error: attendanceError } = await supabase
           .from(`${type}_attendance`)
@@ -333,6 +347,3 @@ export function AttendanceLeaveForm({ type, personId, onSuccess }: AttendanceLea
     </Card>
   );
 }
-
-// Import missing Card component
-import { Card } from "@/components/ui/card";

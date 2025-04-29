@@ -5,10 +5,11 @@ import { Eye, Edit, Printer, Download } from "lucide-react";
 import { Staff } from "@/types/staff";
 import { useTranslation } from "react-i18next";
 import { ColumnDef } from "@tanstack/react-table";
-import { TableView, TableAction, useTableColumns } from "@/components/ui/table-view";
+import { TableView, TableAction } from "@/components/ui/table-view";
 import { formatDate } from "@/utils/textUtils";
 import { toast } from "sonner";
 import { createStaffPrintContent, createStaffCSVContent, handlePrint, handleDownload } from "@/utils/staffExportUtils";
+import { useTableColumns } from "@/components/ui/table-view/useTableColumns";
 
 // Base column definitions without selection and actions
 const createBaseColumns = (): ColumnDef<Staff, any>[] => [
