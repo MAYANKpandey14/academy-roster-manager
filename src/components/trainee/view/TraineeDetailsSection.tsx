@@ -22,14 +22,17 @@ export function TraineeDetailsSection({ trainee }: TraineeDetailsSectionProps) {
         <TraineeInfoField 
           label="नाम" 
           value={trainee.name}
+          isDbValue={true}
         />
         <TraineeInfoField 
           label="पिता का नाम" 
           value={trainee.father_name}
+          isDbValue={true}
         />
         <TraineeInfoField 
           label="वर्तमान तैनाती जिला" 
           value={trainee.current_posting_district}
+          isDbValue={true}
         />
       </div>
 
@@ -41,6 +44,7 @@ export function TraineeDetailsSection({ trainee }: TraineeDetailsSectionProps) {
         <TraineeInfoField 
           label="शिक्षा" 
           value={trainee.education}
+          isDbValue={true}
         />
         <TraineeInfoField 
           label="रक्त समूह" 
@@ -49,10 +53,12 @@ export function TraineeDetailsSection({ trainee }: TraineeDetailsSectionProps) {
         <TraineeInfoField 
           label="नामिती" 
           value={trainee.nominee}
+          isDbValue={true}
         />
         <TraineeInfoField 
           label="घर का पता" 
           value={trainee.home_address}
+          isDbValue={true}
         />
       </div>
 

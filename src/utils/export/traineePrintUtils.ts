@@ -1,111 +1,86 @@
 
 import { Trainee } from "@/types/trainee";
-import { formatDate } from "@/utils/textUtils";
-import { getPrintStyles, createPrintHeader, createPrintFooter } from "./printUtils";
+import { format } from "date-fns";
 
-export function createPrintContent(trainees: Trainee | Trainee[]): string {
-  const styles = getPrintStyles();
-  const header = createPrintHeader("प्रशिक्षु विवरण", styles);
-  const footer = createPrintFooter();
-
+/**
+ * Creates HTML content for printing trainee(s)
+ * 
+ * @param trainees Trainee data (single trainee or array of trainees)
+ * @returns HTML string content for printing
+ */
+export const createPrintContent = (trainees: Trainee | Trainee[]): string => {
   // Convert single trainee to array if needed
   const traineeArray = Array.isArray(trainees) ? trainees : [trainees];
-
-  // Create trainee content
-  const traineeContent = traineeArray.map(trainee => {
-    return `
-      <div class="trainee-details">
-        <h3 class="trainee-name">${trainee.name}</h3>
-        
-        <div class="details-grid">
-          <div class="detail-item">
-            <span class="detail-label">पीएनओ:</span>
-            <span class="detail-value font-krutidev">${trainee.pno || 'N/A'}</span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">चेस्ट नंबर:</span>
-            <span class="detail-value font-krutidev">${trainee.chest_no || 'N/A'}</span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">पिता का नाम:</span>
-            <span class="detail-value font-krutidev">${trainee.father_name || 'N/A'}</span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">मोबाइल नंबर:</span>
-            <span class="detail-value">${trainee.mobile_number || 'N/A'}</span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">शिक्षा:</span>
-            <span class="detail-value font-krutidev">${trainee.education || 'N/A'}</span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">रक्त समूह:</span>
-            <span class="detail-value">${trainee.blood_group || 'N/A'}</span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">जन्म तिथि:</span>
-            <span class="detail-value">${formatDate(trainee.date_of_birth)}</span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">नियुक्ति तिथि:</span>
-            <span class="detail-value">${formatDate(trainee.date_of_joining)}</span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">आगमन की तिथि:</span>
-            <span class="detail-value">${formatDate(trainee.arrival_date)}</span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">प्रस्थान की तिथि:</span>
-            <span class="detail-value">${formatDate(trainee.departure_date)}</span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">वर्तमान तैनाती जिला:</span>
-            <span class="detail-value font-krutidev">${trainee.current_posting_district || 'N/A'}</span>
-          </div>
-        </div>
-        
-        <div class="full-width-details">
-          <div class="detail-item">
-            <span class="detail-label">नामिती:</span>
-            <span class="detail-value font-krutidev">${trainee.nominee || 'N/A'}</span>
-          </div>
-          
-          <div class="detail-item">
-            <span class="detail-label">घर का पता:</span>
-            <span class="detail-value font-krutidev">${trainee.home_address || 'N/A'}</span>
-          </div>
-        </div>
-      </div>
-      <hr class="trainee-divider">
-    `;
-  }).join('');
-
-  // Complete HTML document
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>प्रशिक्षु विवरण</title>
-      <meta charset="UTF-8">
-      <style>${styles}</style>
-    </head>
-    <body>
-      ${header}
-      <div class="content">
-        ${traineeContent}
-      </div>
-      ${footer}
-    </body>
-    </html>
+  
+  if (traineeArray.length === 0) {
+    return "<h1>No trainee data available</h1>";
+  }
+  
+  // Create the HTML content
+  const htmlContent = `
+    <div style="font-family: 'Kruti Dev 010', Arial, sans-serif; max-width: 800px; margin: 0 auto;">
+      <h1 style="text-align: center; margin-bottom: 20px;">RTC POLICE LINE, MORADABAD</h1>
+      ${traineeArray.map(trainee => createTraineeCard(trainee)).join('<div style="page-break-after: always;"></div>')}
+    </div>
   `;
-}
+  
+  return htmlContent;
+};
+
+/**
+ * Creates HTML content for a single trainee
+ * 
+ * @param trainee Trainee data
+ * @returns HTML string for printing
+ */
+const createTraineeCard = (trainee: Trainee): string => {
+  return `
+    <div style="border: 1px solid #ccc; padding: 20px; margin-bottom: 30px; border-radius: 5px;">
+      <h2 style="text-align: center; margin-bottom: 20px;">${trainee.name} का विवरण</h2>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div style="margin-bottom: 10px;">
+          <strong>पी.एन.ओ.:</strong> ${trainee.pno}
+        </div>
+        <div style="margin-bottom: 10px;">
+          <strong>चेस्ट नंबर:</strong> ${trainee.chest_no}
+        </div>
+        <div style="margin-bottom: 10px;">
+          <strong>नाम:</strong> ${trainee.name}
+        </div>
+        <div style="margin-bottom: 10px;">
+          <strong>पिता का नाम:</strong> ${trainee.father_name}
+        </div>
+        <div style="margin-bottom: 10px;">
+          <strong>जन्म तिथि:</strong> ${format(new Date(trainee.date_of_birth), 'PP')}
+        </div>
+        <div style="margin-bottom: 10px;">
+          <strong>नियुक्ति तिथि:</strong> ${format(new Date(trainee.date_of_joining), 'PP')}
+        </div>
+        <div style="margin-bottom: 10px;">
+          <strong>वर्तमान तैनाती जिला:</strong> ${trainee.current_posting_district}
+        </div>
+        <div style="margin-bottom: 10px;">
+          <strong>मोबाइल नंबर:</strong> ${trainee.mobile_number}
+        </div>
+        <div style="margin-bottom: 10px;">
+          <strong>शिक्षा:</strong> ${trainee.education}
+        </div>
+        <div style="margin-bottom: 10px;">
+          <strong>रक्त समूह:</strong> ${trainee.blood_group}
+        </div>
+        <div style="margin-bottom: 10px;">
+          <strong>नामिती:</strong> ${trainee.nominee}
+        </div>
+      </div>
+      
+      <div style="margin-top: 15px;">
+        <strong>घर का पता:</strong> ${trainee.home_address}
+      </div>
+      
+      <div style="margin-top: 15px;">
+        <strong>प्रशिक्षण अवधि:</strong> ${format(new Date(trainee.arrival_date), 'PP')} से ${format(new Date(trainee.departure_date), 'PP')} तक
+      </div>
+    </div>
+  `;
+};

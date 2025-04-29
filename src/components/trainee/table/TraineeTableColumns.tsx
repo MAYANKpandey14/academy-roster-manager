@@ -39,7 +39,7 @@ export function useTraineeTableColumns(isLoading: boolean = false) {
     {
       accessorKey: "pno",
       header: () => {
-        return <span className="krutidev-heading">पीएनओ</span>
+        return <span>पीएनओ</span>
       },
       cell: ({ row }) => {
         return <span className="font-medium">{row.getValue("pno")}</span>;
@@ -48,7 +48,7 @@ export function useTraineeTableColumns(isLoading: boolean = false) {
     {
       accessorKey: "chest_no",
       header: () => {
-        return <span className="krutidev-heading">चेस्ट नंबर</span>
+        return <span>चेस्ट नंबर</span>
       },
       cell: ({ row }) => {
         return <span>{row.getValue("chest_no")}</span>;
@@ -57,27 +57,27 @@ export function useTraineeTableColumns(isLoading: boolean = false) {
     {
       accessorKey: "name",
       header: () => {
-        return <span className="krutidev-heading">नाम</span>
+        return <span>नाम</span>
       },
       cell: ({ row }) => {
         const value = row.getValue("name") as string;
-        return <span className="krutidev-text font-medium">{value}</span>;
+        return <span className="font-krutidev font-medium">{value}</span>;
       }
     },
     {
       accessorKey: "current_posting_district",
       header: () => {
-        return <span className="krutidev-heading">वर्तमान पोस्टिंग</span>
+        return <span>वर्तमान पोस्टिंग</span>
       },
       cell: ({ row }) => {
         const value = row.getValue("current_posting_district") as string;
-        return <span className="krutidev-text">{value}</span>;
+        return <span className="font-krutidev">{value}</span>;
       }
     },
     {
       accessorKey: "arrival_date",
       header: () => {
-        return <span className="krutidev-heading">प्रशिक्षण शुरू</span>
+        return <span>प्रशिक्षण शुरू</span>
       },
       cell: ({ row }) => {
         const date = new Date(row.getValue("arrival_date") as string);

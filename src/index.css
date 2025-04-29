@@ -4,7 +4,7 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: 'Kruti Dev';
+  font-family: 'Kruti Dev 010';
   src: url('/fonts/Kruti_Dev_010.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
@@ -20,7 +20,7 @@
 
   /* Apply Kruti Dev font ONLY to dynamic content */
   .font-krutidev {
-    font-family: 'Kruti Dev', system-ui, sans-serif;
+    font-family: 'Kruti Dev 010', system-ui, sans-serif;
   }
   
   /* Auth inputs should always use system font */
@@ -83,7 +83,7 @@ body {
   @apply bg-background text-foreground;
 }
 
-/* Ensure inputs in auth forms use system font */
+/* Input fields should not use Kruti Dev by default */
 input[type="email"],
 input[type="password"],
 input[type="text"],
@@ -114,5 +114,10 @@ input[type="date"] {
     max-width: 100%;
     padding: 0;
     margin: 0;
+  }
+  
+  /* Ensure Kruti Dev font is used in printing */
+  .font-krutidev {
+    font-family: 'Kruti Dev 010', system-ui, sans-serif !important;
   }
 }

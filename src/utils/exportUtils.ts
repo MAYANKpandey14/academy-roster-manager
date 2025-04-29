@@ -1,18 +1,8 @@
 
-/**
- * Export utilities for the application
- */
-
-import { 
-  handlePrint, 
-  handleDownload,
-  createCSVContent,
-  createPrintContent
-} from './export';
-
+// Re-export utility functions from the export directory
 export {
-  handlePrint,
-  handleDownload,
+  createPrintContent,
   createCSVContent,
-  createPrintContent
-};
+  handlePrint,
+  handleDownload
+} from "./export";

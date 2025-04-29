@@ -1,16 +1,5 @@
 
-// Re-export all export utility functions
-import { handleDownload } from './downloadUtils';
-import { handlePrint, getPrintStyles, createPrintHeader, createPrintFooter } from './printUtils';
-import { createCSVContent } from './traineeCSVUtils';
-import { createPrintContent } from './traineePrintUtils';
-
-export {
-  handleDownload,
-  handlePrint,
-  getPrintStyles,
-  createPrintHeader,
-  createPrintFooter,
-  createCSVContent,
-  createPrintContent
-};
+// Export all utility functions from the export directory
+export { createPrintContent } from './traineePrintUtils';
+export { createCSVContent } from './traineeCSVUtils';
+export { handlePrint, handleDownload } from './downloadUtils';

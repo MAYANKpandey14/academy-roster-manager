@@ -1,3 +1,4 @@
+
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { Staff } from "@/types/staff";
@@ -18,10 +19,18 @@ export const staffColumns: ColumnDef<Staff>[] = [
         </button>
       )
     },
+    cell: ({ row }) => {
+      const name = row.getValue("name") as string;
+      return <span className="font-krutidev">{name}</span>;
+    },
   },
   {
     accessorKey: "father_name",
     header: "पिता का नाम",
+    cell: ({ row }) => {
+      const fatherName = row.getValue("father_name") as string;
+      return <span className="font-krutidev">{fatherName}</span>;
+    },
   },
   {
     accessorKey: "mobile_number",
@@ -30,6 +39,10 @@ export const staffColumns: ColumnDef<Staff>[] = [
   {
     accessorKey: "education",
     header: "शिक्षा",
+    cell: ({ row }) => {
+      const education = row.getValue("education") as string;
+      return <span className="font-krutidev">{education}</span>;
+    },
   },
   {
     accessorKey: "date_of_birth",
@@ -40,15 +53,19 @@ export const staffColumns: ColumnDef<Staff>[] = [
     },
   },
   {
-    accessorKey: "joining_date",
+    accessorKey: "date_of_joining",
     header: "भर्ती तिथि",
     cell: ({ row }) => {
-      const date = row.getValue("joining_date") as string;
+      const date = row.getValue("date_of_joining") as string;
       return formatDate(date);
     },
   },
   {
-    accessorKey: "posting_district",
+    accessorKey: "current_posting_district",
     header: "तैनाती जिला",
+    cell: ({ row }) => {
+      const district = row.getValue("current_posting_district") as string;
+      return <span className="font-krutidev">{district}</span>;
+    },
   },
 ];

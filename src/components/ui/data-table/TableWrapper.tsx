@@ -27,7 +27,7 @@ export function TableWrapper({ table, columns, isLoading }: TableWrapperProps) {
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header: any) => {
                 return (
-                  <TableHead key={header.id} className={i18n.language === 'hi' ? 'krutidev-heading' : ''}>
+                  <TableHead key={header.id}>
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -44,7 +44,7 @@ export function TableWrapper({ table, columns, isLoading }: TableWrapperProps) {
           {isLoading ? (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-16 text-center">
-                <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                <span className="dynamic-text">
                   {t("loading")}
                 </span>
               </TableCell>
@@ -70,7 +70,7 @@ export function TableWrapper({ table, columns, isLoading }: TableWrapperProps) {
                 colSpan={columns.length}
                 className="h-24 text-center"
               >
-                <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                <span className="dynamic-text">
                   {t("noResults")}
                 </span>
               </TableCell>
