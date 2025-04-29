@@ -19,18 +19,8 @@ interface LeaveHistoryTableProps {
   personId: string;
 }
 
-// Define simple type interfaces instead of complex conditional types
-interface BaseRecord {
-  id: string;
-  start_date: string;
-  end_date: string;
-  type: 'absent' | 'leave';
-  status: string;
-  reason?: string;
-  leave_type?: string | null;
-}
-
-type AbsenceRecord = {
+// Define simple interfaces for our record types
+interface AbsenceRecord {
   id: string;
   date: string;
   status: string;
@@ -38,23 +28,24 @@ type AbsenceRecord = {
   start_date: string;
   end_date: string;
   leave_type: null;
+  reason?: string;
 }
 
-type LeaveRecord = {
+interface LeaveRecord {
   id: string;
   start_date: string;
   end_date: string;
   reason: string;
   status: string;
-  leave_type?: string;
+  leave_type?: string | null;
   type: 'leave';
 }
 
 type HistoryRecord = AbsenceRecord | LeaveRecord;
 
 export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
-  // Fetch absences
-  const { data: absences, isLoading: absencesLoading } = useQuery({
+  // Fetch absences with explicit typing and simpler transformation
+  const { data: absencesData, isLoading: absencesLoading } = useQuery({
     queryKey: [`${type}-absences`, personId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -66,29 +57,31 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
 
       if (error) throw error;
       
-      // Directly transform and return data without complex type manipulations
-      const result: AbsenceRecord[] = [];
+      // Simplify data transformation with basic array operations
+      const absences: AbsenceRecord[] = [];
       
       if (data) {
-        for (const item of data) {
-          result.push({
+        for (let i = 0; i < data.length; i++) {
+          const item = data[i];
+          absences.push({
             id: item.id,
             date: item.date,
             status: item.status,
-            type: 'absent',
+            type: 'absent' as const,
             start_date: item.date,
             end_date: item.date,
-            leave_type: null
+            leave_type: null,
+            reason: undefined
           });
         }
       }
       
-      return result;
+      return absences;
     },
   });
 
-  // Fetch leaves
-  const { data: leaves, isLoading: leavesLoading } = useQuery({
+  // Fetch leaves with explicit typing and simpler transformation
+  const { data: leavesData, isLoading: leavesLoading } = useQuery({
     queryKey: [`${type}-leaves`, personId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -99,31 +92,32 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
 
       if (error) throw error;
       
-      // Directly transform and return data without complex type manipulations
-      const result: LeaveRecord[] = [];
+      // Simplify data transformation with basic array operations
+      const leaves: LeaveRecord[] = [];
       
       if (data) {
-        for (const item of data) {
-          result.push({
+        for (let i = 0; i < data.length; i++) {
+          const item = data[i];
+          leaves.push({
             id: item.id,
             start_date: item.start_date,
             end_date: item.end_date,
             reason: item.reason,
             status: 'on_leave',
             leave_type: item.leave_type,
-            type: 'leave'
+            type: 'leave' as const
           });
         }
       }
       
-      return result;
+      return leaves;
     },
   });
 
   // Combine and format data for the table
   const historyData: HistoryRecord[] = [
-    ...(absences || []), 
-    ...(leaves || [])
+    ...(absencesData || []), 
+    ...(leavesData || [])
   ].sort((a, b) => {
     // Sort by date (most recent first)
     const dateA = new Date(a.start_date).getTime();
