@@ -20,9 +20,6 @@ const ViewTrainee = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { t, i18n } = useTranslation();
   
-  // Initialize print service hooks outside of render
-  const printService = useTraineePrintService(trainee);
-  
   // Apply language inputs hook for synchronizing language settings
   useLanguageInputs();
 
@@ -78,6 +75,9 @@ const ViewTrainee = () => {
   if (!trainee) {
     return <TraineeNotFound />;
   }
+  
+  // Initialize print service hooks with the correct props structure
+  const printService = useTraineePrintService({ trainee });
   
   // Extract handlers from the service
   const { handlePrintTrainee, handleDownloadTrainee } = printService;

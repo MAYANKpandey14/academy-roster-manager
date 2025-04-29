@@ -3,7 +3,6 @@ import { Trainee } from "@/types/trainee";
 import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/export";
 import { useTranslation } from "@/hooks/useTranslation";
 import { toast } from "sonner";
-import { prepareTextForLanguage } from "@/utils/textUtils";
 
 export interface TraineePrintServiceProps {
   trainee: Trainee;

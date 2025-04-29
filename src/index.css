@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -108,7 +109,7 @@ html[lang="hi"] body {
   /* Apply global Hindi settings when html lang is set to Hindi */
 }
 
-/* Hindi font size classes with improved specificity */
+/* Hindi font classes with direct styling instead of circular @apply */
 .krutidev-heading {
   font-family: 'KrutiDev', sans-serif !important;
   font-size: 1.25rem !important; /* 20px */
@@ -168,7 +169,10 @@ h3.dynamic-text.lang-hi,
 .text-2xl.dynamic-text.lang-hi,
 .text-xl.dynamic-text.lang-hi,
 .font-semibold.dynamic-text.lang-hi {
-  @apply krutidev-heading;
+  font-family: 'KrutiDev', sans-serif !important;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  line-height: 1.5 !important;
 }
 
 .dynamic-text.krutidev-text,
@@ -177,7 +181,9 @@ span.dynamic-text.lang-hi,
 div.dynamic-text.lang-hi,
 td .dynamic-text.lang-hi,
 .card-content .dynamic-text.lang-hi {
-  @apply krutidev-text;
+  font-family: 'KrutiDev', sans-serif !important;
+  font-size: 1.125rem !important;
+  line-height: 1.5 !important;
 }
 
 /* Higher specificity selector for Hindi text */
@@ -187,22 +193,27 @@ td .dynamic-text.lang-hi,
 
 /* Table specific styles */
 th .dynamic-text.lang-hi {
-  @apply krutidev-heading;
+  font-family: 'KrutiDev', sans-serif !important;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
 }
 
 td .dynamic-text.lang-hi {
-  @apply krutidev-text;
+  font-family: 'KrutiDev', sans-serif !important;
+  font-size: 1.125rem !important;
 }
 
 /* Optimized form input styles for Hindi */
 input[lang="hi"], 
 textarea[lang="hi"] {
-  @apply krutidev-placeholder;
+  font-family: 'KrutiDev', sans-serif !important;
+  font-size: 1rem !important;
 }
 
 input[lang="hi"]::placeholder, 
 textarea[lang="hi"]::placeholder {
-  @apply krutidev-placeholder;
+  font-family: 'KrutiDev', sans-serif !important;
+  font-size: 1rem !important;
   color: var(--muted-foreground);
 }
 
