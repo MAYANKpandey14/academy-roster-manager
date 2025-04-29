@@ -25,6 +25,16 @@ const LanguageSwitcher = () => {
       document.body.style.opacity = '1';
     }, 10);
     
+    // Update all dynamic text elements with the appropriate classes
+    const dynamicTextElements = document.querySelectorAll('.dynamic-text');
+    dynamicTextElements.forEach(element => {
+      if (lang === 'hi') {
+        element.classList.add('krutidev-text');
+      } else {
+        element.classList.remove('krutidev-text');
+      }
+    });
+    
     // Dispatch a custom event that components can listen for
     const event = new CustomEvent('languageChanged', { detail: { language: lang } });
     document.dispatchEvent(event);
@@ -37,6 +47,16 @@ const LanguageSwitcher = () => {
     } else {
       document.body.classList.remove('lang-hi');
     }
+    
+    // Update all dynamic text elements with the appropriate classes on mount
+    const dynamicTextElements = document.querySelectorAll('.dynamic-text');
+    dynamicTextElements.forEach(element => {
+      if (i18n.language === 'hi') {
+        element.classList.add('krutidev-text');
+      } else {
+        element.classList.remove('krutidev-text');
+      }
+    });
   }, [i18n.language]);
 
   return (
