@@ -29,17 +29,18 @@ export function TraineeTableActions({
     const selectedTrainees = getSelectedTrainees();
     
     if (selectedTrainees.length === 0) {
-      toast.error(t("selectTraineesToPrint", "Please select at least one trainee to print"));
+      toast.error(t("selectTraineesToPrint", "कृपया प्रिंट के लिए कम से कम एक प्रशिक्षु का चयन करें"));
       return;
     }
     
-    const content = createPrintContent(selectedTrainees, i18n.language, t);
+    // Fix parameter count - remove t parameter
+    const content = createPrintContent(selectedTrainees);
     const success = handlePrint(content);
     
     if (success) {
-      toast.success(t("printingTrainees", `Printing ${selectedTrainees.length} trainee(s)`));
+      toast.success(t("printingTrainees", `${selectedTrainees.length} प्रशिक्षु(ओं) का प्रिंट हो रहा है`));
     } else {
-      toast.error(t("failedToPrint", "Failed to open print window. Please check your pop-up blocker settings."));
+      toast.error(t("failedToPrint", "प्रिंट विंडो खोलने में विफल। कृपया अपनी पॉप-अप ब्लॉकर सेटिंग्स जांचें।"));
     }
   }
 
@@ -47,13 +48,14 @@ export function TraineeTableActions({
     const selectedTrainees = getSelectedTrainees();
     
     if (selectedTrainees.length === 0) {
-      toast.error(t("selectTraineesToDownload", "Please select at least one trainee to download"));
+      toast.error(t("selectTraineesToDownload", "कृपया डाउनलोड के लिए कम से कम एक प्रशिक्षु का चयन करें"));
       return;
     }
     
-    const content = createCSVContent(selectedTrainees, i18n.language, t);
+    // Fix parameter count - remove extra parameters
+    const content = createCSVContent(selectedTrainees);
     handleDownload(content, `selected_trainees_${new Date().toISOString().split('T')[0]}.csv`);
-    toast.success(t("traineeCSVDownloaded", `CSV file with ${selectedTrainees.length} trainees downloaded successfully`));
+    toast.success(t("traineeCSVDownloaded", `${selectedTrainees.length} प्रशिक्षुओं वाली CSV फ़ाइल सफलतापूर्वक डाउनलोड की गई`));
   }
 
   return (

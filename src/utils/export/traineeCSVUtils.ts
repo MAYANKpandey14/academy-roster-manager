@@ -7,30 +7,26 @@ import { prepareTextForLanguage } from "../textUtils";
  * Creates CSV content from trainee data
  * 
  * @param trainees Array of trainees
- * @param language Current language code
- * @param t Translation function
+ * @param language Current language code (optional, defaults to 'hi')
  * @returns CSV content as string
  */
-export const createCSVContent = (trainees: Trainee[], language = 'en', t?: TFunction) => {
-  // Get translation function and defaults
-  const translate = t || ((key: string, fallback: string) => fallback);
-  
+export const createCSVContent = (trainees: Trainee[], language = 'hi') => {
   // Create CSV headers
   const headers = [
-    translate("pno", "PNO"), 
-    translate("chestNo", "Chest No"), 
-    translate("name", "Name"),
-    translate("fatherName", "Father's Name"), 
-    translate("dateOfArrival", "Arrival Date"),
-    translate("dateOfDeparture", "Departure Date"), 
-    translate("currentPostingDistrict", "Current Posting District"), 
-    translate("mobileNumber", "Mobile Number"),
-    translate("education", "Education"), 
-    translate("dateOfBirth", "Date of Birth"), 
-    translate("dateOfJoining", "Date of Joining"), 
-    translate("bloodGroup", "Blood Group"),
-    translate("nominee", "Nominee"), 
-    translate("homeAddress", "Home Address")
+    "PNO", 
+    "चेस्ट नंबर", 
+    "नाम",
+    "पिता का नाम", 
+    "आगमन तिथि",
+    "प्रस्थान तिथि", 
+    "वर्तमान तैनाती जिला", 
+    "मोबाइल नंबर",
+    "शिक्षा", 
+    "जन्म तिथि", 
+    "नियुक्ति तिथि", 
+    "रक्त समूह",
+    "नामिती", 
+    "घर का पता"
   ];
   
   // Generate CSV rows

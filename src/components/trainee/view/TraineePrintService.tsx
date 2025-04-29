@@ -8,7 +8,8 @@ export function useTraineePrintService(trainee: Trainee) {
   const { t } = useTranslation();
 
   const handlePrintTrainee = () => {
-    const printContent = createPrintContent([trainee], t);
+    // For type compatibility, only pass trainee without t parameter
+    const printContent = createPrintContent([trainee]);
     const printSuccess = handlePrint(printContent);
     
     if (!printSuccess) {
@@ -19,7 +20,8 @@ export function useTraineePrintService(trainee: Trainee) {
   };
 
   const handleDownloadTrainee = () => {
-    const csvContent = createCSVContent([trainee], t);
+    // For type compatibility, only pass trainee
+    const csvContent = createCSVContent([trainee]);
     handleDownload(
       csvContent, 
       `trainee_${trainee.pno}_${trainee.name.replace(/\s+/g, '_')}.csv`

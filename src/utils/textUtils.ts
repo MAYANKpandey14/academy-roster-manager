@@ -29,3 +29,16 @@ export const formatDate = (date: string | Date): string => {
     return String(date);
   }
 };
+
+/**
+ * Prepares text for display in the desired language
+ * For simplicity, just returns the text as is since we're only supporting Hindi now
+ * @param text Text to prepare
+ * @param language Language code (ignored since we only support Hindi)
+ * @returns Prepared text
+ */
+export const prepareTextForLanguage = (text: string, language?: string): string => {
+  // Since we're now only supporting Hindi, we simply return the text
+  // This function is kept for compatibility with existing code
+  return text;
+};
