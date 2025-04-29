@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation as useI18nTranslation } from 'react-i18next';
 import { shouldAlwaysUseEnglish } from '@/utils/textUtils';
 
 interface LanguageContextType {
@@ -22,12 +22,16 @@ interface LanguageProviderProps {
 }
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  const { i18n } = useTranslation();
+  // Use the original i18n translation hook directly here to avoid circular dependency
+  const { i18n } = useI18nTranslation();
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
   const [isLoading, setIsLoading] = useState(false);
   
   // Apply language changes globally
   const applyLanguageStyles = (lang: string) => {
+    // Guard against server-side rendering
+    if (typeof document === 'undefined') return;
+    
     // Set language attributes on document
     document.documentElement.lang = lang;
     
@@ -97,12 +101,6 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
         cell.classList.remove('krutidev-text');
       }
     });
-
-    // Force a repaint to ensure the language change is applied
-    document.body.style.opacity = '0.99';
-    setTimeout(() => {
-      document.body.style.opacity = '1';
-    }, 10);
   };
 
   const changeLanguage = async (lang: string) => {
@@ -122,8 +120,10 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       applyLanguageStyles(lang);
       
       // Dispatch a custom event that components can listen for
-      const event = new CustomEvent('languageChanged', { detail: { language: lang } });
-      document.dispatchEvent(event);
+      if (typeof document !== 'undefined') {
+        const event = new CustomEvent('languageChanged', { detail: { language: lang } });
+        document.dispatchEvent(event);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -131,6 +131,9 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
 
   // Initialize language on mount
   useEffect(() => {
+    // Don't run in SSR context
+    if (typeof document === 'undefined') return;
+
     // Apply styles for current language
     applyLanguageStyles(i18n.language);
     
@@ -183,7 +186,6 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     } else {
       contentTypeMeta.setAttribute('content', 'text/html; charset=utf-8');
     }
-    
   }, [i18n.language]);
 
   return (

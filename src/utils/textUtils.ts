@@ -33,26 +33,29 @@ export const prepareTextForLanguage = (text: string | null | undefined, language
   
   const encodedText = ensureUtf8Encoding(text);
   
-  // Apply any language-specific transformations if needed
+  // Apply any language-specific transformations
   if (language === 'hi') {
-    // Preserve special characters and punctuation in Hindi text
-    return encodedText;
+    // For Hindi, we need to handle any processing
+    // but preserve special characters as-is
+    return preserveSpecialCharacters(encodedText);
   }
   
   return encodedText;
 };
 
 /**
- * Preserves special characters in translated text
- * This function can be used to keep certain characters intact during translation
+ * Preserves special characters in text when switching languages
  * @param text Text that may contain special characters
  * @returns Text with special characters preserved
  */
 export const preserveSpecialCharacters = (text: string): string => {
   if (!text) return '';
   
-  // Replace special characters with placeholders before translation
-  return text.replace(/[/()[\]{}:;,.?!@#$%^&*_+=|\\<>"-]/g, match => `{{${match}}}`);
+  // Split the text into parts: regular text and special characters
+  const parts = text.split(/([/()[\]{}:;,.?!@#$%^&*_+=|\\<>"'-])/g);
+  
+  // Process and rejoin, preserving the special characters
+  return parts.join('');
 };
 
 /**
@@ -64,7 +67,7 @@ export const restoreSpecialCharacters = (text: string): string => {
   if (!text) return '';
   
   // Replace placeholders with the original special characters
-  return text.replace(/{{([/()[\]{}:;,.?!@#$%^&*_+=|\\<>"-])}}/g, '$1');
+  return text.replace(/{{([/()[\]{}:;,.?!@#$%^&*_+=|\\<>"'-])}}/g, '$1');
 };
 
 /**
@@ -142,3 +145,21 @@ export const formatDate = (date: string | Date, formatStr?: string): string => {
     return String(date);
   }
 };
+
+/**
+ * Processes special texts that contain both translatable text and non-translatable characters
+ * Used for labels and placeholders that have mixed content like "Roll No / Unique Id"
+ * @param text The mixed text to process
+ * @param language Current language
+ * @returns Processed text with special characters preserved
+ */
+export const processSpecialText = (text: string, language: string): string => {
+  if (!text || language === 'en') return text;
+  
+  // Split by special characters and preserve them
+  const parts = text.split(/([/()[\]{}:;,.?!@#$%^&*_+=|\\<>"'-])/g);
+  
+  // Return joined text with special characters as-is
+  return parts.join('');
+};
+

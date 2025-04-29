@@ -11,7 +11,7 @@ export interface TraineePrintServiceProps {
 }
 
 export function useTraineePrintService({ trainee }: TraineePrintServiceProps) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { currentLanguage } = useLanguage();
 
   const handlePrintTrainee = () => {

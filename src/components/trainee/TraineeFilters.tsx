@@ -82,8 +82,9 @@ export function TraineeFilters({
         </div>
         
         <div className="space-y-2">
+          {/* Using the raw translation key for complex text with special characters */}
           <Label htmlFor="rollNo" className="dynamic-text">
-            {t("rollNo")} {i18n.language === 'hi' ? '/ विशिष्ट आईडी' : '/ Unique Id'}
+            {t("rollNo")} {t("uniqueId")}
           </Label>
           <Input
             id="rollNo"

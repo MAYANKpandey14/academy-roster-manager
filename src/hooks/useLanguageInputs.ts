@@ -8,6 +8,10 @@ export const useLanguageInputs = () => {
 
   useEffect(() => {
     const setInputLanguage = () => {
+      // Process DOM elements only if the component is mounted
+      if (!document.body) return; 
+
+      // Process inputs
       const inputs = document.querySelectorAll('input, textarea');
       inputs.forEach(input => {
         if (input instanceof HTMLElement) {
@@ -59,7 +63,7 @@ export const useLanguageInputs = () => {
         }
       });
       
-      // Specific handling for table headers and cells to ensure consistent font size
+      // Specific handling for table headers and cells
       const tableHeaders = document.querySelectorAll('th .dynamic-text');
       tableHeaders.forEach(header => {
         if (header instanceof HTMLElement && i18n.language === 'hi') {
@@ -75,9 +79,8 @@ export const useLanguageInputs = () => {
       });
     };
 
-    // Add the KrutiDev font to the document
+    // Add the KrutiDev font to the document only if it doesn't exist
     const addKrutiDevFont = () => {
-      // Check if the style is already added
       if (!document.getElementById('krutidev-font-style')) {
         const style = document.createElement('style');
         style.id = 'krutidev-font-style';
@@ -109,6 +112,9 @@ export const useLanguageInputs = () => {
 
     // Ensure document has correct meta charset
     const ensureDocumentCharset = () => {
+      // Only run if document exists
+      if (!document) return;
+      
       // Check if charset meta tag exists
       let charsetMeta = document.querySelector('meta[charset]');
       if (!charsetMeta) {
@@ -131,33 +137,34 @@ export const useLanguageInputs = () => {
       }
     };
 
-    addKrutiDevFont();
-    ensureDocumentCharset();
-    setInputLanguage();
-    
-    // Set document direction
-    document.documentElement.dir = 'ltr'; // Always keep LTR as specified
-    
-    // Add a class to the HTML element for global styling
-    if (i18n.language === 'hi') {
-      document.documentElement.classList.add('lang-hi');
-      // Force browser repaint to apply the hindi font styling
-      document.body.style.opacity = '0.99';
-      setTimeout(() => {
-        document.body.style.opacity = '1';
-      }, 10);
-    } else {
-      document.documentElement.classList.remove('lang-hi');
+    // Execute initialization functions if document is available
+    if (document) {
+      addKrutiDevFont();
+      ensureDocumentCharset();
+      
+      // Set document direction
+      document.documentElement.dir = 'ltr'; // Always keep LTR as specified
+      
+      // Add a class to the HTML element for global styling
+      if (i18n.language === 'hi') {
+        document.documentElement.classList.add('lang-hi');
+      } else {
+        document.documentElement.classList.remove('lang-hi');
+      }
+      
+      // Apply the language change immediately
+      setInputLanguage();
+      
+      // Apply it again after a short delay to catch any dynamically rendered elements
+      const timeoutId = setTimeout(setInputLanguage, 100);
+      
+      // Clean up function
+      return () => {
+        clearTimeout(timeoutId);
+      };
     }
-
-    // Apply the language change immediately
-    setTimeout(setInputLanguage, 0);
     
-    // And then apply it again after a short delay to catch any dynamically rendered elements
-    const timeoutId = setTimeout(setInputLanguage, 100);
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [i18n.language]);
+    // If document is not available, return empty cleanup function
+    return () => {};
+  }, [i18n.language]); // Only re-run when language changes
 };

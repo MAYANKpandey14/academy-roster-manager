@@ -1,3 +1,4 @@
+
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
@@ -298,14 +299,14 @@ const hiTranslations = {
   pnoNumber: "पीएनओ नंबर",
   chestNumber: "छाती संख्या",
   rollNo: "रोल नंबर",
-  uniqueId: "/ विशिष्ट आईडी", // Preserving the "/" symbol as-is
+  uniqueId: "/ विशिष्ट आईडी", // Keep "/" as literal character
   addNewTrainee: "प्रशिक्षु जोड़ें",
   showAllTrainees: "सभी प्रशिक्षु दिखाएं",
   showAllStaff: "सभी स्टाफ दिखाएं",
   searchTraineeBtn: "प्रशिक्षु खोजें",
   enterPNO: "पीएनओ दर्ज करें (9-अंक)",
   enterChestNo: "छाती संख्या दर्ज करें (4-अंक)",
-  enterRollNo: "रोल नंबर / विशिष्ट आईडी दर्ज करें (12-अंक)", // Preserving the "/" symbol as-is
+  enterRollNo: "रोल नंबर / विशिष्ट आईडी दर्ज करें (12-अंक)", // Preserve "/" as literal character
   
   // Table Elements
   rowsPerPage: "प्रति पेज पंक्तियां",
@@ -596,7 +597,7 @@ i18n
     fallbackLng: 'en',
     debug: false,
     interpolation: {
-      escapeValue: false,
+      escapeValue: false, // Do not escape HTML entities in translations
     },
     detection: {
       order: ['localStorage', 'navigator'],

@@ -2,7 +2,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
-import { prepareTextForLanguage, shouldAlwaysUseEnglish } from "@/utils/textUtils";
+import { prepareTextForLanguage, shouldAlwaysUseEnglish, processSpecialText } from "@/utils/textUtils";
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
@@ -34,10 +34,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       ? prepareTextForLanguage(value, inputLang) 
       : value;
       
-    // Process placeholder for Hindi if needed
-    // For placeholders with special characters, we want to preserve those characters
-    const processedPlaceholder = isHindi && typeof placeholder === 'string'
-      ? prepareTextForLanguage(placeholder, inputLang)
+    // Specially process placeholder for Hindi to preserve punctuation and special characters
+    const processedPlaceholder = typeof placeholder === 'string'
+      ? (isHindi ? processSpecialText(placeholder, inputLang) : placeholder)
       : placeholder;
     
     return (
