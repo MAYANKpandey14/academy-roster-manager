@@ -20,7 +20,10 @@ const ViewTrainee = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { t, i18n } = useTranslation();
   
-  // Apply language inputs hook
+  // Initialize print service hooks outside of render
+  const printService = useTraineePrintService(trainee);
+  
+  // Apply language inputs hook for synchronizing language settings
   useLanguageInputs();
 
   // Fetch trainee data using useCallback to avoid recreation on every render
@@ -75,6 +78,9 @@ const ViewTrainee = () => {
   if (!trainee) {
     return <TraineeNotFound />;
   }
+  
+  // Extract handlers from the service
+  const { handlePrintTrainee, handleDownloadTrainee } = printService;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -83,16 +89,8 @@ const ViewTrainee = () => {
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
           <TraineeHeader 
             trainee={trainee} 
-            onPrint={() => {
-              // Access functions from the hook inside render to avoid React error #310
-              const { handlePrintTrainee } = useTraineePrintService({ trainee });
-              handlePrintTrainee();
-            }}
-            onDownload={() => {
-              // Access functions from the hook inside render to avoid React error #310
-              const { handleDownloadTrainee } = useTraineePrintService({ trainee });
-              handleDownloadTrainee();
-            }}
+            onPrint={handlePrintTrainee}
+            onDownload={handleDownloadTrainee}
           />
           
           <TraineeDetailsSection trainee={trainee} />

@@ -7,6 +7,7 @@ import { isAuthPage } from '@/utils/textUtils';
 /**
  * Custom hook that combines react-i18next's useTranslation with our language context
  * This helps ensure consistent language state across the app
+ * Optimized to prevent unnecessary re-renders
  */
 export const useTranslation = () => {
   const translation = useI18nTranslation();
@@ -24,6 +25,7 @@ export const useTranslation = () => {
       language = 'en';
     }
     
+    // Return enhanced translation object with our language context integrated
     return {
       ...translation,
       i18n: {
@@ -33,4 +35,3 @@ export const useTranslation = () => {
     };
   }, [currentLanguage, translation]);
 };
-

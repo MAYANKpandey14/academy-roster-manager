@@ -27,6 +27,7 @@ const Label = React.forwardRef<
   const isAuthPageActive = isAuthPage();
   const inputLang = isAuthPageActive ? 'en' : i18n.language;
   
+  // Determine if Hindi mode with special character handling is needed
   const isHindi = inputLang === 'hi' && !isAuthPageActive;
   const needsSpecialHandling = isHindi && preserveSpecialChars && typeof children === 'string';
   
@@ -34,7 +35,7 @@ const Label = React.forwardRef<
     <LabelPrimitive.Root
       ref={ref}
       className={cn(labelVariants(), 
-        isHindi ? 'dynamic-text' : '',
+        isHindi ? 'dynamic-text krutidev-text' : 'dynamic-text',
         className
       )}
       {...props}

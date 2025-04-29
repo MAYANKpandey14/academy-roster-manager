@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react';
 import { useTranslation as useI18nTranslation } from 'react-i18next';
 import { shouldAlwaysUseEnglish, isAuthPage } from '@/utils/textUtils';
+import { debounce } from '@/utils/debounce';
 
 interface LanguageContextType {
   currentLanguage: string;
@@ -22,27 +23,25 @@ interface LanguageProviderProps {
 }
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  // Use the original i18n translation hook directly here to avoid circular dependency
+  // Use the original i18n translation hook directly here
   const { i18n } = useI18nTranslation();
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
   const [isLoading, setIsLoading] = useState(false);
   
-  // Extract DOM manipulation into a memoized callback for better performance
+  // Debounced DOM operations for better performance
   const applyLanguageStyles = useCallback((lang: string) => {
     // Guard against server-side rendering
     if (typeof document === 'undefined') return;
     
     // Check if we're on an auth page where we should force English
     const authPageActive = isAuthPage();
-    if (authPageActive && lang === 'hi') {
-      lang = 'en'; // Force English for auth pages
-    }
+    const effectiveLanguage = authPageActive ? 'en' : lang;
     
-    // Set language attributes on document
-    document.documentElement.lang = lang;
+    // Set language attributes on document - this affects all elements
+    document.documentElement.lang = effectiveLanguage;
     
-    // Apply or remove KrutiDev font class based on language
-    if (lang === 'hi' && !authPageActive) {
+    // Apply or remove Hindi class based on language
+    if (effectiveLanguage === 'hi' && !authPageActive) {
       document.body.classList.add('lang-hi');
       document.documentElement.classList.add('lang-hi');
     } else {
@@ -50,59 +49,19 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       document.documentElement.classList.remove('lang-hi');
     }
     
-    // Update all dynamic text elements with the appropriate classes
-    const dynamicTextElements = document.querySelectorAll('.dynamic-text');
-    dynamicTextElements.forEach(element => {
-      if (element instanceof HTMLElement) {
-        element.lang = lang;
-        
-        if (lang === 'hi' && !authPageActive) {
-          // Determine the appropriate Hindi class based on element type
-          if (element.tagName === 'H1' || element.tagName === 'H2' || 
-              element.tagName === 'H3' || element.classList.contains('text-xl') ||
-              element.classList.contains('text-2xl') || 
-              element.classList.contains('font-semibold')) {
-            element.classList.add('krutidev-heading');
-            element.classList.remove('krutidev-text');
-          } else {
-            element.classList.add('krutidev-text');
-            element.classList.remove('krutidev-heading');
-          }
-        } else {
-          element.classList.remove('krutidev-text', 'krutidev-heading');
-        }
-      }
-    });
+    // Optimize by checking if lang-specific styles already applied
+    const hasHindiClass = document.documentElement.classList.contains('lang-hi');
+    const needsUpdate = (effectiveLanguage === 'hi' && !hasHindiClass) || 
+                        (effectiveLanguage !== 'hi' && hasHindiClass);
+                        
+    if (!needsUpdate) return; // Skip unnecessary DOM operations
     
-    // Set special attributes for form inputs
-    const inputs = document.querySelectorAll('input, textarea');
-    inputs.forEach(input => {
-      if (input instanceof HTMLElement) {
-        const inputElement = input as HTMLInputElement;
-        const inputType = inputElement.type || 'text';
-        
-        // Always use 'en' for date, number, tel, email and password inputs
-        const shouldUseEnglish = shouldAlwaysUseEnglish(inputType);
-        const inputLang = shouldUseEnglish || authPageActive ? 'en' : lang;
-        
-        inputElement.lang = inputLang;
-        
-        // Set special attributes for Hindi with KrutiDev font
-        if (inputLang === 'hi') {
-          inputElement.setAttribute('inputmode', 'text');
-          if (inputElement.hasAttribute('placeholder')) {
-            inputElement.classList.add('krutidev-placeholder');
-            inputElement.classList.remove('krutidev-text');
-          } else {
-            inputElement.classList.add('krutidev-text');
-            inputElement.classList.remove('krutidev-placeholder');
-          }
-        } else {
-          inputElement.removeAttribute('inputmode');
-          inputElement.classList.remove('krutidev-placeholder', 'krutidev-text');
-        }
-      }
-    });
+    // Special handling for auth pages - force English
+    if (authPageActive) {
+      document.body.classList.add('auth-page');
+    } else {
+      document.body.classList.remove('auth-page');
+    }
     
     // Handle special character preservation
     const preserveCharElements = document.querySelectorAll('.preserve-char');
@@ -113,6 +72,10 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     });
   }, []);
 
+  // Create a debounced version for better performance
+  const debouncedStylesApply = useMemo(() => debounce(applyLanguageStyles, 50), [applyLanguageStyles]);
+
+  // Function to change language with optimized performance
   const changeLanguage = async (lang: string) => {
     try {
       setIsLoading(true);
@@ -130,8 +93,8 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       // Update state
       setCurrentLanguage(finalLang);
       
-      // Apply styling changes
-      applyLanguageStyles(finalLang);
+      // Apply styling changes with debouncing
+      debouncedStylesApply(finalLang);
       
       // Dispatch a custom event that components can listen for
       if (typeof document !== 'undefined') {
@@ -139,7 +102,10 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
         document.dispatchEvent(event);
       }
     } finally {
-      setIsLoading(false);
+      // Short delay before removing loading state to ensure render completes
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 100);
     }
   };
 
@@ -156,10 +122,8 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       // Apply styles for current language
       applyLanguageStyles(i18n.language);
     }
-  }, [applyLanguageStyles, i18n.language]);
-
-  // Listen for route changes to enforce English on auth pages
-  useEffect(() => {
+    
+    // Listen for route changes to enforce English on auth pages
     const handleRouteChange = () => {
       const authPageActive = isAuthPage();
       if (authPageActive && currentLanguage !== 'en') {
@@ -172,7 +136,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     return () => {
       window.removeEventListener('popstate', handleRouteChange);
     };
-  }, [currentLanguage]);
+  }, [i18n.language, applyLanguageStyles, currentLanguage]);
 
   // Memoize the context value to avoid unnecessary re-renders
   const contextValue = useMemo(() => ({

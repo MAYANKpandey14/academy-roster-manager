@@ -21,23 +21,28 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     
     // Determine if KrutiDev font should be applied
     const isHindi = textareaLang === 'hi' && !isAuthPageActive;
-    const fontClass = isHindi ? 'krutidev-font' : '';
+    const fontClass = isHindi ? 'krutidev-text' : '';
     
     // Process value for proper encoding if it's a string
     const processedValue = typeof value === 'string' 
       ? prepareTextForLanguage(value, textareaLang) 
       : value;
     
-    // Create a React component that can render the placeholder properly
-    // with preserved special characters if Hindi is active
+    // Create a style component that handles placeholder special characters
     const PlaceholderComponent = React.useMemo(() => {
       if (!props.placeholder || !isHindi || !preserveSpecialChars) return null;
+      
+      // Create a unique ID for this textarea if not provided
+      const textareaId = props.id || `textarea-${Math.random().toString(36).substring(2, 9)}`;
       
       return (
         <style dangerouslySetInnerHTML={{
           __html: `
-            #${props.id || ''}.custom-textarea::placeholder {
+            #${textareaId}.krutidev-text::placeholder {
               font-family: 'KrutiDev', sans-serif;
+            }
+            textarea::placeholder {
+              color: var(--muted-foreground);
             }
             .preserve-char {
               font-family: 'Space Grotesk', sans-serif !important;
@@ -54,7 +59,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           id={props.id}
           className={cn(
             "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-            isHindi ? 'custom-textarea krutidev-text' : '',
+            isHindi ? 'krutidev-text' : '',
             className
           )}
           ref={ref}

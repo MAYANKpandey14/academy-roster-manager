@@ -23,6 +23,24 @@ export const ensureUtf8Encoding = (text: string | null | undefined): string => {
 };
 
 /**
+ * Enhanced list of special characters that should be preserved and not rendered with Hindi font
+ * This includes all punctuation, brackets, and special characters
+ */
+const SPECIAL_CHARS = /([\/\\()[\]{}:;,.?!@#$%^&*_+=|<>"'\-\d])/g;
+
+/**
+ * Preserves special characters in text when switching languages
+ * @param text Text that may contain special characters
+ * @returns Text with special characters preserved
+ */
+export const preserveSpecialCharacters = (text: string): string => {
+  if (!text) return '';
+  
+  // Replace special characters with a wrapped version that will be rendered with non-Hindi font
+  return text.replace(SPECIAL_CHARS, '<span class="preserve-char">$1</span>');
+};
+
+/**
  * Prepares text content for display based on the current language
  * @param text The text to prepare
  * @param language The current language code (e.g., 'en', 'hi')
@@ -43,21 +61,20 @@ export const prepareTextForLanguage = (text: string | null | undefined, language
 };
 
 /**
- * Enhanced list of special characters that should be preserved and not rendered with Hindi font
- * This includes all punctuation, brackets, and special characters
+ * Specially prepare placeholder text for proper display
+ * Ensures special characters render properly in Hindi mode
+ * @param text Placeholder text
+ * @param language Current language
+ * @returns Processed placeholder text suitable for display
  */
-const SPECIAL_CHARS = /([\/\\()[\]{}:;,.?!@#$%^&*_+=|<>"'\-\d])/g;
-
-/**
- * Preserves special characters in text when switching languages
- * @param text Text that may contain special characters
- * @returns Text with special characters preserved
- */
-export const preserveSpecialCharacters = (text: string): string => {
+export const preparePlaceholderForLanguage = (text: string | null | undefined, language: string): string => {
   if (!text) return '';
   
-  // Replace special characters with a wrapped version that will be rendered with non-Hindi font
-  return text.replace(SPECIAL_CHARS, '<span class="preserve-char">$1</span>');
+  if (language !== 'hi') return ensureUtf8Encoding(text);
+  
+  // For Hindi placeholders, we need to handle special chars differently
+  // Do NOT wrap them in span elements as placeholders don't support HTML
+  return ensureUtf8Encoding(text);
 };
 
 /**
@@ -121,37 +138,6 @@ export const getHindiFontClass = (elementType: 'heading' | 'text' | 'placeholder
       return 'krutidev-placeholder';
     default:
       return 'krutidev-text';
-  }
-};
-
-/**
- * Formats a date value for display in the specified language
- * Dates are always displayed in English format even in Hindi mode
- * @param date The date to format
- * @param formatStr Optional format string
- * @returns Formatted date string
- */
-export const formatDate = (date: string | Date, formatStr?: string): string => {
-  if (!date) return 'N/A';
-  
-  try {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    
-    // Default to simple date format if none specified
-    if (!formatStr) {
-      return dateObj.toLocaleDateString('en-US', {
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric'
-      });
-    }
-    
-    // For now just return basic formatted date
-    // In the future, this could be expanded to use a date formatting library
-    return dateObj.toLocaleDateString('en-US');
-  } catch (e) {
-    console.warn('Error formatting date:', e);
-    return String(date);
   }
 };
 

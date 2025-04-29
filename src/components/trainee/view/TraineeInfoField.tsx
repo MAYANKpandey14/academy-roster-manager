@@ -1,6 +1,7 @@
 
 import { useTranslation } from "@/hooks/useTranslation";
 import { createHtmlWithPreservedSpecialChars, prepareTextForLanguage } from "@/utils/textUtils";
+import { memo } from "react";
 
 interface TraineeInfoFieldProps {
   label: string;
@@ -8,14 +9,19 @@ interface TraineeInfoFieldProps {
   isMultilingual?: boolean;
 }
 
-export function TraineeInfoField({ label, value, isMultilingual = false }: TraineeInfoFieldProps) {
+// Use memo to prevent unnecessary re-renders
+export const TraineeInfoField = memo(function TraineeInfoField({ 
+  label, 
+  value, 
+  isMultilingual = false 
+}: TraineeInfoFieldProps) {
   const { i18n } = useTranslation();
   
-  // Prepare values with preserved special characters for Hindi mode
+  // Determine if Hindi mode is active
   const isHindi = i18n.language === 'hi';
   
   // Process value for multilingual content
-  const processedValue = isMultilingual
+  const processedValue = isMultilingual && isHindi
     ? prepareTextForLanguage(value, i18n.language)
     : value;
 
@@ -44,4 +50,4 @@ export function TraineeInfoField({ label, value, isMultilingual = false }: Train
       </p>
     </div>
   );
-}
+});
