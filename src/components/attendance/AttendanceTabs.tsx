@@ -33,14 +33,11 @@ export function AttendanceTabs({ personId, personType, searchData }: AttendanceT
         </Card>
       </TabsContent>
       <TabsContent value="leave">
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">अनुपस्थिति और अवकाश इतिहास</h2>
-          <LeaveHistoryTable
-            key={`leave-${key}`}
-            personId={personId}
-            personType={personType}
-          />
-        </Card>
+        <LeaveHistoryTable
+          key={`leave-${key}`}
+          personId={personId}
+          personType={personType}
+        />
       </TabsContent>
     </Tabs>
   );

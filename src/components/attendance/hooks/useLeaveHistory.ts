@@ -1,14 +1,15 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { AbsenceRecord, LeaveRecord, HistoryRecord } from "../types/leaveHistory";
+import { AbsenceRecord, LeaveRecord, HistoryRecord, LeaveHistoryProps } from "../types/leaveHistory";
 import { useState, useEffect } from "react";
 
-export function useLeaveHistory(personId?: string, personType: 'trainee' | 'staff' = 'trainee') {
+export function useLeaveHistory({ personId, personType = 'trainee' }: LeaveHistoryProps) {
   const [historyData, setHistoryData] = useState<HistoryRecord[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const absencesQuery = useQuery({
+  // Explicitly type the query result
+  const absencesQuery = useQuery<AbsenceRecord[], Error>({
     queryKey: ['absences', personId, personType],
     queryFn: async () => {
       if (!personId) return [];
@@ -27,7 +28,8 @@ export function useLeaveHistory(personId?: string, personType: 'trainee' | 'staf
     enabled: !!personId
   });
   
-  const leavesQuery = useQuery({
+  // Explicitly type the query result
+  const leavesQuery = useQuery<LeaveRecord[], Error>({
     queryKey: ['leaves', personId, personType],
     queryFn: async () => {
       if (!personId) return [];

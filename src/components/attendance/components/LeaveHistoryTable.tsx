@@ -7,7 +7,7 @@ import { LeaveHistoryTableEmpty } from "./LeaveHistoryTableEmpty";
 import { LeaveHistoryTableLoading } from "./LeaveHistoryTableLoading";
 
 export function LeaveHistoryTable({ personType, personId }: LeaveHistoryProps) {
-  const { historyData, isLoading } = useLeaveHistory(personId, personType);
+  const { historyData, isLoading } = useLeaveHistory({ personId, personType });
 
   if (isLoading) {
     return <LeaveHistoryTableLoading />;
