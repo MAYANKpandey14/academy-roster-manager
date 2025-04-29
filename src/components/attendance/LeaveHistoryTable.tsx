@@ -12,10 +12,10 @@ import {
 } from "@/components/ui/table";
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
-import { Tables } from "@/integrations/supabase/types";
+import { PersonType } from "./types";
 
 interface LeaveHistoryTableProps {
-  type: 'trainee' | 'staff';
+  type: PersonType;
   personId: string;
 }
 
@@ -61,14 +61,17 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
 
       if (error) throw error;
       
-      // Transform to our record format with explicit type
-      return (data || []).map((item) => ({
+      // Use type assertion instead of mapping to avoid deep type instantiation
+      const result = data || [];
+      const transformedResult = result.map(item => ({
         ...item,
         type: 'absent' as const,
         start_date: item.date,
         end_date: item.date,
         leave_type: null
-      })) as AbsenceRecord[];
+      }));
+      
+      return transformedResult as AbsenceRecord[];
     },
   });
 
@@ -84,12 +87,15 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
 
       if (error) throw error;
       
-      // Transform to our record format with explicit type
-      return (data || []).map((item) => ({
+      // Use type assertion instead of mapping to avoid deep type instantiation
+      const result = data || [];
+      const transformedResult = result.map(item => ({
         ...item,
         type: 'leave' as const,
         status: 'on_leave'
-      })) as LeaveRecord[];
+      }));
+      
+      return transformedResult as LeaveRecord[];
     },
   });
 
