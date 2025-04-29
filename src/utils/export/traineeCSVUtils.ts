@@ -1,52 +1,58 @@
 
 import { Trainee } from "@/types/trainee";
-import { TFunction } from "i18next";
-import { prepareTextForLanguage } from "../textUtils";
+import { formatDate } from "@/utils/textUtils";
+
+// Headers for CSV export
+const csvHeaders = [
+  "पीएनओ",
+  "चेस्ट नंबर",
+  "नाम",
+  "पिता का नाम",
+  "वर्तमान तैनाती जिला",
+  "मोबाइल नंबर",
+  "शिक्षा",
+  "जन्म तिथि",
+  "नियुक्ति तिथि",
+  "रक्त समूह",
+  "नामिती",
+  "घर का पता",
+  "आगमन की तारीख",
+  "प्रस्थान की तारीख",
+];
 
 /**
  * Creates CSV content from trainee data
- * 
- * @param trainees Array of trainees
- * @param language Current language code (optional, defaults to 'hi')
- * @returns CSV content as string
+ * @param trainees Array of trainees to export
+ * @returns CSV content as a string
  */
-export const createCSVContent = (trainees: Trainee[], language = 'hi') => {
-  // Create CSV headers
-  const headers = [
-    "PNO", 
-    "चेस्ट नंबर", 
-    "नाम",
-    "पिता का नाम", 
-    "आगमन तिथि",
-    "प्रस्थान तिथि", 
-    "वर्तमान तैनाती जिला", 
-    "मोबाइल नंबर",
-    "शिक्षा", 
-    "जन्म तिथि", 
-    "नियुक्ति तिथि", 
-    "रक्त समूह",
-    "नामिती", 
-    "घर का पता"
-  ];
-  
-  // Generate CSV rows
-  const rows = trainees.map(trainee => [
-    trainee.pno,
-    trainee.chest_no,
-    prepareTextForLanguage(trainee.name, language),
-    prepareTextForLanguage(trainee.father_name, language),
-    new Date(trainee.arrival_date).toLocaleDateString(),
-    new Date(trainee.departure_date).toLocaleDateString(),
-    prepareTextForLanguage(trainee.current_posting_district, language),
-    trainee.mobile_number,
-    prepareTextForLanguage(trainee.education, language),
-    new Date(trainee.date_of_birth).toLocaleDateString(),
-    new Date(trainee.date_of_joining).toLocaleDateString(),
-    trainee.blood_group,
-    prepareTextForLanguage(trainee.nominee, language),
-    prepareTextForLanguage(trainee.home_address, language)
-  ]);
-  
-  // Combine headers and rows
-  return [headers, ...rows].map(row => row.join(',')).join('\n');
+export const createTraineeCSV = (trainees: Trainee[]): string => {
+  if (!trainees || trainees.length === 0) return "";
+
+  // Create CSV header row
+  const headerRow = csvHeaders.join(",");
+
+  // Process each trainee into a CSV row
+  const rows = trainees.map((trainee) => {
+    const values = [
+      trainee.pno,
+      trainee.chest_no,
+      trainee.name,
+      trainee.father_name,
+      trainee.current_posting_district,
+      trainee.mobile_number,
+      trainee.education,
+      formatDate(trainee.date_of_birth),
+      formatDate(trainee.date_of_joining),
+      trainee.blood_group,
+      trainee.nominee,
+      `"${trainee.home_address.replace(/"/g, '""')}"`, // Escape quotes in address
+      formatDate(trainee.arrival_date),
+      formatDate(trainee.departure_date),
+    ];
+
+    return values.join(",");
+  });
+
+  // Combine header and data rows
+  return [headerRow, ...rows].join("\n");
 };

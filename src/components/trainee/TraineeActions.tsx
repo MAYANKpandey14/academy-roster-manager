@@ -15,7 +15,6 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { useTranslation } from "react-i18next";
 import { useTraineePrintService } from "@/components/trainee/view/TraineePrintService";
 
 interface TraineeActionsProps {
@@ -24,7 +23,6 @@ interface TraineeActionsProps {
 
 export function TraineeActions({ trainee }: TraineeActionsProps) {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
   const { handlePrintTrainee, handleDownloadTrainee } = useTraineePrintService(trainee);
   
   return (
@@ -38,27 +36,19 @@ export function TraineeActions({ trainee }: TraineeActionsProps) {
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => navigate(`/view-trainee/${trainee.id}`)}>
           <Eye className="mr-2 h-4 w-4" />
-          <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-            {t("view", "View")}
-          </span>
+          <span className="krutidev-text">देखें</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate(`/edit-trainee/${trainee.id}`)}>
           <Edit className="mr-2 h-4 w-4" />
-          <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-            {t("edit", "Edit")}
-          </span>
+          <span className="krutidev-text">संपादित करें</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handlePrintTrainee}>
           <Printer className="mr-2 h-4 w-4" />
-          <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-            {t("print", "Print")}
-          </span>
+          <span className="krutidev-text">प्रिंट करें</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleDownloadTrainee}>
           <Download className="mr-2 h-4 w-4" />
-          <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-            {t("download", "Download")}
-          </span>
+          <span className="krutidev-text">डाउनलोड करें</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

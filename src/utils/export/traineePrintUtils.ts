@@ -1,96 +1,185 @@
 
 import { Trainee } from "@/types/trainee";
-import { format } from "date-fns";
-import { prepareTextForLanguage } from "../textUtils";
+import { formatDate } from "@/utils/textUtils";
 
 /**
  * Creates HTML content for printing trainee data
- * 
  * @param trainees Array of trainees to print
- * @returns HTML content as string
+ * @returns HTML string ready for printing
  */
-export const createPrintContent = (trainees: Trainee[]): string => {
-  // Create the header section with styling
-  const headerHTML = `
-    <div style="text-align: center; margin-bottom: 20px;">
-      <h1 style="font-size: 24px; font-weight: bold; font-family: 'KrutiDev', sans-serif;">आरटीसी पुलिस लाइन, मुरादाबाद</h1>
-      <h2 style="font-size: 20px; font-family: 'KrutiDev', sans-serif;">प्रशिक्षु जानकारी</h2>
-      <p style="font-size: 12px; color: #666; font-family: 'KrutiDev', sans-serif;">यह दस्तावेज़ ${format(new Date(), 'PPP')} को उत्पन्न किया गया</p>
-    </div>
+export const createTraineePrint = (trainees: Trainee[]): string => {
+  if (!trainees || trainees.length === 0) return "";
+
+  // Create the CSS styles for printing
+  const styles = `
+    @font-face {
+      font-family: 'Kruti Dev';
+      src: url('/fonts/Kruti_Dev_010.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    .print-wrapper {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .print-header {
+      text-align: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #333;
+      padding-bottom: 10px;
+    }
+    .print-header h1 {
+      font-size: 20px;
+      margin: 0;
+      font-family: 'Kruti Dev', Arial, sans-serif;
+    }
+    .print-header p {
+      font-size: 14px;
+      margin: 5px 0;
+      font-family: 'Kruti Dev', Arial, sans-serif;
+    }
+    .trainee-card {
+      page-break-inside: avoid;
+      margin-bottom: 30px;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 5px;
+    }
+    .trainee-card:last-child {
+      margin-bottom: 0;
+    }
+    .trainee-header {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+      font-family: 'Kruti Dev', Arial, sans-serif;
+    }
+    .trainee-details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 5px;
+    }
+    .detail-item.full {
+      grid-column: span 2;
+    }
+    .detail-label {
+      font-weight: bold;
+      font-size: 12px;
+      color: #555;
+      font-family: 'Kruti Dev', Arial, sans-serif;
+    }
+    .detail-value {
+      font-size: 14px;
+      font-family: 'Kruti Dev', Arial, sans-serif;
+    }
+    @media print {
+      @page {
+        size: A4;
+        margin: 1cm;
+      }
+      body {
+        padding: 0;
+      }
+    }
   `;
 
-  // Create trainee cards for each trainee
-  const traineeCards = trainees.map(trainee => {
-    return `
-      <div style="page-break-inside: avoid; margin-bottom: 30px; border: 1px solid #ddd; padding: 20px; border-radius: 5px;">
-        <h3 style="font-size: 18px; margin-bottom: 15px; font-family: 'KrutiDev', sans-serif;">
-          ${prepareTextForLanguage(trainee.name)} - ${trainee.pno}
-        </h3>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-          <div>
-            <p style="margin: 5px 0; font-family: 'KrutiDev', sans-serif;"><strong>पीएनओ:</strong> ${trainee.pno}</p>
-            <p style="margin: 5px 0; font-family: 'KrutiDev', sans-serif;"><strong>चेस्ट नंबर:</strong> ${trainee.chest_no}</p>
-            <p style="margin: 5px 0; font-family: 'KrutiDev', sans-serif;"><strong>नाम:</strong> ${prepareTextForLanguage(trainee.name)}</p>
-            <p style="margin: 5px 0; font-family: 'KrutiDev', sans-serif;"><strong>पिता का नाम:</strong> ${prepareTextForLanguage(trainee.father_name)}</p>
-            <p style="margin: 5px 0; font-family: 'KrutiDev', sans-serif;"><strong>वर्तमान तैनाती:</strong> ${prepareTextForLanguage(trainee.current_posting_district)}</p>
-          </div>
-          
-          <div>
-            <p style="margin: 5px 0;"><strong>मोबाइल नंबर:</strong> ${trainee.mobile_number}</p>
-            <p style="margin: 5px 0; font-family: 'KrutiDev', sans-serif;"><strong>शिक्षा:</strong> ${prepareTextForLanguage(trainee.education)}</p>
-            <p style="margin: 5px 0;"><strong>जन्म तिथि:</strong> ${format(new Date(trainee.date_of_birth), 'PPP')}</p>
-            <p style="margin: 5px 0;"><strong>नियुक्ति तिथि:</strong> ${format(new Date(trainee.date_of_joining), 'PPP')}</p>
-            <p style="margin: 5px 0;"><strong>रक्त समूह:</strong> ${trainee.blood_group}</p>
-          </div>
+  // Generate HTML for each trainee
+  const traineeCards = trainees.map(trainee => `
+    <div class="trainee-card">
+      <div class="trainee-header">प्रशिक्षु विवरण: ${trainee.name} (${trainee.pno})</div>
+      <div class="trainee-details">
+        <div class="detail-item">
+          <span class="detail-label">पीएनओ</span>
+          <span class="detail-value">${trainee.pno}</span>
         </div>
-        
-        <div>
-          <p style="margin: 5px 0; font-family: 'KrutiDev', sans-serif;"><strong>नामिती:</strong> ${prepareTextForLanguage(trainee.nominee)}</p>
-          <p style="margin: 5px 0; font-family: 'KrutiDev', sans-serif;"><strong>घर का पता:</strong> ${prepareTextForLanguage(trainee.home_address)}</p>
-          <p style="margin: 5px 0; font-family: 'KrutiDev', sans-serif;"><strong>प्रशिक्षण अवधि:</strong> ${format(new Date(trainee.arrival_date), 'PPP')} से ${format(new Date(trainee.departure_date), 'PPP')}</p>
+        <div class="detail-item">
+          <span class="detail-label">चेस्ट नंबर</span>
+          <span class="detail-value">${trainee.chest_no}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">नाम</span>
+          <span class="detail-value">${trainee.name}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">पिता का नाम</span>
+          <span class="detail-value">${trainee.father_name}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">वर्तमान तैनाती जिला</span>
+          <span class="detail-value">${trainee.current_posting_district}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">मोबाइल नंबर</span>
+          <span class="detail-value">${trainee.mobile_number}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">शिक्षा</span>
+          <span class="detail-value">${trainee.education}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">रक्त समूह</span>
+          <span class="detail-value">${trainee.blood_group}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">जन्म तिथि</span>
+          <span class="detail-value">${formatDate(trainee.date_of_birth)}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">नियुक्ति तिथि</span>
+          <span class="detail-value">${formatDate(trainee.date_of_joining)}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">नामिती</span>
+          <span class="detail-value">${trainee.nominee}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">प्रशिक्षण अवधि</span>
+          <span class="detail-value">${formatDate(trainee.arrival_date)} - ${formatDate(trainee.departure_date)}</span>
+        </div>
+        <div class="detail-item full">
+          <span class="detail-label">घर का पता</span>
+          <span class="detail-value">${trainee.home_address}</span>
         </div>
       </div>
-    `;
-  }).join('');
+    </div>
+  `).join('');
 
-  // Combine all HTML parts with necessary styling
+  // Complete HTML structure
   return `
     <!DOCTYPE html>
-    <html>
-      <head>
-        <title>प्रशिक्षु विवरण</title>
-        <meta charset="UTF-8">
-        <style>
-          @font-face {
-            font-family: 'KrutiDev';
-            src: url('/font/KrutiDev.woff') format('woff');
-            font-weight: normal;
-            font-style: normal;
-          }
-          body {
-            font-family: 'KrutiDev', sans-serif;
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-          }
-          @media print {
-            body {
-              padding: 0;
-              font-size: 12pt;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        ${headerHTML}
+    <html lang="hi">
+    <head>
+      <meta charset="UTF-8">
+      <title>प्रशिक्षु विवरण</title>
+      <style>${styles}</style>
+    </head>
+    <body>
+      <div class="print-wrapper">
+        <div class="print-header">
+          <h1>आरटीसी प्रशिक्षु प्रबंधन प्रणाली</h1>
+          <p>प्रशिक्षु विवरण रिपोर्ट - ${new Date().toLocaleDateString('hi-IN')}</p>
+        </div>
         ${traineeCards}
-        <script>
-          window.onload = function() {
-            window.print();
-          }
-        </script>
-      </body>
+      </div>
+      <script>
+        // Auto-print when loaded
+        window.onload = function() {
+          window.print();
+        }
+      </script>
+    </body>
     </html>
   `;
 };

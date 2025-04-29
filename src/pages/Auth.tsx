@@ -1,150 +1,176 @@
 
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { useTranslation } from "@/hooks/useTranslation";
+import { Navigate, useNavigate } from "react-router-dom";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useUser } from "@/hooks/useUser";
+
+const authFormSchema = z.object({
+  email: z.string().email({
+    message: "ईमेल अमान्य है",
+  }),
+  password: z.string().min(6, {
+    message: "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए",
+  }),
+});
 
 export default function Auth() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [resetPassword, setResetPassword] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const { t } = useTranslation();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const navigate = useNavigate();
+  const { user } = useUser();
 
-  useEffect(() => {
-    const img = new Image();
-    img.src = '/login.jpeg';
-    img.onload = () => setImageLoaded(true);
-  }, []);
+  // If user is already logged in, redirect to home
+  if (user) {
+    return <Navigate to="/" />;
+  }
 
-  const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const form = useForm<z.infer<typeof authFormSchema>>({
+    resolver: zodResolver(authFormSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof authFormSchema>) {
+    setIsLoading(true);
+    setError(null);
     
     try {
-      if (resetPassword) {
-        await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/reset-password`,
-        });
-        toast.success(t("passwordUpdated"));
-        setResetPassword(false);
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+      if (mode === "signin") {
+        const { error } = await supabase.auth.signInWithPassword(values);
         if (error) throw error;
-        navigate("/welcome");
-        toast.success(t("logoutSuccess"));
+        
+        toast.success("सफलतापूर्वक लॉग इन किया गया");
+        navigate("/");
+      } else {
+        const { error } = await supabase.auth.signUp(values);
+        if (error) throw error;
+        
+        toast.success("खाता सफलतापूर्वक बनाया गया। आपका ईमेल सत्यापित करें।");
+        setMode("signin");
       }
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (e: any) {
+      setError(e.message);
+      console.error("Auth error:", e);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  };
+  }
 
   return (
-    <div 
-      className="min-h-screen relative flex flex-col items-center p-4 md:p-6"
-      style={{
-        backgroundImage: imageLoaded ? "url('/login.jpeg')" : "none",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-      
-      {/* Auth Form Container */}
-      <div className="w-full max-w-md relative z-10 mt-10 sm:mt-20">
-        <div className="bg-white/95 backdrop-blur-md p-6 md:p-8 rounded-xl shadow-2xl">
-          <div className="text-center">
-            <img 
-              src="/upp_logo.png" 
-              alt="Logo" 
-              className="mx-auto h-20 w-20 md:h-28 md:w-28" 
-            />
-            <h2 className="mt-6 text-2xl md:text-3xl font-bold text-gray-900">
-              {resetPassword ? t("resetPassword") : t("signInToAccount")}
-            </h2>
-          </div>
-          
-          <form onSubmit={handleAuth} className="mt-8 space-y-6">
-            <div className="rounded-md space-y-4">
-              <div>
-                <Label htmlFor="email" className="text-gray-900">
-                  {t("emailAddress")}
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="bg-white/80"
-                  isAuthField={true}
-                />
-              </div>
-              
-              {!resetPassword && (
-                <div>
-                  <Label htmlFor="password" className="text-gray-900">
-                    {t("password")}
-                  </Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    required={!resetPassword}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="bg-white/80"
-                    isAuthField={true}
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="flex flex-col space-y-4">
-              <Button 
-                type="submit" 
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                disabled={loading}
-              >
-                {loading ? t("processing") : resetPassword 
-                  ? t("sendResetLink") 
-                  : t("signIn")}
-              </Button>
-              
-              {!resetPassword ? (
-                <Button
-                  type="button"
-                  variant="link"
-                  onClick={() => setResetPassword(true)}
-                  className="text-blue-600"
-                >
-                  {t("forgotPassword")}
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  variant="link"
-                  onClick={() => setResetPassword(false)}
-                  className="text-blue-600"
-                >
-                  {t("backToLogin")}
-                </Button>
-              )}
-            </div>
-          </form>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <img className="mx-auto h-20 w-20" src="/images.svg" alt="Logo" />
+          <h1 className="mt-6 text-3xl font-bold krutidev-heading">
+            आरटीसी प्रशिक्षु प्रबंधन प्रणाली
+          </h1>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="krutidev-heading">
+              {mode === "signin" ? "लॉग इन" : "रजिस्टर"}
+            </CardTitle>
+            <CardDescription className="krutidev-text">
+              {mode === "signin" 
+                ? "अपने खाते में लॉग इन करें" 
+                : "एक नया खाता बनाएं"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs 
+              defaultValue={mode} 
+              onValueChange={(value) => setMode(value as "signin" | "signup")}
+            >
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="signin" className="krutidev-text">लॉग इन</TabsTrigger>
+                <TabsTrigger value="signup" className="krutidev-text">रजिस्टर</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value={mode}>
+                {error && (
+                  <Alert variant="destructive" className="mb-4">
+                    <AlertDescription className="krutidev-text">{error}</AlertDescription>
+                  </Alert>
+                )}
+
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="krutidev-text">ईमेल</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="example@email.com" 
+                              {...field} 
+                              className="auth-input"
+                              autoComplete="email"
+                            />
+                          </FormControl>
+                          <FormMessage className="krutidev-text" />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="krutidev-text">पासवर्ड</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="password" 
+                              {...field} 
+                              className="auth-input"
+                              autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                            />
+                          </FormControl>
+                          <FormMessage className="krutidev-text" />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <Button 
+                      type="submit" 
+                      className="w-full" 
+                      disabled={isLoading}
+                    >
+                      <span className="krutidev-text">
+                        {isLoading ? "प्रोसेसिंग..." : mode === "signin" ? "लॉग इन करें" : "रजिस्टर करें"}
+                      </span>
+                    </Button>
+                  </form>
+                </Form>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+          <CardFooter className="flex justify-center">
+            <Button 
+              variant="link" 
+              onClick={() => navigate("/reset-password")} 
+              className="krutidev-text"
+            >
+              पासवर्ड भूल गए?
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );

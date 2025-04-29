@@ -1,12 +1,9 @@
 
 import { Trainee } from "@/types/trainee";
 import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/export";
-import { useTranslation } from "@/hooks/useTranslation";
 import { toast } from "sonner";
 
 export function useTraineePrintService(trainee: Trainee) {
-  const { t } = useTranslation();
-
   const handlePrintTrainee = () => {
     // For type compatibility, only pass trainee without t parameter
     const printContent = createPrintContent([trainee]);

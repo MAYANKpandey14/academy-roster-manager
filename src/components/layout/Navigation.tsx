@@ -1,17 +1,15 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/hooks/useTranslation";
 
 export function Navigation() {
   const location = useLocation();
-  const { t } = useTranslation();
   
   const routes = [
-    { name: t("trainees"), path: "/trainees" },
-    { name: t("staff"), path: "/staff" },
-    { name: t("attendance"), path: "/attendance" },
-    { name: t("leave"), path: "/leave" },
+    { name: "प्रशिक्षु", path: "/trainees" },
+    { name: "स्टाफ", path: "/staff" },
+    { name: "उपस्थिति", path: "/attendance" },
+    { name: "अवकाश", path: "/leave" },
   ];
 
   return (

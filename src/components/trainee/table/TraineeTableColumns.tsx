@@ -3,15 +3,11 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Trainee } from "@/types/trainee";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { prepareTextForLanguage } from "@/utils/textUtils";
 import { TraineeActions } from "../TraineeActions";
-import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { CheckedState } from "@radix-ui/react-checkbox";
 
 export function useTraineeTableColumns(isLoading: boolean = false) {
-  const { t, i18n } = useTranslation();
-
   const columns: ColumnDef<Trainee>[] = [
     {
       id: "select",
@@ -43,9 +39,7 @@ export function useTraineeTableColumns(isLoading: boolean = false) {
     {
       accessorKey: "pno",
       header: () => {
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("pno", "PNO")}
-        </span>
+        return <span className="krutidev-heading">पीएनओ</span>
       },
       cell: ({ row }) => {
         return <span className="font-medium">{row.getValue("pno")}</span>;
@@ -54,9 +48,7 @@ export function useTraineeTableColumns(isLoading: boolean = false) {
     {
       accessorKey: "chest_no",
       header: () => {
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("chestNumber", "Chest No.")}
-        </span>
+        return <span className="krutidev-heading">चेस्ट नंबर</span>
       },
       cell: ({ row }) => {
         return <span>{row.getValue("chest_no")}</span>;
@@ -65,41 +57,31 @@ export function useTraineeTableColumns(isLoading: boolean = false) {
     {
       accessorKey: "name",
       header: () => {
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("name", "Name")}
-        </span>
+        return <span className="krutidev-heading">नाम</span>
       },
       cell: ({ row }) => {
         const value = row.getValue("name") as string;
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''} font-medium`}>
-          {prepareTextForLanguage(value, i18n.language)}
-        </span>;
+        return <span className="krutidev-text font-medium">{value}</span>;
       }
     },
     {
       accessorKey: "current_posting_district",
       header: () => {
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("currentPosting", "Current Posting")}
-        </span>
+        return <span className="krutidev-heading">वर्तमान पोस्टिंग</span>
       },
       cell: ({ row }) => {
         const value = row.getValue("current_posting_district") as string;
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-          {prepareTextForLanguage(value, i18n.language)}
-        </span>;
+        return <span className="krutidev-text">{value}</span>;
       }
     },
     {
       accessorKey: "arrival_date",
       header: () => {
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("trainingStarts", "Training Starts")}
-        </span>
+        return <span className="krutidev-heading">प्रशिक्षण शुरू</span>
       },
       cell: ({ row }) => {
         const date = new Date(row.getValue("arrival_date") as string);
-        return <span>{date.toLocaleDateString()}</span>;
+        return <span>{date.toLocaleDateString('hi-IN')}</span>;
       }
     },
     {

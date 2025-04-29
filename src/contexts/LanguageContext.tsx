@@ -3,8 +3,6 @@ import React, { createContext, useContext, ReactNode } from 'react';
 
 interface LanguageContextType {
   currentLanguage: string;
-  changeLanguage?: (lang: string) => void;
-  isLoading?: boolean;
 }
 
 const LanguageContext = createContext<LanguageContextType>({
@@ -18,20 +16,11 @@ interface LanguageProviderProps {
 }
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  // Always use Hindi language
+  // Always use Hindi language - no switching functionality
   const currentLanguage = 'hi';
-  // Add dummy changeLanguage function for backward compatibility
-  const changeLanguage = () => {
-    // No-op since we only support Hindi now
-    console.info("Language switching is disabled. App always uses Hindi.");
-  };
   
   return (
-    <LanguageContext.Provider value={{ 
-      currentLanguage, 
-      changeLanguage, 
-      isLoading: false 
-    }}>
+    <LanguageContext.Provider value={{ currentLanguage }}>
       {children}
     </LanguageContext.Provider>
   );

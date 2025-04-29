@@ -6,12 +6,10 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Navigation } from "./Navigation";
-import { useTranslation } from "@/hooks/useTranslation";
 
 export function Header() {
   const [today, setToday] = useState<string>("");
   const navigate = useNavigate();
-  const { t } = useTranslation();
 
   useEffect(() => {
     // Update date in Hindi format
@@ -33,7 +31,7 @@ export function Header() {
     try {
       await supabase.auth.signOut();
       navigate("/auth");
-      toast.success(t("logoutSuccess"));
+      toast.success("सफलतापूर्वक लॉग आउट कर दिया गया");
     } catch (error) {
       toast.error("लॉगआउट में समस्या");
     }
@@ -49,7 +47,7 @@ export function Header() {
               <img src="/images.svg" alt="logo" className="w-16 h-16 md:w-20 md:h-20" />
             </div>
             <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-center md:text-left krutidev-heading">
-              {t("headerTitle")}
+              आरटीसी प्रशिक्षु प्रबंधन प्रणाली
             </h1>
           </div>
           
@@ -66,7 +64,7 @@ export function Header() {
                 className="hidden sm:flex"
               >
                 <ArrowLeft className="h-4 w-4 mr-1" />
-                <span>{t("back")}</span>
+                <span className="krutidev-text">वापस</span>
               </Button>
               
               <Button
@@ -75,7 +73,7 @@ export function Header() {
                 onClick={() => navigate("/")}
               >
                 <Home className="h-4 w-4 mr-1" />
-                <span className="hidden sm:inline">{t("home")}</span>
+                <span className="hidden sm:inline krutidev-text">होम</span>
               </Button>
               
               <Button
@@ -84,7 +82,7 @@ export function Header() {
                 onClick={handleLogout}
               >
                 <LogOut className="h-4 w-4 mr-1" />
-                <span className="hidden sm:inline">{t("logout")}</span>
+                <span className="hidden sm:inline krutidev-text">लॉग आउट</span>
               </Button>
             </div>
           </div>

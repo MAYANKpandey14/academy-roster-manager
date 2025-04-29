@@ -1,6 +1,5 @@
 
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Edit, Printer, Download } from "lucide-react";
 import { Trainee } from "@/types/trainee";
@@ -13,14 +12,11 @@ interface TraineeHeaderProps {
 
 export function TraineeHeader({ trainee, onPrint, onDownload }: TraineeHeaderProps) {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
 
   return (
     <div className="flex justify-between items-center mb-6">
-      <h1 className="text-2xl font-bold">
-        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("traineeDetails", "Trainee Details")}
-        </span>
+      <h1 className="text-2xl font-bold krutidev-heading">
+        प्रशिक्षु विवरण
       </h1>
       <div className="flex gap-2">
         <Button 
@@ -29,8 +25,8 @@ export function TraineeHeader({ trainee, onPrint, onDownload }: TraineeHeaderPro
           onClick={onPrint}
         >
           <Printer className="h-4 w-4 mr-2" />
-          <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-            {t("print", "Print")}
+          <span className="krutidev-text">
+            प्रिंट करें
           </span>
         </Button>
         <Button 
@@ -39,8 +35,8 @@ export function TraineeHeader({ trainee, onPrint, onDownload }: TraineeHeaderPro
           onClick={onDownload}
         >
           <Download className="h-4 w-4 mr-2" />
-          <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-            {t("downloadCSV", "Download CSV")}
+          <span className="krutidev-text">
+            डाउनलोड करें
           </span>
         </Button>
         <Button 
@@ -48,8 +44,8 @@ export function TraineeHeader({ trainee, onPrint, onDownload }: TraineeHeaderPro
           className="flex items-center gap-2"
         >
           <Edit className="h-4 w-4" />
-          <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-            {t("editTrainee", "Edit Trainee")}
+          <span className="krutidev-text">
+            संपादित करें
           </span>
         </Button>
       </div>
