@@ -29,9 +29,9 @@ export default function Auth() {
   const navigate = useNavigate();
   const { user } = useUser();
 
-  // If user is already logged in, redirect to home
+  // If user is already logged in, redirect to welcome page
   if (user) {
-    return <Navigate to="/" />;
+    return <Navigate to="/welcome" />;
   }
 
   const form = useForm<z.infer<typeof authFormSchema>>({
@@ -57,7 +57,7 @@ export default function Auth() {
       if (error) throw error;
       
       toast.success("सफलतापूर्वक लॉग इन किया गया");
-      navigate("/");
+      navigate("/welcome");
     } catch (e: any) {
       setError(e.message);
       console.error("Auth error:", e);
@@ -75,24 +75,24 @@ export default function Auth() {
             src="/images.svg" 
             alt="Logo" 
           />
-          <h1 className="mt-6 text-3xl font-bold text-gray-900">
+          <h1 className="mt-6 text-3xl font-bold text-gray-900 font-mangal">
             आरटीसी प्रशिक्षु प्रबंधन प्रणाली
           </h1>
         </div>
 
         <Card className="border-2 shadow-lg">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">
+            <CardTitle className="text-2xl text-center font-mangal">
               लॉग इन
             </CardTitle>
-            <CardDescription className="text-center">
+            <CardDescription className="text-center font-mangal">
               अपने खाते में लॉग इन करें
             </CardDescription>
           </CardHeader>
           <CardContent>
             {error && (
               <Alert variant="destructive" className="mb-4 animate-slide-in">
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription className="font-mangal">{error}</AlertDescription>
               </Alert>
             )}
 
@@ -103,17 +103,16 @@ export default function Auth() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>ईमेल</FormLabel>
+                      <FormLabel className="font-mangal">ईमेल</FormLabel>
                       <FormControl>
                         <Input 
                           placeholder="example@email.com" 
                           {...field} 
-                          className="auth-input"
                           autoComplete="email"
                           disabled={isLoading}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="font-mangal" />
                     </FormItem>
                   )}
                 />
@@ -123,24 +122,23 @@ export default function Auth() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>पासवर्ड</FormLabel>
+                      <FormLabel className="font-mangal">पासवर्ड</FormLabel>
                       <FormControl>
                         <Input 
                           type="password" 
                           {...field} 
-                          className="auth-input"
                           autoComplete="current-password"
                           disabled={isLoading}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="font-mangal" />
                     </FormItem>
                   )}
                 />
                 
                 <Button 
                   type="submit" 
-                  className="w-full" 
+                  className="w-full font-mangal" 
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -159,6 +157,7 @@ export default function Auth() {
             <Button 
               variant="link" 
               onClick={() => navigate("/reset-password")} 
+              className="font-mangal"
             >
               पासवर्ड भूल गए?
             </Button>

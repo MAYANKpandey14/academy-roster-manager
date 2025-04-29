@@ -49,7 +49,7 @@ const App = () => (
               path="/"
               element={
                 <ProtectedRoute>
-                  <Navigate to="/trainees" replace />
+                  <Navigate to="/welcome" replace />
                 </ProtectedRoute>
               }
             />

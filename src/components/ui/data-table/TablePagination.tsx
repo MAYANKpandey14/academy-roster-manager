@@ -7,7 +7,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useTranslation } from "react-i18next";
 
 interface TablePaginationProps {
   table: any;
@@ -20,17 +19,28 @@ export function TablePagination({
   totalLabel,
   isLoading 
 }: TablePaginationProps) {
-  const { t, i18n } = useTranslation();
+  const getLabel = (key: string) => {
+    switch (key) {
+      case 'totalItems':
+        return 'कुल आइटम';
+      case 'totalTrainees':
+        return 'कुल प्रशिक्षु';
+      case 'totalStaff':
+        return 'कुल स्टाफ';
+      default:
+        return 'कुल';
+    }
+  };
   
   return (
     <div className="flex items-center justify-between space-x-2 py-4">
-      <div className={`flex-1 text-sm text-muted-foreground dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-        {table.getFilteredRowModel().rows.length} {t(totalLabel)}.
+      <div className="flex-1 text-sm text-muted-foreground font-mangal">
+        {table.getFilteredRowModel().rows.length} {getLabel(totalLabel)}
       </div>
       <div className="flex items-center space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">
-          <p className={`text-sm font-medium dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-            {t("rowsPerPage")}
+          <p className="text-sm font-medium font-mangal">
+            प्रति पेज पंक्तियां
           </p>
           <Select
             value={`${table.getState().pagination.pageSize}`}
@@ -69,11 +79,11 @@ export function TablePagination({
             {"<"}
           </Button>
           <div className="flex items-center gap-1">
-            <p className={`text-sm font-medium dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-              {t("page")}
+            <p className="text-sm font-medium font-mangal">
+              पेज
             </p>
-            <strong className={`text-sm font-medium dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-              {table.getState().pagination.pageIndex + 1} {t("of")}{" "}
+            <strong className="text-sm font-medium">
+              {table.getState().pagination.pageIndex + 1} का {" "}
               {table.getPageCount()}
             </strong>
           </div>

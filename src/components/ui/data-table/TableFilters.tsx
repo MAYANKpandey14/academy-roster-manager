@@ -1,6 +1,5 @@
 
 import { Input } from "@/components/ui/input";
-import { useTranslation } from "react-i18next";
 import { Search } from "lucide-react";
 
 interface TableFiltersProps {
@@ -16,8 +15,6 @@ export function TableFilters({
   filterPlaceholder,
   isLoading 
 }: TableFiltersProps) {
-  const { t, i18n } = useTranslation();
-  
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between py-4 space-y-3 md:space-y-0 animate-fade-in">
       <div className="relative w-full md:max-w-sm">
@@ -28,19 +25,18 @@ export function TableFilters({
             table.getColumn(filterColumn)?.setFilterValue(event.target.value)
           }
           placeholder={filterPlaceholder}
-          className="pl-9 max-w-full bg-white"
+          className="pl-9 max-w-full bg-white font-mangal"
           disabled={isLoading}
-          lang={i18n.language}
         />
       </div>
-      <div className="text-sm text-muted-foreground">
+      <div className="text-sm text-muted-foreground font-mangal">
         <p>
           {table.getFilteredSelectedRowModel().rows.length > 0 && (
             <span className="font-medium text-primary mr-1">
-              {table.getFilteredSelectedRowModel().rows.length} {t("selected")}
+              {table.getFilteredSelectedRowModel().rows.length} चयनित
             </span>
           )}
-          {t("of")} {table.getFilteredRowModel().rows.length} {t("total")}
+          कुल {table.getFilteredRowModel().rows.length} में से
         </p>
       </div>
     </div>

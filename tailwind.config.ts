@@ -21,7 +21,7 @@ export default {
 		extend: {
 			fontFamily: {
 				sans: ['Space Grotesk', 'sans-serif'],
-				krutidev: ['"Kruti Dev 010"', 'sans-serif'],
+				mangal: ['Mangal', 'Arial Unicode MS', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

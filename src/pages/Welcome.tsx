@@ -15,7 +15,7 @@ const Welcome = () => {
     }, []);
 
     const handleNext = () => {
-        navigate("/");
+        navigate("/trainees");
     };
 
     return (
@@ -40,12 +40,12 @@ const Welcome = () => {
                 <img src="/commando.png" alt="" className="w-mid h-mid md:w-large md:h-large" style={{
                     filter: "drop-shadow(0.5rem .75rem .75rem rgba(0, 0, 0, 1))",
                 }} />
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-black m-2 krutidev-heading">
+                <h1 className="mt-6 text-3xl sm:text-4xl md:text-5xl font-bold text-center text-black m-2 font-mangal">
                     आरटीसी प्रशिक्षु प्रबंधन प्रणाली
                 </h1>
                 <button
                     onClick={handleNext}
-                    className="m-4 px-4 sm:px-6 py-2 bg-blue-600 border-2 border-blue-600 hover:bg-white hover:text-blue-600 text-white font-semibold rounded-lg shadow-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 krutidev-text"
+                    className="m-4 px-4 sm:px-6 py-2 bg-blue-600 border-2 border-blue-600 hover:bg-white hover:text-blue-600 text-white font-semibold rounded-lg shadow-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 font-mangal"
                     aria-label="डैशबोर्ड खोलें"
                 >
                     डैशबोर्ड खोलें

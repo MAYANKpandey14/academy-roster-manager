@@ -4,8 +4,8 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: 'KrutiDev';
-  src: url('/font/KrutiDev.woff') format('woff');
+  font-family: 'Mangal';
+  src: local('Mangal'), local('Arial Unicode MS');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -59,8 +59,8 @@
 }
 
 @layer utilities {
-  .font-krutidev {
-    font-family: 'KrutiDev', sans-serif;
+  .font-mangal {
+    font-family: 'Mangal', 'Arial Unicode MS', sans-serif;
   }
 
   .animate-fade-in {
@@ -113,4 +113,18 @@
     flex-direction: column;
     align-items: stretch;
   }
+}
+
+/* Apply Mangal font to all Hindi text by default */
+body {
+  font-family: 'Mangal', 'Arial Unicode MS', sans-serif;
+}
+
+/* Special handling for input fields that need Latin characters */
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="date"] {
+  font-family: 'Space Grotesk', sans-serif;
 }

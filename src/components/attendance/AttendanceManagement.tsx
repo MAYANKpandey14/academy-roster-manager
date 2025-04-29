@@ -1,42 +1,29 @@
 
-import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { PersonType } from "./types";
-import { PersonSearch } from "./search/PersonSearch";
-import { PersonDetails } from "./display/PersonDetails";
-import { AttendanceTabs } from "./AttendanceTabs";
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AttendanceForm from "./AttendanceForm";
+import AttendanceTable from "./AttendanceTable";
 
 export function AttendanceManagement() {
-  const [personData, setPersonData] = useState<any>(null);
-  const [isSearching, setIsSearching] = useState(false);
-  const [activeTab, setActiveTab] = useState<PersonType>('trainee');
-
-  // Clear person data when tab changes
-  useEffect(() => {
-    setPersonData(null);
-  }, [activeTab]);
+  const [activeTab, setActiveTab] = useState("add");
 
   return (
     <div className="space-y-6">
-      {/* Section 1: Search by PNO */}
-      <Card>
-        <CardContent className="pt-6">
-          <PersonSearch 
-            activeTab={activeTab}
-            onPersonFound={setPersonData}
-            isSearching={isSearching}
-            setIsSearching={setIsSearching}
-          />
-          <PersonDetails personData={personData} />
-        </CardContent>
-      </Card>
-
-      {/* Section 2: Tabs for Trainee/Staff */}
-      <AttendanceTabs 
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        personData={personData}
-      />
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="w-full">
+          <TabsTrigger value="add" className="w-full font-mangal">अनुपस्थिति / अवकाश दर्ज करें</TabsTrigger>
+          <TabsTrigger value="view" className="w-full font-mangal">अनुपस्थिति रिकॉर्ड देखें</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="add" className="mt-4">
+          <AttendanceForm />
+        </TabsContent>
+        
+        <TabsContent value="view" className="mt-4">
+          <AttendanceTable />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

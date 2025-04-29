@@ -1,25 +1,19 @@
 
-import { useState, useEffect } from "react";
-import { Header } from "@/components/layout/Header";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useTranslation } from "react-i18next";
-import { useLanguageInputs } from "@/hooks/useLanguageInputs";
+import { Layout } from "@/components/layout/Layout";
+import { PageHeader } from "@/components/ui/page-header";
 import { AttendanceManagement } from "@/components/attendance/AttendanceManagement";
 
 export default function AttendancePage() {
-  const { t } = useTranslation();
-  
-  // Use the language inputs hook
-  useLanguageInputs();
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      <main className="container mx-auto py-6 px-4">
-        <h1 className="text-2xl font-semibold mb-6 dynamic-text">{t('attendanceManagement')}</h1>
+    <Layout>
+      <div className="container py-6 space-y-6">
+        <PageHeader
+          title="उपस्थिति प्रबंधन"
+          description="प्रशिक्षुओं और स्टाफ की अनुपस्थिति और अवकाश रिकॉर्ड प्रबंधित करें"
+        />
         
         <AttendanceManagement />
-      </main>
-    </div>
+      </div>
+    </Layout>
   );
 }

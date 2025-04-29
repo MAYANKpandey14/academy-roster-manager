@@ -2,17 +2,15 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  isAuthField?: boolean;
-}
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, isAuthField = false, ...props }, ref) => {
-    // Always use 'en' language for date, number, tel and auth inputs
-    const isSpecialField = type === 'date' || type === 'number' || type === 'tel' || isAuthField;
+  ({ className, type, ...props }, ref) => {
+    // Always use 'en' language for date, number, tel inputs
+    const isSpecialField = type === 'date' || type === 'number' || type === 'tel' || type === 'email' || type === 'password';
     
     // Apply appropriate font class based on input type
-    const fontClass = isSpecialField ? 'auth-input' : 'font-krutidev';
+    const fontClass = isSpecialField ? '' : 'font-mangal';
     
     return (
       <input

@@ -44,61 +44,86 @@ interface LeaveRecord {
 type HistoryRecord = AbsenceRecord | LeaveRecord;
 
 export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
-  // Fetch absences - much simpler approach to avoid deep type instantiation
-  const absencesQuery = useQuery({
+  const [absencesData, setAbsencesData] = useState<AbsenceRecord[]>([]);
+  const [leavesData, setLeavesData] = useState<LeaveRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Fetch absence data
+  const fetchAbsences = useQuery({
     queryKey: [`${type}-absences`, personId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from(`${type}_attendance`)
-        .select('*')
-        .eq(`${type}_id`, personId)
-        .eq('status', 'absent')
-        .order('date', { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from(`${type}_attendance`)
+          .select('*')
+          .eq(`${type}_id`, personId)
+          .eq('status', 'absent')
+          .order('date', { ascending: false });
 
-      if (error) throw error;
-      return data || [];
+        if (error) throw error;
+        return data || [];
+      } catch (error) {
+        console.error('Error fetching absences:', error);
+        return [];
+      }
     },
+    enabled: !!personId,
   });
 
-  // Transform absences data separately from the query
-  const absencesData: AbsenceRecord[] = (absencesQuery.data || []).map(item => ({
-    id: item.id,
-    date: item.date,
-    status: item.status,
-    type: 'absent' as const,
-    start_date: item.date,
-    end_date: item.date,
-    leave_type: null,
-    reason: undefined
-  }));
-
-  // Fetch leaves - much simpler approach to avoid deep type instantiation
-  const leavesQuery = useQuery({
+  // Fetch leave data
+  const fetchLeaves = useQuery({
     queryKey: [`${type}-leaves`, personId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from(`${type}_leave`)
-        .select('*')
-        .eq(`${type}_id`, personId)
-        .order('start_date', { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from(`${type}_leave`)
+          .select('*')
+          .eq(`${type}_id`, personId)
+          .order('start_date', { ascending: false });
 
-      if (error) throw error;
-      return data || [];
+        if (error) throw error;
+        return data || [];
+      } catch (error) {
+        console.error('Error fetching leaves:', error);
+        return [];
+      }
     },
+    enabled: !!personId,
   });
 
-  // Transform leaves data separately from the query
-  const leavesData: LeaveRecord[] = (leavesQuery.data || []).map(item => ({
-    id: item.id,
-    start_date: item.start_date,
-    end_date: item.end_date,
-    reason: item.reason,
-    status: 'on_leave',
-    leave_type: item.leave_type,
-    type: 'leave' as const
-  }));
+  // Process data separately from the query to avoid type issues
+  useEffect(() => {
+    if (fetchAbsences.data) {
+      const processed: AbsenceRecord[] = fetchAbsences.data.map(item => ({
+        id: item.id,
+        date: item.date,
+        status: item.status,
+        type: 'absent',
+        start_date: item.date,
+        end_date: item.date,
+        leave_type: null,
+        reason: undefined
+      }));
+      setAbsencesData(processed);
+    }
+    
+    if (fetchLeaves.data) {
+      const processed: LeaveRecord[] = fetchLeaves.data.map(item => ({
+        id: item.id,
+        start_date: item.start_date,
+        end_date: item.end_date,
+        reason: item.reason,
+        status: 'on_leave',
+        leave_type: item.leave_type,
+        type: 'leave'
+      }));
+      setLeavesData(processed);
+    }
+    
+    setIsLoading(fetchAbsences.isLoading || fetchLeaves.isLoading);
+  }, [fetchAbsences.data, fetchLeaves.data, fetchAbsences.isLoading, fetchLeaves.isLoading]);
 
-  // Combine and format data for the table
+  // Combine and sort the data
   const historyData: HistoryRecord[] = [
     ...absencesData, 
     ...leavesData
@@ -108,8 +133,6 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
     const dateB = new Date(b.start_date).getTime();
     return dateB - dateA;
   });
-
-  const isLoading = absencesQuery.isLoading || leavesQuery.isLoading;
 
   if (isLoading) {
     return <div className="p-6 text-center">डेटा लोड हो रहा है...</div>;
@@ -150,14 +173,14 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
                     <TableCell>
                       {record.type === 'leave' && record.leave_type ? record.leave_type : '-'}
                     </TableCell>
-                    <TableCell className="font-krutidev">
+                    <TableCell>
                       {format(new Date(record.start_date), 'dd/MM/yyyy')}
                     </TableCell>
-                    <TableCell className="font-krutidev">
+                    <TableCell>
                       {format(new Date(record.end_date), 'dd/MM/yyyy')}
                     </TableCell>
                     <TableCell>{daysDiff}</TableCell>
-                    <TableCell className="font-krutidev max-w-xs truncate">
+                    <TableCell className="max-w-xs truncate">
                       {record.type === 'leave' ? (record.reason || '-') : '-'}
                     </TableCell>
                   </TableRow>
