@@ -3,6 +3,7 @@ import { Trainee } from "@/types/trainee";
 import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/exportUtils";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { prepareTextForLanguage } from "@/utils/textUtils";
 
 export interface TraineePrintServiceProps {
   trainee: Trainee;
@@ -17,6 +18,8 @@ export function useTraineePrintService({ trainee }: TraineePrintServiceProps) {
     
     if (!printSuccess) {
       toast.error(t("failedToPrint", "Failed to open print window. Please check your pop-up blocker settings."));
+    } else {
+      toast.success(t("printingTrainees", `Printing trainee details`));
     }
   };
 

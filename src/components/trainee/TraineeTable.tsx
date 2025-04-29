@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   ColumnDef,
@@ -164,14 +163,7 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
       cell: ({ row }) => {
         const trainee = row.original;
         return (
-          <TraineeActions 
-            trainee={trainee} 
-            onEdit={() => {
-              if (onRefresh) {
-                onRefresh();
-              }
-            }}
-          />
+          <TraineeActions trainee={trainee} />
         );
       },
     },
@@ -190,10 +182,14 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
       return;
     }
     
-    // Fix: Pass only the first argument, as the function signature expects
-    const content = createPrintContent(selectedTrainees);
-    handlePrint(content);
-    toast.success(t("printingTrainees", `Printing ${selectedTrainees.length} trainee(s)`));
+    const content = createPrintContent(selectedTrainees, i18n.language, t);
+    const success = handlePrint(content);
+    
+    if (success) {
+      toast.success(t("printingTrainees", `Printing ${selectedTrainees.length} trainee(s)`));
+    } else {
+      toast.error(t("failedToPrint", "Failed to open print window. Please check your pop-up blocker settings."));
+    }
   }
 
   function handleDownloadAction() {
@@ -204,8 +200,7 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
       return;
     }
     
-    // Fix: Pass only the first argument, as the function signature expects
-    const content = createCSVContent(selectedTrainees);
+    const content = createCSVContent(selectedTrainees, i18n.language, t);
     handleDownload(content, `selected_trainees_${new Date().toISOString().split('T')[0]}.csv`);
     toast.success(t("traineeCSVDownloaded", `CSV file with ${selectedTrainees.length} trainees downloaded successfully`));
   }
