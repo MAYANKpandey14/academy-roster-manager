@@ -35,11 +35,36 @@ export const prepareTextForLanguage = (text: string | null | undefined, language
   
   // Apply any language-specific transformations if needed
   if (language === 'hi') {
-    // Any Hindi-specific transformations would go here if needed in the future
+    // Preserve special characters and punctuation in Hindi text
     return encodedText;
   }
   
   return encodedText;
+};
+
+/**
+ * Preserves special characters in translated text
+ * This function can be used to keep certain characters intact during translation
+ * @param text Text that may contain special characters
+ * @returns Text with special characters preserved
+ */
+export const preserveSpecialCharacters = (text: string): string => {
+  if (!text) return '';
+  
+  // Replace special characters with placeholders before translation
+  return text.replace(/[/()[\]{}:;,.?!@#$%^&*_+=|\\<>"-]/g, match => `{{${match}}}`);
+};
+
+/**
+ * Restores special characters that were replaced with placeholders
+ * @param text Text with special character placeholders
+ * @returns Original text with special characters restored
+ */
+export const restoreSpecialCharacters = (text: string): string => {
+  if (!text) return '';
+  
+  // Replace placeholders with the original special characters
+  return text.replace(/{{([/()[\]{}:;,.?!@#$%^&*_+=|\\<>"-])}}/g, '$1');
 };
 
 /**

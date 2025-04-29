@@ -35,6 +35,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       : value;
       
     // Process placeholder for Hindi if needed
+    // For placeholders with special characters, we want to preserve those characters
     const processedPlaceholder = isHindi && typeof placeholder === 'string'
       ? prepareTextForLanguage(placeholder, inputLang)
       : placeholder;
@@ -53,7 +54,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         inputMode={isHindi ? "text" : undefined}
         value={processedValue}
         placeholder={processedPlaceholder}
-        accept-charset="UTF-8"
         {...props}
       />
     );

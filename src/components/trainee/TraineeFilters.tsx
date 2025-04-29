@@ -82,7 +82,9 @@ export function TraineeFilters({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="rollNo" className="dynamic-text">{t("rollNo")} {t("uniqueId")}</Label>
+          <Label htmlFor="rollNo" className="dynamic-text">
+            {t("rollNo")} {i18n.language === 'hi' ? '/ विशिष्ट आईडी' : '/ Unique Id'}
+          </Label>
           <Input
             id="rollNo"
             placeholder={t("enterRollNo")}
