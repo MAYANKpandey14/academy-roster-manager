@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { TraineeTable } from "@/components/trainee/TraineeTable";
@@ -91,10 +90,7 @@ const Index = () => {
     }
     
     // Create consolidated print content for all trainees
-    let allContent = "";
-    filteredTrainees.forEach(trainee => {
-      allContent += createPrintContent(trainee);
-    });
+    const allContent = createPrintContent(filteredTrainees);
     
     handlePrint(allContent);
     toast.success(`${filteredTrainees.length} प्रशिक्षुओं का प्रिंट हो रहा है`);
@@ -107,17 +103,9 @@ const Index = () => {
     }
     
     // Create consolidated CSV content
-    let allContent = "";
-    // Get CSV header from first trainee
-    allContent = createCSVContent(filteredTrainees[0]).split('\n')[0] + '\n';
-    // Add all rows without duplicating headers
-    filteredTrainees.forEach(trainee => {
-      const content = createCSVContent(trainee);
-      const rows = content.split('\n').slice(1).join('\n');
-      allContent += rows + (rows ? '\n' : '');
-    });
+    const csvContent = createCSVContent(filteredTrainees);
     
-    handleDownload(allContent, `trainees_export_${new Date().toISOString().split('T')[0]}.csv`);
+    handleDownload(csvContent, `trainees_export_${new Date().toISOString().split('T')[0]}.csv`);
     toast.success(`${filteredTrainees.length} प्रशिक्षुओं वाली CSV फ़ाइल सफलतापूर्वक डाउनलोड की गई`);
   };
 

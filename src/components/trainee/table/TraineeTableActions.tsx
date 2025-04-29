@@ -32,10 +32,7 @@ export function TraineeTableActions({
     }
     
     // Create consolidated print content for all selected trainees
-    let allContent = "";
-    selectedTrainees.forEach(trainee => {
-      allContent += createPrintContent(trainee);
-    });
+    const allContent = createPrintContent(selectedTrainees);
     
     const success = handlePrint(allContent);
     
@@ -55,17 +52,9 @@ export function TraineeTableActions({
     }
     
     // Create consolidated CSV content for all selected trainees
-    let allContent = "";
-    // Get CSV header from first trainee
-    allContent = createCSVContent(selectedTrainees[0]).split('\n')[0] + '\n';
-    // Add all rows without duplicating headers
-    selectedTrainees.forEach(trainee => {
-      const content = createCSVContent(trainee);
-      const rows = content.split('\n').slice(1).join('\n');
-      allContent += rows + (rows ? '\n' : '');
-    });
+    const csvContent = createCSVContent(selectedTrainees);
     
-    handleDownload(allContent, `selected_trainees_${new Date().toISOString().split('T')[0]}.csv`);
+    handleDownload(csvContent, `selected_trainees_${new Date().toISOString().split('T')[0]}.csv`);
     toast.success(`${selectedTrainees.length} प्रशिक्षुओं वाली CSV फ़ाइल सफलतापूर्वक डाउनलोड की गई`);
   }
 
@@ -79,7 +68,7 @@ export function TraineeTableActions({
           disabled={isLoading}
         >
           <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-          {!isMobile && <span className="ml-2 krutidev-text">
+          {!isMobile && <span className="ml-2">
             रिफ्रेश
           </span>}
         </Button>
@@ -93,7 +82,7 @@ export function TraineeTableActions({
         disabled={isLoading || selectedCount === 0}
       >
         <Printer className="h-4 w-4" />
-        {!isMobile && <span className="ml-2 krutidev-text">
+        {!isMobile && <span className="ml-2">
           प्रिंट करें {selectedCount > 0 ? `चयनित (${selectedCount})` : ""}
         </span>}
       </Button>
@@ -106,7 +95,7 @@ export function TraineeTableActions({
         disabled={isLoading || selectedCount === 0}
       >
         <Download className="h-4 w-4" />
-        {!isMobile && <span className="ml-2 krutidev-text">
+        {!isMobile && <span className="ml-2">
           डाउनलोड CSV {selectedCount > 0 ? `चयनित (${selectedCount})` : ""}
         </span>}
       </Button>

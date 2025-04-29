@@ -6,7 +6,7 @@ import { toast } from "sonner";
 export function useTraineePrintService(trainee: Trainee) {
   const handlePrintTrainee = () => {
     // Create print content for single trainee
-    const printContent = createPrintContent([trainee]);
+    const printContent = createPrintContent(trainee);
     const printSuccess = handlePrint(printContent);
     
     if (!printSuccess) {
@@ -18,7 +18,7 @@ export function useTraineePrintService(trainee: Trainee) {
 
   const handleDownloadTrainee = () => {
     // Create CSV content for single trainee
-    const csvContent = createCSVContent([trainee]);
+    const csvContent = createCSVContent(trainee);
     handleDownload(
       csvContent, 
       `trainee_${trainee.pno}_${trainee.name.replace(/\s+/g, '_')}.csv`

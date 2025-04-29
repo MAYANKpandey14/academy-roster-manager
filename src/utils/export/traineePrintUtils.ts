@@ -3,13 +3,16 @@ import { Trainee } from "@/types/trainee";
 import { formatDate } from "@/utils/textUtils";
 import { getPrintStyles, createPrintHeader, createPrintFooter } from "./printUtils";
 
-export function createPrintContent(trainees: Trainee[]): string {
+export function createPrintContent(trainees: Trainee | Trainee[]): string {
   const styles = getPrintStyles();
-  const header = createPrintHeader("प्रशिक्षु विवरण");
+  const header = createPrintHeader("प्रशिक्षु विवरण", styles);
   const footer = createPrintFooter();
 
+  // Convert single trainee to array if needed
+  const traineeArray = Array.isArray(trainees) ? trainees : [trainees];
+
   // Create trainee content
-  const traineeContent = trainees.map(trainee => {
+  const traineeContent = traineeArray.map(trainee => {
     return `
       <div class="trainee-details">
         <h3 class="trainee-name">${trainee.name}</h3>
