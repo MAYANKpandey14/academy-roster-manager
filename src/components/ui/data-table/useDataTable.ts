@@ -19,6 +19,7 @@ interface UseDataTableProps<TData, TValue> {
   setColumnFilters: (value: ColumnFiltersState) => void;
   rowSelection: Record<string, boolean>;
   onRowSelectionChange: (value: Record<string, boolean>) => void;
+  getRowId?: (row: TData, index: number) => string; // Added missing getRowId prop
 }
 
 export function useDataTable<TData, TValue>({
@@ -30,6 +31,7 @@ export function useDataTable<TData, TValue>({
   setColumnFilters,
   rowSelection,
   onRowSelectionChange,
+  getRowId,
 }: UseDataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -41,6 +43,8 @@ export function useDataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onRowSelectionChange: onRowSelectionChange,
+    // Add getRowId if provided
+    ...(getRowId && { getRowId }),
     state: {
       sorting,
       columnFilters,

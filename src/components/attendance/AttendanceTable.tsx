@@ -9,6 +9,7 @@ import { TableView } from "@/components/ui/table-view/TableView";
 import { useAttendance } from "@/hooks/useAttendance";
 import { Eye, Download, Printer, RefreshCw, Search, FileDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { TableAction } from "@/components/ui/table-view/types";
 
 export default function AttendanceTable() {
   const [pnoFilter, setPnoFilter] = useState("");
@@ -73,7 +74,8 @@ export default function AttendanceTable() {
     }
   ];
 
-  const actions = [
+  // Fixed: Explicitly define actions with correct ActionType values
+  const actions: TableAction<any>[] = [
     {
       type: "view",
       label: "देखें",
@@ -90,7 +92,6 @@ export default function AttendanceTable() {
       onClick: (record) => {
         // Print attendance
         console.log("Print attendance", record);
-        // Implementation for printing can be added here
       }
     },
     {
@@ -100,7 +101,6 @@ export default function AttendanceTable() {
       onClick: (record) => {
         // Download attendance
         console.log("Download attendance", record);
-        // Implementation for downloading can be added here
       }
     }
   ];

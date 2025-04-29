@@ -21,7 +21,7 @@ export interface TableViewProps<T extends Record<string, any>> {
   onRefresh?: () => void;
   onRowSelectionChange?: (selected: Record<string, boolean>) => void;
   rowSelection?: Record<string, boolean>;
-  getRowId?: (row: T) => string;
+  getRowId?: (row: T, index: number) => string;
 }
 
 export interface TableActionsBarProps<T extends Record<string, any>> {

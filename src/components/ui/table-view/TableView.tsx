@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { ColumnDef, ColumnFiltersState, SortingState } from "@tanstack/react-table";
 import { TableWrapper } from "@/components/ui/data-table/TableWrapper";
@@ -45,7 +46,7 @@ export function TableView<T extends Record<string, any>>({
     }
   };
 
-  // Create table instance
+  // Create table instance - Fixed: Pass getRowId with correct parameters
   const table = useDataTable({
     data,
     columns,
@@ -55,7 +56,7 @@ export function TableView<T extends Record<string, any>>({
     setColumnFilters,
     rowSelection,
     onRowSelectionChange: handleRowSelectionChange,
-    getRowId
+    getRowId: getRowId // Fixed: Pass getRowId as is, not with parameters
   });
 
   // Get selected rows
@@ -64,7 +65,7 @@ export function TableView<T extends Record<string, any>>({
     return selectedIndices.map(id => {
       // If we have a getRowId function, we need to find the row by the custom id
       if (getRowId) {
-        return data.find((row, index) => getRowId(row, index) === id) as T;
+        return data.find((row, index) => String(getRowId(row, index)) === id) as T;
       }
       // Otherwise, assume id is the index
       return data[parseInt(id)];

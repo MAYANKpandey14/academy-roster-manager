@@ -48,7 +48,7 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
   const [leavesData, setLeavesData] = useState<LeaveRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Fetch absence data
+  // Fetch absence data - Fix: Simplify query function to reduce type complexity
   const fetchAbsences = useQuery({
     queryKey: [`${type}-absences`, personId],
     queryFn: async () => {
@@ -70,7 +70,7 @@ export function LeaveHistoryTable({ type, personId }: LeaveHistoryTableProps) {
     enabled: !!personId,
   });
 
-  // Fetch leave data
+  // Fetch leave data - Fix: Simplify query function to reduce type complexity
   const fetchLeaves = useQuery({
     queryKey: [`${type}-leaves`, personId],
     queryFn: async () => {

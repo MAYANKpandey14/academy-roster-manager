@@ -55,10 +55,18 @@ export default function AttendanceForm() {
   });
 
   const onSubmit = async (data: z.infer<typeof attendanceSchema>) => {
+    // Explicitly construct the AttendanceRecord with all required fields
     const attendanceData: AttendanceRecord = {
-      ...data,
-      // If Absent is selected, leave_type should be null
+      pno: data.pno,
+      name: data.name,
+      type: data.type,
       leave_type: data.type === "Absent" ? null : data.leave_type,
+      date_from: data.date_from,
+      date_to: data.date_to,
+      // Optional fields
+      rank: data.rank || undefined,
+      phone: data.phone || undefined,
+      reason: data.reason || undefined,
     };
     
     mutation.mutate(attendanceData);
