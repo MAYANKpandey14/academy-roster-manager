@@ -104,7 +104,7 @@
   }
 }
 
-/* Language-specific styles */
+/* Hindi font styling */
 .krutidev-font {
   font-family: 'KrutiDev', sans-serif;
   font-size: inherit;
@@ -112,7 +112,7 @@
   line-height: inherit;
 }
 
-/* New Hindi font size classes */
+/* Hindi text styles */
 .krutidev-heading {
   font-family: 'KrutiDev', sans-serif;
   font-size: 1.25rem !important; /* 20px */
@@ -132,57 +132,35 @@
   line-height: 1.5 !important;
 }
 
-.lang-hi {
-  /* Hindi language specific styling */
-}
-
-.dynamic-text {
-  transition: font-family 0.2s ease;
-}
-
-/* Apply proper Hindi styling based on context */
-h1.dynamic-text.lang-hi,
-h2.dynamic-text.lang-hi,
-h3.dynamic-text.lang-hi,
-.text-2xl.dynamic-text.lang-hi,
-.text-xl.dynamic-text.lang-hi,
-.font-semibold.dynamic-text.lang-hi {
-  @apply krutidev-heading;
-}
-
-p.dynamic-text.lang-hi,
-span.dynamic-text.lang-hi,
-div.dynamic-text.lang-hi,
-td .dynamic-text.lang-hi,
-.card-content .dynamic-text.lang-hi {
-  @apply krutidev-text;
-}
-
-.dynamic-text.lang-hi {
+/* Apply Hindi styling for all content */
+h1, h2, h3, h4, h5, h6, 
+button, div, p, span, 
+label, td, th, li {
   font-family: 'KrutiDev', sans-serif;
 }
 
-/* Table specific styles */
-th .dynamic-text.lang-hi {
-  @apply krutidev-heading;
+/* Exclude auth inputs from Hindi styling */
+.auth-input {
+  font-family: 'Space Grotesk', sans-serif;
 }
 
-td .dynamic-text.lang-hi {
-  @apply krutidev-text;
+/* Apply proper Hindi styling for different contexts */
+h1, h2, h3, .text-2xl, .text-xl, .font-semibold {
+  font-family: 'KrutiDev', sans-serif;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+}
+
+p, span, div, td {
+  font-family: 'KrutiDev', sans-serif;
 }
 
 /* Ensure proper text rendering for Hindi */
-input[lang="hi"], 
-textarea[lang="hi"] {
-  @apply krutidev-placeholder;
+input, textarea {
+  font-family: 'KrutiDev', sans-serif;
 }
 
-input[lang="hi"]::placeholder, 
-textarea[lang="hi"]::placeholder {
-  @apply krutidev-placeholder;
-}
-
-/* Always render dates and numbers in English */
+/* Exception for date, number and phone fields */
 input[type="date"],
 input[type="number"],
 input[type="tel"] {
@@ -203,6 +181,7 @@ input[type="tel"] {
     font-size: 12pt;
     color: #000;
     background: #fff;
+    font-family: 'KrutiDev', sans-serif;
   }
   
   .print-container {

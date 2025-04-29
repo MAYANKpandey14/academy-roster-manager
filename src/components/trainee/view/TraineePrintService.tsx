@@ -1,36 +1,30 @@
 
 import { Trainee } from "@/types/trainee";
 import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/export";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/hooks/useTranslation";
 import { toast } from "sonner";
-import { useLanguage } from "@/contexts/LanguageContext";
-
-export interface TraineePrintServiceProps {
-  trainee: Trainee;
-}
 
 export function useTraineePrintService(trainee: Trainee) {
-  const { t, i18n } = useTranslation();
-  const { currentLanguage } = useLanguage();
+  const { t } = useTranslation();
 
   const handlePrintTrainee = () => {
-    const printContent = createPrintContent([trainee], currentLanguage, t);
+    const printContent = createPrintContent([trainee], t);
     const printSuccess = handlePrint(printContent);
     
     if (!printSuccess) {
-      toast.error(t("failedToPrint", "Failed to open print window. Please check your pop-up blocker settings."));
+      toast.error("प्रिंट विंडो खोलने में विफल। कृपया अपनी पॉप-अप ब्लॉकर सेटिंग्स जांचें।");
     } else {
-      toast.success(t("printingTrainees", `Printing trainee details`));
+      toast.success("प्रशिक्षु विवरण प्रिंट हो रहा है");
     }
   };
 
   const handleDownloadTrainee = () => {
-    const csvContent = createCSVContent([trainee], currentLanguage, t);
+    const csvContent = createCSVContent([trainee], t);
     handleDownload(
       csvContent, 
       `trainee_${trainee.pno}_${trainee.name.replace(/\s+/g, '_')}.csv`
     );
-    toast.success(t("csvDownloaded", "CSV file downloaded successfully"));
+    toast.success("सीएसवी फ़ाइल सफलतापूर्वक डाउनलोड की गई");
   };
 
   return {

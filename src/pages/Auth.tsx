@@ -6,9 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
-import { useLanguageInputs } from "@/hooks/useLanguageInputs";
-import LanguageSwitcher from "@/components/languageswitch/LanguageSwitcher";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -16,11 +14,8 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [resetPassword, setResetPassword] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
-
-  // Use the language inputs hook
-  useLanguageInputs();
 
   useEffect(() => {
     const img = new Image();
@@ -68,12 +63,7 @@ export default function Auth() {
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       
-      {/* Language Switcher - Positioned on top for better visibility on all devices */}
-      <div className="relative z-20 w-full flex justify-end mb-4">
-        <LanguageSwitcher />
-      </div>
-      
-      {/* Auth Form Container - Added better responsive positioning */}
+      {/* Auth Form Container */}
       <div className="w-full max-w-md relative z-10 mt-10 sm:mt-20">
         <div className="bg-white/95 backdrop-blur-md p-6 md:p-8 rounded-xl shadow-2xl">
           <div className="text-center">
@@ -82,7 +72,7 @@ export default function Auth() {
               alt="Logo" 
               className="mx-auto h-20 w-20 md:h-28 md:w-28" 
             />
-            <h2 className="mt-6 text-2xl md:text-3xl font-bold text-gray-900 dynamic-text">
+            <h2 className="mt-6 text-2xl md:text-3xl font-bold text-gray-900">
               {resetPassword ? t("resetPassword") : t("signInToAccount")}
             </h2>
           </div>
@@ -90,7 +80,7 @@ export default function Auth() {
           <form onSubmit={handleAuth} className="mt-8 space-y-6">
             <div className="rounded-md space-y-4">
               <div>
-                <Label htmlFor="email" className="text-gray-900 dynamic-text">
+                <Label htmlFor="email" className="text-gray-900">
                   {t("emailAddress")}
                 </Label>
                 <Input
@@ -99,14 +89,14 @@ export default function Auth() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t("emailAddress")}
                   className="bg-white/80"
+                  isAuthField={true}
                 />
               </div>
               
               {!resetPassword && (
                 <div>
-                  <Label htmlFor="password" className="text-gray-900 dynamic-text">
+                  <Label htmlFor="password" className="text-gray-900">
                     {t("password")}
                   </Label>
                   <Input
@@ -115,8 +105,8 @@ export default function Auth() {
                     required={!resetPassword}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder={t("password")}
                     className="bg-white/80"
+                    isAuthField={true}
                   />
                 </div>
               )}
@@ -128,11 +118,9 @@ export default function Auth() {
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 disabled={loading}
               >
-                <span className="dynamic-text">
-                  {loading ? t("processing") : resetPassword 
-                    ? t("sendResetLink") 
-                    : t("signIn")}
-                </span>
+                {loading ? t("processing") : resetPassword 
+                  ? t("sendResetLink") 
+                  : t("signIn")}
               </Button>
               
               {!resetPassword ? (
@@ -142,7 +130,7 @@ export default function Auth() {
                   onClick={() => setResetPassword(true)}
                   className="text-blue-600"
                 >
-                  <span className="dynamic-text">{t("forgotPassword")}</span>
+                  {t("forgotPassword")}
                 </Button>
               ) : (
                 <Button
@@ -151,7 +139,7 @@ export default function Auth() {
                   onClick={() => setResetPassword(false)}
                   className="text-blue-600"
                 >
-                  <span className="dynamic-text">{t("backToLogin")}</span>
+                  {t("backToLogin")}
                 </Button>
               )}
             </div>

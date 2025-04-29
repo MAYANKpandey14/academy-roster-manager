@@ -6,16 +6,15 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Navigation } from "./Navigation";
-import { useTranslation } from "react-i18next";
-import LanguageSwitcher from "../languageswitch/LanguageSwitcher";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export function Header() {
   const [today, setToday] = useState<string>("");
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   useEffect(() => {
-    // Update date when language changes
+    // Update date in Hindi format
     const updateDate = () => {
       const date = new Date();
       const options: Intl.DateTimeFormatOptions = {
@@ -24,22 +23,11 @@ export function Header() {
         month: "long",
         day: "numeric",
       };
-      setToday(date.toLocaleDateString(i18n.language === 'hi' ? 'hi-IN' : 'en-US', options));
+      setToday(date.toLocaleDateString('hi-IN', options));
     };
     
     updateDate();
-    
-    // Add listener for language changes
-    const handleLanguageChange = () => {
-      updateDate();
-    };
-    
-    i18n.on('languageChanged', handleLanguageChange);
-    
-    return () => {
-      i18n.off('languageChanged', handleLanguageChange);
-    };
-  }, [i18n]);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -47,7 +35,7 @@ export function Header() {
       navigate("/auth");
       toast.success(t("logoutSuccess"));
     } catch (error) {
-      toast.error(t("logoutError"));
+      toast.error("लॉगआउट में समस्या");
     }
   };
 
@@ -60,16 +48,16 @@ export function Header() {
             <div className="flex-shrink-0 mr-2">
               <img src="/images.svg" alt="logo" className="w-16 h-16 md:w-20 md:h-20" />
             </div>
-            <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-center md:text-left">{t("headerTitle")}</h1>
+            <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-center md:text-left krutidev-heading">
+              {t("headerTitle")}
+            </h1>
           </div>
           
           <div className="flex justify-center items-center">
-            <div className="text-sm text-gray-500 text-center">{today}</div>
+            <div className="text-sm text-gray-500 text-center krutidev-text">{today}</div>
           </div>
           
           <div className="flex items-center justify-center md:justify-end gap-2 md:gap-4">
-            <LanguageSwitcher />
-            
             <div className="hidden sm:flex items-center gap-2">
               <Button
                 variant="outline"

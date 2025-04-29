@@ -2,7 +2,7 @@
 import { Trainee } from "@/types/trainee";
 import { format } from "date-fns";
 import { TraineeInfoField } from "./TraineeInfoField";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface TraineeDetailsSectionProps {
   trainee: Trainee;
@@ -15,67 +15,61 @@ export function TraineeDetailsSection({ trainee }: TraineeDetailsSectionProps) {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="space-y-4">
         <TraineeInfoField 
-          label={t("pno", "PNO")} 
+          label={t("pno", "पीएनओ")} 
           value={trainee.pno} 
         />
         <TraineeInfoField 
-          label={t("chestNo", "Chest No")} 
+          label={t("chestNo", "चेस्ट नंबर")} 
           value={trainee.chest_no} 
         />
         <TraineeInfoField 
-          label={t("name", "Name")} 
+          label={t("name", "नाम")} 
           value={trainee.name}
-          isMultilingual
         />
         <TraineeInfoField 
-          label={t("fatherName", "Father's Name")} 
+          label={t("fatherName", "पिता का नाम")} 
           value={trainee.father_name}
-          isMultilingual
         />
         <TraineeInfoField 
-          label={t("currentPostingDistrict", "Current Posting District")} 
+          label={t("currentPostingDistrict", "वर्तमान तैनाती जिला")} 
           value={trainee.current_posting_district}
-          isMultilingual
         />
       </div>
 
       <div className="space-y-4">
         <TraineeInfoField 
-          label={t("mobileNumber", "Mobile Number")} 
+          label={t("mobileNumber", "मोबाइल नंबर")} 
           value={trainee.mobile_number} 
         />
         <TraineeInfoField 
-          label={t("education", "Education")} 
+          label={t("education", "शिक्षा")} 
           value={trainee.education}
-          isMultilingual
         />
         <TraineeInfoField 
-          label={t("bloodGroup", "Blood Group")} 
+          label={t("bloodGroup", "रक्त समूह")} 
           value={trainee.blood_group} 
         />
         <TraineeInfoField 
-          label={t("nominee", "Nominee")} 
+          label={t("nominee", "नामिती")} 
           value={trainee.nominee}
-          isMultilingual
         />
         <TraineeInfoField 
-          label={t("homeAddress", "Home Address")} 
+          label={t("homeAddress", "घर का पता")} 
           value={trainee.home_address}
-          isMultilingual
         />
       </div>
 
       <div className="space-y-4">
         <TraineeInfoField 
-          label={t("dateOfBirth", "Date of Birth")} 
+          label={t("dateOfBirth", "जन्म तिथि")} 
           value={format(new Date(trainee.date_of_birth), 'PP')} 
         />
         <TraineeInfoField 
-          label={t("dateOfJoining", "Date of Joining")} 
+          label={t("dateOfJoining", "नियुक्ति तिथि")} 
           value={format(new Date(trainee.date_of_joining), 'PP')} 
         />
         <TraineeInfoField 
-          label={t("trainingPeriod", "Training Period")} 
+          label={t("trainingPeriod", "प्रशिक्षण अवधि")} 
           value={`${format(new Date(trainee.arrival_date), 'PP')} - ${format(new Date(trainee.departure_date), 'PP')}`} 
         />
       </div>

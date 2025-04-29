@@ -1,7 +1,7 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export function Navigation() {
   const location = useLocation();
@@ -24,7 +24,7 @@ export function Navigation() {
               variant={location.pathname.startsWith(route.path) ? "default" : "ghost"}
               size="sm"
               asChild
-              className="whitespace-nowrap"
+              className="whitespace-nowrap krutidev-text"
             >
               <Link to={route.path}>{route.name}</Link>
             </Button>

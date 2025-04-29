@@ -1,6 +1,5 @@
 
 import { TFunction } from "i18next";
-import { prepareTextForLanguage } from "../textUtils";
 
 /**
  * Opens a print window and prints the content
@@ -36,10 +35,9 @@ export const handlePrint = (printContent: string): boolean => {
 /**
  * Creates common print styling used across different print templates
  * 
- * @param language Current language code
  * @returns CSS styles as string
  */
-export const getPrintStyles = (language: string): string => {
+export const getPrintStyles = (): string => {
   return `
     @font-face {
       font-family: 'KrutiDev';
@@ -49,11 +47,8 @@ export const getPrintStyles = (language: string): string => {
       font-display: swap;
     }
     body { 
-      font-family: Arial, sans-serif; 
+      font-family: 'KrutiDev', sans-serif; 
       padding: 20px;
-    }
-    .hindi-text { 
-      font-family: 'KrutiDev', Arial, sans-serif; 
     }
     h1 { text-align: center; margin-bottom: 5px; }
     h2 { text-align: center; margin-top: 5px; margin-bottom: 30px; }
@@ -98,18 +93,17 @@ export const createPrintHeader = (title: string, styles: string): string => {
 /**
  * Creates HTML footer content for print templates
  * 
- * @param language Current language code
  * @param t Translation function
  * @returns HTML footer as string
  */
-export const createPrintFooter = (language: string = 'en', t?: TFunction): string => {
+export const createPrintFooter = (t?: TFunction): string => {
   const translate = t || ((key: string, fallback: string) => fallback);
   
   return `
         <div class="footer">
-          <p class="${language === 'hi' ? 'hindi-text' : ''}">
-            ${prepareTextForLanguage(translate("documentGenerated", "This document was generated on"), language)}
-            ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
+          <p>
+            ${translate("documentGenerated", "यह दस्तावेज़ उत्पन्न किया गया")}
+            ${new Date().toLocaleDateString('hi-IN')} को ${new Date().toLocaleTimeString('hi-IN')}
           </p>
         </div>
       </body>
