@@ -41,12 +41,47 @@ export function DatePicker({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            mode={mode}
-            selected={selected || date}
-            onSelect={onSelect || setDate}
-            initialFocus
-          />
+          {mode === "single" && (
+            <Calendar
+              mode="single"
+              selected={selected as Date || date}
+              onSelect={(newDate) => {
+                if (onSelect) {
+                  onSelect(newDate);
+                } else if (setDate) {
+                  setDate(newDate);
+                }
+              }}
+              initialFocus
+              className="pointer-events-auto"
+            />
+          )}
+          
+          {mode === "range" && (
+            <Calendar
+              mode="range"
+              selected={selected as any}
+              onSelect={(newDate) => {
+                if (onSelect) onSelect(newDate as any);
+                else if (setDate) setDate(newDate as any);
+              }}
+              initialFocus
+              className="pointer-events-auto"
+            />
+          )}
+          
+          {mode === "multiple" && (
+            <Calendar
+              mode="multiple"
+              selected={selected as Date[] || date ? [date] : []}
+              onSelect={(newDate) => {
+                if (onSelect) onSelect(newDate as any);
+                else if (setDate) setDate((newDate as Date[])?.[0]);
+              }}
+              initialFocus
+              className="pointer-events-auto"
+            />
+          )}
         </PopoverContent>
       </Popover>
     </div>

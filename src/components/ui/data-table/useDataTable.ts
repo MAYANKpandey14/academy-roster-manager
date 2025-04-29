@@ -43,13 +43,12 @@ export function useDataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onRowSelectionChange: onRowSelectionChange,
-    // Add getRowId if provided
-    ...(getRowId && { getRowId }),
     state: {
       sorting,
       columnFilters,
       rowSelection,
     },
+    ...(getRowId ? { getRowId } : {})
   });
 
   return table;
