@@ -1,6 +1,6 @@
 
 import { Staff } from "@/types/staff";
-import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/staffExportUtils";
+import { createStaffPrintContent, createStaffCSVContent, handlePrint, handleDownload } from "@/utils/staffExportUtils";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -12,11 +12,11 @@ export interface StaffPrintServiceProps {
 export function useStaffPrintService(staff: Staff) {
   const { t } = useTranslation();
   const { isHindi } = useLanguage();
-  // Use isHindi directly instead of currentLanguage
+  // Use isHindi directly to determine language
   const currentLanguage = isHindi ? 'hi' : 'en';
 
   const handlePrintStaff = () => {
-    const printContent = createPrintContent([staff], currentLanguage, t);
+    const printContent = createStaffPrintContent([staff], currentLanguage, t);
     const printSuccess = handlePrint(printContent);
     
     if (!printSuccess) {
@@ -27,7 +27,7 @@ export function useStaffPrintService(staff: Staff) {
   };
 
   const handleDownloadStaff = () => {
-    const csvContent = createCSVContent([staff], currentLanguage, t);
+    const csvContent = createStaffCSVContent([staff], currentLanguage, t);
     handleDownload(
       csvContent, 
       `staff_${staff.pno}_${staff.name.replace(/\s+/g, '_')}.csv`

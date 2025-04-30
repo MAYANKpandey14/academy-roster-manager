@@ -20,6 +20,9 @@ export const AttendanceTabs = ({ personId, personType, searchData }: AttendanceT
     setActiveTab("attendance");
   }, [personId]);
 
+  // Extract PNO from searchData if available
+  const pno = searchData?.pno;
+
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-6 animate-fade-in">
       <TabsList className="grid w-full grid-cols-2">
@@ -35,8 +38,8 @@ export const AttendanceTabs = ({ personId, personType, searchData }: AttendanceT
         <AttendanceTable 
           key={`attendance-${personId}`}
           personId={personId} 
-          personType={personType} 
-          searchData={searchData} 
+          personType={personType}
+          pno={pno}
         />
       </TabsContent>
       

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Label } from "@/components/ui/label";
@@ -84,14 +83,23 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
         const tableName = personType === "trainee" ? "trainee_attendance" : "staff_attendance";
         const idField = personType === "trainee" ? "trainee_id" : "staff_id";
         
+        // Create record without 'reason' since it might not exist in the table schema
+        const record: Record<string, any> = {
+          [idField]: personId,
+          date: format(values.startDate, "yyyy-MM-dd"),
+          status: "absent"
+        };
+        
+        // Add status as text field to store reason if no reason column exists
+        if (personType === "trainee") {
+          record.status = values.reason; // Using status field to store reason text
+        } else {
+          record.status = values.reason;
+        }
+        
         const { error } = await supabase
           .from(tableName)
-          .insert({
-            [idField]: personId,
-            date: format(values.startDate, "yyyy-MM-dd"),
-            status: "absent",
-            reason: values.reason,
-          });
+          .insert(record);
           
         if (error) throw error;
         
@@ -102,16 +110,23 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
         
         const endDate = values.endDate || values.startDate;
         
+        // Create properly structured record for leave table
+        const record: Record<string, any> = {
+          [idField]: personId,
+          start_date: format(values.startDate, "yyyy-MM-dd"),
+          end_date: format(endDate, "yyyy-MM-dd"),
+          reason: values.reason,
+          status: "approved"
+        };
+        
+        // Only add leave_type if provided
+        if (values.leaveType) {
+          record.leave_type = values.leaveType;
+        }
+        
         const { error } = await supabase
           .from(tableName)
-          .insert({
-            [idField]: personId,
-            start_date: format(values.startDate, "yyyy-MM-dd"),
-            end_date: format(endDate, "yyyy-MM-dd"),
-            reason: values.reason,
-            leave_type: values.leaveType || null,
-            status: "approved",
-          });
+          .insert(record);
           
         if (error) throw error;
       }

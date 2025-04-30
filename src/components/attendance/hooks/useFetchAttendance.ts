@@ -14,6 +14,8 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
   return useQuery({
     queryKey: ['attendance', personId, personType],
     queryFn: async (): Promise<AttendanceRecord[]> => {
+      if (!personId) return [];
+      
       // Get absences from attendance table
       const absenceTable = personType === 'trainee' ? 'trainee_attendance' : 'staff_attendance';
       const absenceIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
@@ -21,8 +23,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
       const { data: absences, error: absenceError } = await supabase
         .from(absenceTable)
         .select('*')
-        .eq(absenceIdField, personId || '')
-        .order('date', { ascending: false });
+        .eq(absenceIdField, personId);
 
       if (absenceError) throw absenceError;
 
@@ -33,17 +34,17 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
       const { data: leaves, error: leaveError } = await supabase
         .from(leaveTable)
         .select('*')
-        .eq(leaveIdField, personId || '')
-        .order('start_date', { ascending: false });
+        .eq(leaveIdField, personId);
 
       if (leaveError) throw leaveError;
 
-      // Format absences
+      // Format absences - with custom reason handling
       const formattedAbsences: AttendanceRecord[] = (absences || []).map(item => ({
         id: `absence-${item.id}`,
         date: item.date,
         status: 'absent',
-        reason: item.reason || 'Not specified'
+        // Handle the case where reason might not exist in the table
+        reason: item.reason || item.status || 'Not specified'
       }));
 
       // Format leaves
@@ -51,7 +52,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         id: `leave-${item.id}`,
         date: `${item.start_date} - ${item.end_date}`,
         status: 'on_leave',
-        reason: item.reason,
+        reason: item.reason || 'Not specified',
         leave_type: item.leave_type
       }));
 

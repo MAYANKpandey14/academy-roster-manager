@@ -65,7 +65,20 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
       
-      onPersonFound(data, personType);
+      // Create a properly shaped PersonData object
+      const personData: PersonData = {
+        id: data.id,
+        pno: data.pno,
+        name: data.name,
+        mobile_number: data.mobile_number
+      };
+      
+      // Add rank for staff if available
+      if (personType === 'staff' && data.rank) {
+        personData.rank = data.rank;
+      }
+      
+      onPersonFound(personData, personType);
       
     } catch (error) {
       console.error("Error searching person:", error);
