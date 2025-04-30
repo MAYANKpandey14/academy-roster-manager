@@ -10,8 +10,7 @@ export interface AttendanceRecord {
   leave_type?: string;
 }
 
-// Define the response types more specifically to avoid deep type instantiation
-interface AttendanceResponse {
+type AttendanceResponse = {
   id: string;
   date: string;
   status: string;
@@ -21,7 +20,7 @@ interface AttendanceResponse {
   updated_at?: string;
 }
 
-interface LeaveResponse {
+type LeaveResponse = {
   id: string;
   start_date: string;
   end_date: string;
@@ -69,16 +68,16 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
       if (absenceError) throw absenceError;
       if (leaveError) throw leaveError;
 
-      // Format absences with explicit casting to avoid deep type instantiation
-      const formattedAbsences = absences.map((item: any) => ({
+      // Format absences with proper typing
+      const formattedAbsences = absences.map((item) => ({
         id: `absence-${item.id}`,
         date: item.date,
         status: 'absent',
         reason: item.status // Using status field to store the reason
       }));
 
-      // Format leaves with explicit casting to avoid deep type instantiation
-      const formattedLeaves = leaves.map((item: any) => ({
+      // Format leaves with proper typing
+      const formattedLeaves = leaves.map((item) => ({
         id: `leave-${item.id}`,
         date: `${item.start_date} - ${item.end_date}`,
         status: 'on_leave',

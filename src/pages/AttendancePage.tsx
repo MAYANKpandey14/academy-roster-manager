@@ -31,12 +31,12 @@ export default function AttendancePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <main className="container mx-auto py-6 px-4">
-        <h1 className={`text-2xl font-semibold mb-6 ${isHindi ? "font-mangal" : "dynamic-text"}`}>
+      <main className="container mx-auto py-6 px-4 animate-fade-in">
+        <h1 className={`text-2xl font-semibold mb-6 ${isHindi ? "font-mangal" : ""}`}>
           {isHindi ? "उपस्थिति प्रबंधन" : "Attendance Management"}
         </h1>
         
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 animate-scale-in">
           <PersonSearch onPersonFound={handlePersonFound} />
           
           {person && (
@@ -45,15 +45,21 @@ export default function AttendancePage() {
               
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'view' | 'add')}>
                 <TabsList className="mb-4">
-                  <TabsTrigger value="view" className={`${isHindi ? "font-mangal" : ""}`}>
+                  <TabsTrigger 
+                    value="view" 
+                    className={`${isHindi ? "font-mangal" : ""} transition-all duration-200 hover:bg-gray-100`}
+                  >
                     {isHindi ? "उपस्थिति देखें" : "View Attendance"}
                   </TabsTrigger>
-                  <TabsTrigger value="add" className={`${isHindi ? "font-mangal" : ""}`}>
+                  <TabsTrigger 
+                    value="add" 
+                    className={`${isHindi ? "font-mangal" : ""} transition-all duration-200 hover:bg-gray-100`}
+                  >
                     {isHindi ? "अनुपस्थिति/छुट्टी दर्ज करें" : "Mark Absence/Leave"}
                   </TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="view" className="pt-4">
+                <TabsContent value="view" className="pt-4 animate-fade-in">
                   <AttendanceTable 
                     personId={person.id} 
                     personType={personType} 
@@ -61,7 +67,7 @@ export default function AttendancePage() {
                   />
                 </TabsContent>
                 
-                <TabsContent value="add" className="pt-4">
+                <TabsContent value="add" className="pt-4 animate-fade-in">
                   <h3 className={`text-lg font-medium mb-4 ${isHindi ? "font-mangal" : ""}`}>
                     {isHindi ? "अनुपस्थिति या छुट्टी दर्ज करें" : "Mark Absence or Leave"}
                   </h3>
