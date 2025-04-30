@@ -86,7 +86,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         ? "व्यक्ति खोजने में त्रुटि" 
         : "Error searching for person");
     } finally {
-      setIsSearching(false);
+      setIsSubmitting(false);
     }
   };
 

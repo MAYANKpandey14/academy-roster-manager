@@ -81,7 +81,8 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
         const tableName = personType === "trainee" ? "trainee_attendance" : "staff_attendance";
         const idField = personType === "trainee" ? "trainee_id" : "staff_id";
         
-        const attendanceData: Record<string, any> = {
+        // Explicitly type the attendance data according to table structure
+        const attendanceData = {
           [idField]: personId,
           date: format(values.startDate, "yyyy-MM-dd"),
           status: values.reason // Using status field to store reason text
@@ -100,7 +101,8 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
         
         const endDate = values.endDate || values.startDate;
         
-        const leaveData: Record<string, any> = {
+        // Explicitly type the leave data according to table structure
+        const leaveData = {
           [idField]: personId,
           start_date: format(values.startDate, "yyyy-MM-dd"),
           end_date: format(endDate, "yyyy-MM-dd"),
@@ -130,7 +132,7 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
     } catch (error) {
       console.error("Error submitting record:", error);
       toast.error(isHindi 
-        ? "रि��ॉर्ड जोड़ने में त्रुटि" 
+        ? "रिकॉर्ड जोड़ने में त्रुटि" 
         : "Error adding record");
     } finally {
       setIsSubmitting(false);
