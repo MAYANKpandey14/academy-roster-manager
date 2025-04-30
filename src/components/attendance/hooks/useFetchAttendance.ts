@@ -10,6 +10,7 @@ export interface AttendanceRecord {
   leave_type?: string;
 }
 
+// Define specific types for database records
 interface AbsenceRecord {
   id: string;
   date: string;
@@ -39,35 +40,34 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
       const leaveIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
       
       try {
-        // Use Promise.all to fetch data in parallel
+        // Fetch absence data
         const absenceResult = await supabase
           .from(absenceTable)
           .select('*')
           .eq(absenceIdField, personId);
-          
+        
+        if (absenceResult.error) throw absenceResult.error;
+        const absences = absenceResult.data || [];
+        
+        // Fetch leave data
         const leaveResult = await supabase
           .from(leaveTable)
           .select('*')
           .eq(leaveIdField, personId);
         
-        const absences = absenceResult.data || [];
-        const absenceError = absenceResult.error;
+        if (leaveResult.error) throw leaveResult.error;
         const leaves = leaveResult.data || [];
-        const leaveError = leaveResult.error;
-        
-        if (absenceError) throw absenceError;
-        if (leaveError) throw leaveError;
 
-        // Format absences
-        const formattedAbsences: AttendanceRecord[] = absences.map((item: AbsenceRecord) => ({
+        // Format absences with explicit typing
+        const formattedAbsences: AttendanceRecord[] = absences.map((item: any) => ({
           id: `absence-${item.id}`,
           date: item.date,
           status: 'absent',
           reason: item.status // Using status field to store the reason
         }));
 
-        // Format leaves
-        const formattedLeaves: AttendanceRecord[] = leaves.map((item: LeaveRecord) => ({
+        // Format leaves with explicit typing
+        const formattedLeaves: AttendanceRecord[] = leaves.map((item: any) => ({
           id: `leave-${item.id}`,
           date: `${item.start_date} - ${item.end_date}`,
           status: 'on_leave',
