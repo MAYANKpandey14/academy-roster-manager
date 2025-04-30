@@ -8,11 +8,11 @@ export function useLeaveHistory({ personId, personType = 'trainee' }: LeaveHisto
   const [historyData, setHistoryData] = useState<HistoryRecord[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Explicitly type the query result
-  const absencesQuery = useQuery<AbsenceRecord[], Error>({
+  // Query for absences with more explicit typing
+  const absencesQuery = useQuery({
     queryKey: ['absences', personId, personType],
     queryFn: async () => {
-      if (!personId) return [];
+      if (!personId) return [] as AbsenceRecord[];
       
       const { data, error } = await supabase
         .from(`${personType}_attendance`)
@@ -28,11 +28,11 @@ export function useLeaveHistory({ personId, personType = 'trainee' }: LeaveHisto
     enabled: !!personId
   });
   
-  // Explicitly type the query result
-  const leavesQuery = useQuery<LeaveRecord[], Error>({
+  // Query for leaves with more explicit typing
+  const leavesQuery = useQuery({
     queryKey: ['leaves', personId, personType],
     queryFn: async () => {
-      if (!personId) return [];
+      if (!personId) return [] as LeaveRecord[];
       
       const { data, error } = await supabase
         .from(`${personType}_leave`)
