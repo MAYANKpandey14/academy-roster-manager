@@ -38,13 +38,13 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
 
       if (leaveError) throw leaveError;
 
-      // Format absences - with custom reason handling
+      // Format absences - handling the case where the schema might have status field instead of reason
       const formattedAbsences: AttendanceRecord[] = (absences || []).map(item => ({
         id: `absence-${item.id}`,
         date: item.date,
         status: 'absent',
-        // Handle the case where reason might not exist in the table
-        reason: item.reason || item.status || 'Not specified'
+        // Use the status field as the reason if no reason field exists
+        reason: item.status || 'Not specified'
       }));
 
       // Format leaves

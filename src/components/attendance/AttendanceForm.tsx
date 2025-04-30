@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Label } from "@/components/ui/label";
@@ -83,25 +84,28 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
         const tableName = personType === "trainee" ? "trainee_attendance" : "staff_attendance";
         const idField = personType === "trainee" ? "trainee_id" : "staff_id";
         
-        // Create record without 'reason' since it might not exist in the table schema
-        const record: Record<string, any> = {
-          [idField]: personId,
-          date: format(values.startDate, "yyyy-MM-dd"),
-          status: "absent"
-        };
-        
-        // Add status as text field to store reason if no reason column exists
+        // Create properly typed record for attendance table
         if (personType === "trainee") {
-          record.status = values.reason; // Using status field to store reason text
+          const { error } = await supabase
+            .from(tableName)
+            .insert({
+              trainee_id: personId,
+              date: format(values.startDate, "yyyy-MM-dd"),
+              status: values.reason // Using status field to store reason text in trainee table
+            });
+            
+          if (error) throw error;
         } else {
-          record.status = values.reason;
+          const { error } = await supabase
+            .from(tableName)
+            .insert({
+              staff_id: personId,
+              date: format(values.startDate, "yyyy-MM-dd"),
+              status: values.reason // Using status field to store reason text in staff table
+            });
+            
+          if (error) throw error;
         }
-        
-        const { error } = await supabase
-          .from(tableName)
-          .insert(record);
-          
-        if (error) throw error;
         
       } else if (values.status === "on_leave") {
         // Record leave in the leave table
@@ -110,25 +114,34 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
         
         const endDate = values.endDate || values.startDate;
         
-        // Create properly structured record for leave table
-        const record: Record<string, any> = {
-          [idField]: personId,
-          start_date: format(values.startDate, "yyyy-MM-dd"),
-          end_date: format(endDate, "yyyy-MM-dd"),
-          reason: values.reason,
-          status: "approved"
-        };
-        
-        // Only add leave_type if provided
-        if (values.leaveType) {
-          record.leave_type = values.leaveType;
+        // Create properly typed record for leave table
+        if (personType === "trainee") {
+          const { error } = await supabase
+            .from(tableName)
+            .insert({
+              trainee_id: personId,
+              start_date: format(values.startDate, "yyyy-MM-dd"),
+              end_date: format(endDate, "yyyy-MM-dd"),
+              reason: values.reason,
+              leave_type: values.leaveType || null,
+              status: "approved"
+            });
+            
+          if (error) throw error;
+        } else {
+          const { error } = await supabase
+            .from(tableName)
+            .insert({
+              staff_id: personId,
+              start_date: format(values.startDate, "yyyy-MM-dd"),
+              end_date: format(endDate, "yyyy-MM-dd"),
+              reason: values.reason,
+              leave_type: values.leaveType || null,
+              status: "approved"
+            });
+            
+          if (error) throw error;
         }
-        
-        const { error } = await supabase
-          .from(tableName)
-          .insert(record);
-          
-        if (error) throw error;
       }
       
       toast.success(isHindi 

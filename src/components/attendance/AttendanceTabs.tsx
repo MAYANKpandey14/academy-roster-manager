@@ -8,10 +8,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 interface AttendanceTabsProps {
   personId: string;
   personType: "staff" | "trainee";
-  searchData?: any;
+  pno?: string;
 }
 
-export const AttendanceTabs = ({ personId, personType, searchData }: AttendanceTabsProps) => {
+export const AttendanceTabs = ({ personId, personType, pno }: AttendanceTabsProps) => {
   const [activeTab, setActiveTab] = useState("attendance");
   const { isHindi } = useLanguage();
 
@@ -19,9 +19,6 @@ export const AttendanceTabs = ({ personId, personType, searchData }: AttendanceT
     // Reset to attendance tab when person changes
     setActiveTab("attendance");
   }, [personId]);
-
-  // Extract PNO from searchData if available
-  const pno = searchData?.pno;
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-6 animate-fade-in">
