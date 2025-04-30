@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TraineeFiltersProps {
   onSearch: (pno: string, chestNo: string, rollNo: string) => Promise<boolean>;
@@ -23,17 +23,17 @@ export function TraineeFilters({
   const [pno, setPno] = useState("");
   const [chestNo, setChestNo] = useState("");
   const [rollNo, setRollNo] = useState("");
-  const { t, i18n } = useTranslation();
+  const { isHindi } = useLanguage();
 
   const handleSearch = async () => {
     if (!pno && !chestNo && !rollNo) {
-      toast.error(t("selectTraineesToPrint", "Please enter at least one search criteria"));
+      toast.error(isHindi ? "कृपया कम से कम एक खोज मानदंड दर्ज करें" : "Please enter at least one search criteria");
       return;
     }
     
     const found = await onSearch(pno, chestNo, rollNo);
     if (!found) {
-      toast.error(t("noResults", "No trainee found matching your search criteria"));
+      toast.error(isHindi ? "आपकी खोज मानदंडों से मेल खाने वाला कोई प्रशिक्षु नहीं मिला" : "No trainee found matching your search criteria");
     }
   };
 
@@ -45,71 +45,76 @@ export function TraineeFilters({
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-4">
-      <h3 className="text-lg font-medium mb-4">
-        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("searchTrainees")}
-        </span>
+    <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-4 animate-scale-in">
+      <h3 className={`text-lg font-medium mb-4 ${isHindi ? 'font-hindi' : ''}`}>
+        {isHindi ? "प्रशिक्षु खोजें" : "Search Trainees"}
       </h3>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="pno" className="dynamic-text">{t("pnoNumber")}</Label>
+          <Label htmlFor="pno" className={isHindi ? 'font-hindi' : ''}>
+            {isHindi ? "पीएनओ नंबर" : "PNO Number"}
+          </Label>
           <Input
             id="pno"
-            placeholder={t("enterPNO")}
+            placeholder={isHindi ? "पीएनओ दर्ज करें" : "Enter PNO"}
             value={pno}
             onChange={(e) => setPno(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={disabled}
             maxLength={9}
-            lang={i18n.language}
           />
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="chestNo" className="dynamic-text">{t("chestNumber")}</Label>
+          <Label htmlFor="chestNo" className={isHindi ? 'font-hindi' : ''}>
+            {isHindi ? "चेस्ट नंबर" : "Chest Number"}
+          </Label>
           <Input
             id="chestNo"
-            placeholder={t("enterChestNo")}
+            placeholder={isHindi ? "चेस्ट नंबर दर्ज करें" : "Enter Chest No"}
             value={chestNo}
             onChange={(e) => setChestNo(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={disabled}
             maxLength={4}
-            lang={i18n.language}
           />
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="rollNo" className="dynamic-text">
-            {t("rollNo")} {i18n.language === 'hi' ? '/ विशिष्ट आईडी' : '/ Unique Id'}
+          <Label htmlFor="rollNo" className={isHindi ? 'font-hindi' : ''}>
+            {isHindi ? "रोल नंबर / विशिष्ट आईडी" : "Roll No / Unique Id"}
           </Label>
           <Input
             id="rollNo"
-            placeholder={t("enterRollNo")}
+            placeholder={isHindi ? "रोल नंबर दर्ज करें" : "Enter Roll No"}
             value={rollNo}
             onChange={(e) => setRollNo(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={disabled}
             maxLength={12}
-            lang={i18n.language}
           />
         </div>
       </div>
       
       <div className="flex flex-wrap justify-end gap-2">
-        <Button onClick={() => navigate('/add-trainee')} variant="outline">
+        <Button onClick={() => navigate('/add-trainee')} variant="outline" className="animate-slide-in">
           <UserPlus className="mr-2 h-4 w-4" />
-          <span className="dynamic-text">{t("addNewTrainee")}</span>
+          <span className={isHindi ? 'font-hindi' : ''}>
+            {isHindi ? "नया प्रशिक्षु जोड़ें" : "Add New Trainee"}
+          </span>
         </Button>
-        <Button onClick={onShowAll} variant="outline" disabled={disabled}>
+        <Button onClick={onShowAll} variant="outline" disabled={disabled} className="animate-slide-in">
           <List className="mr-2 h-4 w-4" />
-          <span className="dynamic-text">{t("showAllTrainees")}</span>
+          <span className={isHindi ? 'font-hindi' : ''}>
+            {isHindi ? "सभी प्रशिक्षु दिखाएं" : "Show All Trainees"}
+          </span>
         </Button>
-        <Button onClick={handleSearch} disabled={disabled}>
+        <Button onClick={handleSearch} disabled={disabled} className="animate-slide-in">
           <Search className="mr-2 h-4 w-4" />
-          <span className="dynamic-text">{t("searchTraineeBtn")}</span>
+          <span className={isHindi ? 'font-hindi' : ''}>
+            {isHindi ? "प्रशिक्षु खोजें" : "Search Trainee"}
+          </span>
         </Button>
       </div>
     </div>

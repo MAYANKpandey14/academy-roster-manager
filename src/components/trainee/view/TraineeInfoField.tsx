@@ -1,27 +1,33 @@
 
-import { useTranslation } from "react-i18next";
-import { prepareTextForLanguage } from "@/utils/textUtils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TraineeInfoFieldProps {
   label: string;
+  labelHindi?: string;
   value: string;
   isMultilingual?: boolean;
 }
 
-export function TraineeInfoField({ label, value, isMultilingual = false }: TraineeInfoFieldProps) {
-  const { i18n } = useTranslation();
+export function TraineeInfoField({ 
+  label, 
+  labelHindi, 
+  value, 
+  isMultilingual = false 
+}: TraineeInfoFieldProps) {
+  const { isHindi } = useLanguage();
+  const displayLabel = isHindi && labelHindi ? labelHindi : label;
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <h3 className="text-sm font-medium text-gray-500">
-        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-          {label}
+        <span className={isHindi ? 'font-hindi' : ''}>
+          {displayLabel}
         </span>
       </h3>
       <p className="mt-1">
         {isMultilingual ? (
-          <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`} lang={i18n.language}>
-            {prepareTextForLanguage(value, i18n.language)}
+          <span className={isHindi ? 'font-hindi' : ''}>
+            {value}
           </span>
         ) : (
           value

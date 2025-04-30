@@ -6,17 +6,13 @@ import { TraineeFilters } from "@/components/trainee/TraineeFilters";
 import { Trainee, BloodGroup } from "@/types/trainee";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
-import { useLanguageInputs } from "@/hooks/useLanguageInputs";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const TraineesPage = () => {
   const [trainees, setTrainees] = useState<Trainee[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showTable, setShowTable] = useState(false);
-  const { t } = useTranslation();
-  
-  // Use the language inputs hook for better language support
-  useLanguageInputs();
+  const { isHindi } = useLanguage();
 
   const handleSearch = async (pno: string, chestNo: string, rollNo: string): Promise<boolean> => {
     setIsLoading(true);
@@ -42,7 +38,7 @@ const TraineesPage = () => {
       return typedTrainees.length > 0;
     } catch (error) {
       console.error('Error searching trainees:', error);
-      toast.error(t('error', 'An error occurred'));
+      toast.error(isHindi ? 'एक त्रुटि हुई' : 'An error occurred');
       return false;
     } finally {
       setIsLoading(false);
@@ -69,7 +65,7 @@ const TraineesPage = () => {
       setShowTable(true);
     } catch (error) {
       console.error('Error fetching all trainees:', error);
-      toast.error(t('error', 'An error occurred'));
+      toast.error(isHindi ? 'एक त्रुटि हुई' : 'An error occurred');
     } finally {
       setIsLoading(false);
     }
@@ -85,9 +81,11 @@ const TraineesPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <main className="container mx-auto py-6 px-4">
+      <main className="container mx-auto py-6 px-4 animate-fade-in">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold mb-6 dynamic-text">{t('trainees', 'Trainees')}</h1>
+          <h1 className={`text-2xl font-semibold mb-6 ${isHindi ? 'font-hindi' : ''}`}>
+            {isHindi ? 'प्रशिक्षु' : 'Trainees'}
+          </h1>
           <TraineeFilters
             onSearch={handleSearch}
             onShowAll={handleShowAll}
@@ -96,7 +94,7 @@ const TraineesPage = () => {
         </div>
         
         {showTable && (
-          <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mt-6">
+          <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mt-6 animate-scale-in">
             <TraineeTable 
               trainees={trainees} 
               isLoading={isLoading}

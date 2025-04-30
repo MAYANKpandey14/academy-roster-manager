@@ -6,8 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
-import { useLanguageInputs } from "@/hooks/useLanguageInputs";
+import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/languageswitch/LanguageSwitcher";
 
 export default function Auth() {
@@ -16,11 +15,8 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [resetPassword, setResetPassword] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const { t, i18n } = useTranslation();
+  const { isHindi } = useLanguage();
   const navigate = useNavigate();
-
-  // Use the language inputs hook
-  useLanguageInputs();
 
   useEffect(() => {
     const img = new Image();
@@ -37,7 +33,7 @@ export default function Auth() {
         await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/reset-password`,
         });
-        toast.success(t("passwordUpdated"));
+        toast.success(isHindi ? "पासवर्ड रीसेट लिंक भेजा गया है" : "Password reset link sent");
         setResetPassword(false);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -46,7 +42,7 @@ export default function Auth() {
         });
         if (error) throw error;
         navigate("/welcome");
-        toast.success(t("logoutSuccess"));
+        toast.success(isHindi ? "सफलतापूर्वक लॉग इन हुआ" : "Successfully logged in");
       }
     } catch (error: any) {
       toast.error(error.message);
@@ -74,7 +70,7 @@ export default function Auth() {
       </div>
       
       {/* Auth Form Container - Added better responsive positioning */}
-      <div className="w-full max-w-md relative z-10 mt-10 sm:mt-20">
+      <div className="w-full max-w-md relative z-10 mt-10 sm:mt-20 animate-fade-in">
         <div className="bg-white/95 backdrop-blur-md p-6 md:p-8 rounded-xl shadow-2xl">
           <div className="text-center">
             <img 
@@ -82,16 +78,18 @@ export default function Auth() {
               alt="Logo" 
               className="mx-auto h-20 w-20 md:h-28 md:w-28" 
             />
-            <h2 className="mt-6 text-2xl md:text-3xl font-bold text-gray-900 dynamic-text">
-              {resetPassword ? t("resetPassword") : t("signInToAccount")}
+            <h2 className={`mt-6 text-2xl md:text-3xl font-bold text-gray-900 ${isHindi ? 'font-hindi' : ''}`}>
+              {resetPassword 
+                ? (isHindi ? "पासवर्ड रीसेट" : "Reset Password")
+                : (isHindi ? "अपने अकाउंट में साइन इन करें" : "Sign In to Account")}
             </h2>
           </div>
           
           <form onSubmit={handleAuth} className="mt-8 space-y-6">
             <div className="rounded-md space-y-4">
               <div>
-                <Label htmlFor="email" className="text-gray-900 dynamic-text">
-                  {t("emailAddress")}
+                <Label htmlFor="email" className={`text-gray-900 ${isHindi ? 'font-hindi' : ''}`}>
+                  {isHindi ? "ईमेल पता" : "Email Address"}
                 </Label>
                 <Input
                   id="email"
@@ -99,15 +97,15 @@ export default function Auth() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t("emailAddress")}
-                  className="bg-white/80"
+                  placeholder={isHindi ? "ईमेल पता दर्ज करें" : "Enter email address"}
+                  className="bg-white/80 animate-scale-in"
                 />
               </div>
               
               {!resetPassword && (
                 <div>
-                  <Label htmlFor="password" className="text-gray-900 dynamic-text">
-                    {t("password")}
+                  <Label htmlFor="password" className={`text-gray-900 ${isHindi ? 'font-hindi' : ''}`}>
+                    {isHindi ? "पासवर्ड" : "Password"}
                   </Label>
                   <Input
                     id="password"
@@ -115,8 +113,8 @@ export default function Auth() {
                     required={!resetPassword}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder={t("password")}
-                    className="bg-white/80"
+                    placeholder={isHindi ? "पासवर्ड दर्ज करें" : "Enter password"}
+                    className="bg-white/80 animate-scale-in"
                   />
                 </div>
               )}
@@ -125,13 +123,15 @@ export default function Auth() {
             <div className="flex flex-col space-y-4">
               <Button 
                 type="submit" 
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white animate-slide-in"
                 disabled={loading}
               >
-                <span className="dynamic-text">
-                  {loading ? t("processing") : resetPassword 
-                    ? t("sendResetLink") 
-                    : t("signIn")}
+                <span className={isHindi ? 'font-hindi' : ''}>
+                  {loading 
+                    ? (isHindi ? "प्रक्रिया में..." : "Processing...") 
+                    : resetPassword 
+                      ? (isHindi ? "रीसेट लिंक भेजें" : "Send Reset Link") 
+                      : (isHindi ? "साइन इन" : "Sign In")}
                 </span>
               </Button>
               
@@ -142,7 +142,9 @@ export default function Auth() {
                   onClick={() => setResetPassword(true)}
                   className="text-blue-600"
                 >
-                  <span className="dynamic-text">{t("forgotPassword")}</span>
+                  <span className={isHindi ? 'font-hindi' : ''}>
+                    {isHindi ? "पासवर्ड भूल गए?" : "Forgot Password?"}
+                  </span>
                 </Button>
               ) : (
                 <Button
@@ -151,7 +153,9 @@ export default function Auth() {
                   onClick={() => setResetPassword(false)}
                   className="text-blue-600"
                 >
-                  <span className="dynamic-text">{t("backToLogin")}</span>
+                  <span className={isHindi ? 'font-hindi' : ''}>
+                    {isHindi ? "लॉगिन पर वापस जाएँ" : "Back to Login"}
+                  </span>
                 </Button>
               )}
             </div>

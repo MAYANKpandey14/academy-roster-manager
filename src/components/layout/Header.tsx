@@ -1,21 +1,21 @@
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, Home, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Navigation } from "./Navigation";
-import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "../languageswitch/LanguageSwitcher";
 
 export function Header() {
   const [today, setToday] = useState<string>("");
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
+  const { isHindi } = useLanguage();
 
   useEffect(() => {
-    // Update date when language changes
+    // Update date based on current language
     const updateDate = () => {
       const date = new Date();
       const options: Intl.DateTimeFormatOptions = {
@@ -24,30 +24,26 @@ export function Header() {
         month: "long",
         day: "numeric",
       };
-      setToday(date.toLocaleDateString(i18n.language === 'hi' ? 'hi-IN' : 'en-US', options));
+      setToday(date.toLocaleDateString(isHindi ? 'hi-IN' : 'en-US', options));
     };
     
     updateDate();
     
-    // Add listener for language changes
-    const handleLanguageChange = () => {
-      updateDate();
-    };
-    
-    i18n.on('languageChanged', handleLanguageChange);
+    // Update date whenever language changes
+    const intervalId = setInterval(updateDate, 60000); // Update every minute
     
     return () => {
-      i18n.off('languageChanged', handleLanguageChange);
+      clearInterval(intervalId);
     };
-  }, [i18n]);
+  }, [isHindi]);
 
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
       navigate("/auth");
-      toast.success(t("logoutSuccess"));
+      toast.success(isHindi ? "सफलतापूर्वक लॉग आउट हुआ" : "Successfully logged out");
     } catch (error) {
-      toast.error(t("logoutError"));
+      toast.error(isHindi ? "लॉग आउट करने में समस्या" : "Error logging out");
     }
   };
 
@@ -60,17 +56,19 @@ export function Header() {
             <div className="flex-shrink-0 mr-2">
               <img src="/images.svg" alt="logo" className="w-16 h-16 md:w-20 md:h-20" />
             </div>
-            <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-center md:text-left">{t("headerTitle")}</h1>
+            <h1 className={`text-lg md:text-xl lg:text-2xl font-bold text-center md:text-left ${isHindi ? 'font-hindi' : ''}`}>
+              {isHindi ? "पुलिस प्रशिक्षण अकादमी" : "Police Training Academy"}
+            </h1>
           </div>
           
           <div className="flex justify-center items-center">
-            <div className="text-sm text-gray-500 text-center">{today}</div>
+            <div className={`text-sm text-gray-500 text-center ${isHindi ? 'font-hindi' : ''}`}>{today}</div>
           </div>
           
           <div className="flex items-center justify-center md:justify-end gap-2 md:gap-4">
             <LanguageSwitcher />
             
-            <div className="hidden sm:flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2 animate-fade-in">
               <Button
                 variant="outline"
                 size="sm"
@@ -78,7 +76,9 @@ export function Header() {
                 className="hidden sm:flex"
               >
                 <ArrowLeft className="h-4 w-4 mr-1" />
-                <span>{t("back")}</span>
+                <span className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "वापस" : "Back"}
+                </span>
               </Button>
               
               <Button
@@ -87,7 +87,9 @@ export function Header() {
                 onClick={() => navigate("/")}
               >
                 <Home className="h-4 w-4 mr-1" />
-                <span className="hidden sm:inline">{t("home")}</span>
+                <span className={`hidden sm:inline ${isHindi ? 'font-hindi' : ''}`}>
+                  {isHindi ? "होम" : "Home"}
+                </span>
               </Button>
               
               <Button
@@ -96,7 +98,9 @@ export function Header() {
                 onClick={handleLogout}
               >
                 <LogOut className="h-4 w-4 mr-1" />
-                <span className="hidden sm:inline">{t("logout")}</span>
+                <span className={`hidden sm:inline ${isHindi ? 'font-hindi' : ''}`}>
+                  {isHindi ? "लॉगआउट" : "Logout"}
+                </span>
               </Button>
             </div>
           </div>
