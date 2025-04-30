@@ -58,6 +58,7 @@ export default function Auth() {
         backgroundImage: imageLoaded ? "url('/login.jpeg')" : "none",
         backgroundSize: "cover",
         backgroundPosition: "center",
+        
         backgroundRepeat: "no-repeat",
       }}
     >

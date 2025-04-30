@@ -26,12 +26,12 @@ export function Header() {
       };
       setToday(date.toLocaleDateString(isHindi ? 'hi-IN' : 'en-US', options));
     };
-    
+
     updateDate();
-    
+
     // Update date whenever language changes
     const intervalId = setInterval(updateDate, 60000); // Update every minute
-    
+
     return () => {
       clearInterval(intervalId);
     };
@@ -60,14 +60,12 @@ export function Header() {
               {isHindi ? "आरटीसी पुलिस लाइन, मुरादाबाद" : "RTC Police Line, Moradabad"}
             </h1>
           </div>
-          
+
           <div className="flex justify-center items-center">
             <div className={`text-sm text-gray-500 text-center ${isHindi ? 'font-mangal' : ''}`}>{today}</div>
           </div>
-          
+
           <div className="flex items-center justify-center md:justify-end gap-2 md:gap-4">
-            <LanguageSwitcher />
-            
             <div className="hidden sm:flex items-center gap-2 animate-fade-in">
               <Button
                 variant="outline"
@@ -80,7 +78,7 @@ export function Header() {
                   {isHindi ? "वापस" : "Back"}
                 </span>
               </Button>
-              
+
               <Button
                 variant="outline"
                 size="sm"
@@ -91,7 +89,7 @@ export function Header() {
                   {isHindi ? "होम" : "Home"}
                 </span>
               </Button>
-              
+
               <Button
                 variant="destructive"
                 size="sm"
@@ -107,7 +105,7 @@ export function Header() {
         </div>
       </div>
       <Navigation />
-      
+
       {/* Mobile navigation buttons */}
       <div className="sm:hidden flex justify-center items-center gap-2 py-2 border-t border-gray-200">
         <Button
@@ -117,7 +115,7 @@ export function Header() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        
+
         <Button
           variant="outline"
           size="sm"
@@ -125,7 +123,7 @@ export function Header() {
         >
           <Home className="h-4 w-4" />
         </Button>
-        
+
         <Button
           variant="destructive"
           size="sm"
