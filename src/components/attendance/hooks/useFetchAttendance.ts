@@ -10,6 +10,20 @@ export interface AttendanceRecord {
   leave_type?: string;
 }
 
+interface AbsenceRecord {
+  id: string;
+  date: string;
+  status: string;
+}
+
+interface LeaveRecord {
+  id: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  leave_type?: string;
+}
+
 export const useFetchAttendance = (personId?: string, personType: "staff" | "trainee" = "trainee") => {
   return useQuery({
     queryKey: ['attendance', personId, personType],
@@ -26,17 +40,15 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
       
       try {
         // Use Promise.all to fetch data in parallel
-        const [absenceResult, leaveResult] = await Promise.all([
-          supabase
-            .from(absenceTable)
-            .select('*')
-            .eq(absenceIdField, personId),
-            
-          supabase
-            .from(leaveTable)
-            .select('*')
-            .eq(leaveIdField, personId)
-        ]);
+        const absenceResult = await supabase
+          .from(absenceTable)
+          .select('*')
+          .eq(absenceIdField, personId);
+          
+        const leaveResult = await supabase
+          .from(leaveTable)
+          .select('*')
+          .eq(leaveIdField, personId);
         
         const absences = absenceResult.data || [];
         const absenceError = absenceResult.error;
@@ -47,7 +59,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         if (leaveError) throw leaveError;
 
         // Format absences
-        const formattedAbsences: AttendanceRecord[] = absences.map((item: any) => ({
+        const formattedAbsences: AttendanceRecord[] = absences.map((item: AbsenceRecord) => ({
           id: `absence-${item.id}`,
           date: item.date,
           status: 'absent',
@@ -55,7 +67,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         }));
 
         // Format leaves
-        const formattedLeaves: AttendanceRecord[] = leaves.map((item: any) => ({
+        const formattedLeaves: AttendanceRecord[] = leaves.map((item: LeaveRecord) => ({
           id: `leave-${item.id}`,
           date: `${item.start_date} - ${item.end_date}`,
           status: 'on_leave',

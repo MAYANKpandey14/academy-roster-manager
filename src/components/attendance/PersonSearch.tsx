@@ -67,6 +67,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         throw error;
       }
       
+      // Validate that data is not null before proceeding
       if (!data) {
         toast.error(isHindi
           ? "कोई व्यक्ति नहीं मिला" 
@@ -74,27 +75,22 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
       
-      // Type guard to ensure data has the expected properties
-      if (typeof data === 'object' && data !== null && 'id' in data) {
-        // Create a properly shaped PersonData object
-        const personData: PersonData = {
-          id: data.id as string,
-          pno: data.pno as string,
-          name: data.name as string,
-          mobile_number: data.mobile_number as string
-        };
-        
-        // Add type-specific fields
-        if (personType === 'trainee' && 'chest_no' in data) {
-          personData.chest_no = data.chest_no as string;
-        } else if (personType === 'staff' && 'rank' in data) {
-          personData.rank = data.rank as string;
-        }
-        
-        onPersonFound(personData, personType);
-      } else {
-        throw new Error("Unexpected data format returned from database");
+      // Now we know data is not null, create a properly shaped PersonData object
+      const personData: PersonData = {
+        id: data.id,
+        pno: data.pno,
+        name: data.name,
+        mobile_number: data.mobile_number
+      };
+      
+      // Add type-specific fields
+      if (personType === 'trainee' && 'chest_no' in data) {
+        personData.chest_no = data.chest_no;
+      } else if (personType === 'staff' && 'rank' in data) {
+        personData.rank = data.rank;
       }
+      
+      onPersonFound(personData, personType);
       
     } catch (error) {
       console.error("Error searching person:", error);
