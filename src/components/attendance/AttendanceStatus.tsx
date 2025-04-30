@@ -13,7 +13,7 @@ export function AttendanceStatus({ status, leaveType }: AttendanceStatusProps) {
   if (status === 'absent') {
     return (
       <Badge variant="destructive" className="font-normal">
-        <span className={isHindi ? "font-mangal" : ""}>
+        <span className={isHindi ? "font-hindi" : ""}>
           {isHindi ? "अनुपस्थित" : "Absent"}
         </span>
       </Badge>
@@ -23,7 +23,7 @@ export function AttendanceStatus({ status, leaveType }: AttendanceStatusProps) {
   if (status === 'on_leave') {
     return (
       <Badge variant="outline" className="font-normal">
-        <span className={isHindi ? "font-mangal" : ""}>
+        <span className={isHindi ? "font-hindi" : ""}>
           {isHindi ? "छुट्टी पर" : "On Leave"}
           {leaveType && ` (${leaveType})`}
         </span>
@@ -33,7 +33,7 @@ export function AttendanceStatus({ status, leaveType }: AttendanceStatusProps) {
   
   return (
     <Badge variant="default" className="font-normal bg-green-500">
-      <span className={isHindi ? "font-mangal" : ""}>
+      <span className={isHindi ? "font-hindi" : ""}>
         {isHindi ? "उपस्थित" : "Present"}
       </span>
     </Badge>

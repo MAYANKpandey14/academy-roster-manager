@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -14,8 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Staff } from "@/types/staff";
 import { staffFormSchema, StaffFormValues, bloodGroups, staffRanks } from "./StaffFormSchema";
-import { useTranslation } from "react-i18next";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface StaffFormProps {
   initialData?: Staff;
@@ -24,7 +23,7 @@ interface StaffFormProps {
 }
 
 export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: StaffFormProps) => {
-  const { t } = useTranslation();
+  const { isHindi } = useLanguage();
   
   // Apply language inputs hook
   useLanguageInputs();
@@ -56,11 +55,13 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="pno"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="dynamic-text">{t("pno", "PNO")}</FormLabel>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "पीएनओ" : "PNO"}
+                </FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage className="dynamic-text" />
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
               </FormItem>
             )}
           />
@@ -70,11 +71,13 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="dynamic-text">{t("name", "Name")}</FormLabel>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "नाम" : "Name"}
+                </FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage className="dynamic-text" />
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
               </FormItem>
             )}
           />
@@ -84,11 +87,13 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="father_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="dynamic-text">{t("fatherName", "Father's Name")}</FormLabel>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "पिता का नाम" : "Father's Name"}
+                </FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage className="dynamic-text" />
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
               </FormItem>
             )}
           />
@@ -98,11 +103,13 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="rank"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="dynamic-text">{t("rank", "Rank")}</FormLabel>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "रैंक" : "Rank"}
+                </FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder={t("selectRank", "Select rank")} />
+                      <SelectValue placeholder={isHindi ? "रैंक चुनें" : "Select rank"} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -113,7 +120,7 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
                     ))}
                   </SelectContent>
                 </Select>
-                <FormMessage className="dynamic-text" />
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
               </FormItem>
             )}
           />
@@ -123,11 +130,13 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="current_posting_district"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="dynamic-text">{t("currentPostingDistrict", "Current Posting District")}</FormLabel>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "वर्तमान पोस्टिंग जिला" : "Current Posting District"}
+                </FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage className="dynamic-text" />
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
               </FormItem>
             )}
           />
@@ -137,11 +146,13 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="mobile_number"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="dynamic-text">{t("mobileNumber", "Mobile Number")}</FormLabel>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "मोबाइल नंबर" : "Mobile Number"}
+                </FormLabel>
                 <FormControl>
                   <Input {...field} type="tel" />
                 </FormControl>
-                <FormMessage className="dynamic-text" />
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
               </FormItem>
             )}
           />
@@ -151,11 +162,13 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="education"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="dynamic-text">{t("education", "Education")}</FormLabel>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "शिक्षा" : "Education"}
+                </FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage className="dynamic-text" />
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
               </FormItem>
             )}
           />
@@ -165,11 +178,13 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="date_of_birth"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="dynamic-text">{t("dateOfBirth", "Date of Birth")}</FormLabel>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "जन्म तिथि" : "Date of Birth"}
+                </FormLabel>
                 <FormControl>
                   <Input {...field} type="date" />
                 </FormControl>
-                <FormMessage className="dynamic-text" />
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
               </FormItem>
             )}
           />
@@ -179,11 +194,13 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="date_of_joining"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="dynamic-text">{t("dateOfJoining", "Date of Joining")}</FormLabel>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "शामिल होने की तिथि" : "Date of Joining"}
+                </FormLabel>
                 <FormControl>
                   <Input {...field} type="date" />
                 </FormControl>
-                <FormMessage className="dynamic-text" />
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
               </FormItem>
             )}
           />
@@ -193,11 +210,13 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="blood_group"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="dynamic-text">{t("bloodGroup", "Blood Group")}</FormLabel>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "रक्त समूह" : "Blood Group"}
+                </FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder={t("selectBloodGroup", "Select blood group")} />
+                      <SelectValue placeholder={isHindi ? "रक्त समूह चुनें" : "Select blood group"} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -208,7 +227,7 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
                     ))}
                   </SelectContent>
                 </Select>
-                <FormMessage className="dynamic-text" />
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
               </FormItem>
             )}
           />
@@ -218,11 +237,13 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="nominee"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="dynamic-text">{t("nominee", "Nominee")}</FormLabel>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "नामांकित" : "Nominee"}
+                </FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage className="dynamic-text" />
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
               </FormItem>
             )}
           />
@@ -232,11 +253,13 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="home_address"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="dynamic-text">{t("homeAddress", "Home Address")}</FormLabel>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "घर का पता" : "Home Address"}
+                </FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage className="dynamic-text" />
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
               </FormItem>
             )}
           />
@@ -246,11 +269,13 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="toli_no"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="dynamic-text">{t("toliNo", "Toli No (Optional)")}</FormLabel>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "टोली नंबर (वैकल्पिक)" : "Toli No (Optional)"}
+                </FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage className="dynamic-text" />
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
               </FormItem>
             )}
           />
@@ -260,11 +285,13 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="class_no"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="dynamic-text">{t("classNo", "Class No (Optional)")}</FormLabel>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "क्लास नंबर (वैकल्पिक)" : "Class No (Optional)"}
+                </FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage className="dynamic-text" />
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
               </FormItem>
             )}
           />
@@ -274,23 +301,25 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             name="class_subject"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="dynamic-text">{t("classSubject", "Class Subject (Optional)")}</FormLabel>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "क्लास विषय (वैकल्पिक)" : "Class Subject (Optional)"}
+                </FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                <FormMessage className="dynamic-text" />
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
               </FormItem>
             )}
           />
         </div>
 
         <Button type="submit" disabled={isSubmitting}>
-          <span className="dynamic-text">
+          <span className={isHindi ? 'font-hindi' : ''}>
             {isSubmitting 
-              ? t("saving", "Saving...") 
+              ? (isHindi ? "सेव हो रहा है..." : "Saving...") 
               : initialData 
-                ? t("updateStaff", "Update Staff") 
-                : t("addStaff", "Add Staff")
+                ? (isHindi ? "स्टाफ अपडेट करें" : "Update Staff") 
+                : (isHindi ? "स्टाफ जोड़ें" : "Add Staff")
             }
           </span>
         </Button>

@@ -1,11 +1,11 @@
-
+    
 import { useState } from "react";
 import { Staff } from "@/types/staff";
 import { DataTable } from "@/components/ui/data-table";
-import { useTranslation } from "react-i18next";
 import { getStaffColumns } from "./table/StaffTableColumns";
 import { StaffTableActions } from "./table/StaffTableActions";
 import { useStaffTable } from "./table/useStaffTable";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface StaffTableProps {
   staff: Staff[];
@@ -14,7 +14,7 @@ interface StaffTableProps {
 }
 
 export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTableProps) => {
-  const { t, i18n } = useTranslation();
+  const { isHindi } = useLanguage();
   
   const {
     rowSelection,
@@ -26,8 +26,7 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
   } = useStaffTable(staff, onRefresh);
 
   const columns = getStaffColumns(
-    t, 
-    i18n, 
+    isHindi, 
     isLoading, 
     handlePrintAction,
     handleDownloadAction,
@@ -47,11 +46,11 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
         columns={columns}
         data={staff}
         filterColumn="name"
-        filterPlaceholder={t("searchByName", "Search by name...")}
+        filterPlaceholder={isHindi ? "नाम से खोजें..." : "Search by name..."}
         isLoading={isLoading}
         onRowSelectionChange={setRowSelection}
         rowSelection={rowSelection}
-        totalLabel="totalStaff"
+        totalLabel={isHindi ? "कुल स्टाफ" : "Total Staff"}
       />
     </div>
   );

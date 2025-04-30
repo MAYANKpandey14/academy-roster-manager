@@ -1,7 +1,6 @@
 
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "@/components/languageswitch/LanguageSwitcher";
 import { Mail,Phone } from 'lucide-react';
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -10,7 +9,6 @@ const Welcome = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [imageLoaded, setImageLoaded] = useState(false);
-    const { t } = useTranslation();
     const { isHindi } = useLanguage();
     useEffect(() => {
         // Only log errors for invalid routes, not the welcome page itself
@@ -60,7 +58,7 @@ const Welcome = () => {
                     filter: "drop-shadow(0.5rem .75rem .75rem rgba(0, 0, 0, 1))",
                 }} />
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-black m-2">
-                    {isHindi ? "आरटीसी ट्रेनिंग सेंटर पुलिस लाइन, मुरादाबाद" : "RTI Training Center, Moradabad"}
+                    {isHindi ? "आरटीसी पुलिस लाइन, मुरादाबाद" : "RTC Police Line, Moradabad"}
                 </h1>
                 <button
                     onClick={handleNext}

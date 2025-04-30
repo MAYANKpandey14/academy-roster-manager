@@ -1,8 +1,7 @@
-
 import { Button } from "@/components/ui/button";
 import { Download, Printer } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface StaffTableActionsProps {
   selectedCount: number;
@@ -18,7 +17,7 @@ export function StaffTableActions({
   isLoading
 }: StaffTableActionsProps) {
   const isMobile = useIsMobile();
-  const { t, i18n } = useTranslation();
+  const { isHindi } = useLanguage();
 
   return (
     <div className="flex flex-wrap gap-2 justify-end">
@@ -30,8 +29,8 @@ export function StaffTableActions({
         disabled={isLoading || selectedCount === 0}
       >
         <Printer className="h-4 w-4" />
-        {!isMobile && <span className={`ml-2 dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-          {t("printSelected", "Print Selected")}{selectedCount > 0 ? ` (${selectedCount})` : ''}
+        {!isMobile && <span className={`ml-2 ${isHindi ? 'font-mangal' : ''}`}>
+          {isHindi ? "चयनित प्रिंट करें" : "Print Selected"}{selectedCount > 0 ? ` (${selectedCount})` : ''}
         </span>}
       </Button>
       <Button
@@ -42,8 +41,8 @@ export function StaffTableActions({
         disabled={isLoading || selectedCount === 0}
       >
         <Download className="h-4 w-4" />
-        {!isMobile && <span className={`ml-2 dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-          {t("downloadCSV", "Download CSV")}{selectedCount > 0 ? ` (${selectedCount})` : ''}
+        {!isMobile && <span className={`ml-2 ${isHindi ? 'font-mangal' : ''}`}>
+          {isHindi ? "CSV डाउनलोड करें" : "Download CSV"}{selectedCount > 0 ? ` (${selectedCount})` : ''}
         </span>}
       </Button>
     </div>

@@ -1,25 +1,18 @@
-
 import { Staff } from "@/types/staff";
 import { format } from "date-fns";
-import { TFunction } from "i18next";
 
-export const createStaffPrintContent = (staff: Staff[], language: string = 'en', t?: TFunction) => {
-  // Use translation function if provided or fallback to English defaults
-  const translate = (key: string, defaultText: string) => {
-    return t ? t(key, defaultText) : defaultText;
-  };
-
+export const createStaffPrintContent = (staff: Staff[], isHindi: boolean) => {
   // Add specialized font class for Hindi text
-  const hindiClass = language === 'hi' ? ' class="font-mangal"' : '';
+  const hindiClass = isHindi ? ' class="font-hindi"' : '';
   
   const printContent = `
     <html>
       <head>
-        <title>${translate("staffInformation", "Staff Information")}</title>
+        <title>${isHindi ? "स्टाफ विवरण" : "Staff Information"}</title>
         <meta charset="UTF-8">
         <style>
           body { font-family: 'Space Grotesk', Arial, sans-serif; padding: 20px; }
-          .font-mangal { font-family: 'Mangal', 'Arial Unicode MS', sans-serif; }
+          .font-hindi { font-family: 'Mangal', 'Arial Unicode MS', sans-serif; }
           h1 { text-align: center; margin-bottom: 30px; }
           .staff-info { border: 1px solid #ddd; padding: 20px; margin-bottom: 30px; }
           .field { margin-bottom: 15px; }
@@ -31,30 +24,30 @@ export const createStaffPrintContent = (staff: Staff[], language: string = 'en',
       </head>
       <body>
         <div class="header">
-          <h1${hindiClass}>${translate("rtcPolice", "RTC Police Line, Moradabad")}</h1>
-          <p${hindiClass}>${translate("staffInfo", "Staff Information")}</p>
+          <h1${hindiClass}>${isHindi ? "रिज़ल्ट केंद्र ट्रेनिंग सेंटर, मोरादाबाद" : "RTC Training Center, Moradabad"}</h1>
+          <p${hindiClass}>${isHindi ? "स्टाफ विवरण" : "Staff Information"}</p>
         </div>
         ${staff.map(person => `
           <div class="staff-info">
-            <div class="field"><span class="field-label"${hindiClass}>${translate("pno", "PNO")}:</span> ${person.pno}</div>
-            <div class="field"><span class="field-label"${hindiClass}>${translate("name", "Name")}:</span> <span${hindiClass}>${person.name}</span></div>
-            <div class="field"><span class="field-label"${hindiClass}>${translate("fatherName", "Father's Name")}:</span> <span${hindiClass}>${person.father_name}</span></div>
-            <div class="field"><span class="field-label"${hindiClass}>${translate("rank", "Rank")}:</span> ${person.rank}</div>
-            <div class="field"><span class="field-label"${hindiClass}>${translate("currentPostingDistrict", "Current Posting District")}:</span> <span${hindiClass}>${person.current_posting_district}</span></div>
-            <div class="field"><span class="field-label"${hindiClass}>${translate("mobileNumber", "Mobile Number")}:</span> ${person.mobile_number}</div>
-            <div class="field"><span class="field-label"${hindiClass}>${translate("education", "Education")}:</span> <span${hindiClass}>${person.education}</span></div>
-            <div class="field"><span class="field-label"${hindiClass}>${translate("dateOfBirth", "Date of Birth")}:</span> ${person.date_of_birth ? format(new Date(person.date_of_birth), "PPP") : "N/A"}</div>
-            <div class="field"><span class="field-label"${hindiClass}>${translate("dateOfJoining", "Date of Joining")}:</span> ${person.date_of_joining ? format(new Date(person.date_of_joining), "PPP") : "N/A"}</div>
-            <div class="field"><span class="field-label"${hindiClass}>${translate("bloodGroup", "Blood Group")}:</span> ${person.blood_group}</div>
-            <div class="field"><span class="field-label"${hindiClass}>${translate("nominee", "Nominee")}:</span> <span${hindiClass}>${person.nominee}</span></div>
-            <div class="field"><span class="field-label"${hindiClass}>${translate("homeAddress", "Home Address")}:</span> <span${hindiClass}>${person.home_address}</span></div>
-            ${person.toli_no ? `<div class="field"><span class="field-label"${hindiClass}>${translate("toliNumber", "Toli Number")}:</span> ${person.toli_no}</div>` : ''}
-            ${person.class_no ? `<div class="field"><span class="field-label"${hindiClass}>${translate("classNumber", "Class Number")}:</span> ${person.class_no}</div>` : ''}
-            ${person.class_subject ? `<div class="field"><span class="field-label"${hindiClass}>${translate("classSubject", "Class Subject")}:</span> <span${hindiClass}>${person.class_subject}</span></div>` : ''}
+            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "पीएनओ" : "PNO"}:</span> ${person.pno}</div>
+            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "नाम" : "Name"}:</span> <span${hindiClass}>${person.name}</span></div>
+            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "बाप का नाम" : "Father's Name"}:</span> <span${hindiClass}>${person.father_name}</span></div>
+            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "रैंक" : "Rank"}:</span> ${person.rank}</div>
+            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "वर्तमान जगह" : "Current Posting District"}:</span> <span${hindiClass}>${person.current_posting_district}</span></div>
+            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "मोबाइल नंबर" : "Mobile Number"}:</span> ${person.mobile_number}</div>
+            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "शिक्षा" : "Education"}:</span> <span${hindiClass}>${person.education}</span></div>
+            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "जन्म तिथि" : "Date of Birth"}:</span> ${person.date_of_birth ? format(new Date(person.date_of_birth), "PPP") : "N/A"}</div>
+            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "शुल्क तिथि" : "Date of Joining"}:</span> ${person.date_of_joining ? format(new Date(person.date_of_joining), "PPP") : "N/A"}</div>
+            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "रक्त समूह" : "Blood Group"}:</span> ${person.blood_group}</div>
+            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "नामांकित" : "Nominee"}:</span> <span${hindiClass}>${person.nominee}</span></div>
+            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "घर पता" : "Home Address"}:</span> <span${hindiClass}>${person.home_address}</span></div>
+            ${person.toli_no ? `<div class="field"><span class="field-label"${hindiClass}>${isHindi ? "टोली नंबर" : "Toli Number"}:</span> ${person.toli_no}</div>` : ''}
+            ${person.class_no ? `<div class="field"><span class="field-label"${hindiClass}>${isHindi ? "कक्षा नंबर" : "Class Number"}:</span> ${person.class_no}</div>` : ''}
+            ${person.class_subject ? `<div class="field"><span class="field-label"${hindiClass}>${isHindi ? "कक्षा विषय" : "Class Subject"}:</span> <span${hindiClass}>${person.class_subject}</span></div>` : ''}
           </div>
         `).join('')}
         <div style="text-align: center; margin-top: 30px; font-size: 12px;">
-          <p${hindiClass}>${translate("documentGenerated", "This document was generated on")} ${format(new Date(), 'PP')} at ${new Date().toLocaleTimeString()}</p>
+          <p${hindiClass}>${isHindi ? "यह दस्तावेज़ उत्पन्न हो गई है" : "This document was generated on"} ${format(new Date(), 'PP')} ${isHindi ? "को" : "at"} ${new Date().toLocaleTimeString()}</p>
         </div>
       </body>
     </html>
@@ -63,28 +56,23 @@ export const createStaffPrintContent = (staff: Staff[], language: string = 'en',
   return printContent;
 };
 
-export const createStaffCSVContent = (staff: Staff[], language: string = 'en', t?: TFunction) => {
-  // Use translation function if provided or fallback to English defaults
-  const translate = (key: string, defaultText: string) => {
-    return t ? t(key, defaultText) : defaultText;
-  };
-  
+export const createStaffCSVContent = (staff: Staff[], isHindi: boolean) => {
   const headers = [
-    translate("pno", "PNO"),
-    translate("name", "Name"),
-    translate("fatherName", "Father's Name"),
-    translate("rank", "Rank"),
-    translate("currentPostingDistrict", "Current Posting District"),
-    translate("mobileNumber", "Mobile Number"),
-    translate("education", "Education"),
-    translate("dateOfBirth", "Date of Birth"),
-    translate("dateOfJoining", "Date of Joining"),
-    translate("bloodGroup", "Blood Group"),
-    translate("nominee", "Nominee"),
-    translate("homeAddress", "Home Address"),
-    translate("toliNumber", "Toli Number"),
-    translate("classNumber", "Class Number"),
-    translate("classSubject", "Class Subject")
+    isHindi ? "पीएनओ" : "PNO",
+    isHindi ? "नाम" : "Name",
+    isHindi ? "बाप का नाम" : "Father's Name",
+    isHindi ? "रैंक" : "Rank",
+    isHindi ? "वर्तमान जगह" : "Current Posting District",
+    isHindi ? "मोबाइल नंबर" : "Mobile Number",
+    isHindi ? "शिक्षा" : "Education",
+    isHindi ? "जन्म तिथि" : "Date of Birth",
+    isHindi ? "शुल्क तिथि" : "Date of Joining",
+    isHindi ? "रक्त समूह" : "Blood Group",
+    isHindi ? "नामांकित" : "Nominee",
+    isHindi ? "घर पता" : "Home Address",
+    isHindi ? "टोली नंबर" : "Toli Number",
+    isHindi ? "कक्षा नंबर" : "Class Number",
+    isHindi ? "कक्षा विषय" : "Class Subject"
   ];
 
   // CSV header row

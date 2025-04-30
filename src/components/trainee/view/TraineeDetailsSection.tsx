@@ -2,38 +2,38 @@
 import { Trainee } from "@/types/trainee";
 import { format } from "date-fns";
 import { TraineeInfoField } from "./TraineeInfoField";
-import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TraineeDetailsSectionProps {
   trainee: Trainee;
 }
 
 export function TraineeDetailsSection({ trainee }: TraineeDetailsSectionProps) {
-  const { t } = useTranslation();
+    const { isHindi } = useLanguage();
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="space-y-4">
         <TraineeInfoField 
-          label={t("pno", "PNO")} 
+          label={isHindi ? "पीएनओ" : "PNO"} 
           value={trainee.pno} 
         />
         <TraineeInfoField 
-          label={t("chestNo", "Chest No")} 
+          label={isHindi ? "छाती संख्या" : "Chest No"} 
           value={trainee.chest_no} 
         />
         <TraineeInfoField 
-          label={t("name", "Name")} 
+          label={isHindi ? "नाम" : "Name"} 
           value={trainee.name}
           isMultilingual
         />
         <TraineeInfoField 
-          label={t("fatherName", "Father's Name")} 
+          label={isHindi ? "पिता का नाम" : "Father's Name"} 
           value={trainee.father_name}
           isMultilingual
         />
         <TraineeInfoField 
-          label={t("currentPostingDistrict", "Current Posting District")} 
+          label={isHindi ? "वर्तमान पोस्टिंग जिला" : "Current Posting District"} 
           value={trainee.current_posting_district}
           isMultilingual
         />
@@ -41,25 +41,25 @@ export function TraineeDetailsSection({ trainee }: TraineeDetailsSectionProps) {
 
       <div className="space-y-4">
         <TraineeInfoField 
-          label={t("mobileNumber", "Mobile Number")} 
+          label={isHindi ? "मोबाइल नंबर" : "Mobile Number"} 
           value={trainee.mobile_number} 
         />
         <TraineeInfoField 
-          label={t("education", "Education")} 
+          label={isHindi ? "शिक्षा" : "Education"} 
           value={trainee.education}
           isMultilingual
         />
         <TraineeInfoField 
-          label={t("bloodGroup", "Blood Group")} 
+          label={isHindi ? "रक्त समूह" : "Blood Group"} 
           value={trainee.blood_group} 
         />
         <TraineeInfoField 
-          label={t("nominee", "Nominee")} 
+          label={isHindi ? "नामिती" : "Nominee"} 
           value={trainee.nominee}
           isMultilingual
         />
         <TraineeInfoField 
-          label={t("homeAddress", "Home Address")} 
+          label={isHindi ? "घर का पता" : "Home Address"} 
           value={trainee.home_address}
           isMultilingual
         />
@@ -67,15 +67,15 @@ export function TraineeDetailsSection({ trainee }: TraineeDetailsSectionProps) {
 
       <div className="space-y-4">
         <TraineeInfoField 
-          label={t("dateOfBirth", "Date of Birth")} 
+          label={isHindi ? "जन्म तिथि" : "Date of Birth"} 
           value={format(new Date(trainee.date_of_birth), 'PP')} 
         />
         <TraineeInfoField 
-          label={t("dateOfJoining", "Date of Joining")} 
+          label={isHindi ? "शामिल होने की तारीख" : "Date of Joining"} 
           value={format(new Date(trainee.date_of_joining), 'PP')} 
         />
         <TraineeInfoField 
-          label={t("trainingPeriod", "Training Period")} 
+          label={isHindi ? "प्रशिक्षण अवधि" : "Training Period"} 
           value={`${format(new Date(trainee.arrival_date), 'PP')} - ${format(new Date(trainee.departure_date), 'PP')}`} 
         />
       </div>

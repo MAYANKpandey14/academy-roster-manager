@@ -2,8 +2,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Trainee } from "@/types/trainee";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import { TraineeActions } from "../TraineeActions";
+import { TraineeActions } from "@/components/trainee/TraineeActions";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CheckedState } from "@radix-ui/react-checkbox";
 

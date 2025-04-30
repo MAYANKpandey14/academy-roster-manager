@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -7,7 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TablePaginationProps {
   table: any;
@@ -20,17 +19,17 @@ export function TablePagination({
   totalLabel,
   isLoading 
 }: TablePaginationProps) {
-  const { t, i18n } = useTranslation();
+  const { isHindi } = useLanguage();
   
   return (
     <div className="flex items-center justify-between space-x-2 py-4">
-      <div className={`flex-1 text-sm text-muted-foreground dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-        {table.getFilteredRowModel().rows.length} {t(totalLabel)}.
+      <div className={`flex-1 text-sm text-muted-foreground ${isHindi ? 'font-mangal' : ''}`}>
+        {table.getFilteredRowModel().rows.length} {isHindi ? "कुल" : totalLabel}.
       </div>
       <div className="flex items-center space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">
-          <p className={`text-sm font-medium dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-            {t("rowsPerPage")}
+          <p className={`text-sm font-medium ${isHindi ? 'font-mangal' : ''}`}>
+            {isHindi ? "प्रति पृष्ठ पंक्तियाँ" : "Rows per page"}
           </p>
           <Select
             value={`${table.getState().pagination.pageSize}`}
@@ -69,11 +68,11 @@ export function TablePagination({
             {"<"}
           </Button>
           <div className="flex items-center gap-1">
-            <p className={`text-sm font-medium dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-              {t("page")}
+            <p className={`text-sm font-medium ${isHindi ? 'font-mangal' : ''}`}>
+              {isHindi ? "पृष्ठ" : "Page"}
             </p>
-            <strong className={`text-sm font-medium dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-              {table.getState().pagination.pageIndex + 1} {t("of")}{" "}
+            <strong className={`text-sm font-medium ${isHindi ? 'font-mangal' : ''}`}>
+              {table.getState().pagination.pageIndex + 1} {isHindi ? "में से" : "of"}{" "}
               {table.getPageCount()}
             </strong>
           </div>

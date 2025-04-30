@@ -9,8 +9,8 @@ import { StaffFormValues } from "@/components/staff/StaffFormSchema";
 import { getStaffById, updateStaff } from "@/services/staffApi";
 import { toast } from "sonner";
 import { Staff } from "@/types/staff";
-import { useTranslation } from "react-i18next";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const EditStaff = () => {
   const { id } = useParams();
@@ -18,7 +18,7 @@ const EditStaff = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [staff, setStaff] = useState<Staff | null>(null);
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { isHindi } = useLanguage();
   
   // Apply language inputs hook
   useLanguageInputs();
@@ -35,7 +35,7 @@ const EditStaff = () => {
         setStaff(data);
       } catch (error) {
         console.error("Error fetching staff:", error);
-        toast.error(t("failedToLoadStaffDetails", "Failed to load staff details"));
+        toast.error(isHindi ? "स्टाफ विवरण लोड नहीं हो सकते" : "Failed to load staff details");
         navigate("/staff");
       } finally {
         setIsLoading(false);
@@ -43,7 +43,7 @@ const EditStaff = () => {
     };
 
     fetchStaff();
-  }, [id, navigate, t]);
+  }, [id, navigate, isHindi]);
 
   const handleSubmit = async (data: StaffFormValues) => {
     if (!id) return;
@@ -54,11 +54,11 @@ const EditStaff = () => {
       
       if (error) throw error;
       
-      toast.success(t("staffUpdatedSuccessfully", "Staff updated successfully"));
+      toast.success(isHindi ? "स्टाफ सफलतापूर्वक अपडेट हो गया" : "Staff updated successfully");
       navigate("/staff");
     } catch (error) {
       console.error("Error updating staff:", error);
-      toast.error(t("failedToUpdateStaff", "Failed to update staff"));
+      toast.error(isHindi ? "स्टाफ अपडेट नहीं हो सकते" : "Failed to update staff");
     } finally {
       setIsSubmitting(false);
     }
@@ -69,7 +69,7 @@ const EditStaff = () => {
       <div className="min-h-screen bg-gray-50">
         <Header />
         <main className="container mx-auto py-6 px-4">
-          <p className="text-center dynamic-text">{t("loading", "Loading...")}</p>
+          <p className="text-center dynamic-text">{isHindi ? "लोडिंग..." : "Loading..."}</p>
         </main>
       </div>
     );
@@ -80,7 +80,7 @@ const EditStaff = () => {
       <div className="min-h-screen bg-gray-50">
         <Header />
         <main className="container mx-auto py-6 px-4">
-          <p className="text-center text-red-500 dynamic-text">{t("staffNotFound", "Staff not found")}</p>
+          <p className="text-center text-red-500 dynamic-text">{isHindi ? "स्टाफ नहीं मिला" : "Staff not found"}</p>
         </main>
       </div>
     );
@@ -91,9 +91,9 @@ const EditStaff = () => {
       <Header />
       <main className="container mx-auto py-6 px-4">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-semibold dynamic-text">{t("editStaff", "Edit Staff")}</h1>
+          <h1 className="text-2xl font-semibold dynamic-text">{isHindi ? "स्टाफ संपादित करें" : "Edit Staff"}</h1>
           <Button variant="outline" onClick={() => navigate("/staff")}>
-            <span className="dynamic-text">{t("cancel", "Cancel")}</span>
+            <span className="dynamic-text">{isHindi ? "रद्द करें" : "Cancel"}</span>
           </Button>
         </div>
 

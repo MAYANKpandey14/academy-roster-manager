@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,20 +5,20 @@ import { useParams } from "react-router-dom";
 import { getStaffById } from "@/services/staffApi";
 import { Staff } from "@/types/staff";
 import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 import { StaffHeader } from "@/components/staff/view/StaffHeader";
 import { StaffDetailsSection } from "@/components/staff/view/StaffDetailsSection";
 import { StaffLoadingState } from "@/components/staff/view/StaffLoadingState";
 import { StaffNotFound } from "@/components/staff/view/StaffNotFound";
 import { useStaffPrintService } from "@/components/staff/view/StaffPrintService";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const ViewStaff = () => {
   const { id } = useParams();
   const [staff, setStaff] = useState<Staff | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { t, i18n } = useTranslation();
-  
+  const { isHindi } = useLanguage();
+
   // Apply language inputs hook
   useLanguageInputs();
 
@@ -39,19 +38,14 @@ const ViewStaff = () => {
         setStaff(data);
       } catch (error) {
         console.error("Error fetching staff:", error);
-        toast.error(t("failedToFetchStaff", "Failed to fetch staff details"));
+        toast.error(isHindi ? "स्टाफ विवरण लोड नहीं हो सकता" : "Failed to fetch staff details");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchStaff();
-  }, [id, t]);
-
-  // Force re-render when language changes
-  useEffect(() => {
-    // This empty dependency will trigger a re-render when i18n.language changes
-  }, [i18n.language]);
+  }, [id, isHindi]);
 
   if (isLoading) {
     return <StaffLoadingState />;

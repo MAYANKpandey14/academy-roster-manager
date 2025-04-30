@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Staff } from "@/types/staff";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Edit, Eye, Download, Printer } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface StaffRowActionsProps {
   staff: Staff;
@@ -26,7 +25,7 @@ export function StaffRowActions({
   handleDelete 
 }: StaffRowActionsProps) {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
+  const { isHindi } = useLanguage();
 
   return (
     <DropdownMenu>
@@ -39,26 +38,26 @@ export function StaffRowActions({
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => navigate(`/view-staff/${staff.id}`)}>
           <Eye className="mr-2 h-4 w-4" />
-          <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-            {t("view", "View")}
+          <span className={isHindi ? 'font-mangal' : ''}>
+            {isHindi ? "देखें" : "View"}
           </span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate(`/edit-staff/${staff.id}`)}>
           <Edit className="mr-2 h-4 w-4" />
-          <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-            {t("edit", "Edit")}
+          <span className={isHindi ? 'font-mangal' : ''}>
+            {isHindi ? "संपादित करें" : "Edit"}
           </span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handlePrintAction([staff])}>
           <Printer className="mr-2 h-4 w-4" />
-          <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-            {t("print", "Print")}
+          <span className={isHindi ? 'font-mangal' : ''}>
+            {isHindi ? "प्रिंट करें" : "Print"}
           </span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleDownloadAction([staff])}>
           <Download className="mr-2 h-4 w-4" />
-          <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-            {t("download", "Download")}
+          <span className={isHindi ? 'font-mangal' : ''}>
+            {isHindi ? "डाउनलोड करें" : "Download"}
           </span>
         </DropdownMenuItem>
       </DropdownMenuContent>

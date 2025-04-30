@@ -8,13 +8,13 @@ import { StaffForm } from "@/components/staff/StaffForm";
 import { StaffFormValues } from "@/components/staff/StaffFormSchema";
 import { addStaff } from "@/services/staffApi";
 import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const AddStaff = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { isHindi } = useLanguage();      
   
   // Apply language inputs hook
   useLanguageInputs();
@@ -26,11 +26,11 @@ const AddStaff = () => {
       
       if (error) throw error;
       
-      toast.success(t("staffAddedSuccessfully", "Staff added successfully"));
+        toast.success(isHindi ? "स्टाफ सफलतापूर्वक जोड़ा गया" : "Staff added successfully");
       navigate("/staff");
     } catch (error) {
       console.error("Error adding staff:", error);
-      toast.error(t("failedToAddStaff", "Failed to add staff"));
+      toast.error(isHindi ? "स्टाफ जोड़ने में विफल" : "Failed to add staff");
     } finally {
       setIsSubmitting(false);
     }
@@ -41,9 +41,9 @@ const AddStaff = () => {
       <Header />
       <main className="container mx-auto py-6 px-4">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-semibold dynamic-text">{t("addNewStaff", "Add New Staff")}</h1>
+          <h1 className="text-2xl font-semibold dynamic-text">{isHindi ? "नया स्टाफ जोड़ें" : "Add New Staff"}</h1>
           <Button variant="outline" onClick={() => navigate("/staff")}>
-            <span className="dynamic-text">{t("cancel", "Cancel")}</span>
+            <span className="dynamic-text">{isHindi ? "रद्द करें" : "Cancel"}</span>
           </Button>
         </div>
 

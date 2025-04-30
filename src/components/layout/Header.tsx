@@ -57,7 +57,7 @@ export function Header() {
               <img src="/images.svg" alt="logo" className="w-16 h-16 md:w-20 md:h-20" />
             </div>
             <h1 className={`text-lg md:text-xl lg:text-2xl font-bold text-center md:text-left ${isHindi ? 'font-mangal' : ''}`}>
-              {isHindi ? "पुलिस प्रशिक्षण अकादमी" : "Police Training Academy"}
+              {isHindi ? "आरटीसी पुलिस लाइन, मुरादाबाद" : "RTC Police Line, Moradabad"}
             </h1>
           </div>
           

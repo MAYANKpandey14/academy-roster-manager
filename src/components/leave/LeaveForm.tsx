@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
@@ -10,7 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Form,
   FormControl,
@@ -42,7 +41,7 @@ interface LeaveFormProps {
 }
 
 export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
-  const { t, i18n } = useTranslation();
+  const { isHindi } = useLanguage();
   
   const form = useForm<LeaveFormValues>({
     resolver: zodResolver(leaveFormSchema),
@@ -62,7 +61,9 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
         .single();
 
       if (findError || !person) {
-        toast.error(`${type === 'trainee' ? 'Trainee' : 'Staff member'} not found`);
+        toast.error(isHindi 
+          ? (type === 'trainee' ? 'प्रशिक्षु नहीं मिला' : 'स्टाफ सदस्य नहीं मिला')
+          : `${type === 'trainee' ? 'Trainee' : 'Staff member'} not found`);
         return;
       }
 
@@ -122,12 +123,12 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
         }
       }
 
-      toast.success("Leave request submitted successfully");
+      toast.success(isHindi ? "अवकाश अनुरोध सफलतापूर्वक जमा किया गया" : "Leave request submitted successfully");
       form.reset();
       onSuccess();
     } catch (error) {
       console.error('Error submitting leave:', error);
-      toast.error("Failed to submit leave request");
+      toast.error(isHindi ? "अवकाश अनुरोध जमा करने में विफल" : "Failed to submit leave request");
     }
   };
 
@@ -139,16 +140,18 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
           name="pno"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="dynamic-text">{t("pnoNumber")}</FormLabel>
+              <FormLabel className={isHindi ? 'font-mangal' : ''}>
+                {isHindi ? "पीएनओ नंबर" : "PNO Number"}
+              </FormLabel>
               <FormControl>
                 <Input 
                   {...field} 
-                  placeholder={t("enterPNO")} 
+                  placeholder={isHindi ? "पीएनओ दर्ज करें" : "Enter PNO"} 
                   maxLength={9}
-                  lang={i18n.language}
+                  lang={isHindi ? 'hi' : 'en'}
                 />
               </FormControl>
-              <FormMessage className="dynamic-text" />
+              <FormMessage className={isHindi ? 'font-mangal' : ''} />
             </FormItem>
           )}
         />
@@ -158,7 +161,9 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
           name="start_date"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel className="dynamic-text">{t("startDate")}</FormLabel>
+              <FormLabel className={isHindi ? 'font-mangal' : ''}>
+                {isHindi ? "प्रारंभ तिथि" : "Start Date"}
+              </FormLabel>
               <Calendar
                 mode="single"
                 selected={field.value}
@@ -166,7 +171,7 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
                 disabled={(date) => date < new Date()}
                 className="rounded-md border"
               />
-              <FormMessage className="dynamic-text" />
+              <FormMessage className={isHindi ? 'font-mangal' : ''} />
             </FormItem>
           )}
         />
@@ -176,7 +181,9 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
           name="end_date"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel className="dynamic-text">{t("endDate")}</FormLabel>
+              <FormLabel className={isHindi ? 'font-mangal' : ''}>
+                {isHindi ? "अंतिम तिथि" : "End Date"}
+              </FormLabel>
               <Calendar
                 mode="single"
                 selected={field.value}
@@ -184,7 +191,7 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
                 disabled={(date) => date < form.getValues("start_date") || date < new Date()}
                 className="rounded-md border"
               />
-              <FormMessage className="dynamic-text" />
+              <FormMessage className={isHindi ? 'font-mangal' : ''} />
             </FormItem>
           )}
         />
@@ -194,21 +201,25 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
           name="reason"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="dynamic-text">{t("reasonForLeave")}</FormLabel>
+              <FormLabel className={isHindi ? 'font-mangal' : ''}>
+                {isHindi ? "अवकाश का कारण" : "Reason for Leave"}
+              </FormLabel>
               <FormControl>
                 <Textarea 
                   {...field} 
-                  placeholder={t("enterReason")} 
-                  lang={i18n.language}
+                  placeholder={isHindi ? "कारण दर्ज करें" : "Enter reason"} 
+                  lang={isHindi ? 'hi' : 'en'}
                 />
               </FormControl>
-              <FormMessage className="dynamic-text" />
+              <FormMessage className={isHindi ? 'font-mangal' : ''} />
             </FormItem>
           )}
         />
 
         <Button type="submit">
-          <span className="dynamic-text">{t("submitLeaveRequest")}</span>
+          <span className={isHindi ? 'font-mangal' : ''}>
+            {isHindi ? "अवकाश अनुरोध जमा करें" : "Submit Leave Request"}
+          </span>
         </Button>
       </form>
     </Form>

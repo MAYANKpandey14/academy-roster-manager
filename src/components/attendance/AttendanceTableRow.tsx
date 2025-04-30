@@ -23,7 +23,7 @@ export function AttendanceTableRow({ record }: AttendanceTableRowProps) {
 
   return (
     <TableRow className="animate-fade-in transition-colors duration-200 hover:bg-gray-50">
-      <TableCell className={isHindi ? "font-mangal" : ""}>
+      <TableCell className={isHindi ? "font-hindi" : ""}>
         {formatDate(record.date)}
       </TableCell>
       <TableCell>
@@ -32,7 +32,7 @@ export function AttendanceTableRow({ record }: AttendanceTableRowProps) {
           leaveType={record.leave_type} 
         />
       </TableCell>
-      <TableCell className={isHindi ? "font-mangal" : ""}>
+      <TableCell className={isHindi ? "font-hindi" : ""}>
         {record.reason || "-"}
       </TableCell>
     </TableRow>

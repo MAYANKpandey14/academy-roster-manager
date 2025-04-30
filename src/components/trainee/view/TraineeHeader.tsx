@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Edit, Printer, Download } from "lucide-react";
 import { Trainee } from "@/types/trainee";
-
+import { useLanguage } from "@/contexts/LanguageContext";
 interface TraineeHeaderProps {
   trainee: Trainee;
   onPrint: () => void;
@@ -13,13 +13,12 @@ interface TraineeHeaderProps {
 
 export function TraineeHeader({ trainee, onPrint, onDownload }: TraineeHeaderProps) {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
-
+  const { isHindi } = useLanguage();
   return (
     <div className="flex justify-between items-center mb-6">
       <h1 className="text-2xl font-bold">
-        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("traineeDetails", "Trainee Details")}
+        <span className={`dynamic-text ${isHindi ? 'font-mangal' : ''}`}>
+          {isHindi ? "ट्रेनी विवरण" : "Trainee Details"}
         </span>
       </h1>
       <div className="flex gap-2">
@@ -29,8 +28,8 @@ export function TraineeHeader({ trainee, onPrint, onDownload }: TraineeHeaderPro
           onClick={onPrint}
         >
           <Printer className="h-4 w-4 mr-2" />
-          <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-            {t("print", "Print")}
+          <span className={`dynamic-text ${isHindi ? 'font-mangal' : ''}`}>
+            {isHindi ? "प्रिंट" : "Print"}
           </span>
         </Button>
         <Button 
@@ -39,8 +38,8 @@ export function TraineeHeader({ trainee, onPrint, onDownload }: TraineeHeaderPro
           onClick={onDownload}
         >
           <Download className="h-4 w-4 mr-2" />
-          <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-            {t("downloadCSV", "Download CSV")}
+          <span className={`dynamic-text ${isHindi ? 'font-mangal' : ''}`}>
+            {isHindi ? "डाउनलोड CSV" : "Download CSV"}
           </span>
         </Button>
         <Button 
@@ -48,8 +47,8 @@ export function TraineeHeader({ trainee, onPrint, onDownload }: TraineeHeaderPro
           className="flex items-center gap-2"
         >
           <Edit className="h-4 w-4" />
-          <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-            {t("editTrainee", "Edit Trainee")}
+          <span className={`dynamic-text ${isHindi ? 'font-mangal' : ''}`}>
+            {isHindi ? "ट्रेनी संपादित करें" : "Edit Trainee"}
           </span>
         </Button>
       </div>

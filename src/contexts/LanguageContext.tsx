@@ -1,51 +1,30 @@
-
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 
 interface LanguageContextType {
   isHindi: boolean;
   toggleLanguage: () => void;
-  isLoading: boolean;
 }
 
-const LanguageContext = createContext<LanguageContextType>({
-  isHindi: false,
-  toggleLanguage: () => {},
-  isLoading: false,
-});
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export const useLanguage = () => useContext(LanguageContext);
-
-interface LanguageProviderProps {
-  children: ReactNode;
-}
-
-export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  const [isHindi, setIsHindi] = useState(localStorage.getItem('isHindi') === 'true');
-  const [isLoading, setIsLoading] = useState(false);
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [isHindi, setIsHindi] = useState(false);
 
   const toggleLanguage = () => {
-    setIsLoading(true);
-    
-    // Update state
-    const newValue = !isHindi;
-    setIsHindi(newValue);
-    
-    // Save to localStorage
-    localStorage.setItem('isHindi', String(newValue));
-    
-    // Apply a small timeout to simulate language change (for better UX)
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 300);
+    setIsHindi(prev => !prev);
   };
 
   return (
-    <LanguageContext.Provider value={{ 
-      isHindi, 
-      toggleLanguage, 
-      isLoading,
-    }}>
+    <LanguageContext.Provider value={{ isHindi, toggleLanguage }}>
       {children}
     </LanguageContext.Provider>
   );
-};
+}
+
+export function useLanguage() {
+  const context = useContext(LanguageContext);
+  if (context === undefined) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
+}

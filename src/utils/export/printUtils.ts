@@ -1,6 +1,6 @@
-
-import { TFunction } from "i18next";
 import { prepareTextForLanguage } from "../textUtils";
+
+type TranslationFunction = (key: string, fallback: string) => string;
 
 /**
  * Opens a print window and prints the content
@@ -36,10 +36,10 @@ export const handlePrint = (printContent: string): boolean => {
 /**
  * Creates common print styling used across different print templates
  * 
- * @param language Current language code
+ * @param isHindi boolean indicating if the language is Hindi
  * @returns CSS styles as string
  */
-export const getPrintStyles = (language: string): string => {
+export const getPrintStyles = (isHindi: boolean): string => {
   return `
     body { 
       font-family: 'Space Grotesk', Arial, sans-serif; 
@@ -48,8 +48,8 @@ export const getPrintStyles = (language: string): string => {
     .hindi-text, .font-mangal { 
       font-family: 'Mangal', 'Arial Unicode MS', sans-serif; 
     }
-    h1 { text-align: center; margin-bottom: 5px; }
-    h2 { text-align: center; margin-top: 5px; margin-bottom: 30px; }
+    h1 { text-align: left; margin-bottom: 5px; }
+    h2 { text-align: left; margin-top: 5px; margin-bottom: 30px; }
     .trainee-info { 
       border: 1px solid #ddd; 
       padding: 20px; 
@@ -62,7 +62,7 @@ export const getPrintStyles = (language: string): string => {
     .field { margin-bottom: 15px; }
     .field-label { font-weight: bold; }
     .footer { 
-      text-align: center; 
+      text-align: left; 
       margin-top: 30px; 
       font-size: 12px;
       page-break-inside: avoid;
@@ -92,17 +92,14 @@ export const createPrintHeader = (title: string, styles: string): string => {
 /**
  * Creates HTML footer content for print templates
  * 
- * @param language Current language code
- * @param t Translation function
+ * @param isHindi boolean indicating if the language is Hindi
  * @returns HTML footer as string
  */
-export const createPrintFooter = (language: string = 'en', t?: TFunction): string => {
-  const translate = t || ((key: string, fallback: string) => fallback);
-  
+export const createPrintFooter = (isHindi: boolean = false): string => {
   return `
         <div class="footer">
-          <p class="${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(translate("documentGenerated", "This document was generated on"), language)}
+          <p class="${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage("This document was generated on", isHindi)}
             ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
           </p>
         </div>

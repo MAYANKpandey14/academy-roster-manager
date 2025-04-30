@@ -1,6 +1,5 @@
-
 import { flexRender } from "@tanstack/react-table";
-import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Table,
   TableBody,
@@ -17,7 +16,7 @@ interface TableWrapperProps {
 }
 
 export function TableWrapper({ table, columns, isLoading }: TableWrapperProps) {
-  const { t, i18n } = useTranslation();
+  const { isHindi } = useLanguage();
   
   return (
     <div className="rounded-md border">
@@ -27,7 +26,7 @@ export function TableWrapper({ table, columns, isLoading }: TableWrapperProps) {
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header: any) => {
                 return (
-                  <TableHead key={header.id} className={i18n.language === 'hi' ? 'krutidev-heading' : ''}>
+                  <TableHead key={header.id} className={isHindi ? 'font-mangal' : ''}>
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -44,8 +43,8 @@ export function TableWrapper({ table, columns, isLoading }: TableWrapperProps) {
           {isLoading ? (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-16 text-center">
-                <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-                  {t("loading")}
+                <span className={isHindi ? 'font-mangal' : ''}>
+                  {isHindi ? "लोड हो रहा है..." : "Loading..."}
                 </span>
               </TableCell>
             </TableRow>
@@ -70,8 +69,8 @@ export function TableWrapper({ table, columns, isLoading }: TableWrapperProps) {
                 colSpan={columns.length}
                 className="h-24 text-center"
               >
-                <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-                  {t("noResults")}
+                <span className={isHindi ? 'font-mangal' : ''}>
+                  {isHindi ? "कोई परिणाम नहीं मिला" : "No results found"}
                 </span>
               </TableCell>
             </TableRow>

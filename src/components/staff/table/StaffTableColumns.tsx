@@ -4,13 +4,12 @@ import { Staff, StaffRank } from "@/types/staff";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { prepareTextForLanguage } from "@/utils/textUtils";
-import { TFunction } from "i18next";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { StaffRowActions } from "./StaffRowActions";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const getStaffColumns = (
-  t: TFunction,
-  i18n: { language: string },
+  isHindi: boolean,
   isLoading: boolean,
   handlePrintAction: (staff: Staff[]) => void,
   handleDownloadAction: (staff: Staff[]) => void,
@@ -47,34 +46,34 @@ export const getStaffColumns = (
     {
       accessorKey: "pno",
       header: () => {
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("pno", "PNO")}
+        return <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+          {isHindi ? "पीएनओ" : "PNO"}
         </span>
       },
       cell: ({ row }) => {
         const value = row.getValue("pno") as string;
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>{value}</span>;
+        return <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>{value}</span>;
       }
     },
     {
       accessorKey: "name",
       header: () => {
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("name", "Name")}
+        return <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+          {isHindi ? "नाम" : "Name"}
         </span>
       },
       cell: ({ row }) => {
         const value = row.getValue("name") as string;
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''} font-medium`}>
-          {prepareTextForLanguage(value, i18n.language)}
+        return <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+          {prepareTextForLanguage(value, isHindi ? 'hi' : 'en')}
         </span>;
       }
     },
     {
       accessorKey: "rank",
       header: () => {
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("rank", "Rank")}
+        return <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+          {isHindi ? "रैंक" : "Rank"}
         </span>
       },
       cell: ({ row }) => {
@@ -87,7 +86,7 @@ export const getStaffColumns = (
                 : "outline"
             }
           >
-            <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
               {rank}
             </span>
           </Badge>
@@ -97,34 +96,34 @@ export const getStaffColumns = (
     {
       accessorKey: "current_posting_district",
       header: () => {
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("postingDistrict", "Posting District")}
+        return <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+          {isHindi ? "पोस्टिंग जिला" : "Posting District"}
         </span>
       },
       cell: ({ row }) => {
         const value = row.getValue("current_posting_district") as string;
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-          {prepareTextForLanguage(value, i18n.language)}
+        return <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+          {prepareTextForLanguage(value, isHindi ? 'hi' : 'en')}
         </span>;
       }
     },
     {
       accessorKey: "mobile_number",
       header: () => {
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("mobile", "Mobile")}
+        return <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+          {isHindi ? "मोबाइल नंबर" : "Mobile"}
         </span>
       },
       cell: ({ row }) => {
         const value = row.getValue("mobile_number") as string;
-        return <span>{value}</span>;
+        return <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>{value}</span>;
       }
     },
     {
       id: "actions",
       header: () => {
-        return <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
-          {t("actions", "Actions")}
+        return <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+          {isHindi ? "कार्य" : "Actions"}
         </span>
       },
       cell: ({ row }) => {

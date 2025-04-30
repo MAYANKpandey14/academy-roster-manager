@@ -1,6 +1,23 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+
+interface DatabaseAbsence {
+  id: string;
+  date: string;
+  status: string;
+  trainee_id?: string;
+  staff_id?: string;
+}
+
+interface DatabaseLeave {
+  id: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  leave_type: string;
+  trainee_id?: string;
+  staff_id?: string;
+}
 
 export interface AttendanceRecord {
   id: string;
@@ -25,33 +42,35 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
       
       try {
         // Fetch absence data
-        const absenceResult = await supabase
+        // @ts-ignore - Type instantiation is excessively deep due to Supabase's complex type system
+        const { data: absenceData, error: absenceError } = await supabase
           .from(absenceTable)
           .select('*')
           .eq(absenceIdField, personId);
         
-        if (absenceResult.error) throw absenceResult.error;
-        const absences = absenceResult.data || [];
+        if (absenceError) throw absenceError;
+        const absences = (absenceData as DatabaseAbsence[]) || [];
         
         // Fetch leave data
-        const leaveResult = await supabase
+        // @ts-ignore - Type instantiation is excessively deep due to Supabase's complex type system
+        const { data: leaveData, error: leaveError } = await supabase
           .from(leaveTable)
           .select('*')
           .eq(leaveIdField, personId);
         
-        if (leaveResult.error) throw leaveResult.error;
-        const leaves = leaveResult.data || [];
+        if (leaveError) throw leaveError;
+        const leaves = (leaveData as DatabaseLeave[]) || [];
 
         // Format absences
-        const formattedAbsences = absences.map((item: any) => ({
+        const formattedAbsences = absences.map((item) => ({
           id: `absence-${item.id}`,
           date: item.date,
           status: 'absent',
-          reason: item.status // Using status field to store the reason
+          reason: item.status
         }));
 
         // Format leaves
-        const formattedLeaves = leaves.map((item: any) => ({
+        const formattedLeaves = leaves.map((item) => ({
           id: `leave-${item.id}`,
           date: `${item.start_date} - ${item.end_date}`,
           status: 'on_leave',

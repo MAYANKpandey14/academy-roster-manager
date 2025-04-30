@@ -1,9 +1,9 @@
 
-import { useTranslation } from "react-i18next";
 import { Header } from "@/components/layout/Header";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function TraineeLoadingState() {
-  const { t, i18n } = useTranslation();
+  const { isHindi } = useLanguage();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -11,8 +11,8 @@ export function TraineeLoadingState() {
       <main className="container mx-auto py-6 px-4">
         <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
           <p className="text-center">
-            <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-              {t("loadingTraineeDetails", "Loading trainee data...")}
+            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+              {isHindi ? "लोडिंग ट्रेनी डेटा..." : "Loading trainee data..."}
             </span>
           </p>
         </div>

@@ -1,26 +1,25 @@
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Trainee } from "@/types/trainee";
 import { toast } from "sonner";
 import { getTrainees } from "@/services/api";
-import { useTranslation } from "react-i18next";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 import { TraineeHeader } from "@/components/trainee/view/TraineeHeader";
 import { TraineeDetailsSection } from "@/components/trainee/view/TraineeDetailsSection";
 import { TraineeLoadingState } from "@/components/trainee/view/TraineeLoadingState";
 import { TraineeNotFound } from "@/components/trainee/view/TraineeNotFound";
 import { useTraineePrintService } from "@/components/trainee/view/TraineePrintService";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const ViewTrainee = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [trainee, setTrainee] = useState<Trainee | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { t, i18n } = useTranslation();
+  const { isHindi } = useLanguage();
   
-  // Apply language inputs hook - make sure it runs on language change
+  // Apply language inputs hook
   useLanguageInputs();
 
   useEffect(() => {
@@ -38,13 +37,13 @@ const ViewTrainee = () => {
           if (traineeData) {
             setTrainee(traineeData);
           } else {
-            toast.error(t("traineeNotFound", "Trainee not found"));
+            toast.error(isHindi ? "प्रशिक्षु नहीं मिला" : "Trainee not found");
             navigate("/");
           }
         }
       } catch (error) {
         console.error("Error fetching trainee:", error);
-        toast.error(t("failedToFetchTrainee", "Failed to load trainee data"));
+        toast.error(isHindi ? "प्रशिक्षु डेटा लोड नहीं हो सका" : "Failed to load trainee data");
         navigate("/");
       } finally {
         setIsLoading(false);
@@ -52,12 +51,7 @@ const ViewTrainee = () => {
     };
 
     fetchTrainee();
-  }, [id, navigate, t]);
-
-  // Force re-render when language changes
-  useEffect(() => {
-    // This empty dependency will trigger a re-render when i18n.language changes
-  }, [i18n.language]);
+  }, [id, navigate, isHindi]);
 
   if (isLoading) {
     return <TraineeLoadingState />;

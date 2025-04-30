@@ -13,10 +13,10 @@ export function PersonDetails({ person, personType }: PersonDetailsProps) {
 
   const renderField = (label: string, value: string | undefined) => (
     <div className="flex flex-col mb-2 animate-fade-in">
-      <span className={`text-sm text-gray-500 ${isHindi ? "font-mangal" : ""}`}>
+      <span className={`text-sm text-gray-500 ${isHindi ? "font-hindi" : ""}`}>
         {label}
       </span>
-      <span className={`text-base ${isHindi ? "font-mangal" : ""}`}>
+      <span className={`text-base ${isHindi ? "font-hindi" : ""}`}>
         {value || "-"}
       </span>
     </div>
@@ -25,7 +25,7 @@ export function PersonDetails({ person, personType }: PersonDetailsProps) {
   return (
     <Card className="animate-fade-in">
       <CardContent className="pt-6">
-        <h3 className={`text-lg font-medium mb-4 ${isHindi ? "font-mangal" : ""}`}>
+        <h3 className={`text-lg font-medium mb-4 ${isHindi ? "font-hindi" : ""}`}>
           {isHindi ? "व्यक्तिगत विवरण" : "Person Details"}
         </h3>
         

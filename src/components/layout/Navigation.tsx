@@ -1,25 +1,22 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export function Navigation() {
   const location = useLocation();
-  const { t } = useTranslation();
   const { isHindi } = useLanguage();
   
   const routes = [
     { 
-      name: isHindi ? "प्रशिक्षु" : t("trainees"), 
+      name: isHindi ? "प्रशिक्षु" : "Trainees", 
       path: "/trainees" 
     },
     { 
-      name: isHindi ? "स्टाफ" : t("staff"), 
+      name: isHindi ? "स्टाफ" : "Staff", 
       path: "/staff" 
     },
     { 
-      name: isHindi ? "उपस्थिति" : t("attendance"),
+      name: isHindi ? "उपस्थिति" : "Attendance",
       path: "/attendance"
     },
   ];

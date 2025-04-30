@@ -1,6 +1,4 @@
-
 import { Trainee } from "@/types/trainee";
-import { TFunction } from "i18next";
 import { prepareTextForLanguage } from "../textUtils";
 import { createPrintFooter, createPrintHeader, getPrintStyles } from "./printUtils";
 
@@ -8,28 +6,24 @@ import { createPrintFooter, createPrintHeader, getPrintStyles } from "./printUti
  * Creates HTML content for printing trainee data
  * 
  * @param trainees Array of trainees
- * @param language Current language code
- * @param t Translation function
+ * @param isHindi Whether to display in Hindi
  * @returns HTML content as string
  */
-export const createPrintContent = (trainees: Trainee[], language = 'en', t?: TFunction) => {
-  // Get translation function and defaults
-  const translate = t || ((key: string, fallback: string) => fallback);
-  
+export const createPrintContent = (trainees: Trainee[], isHindi: boolean) => {
   // Get common print styles
-  const styles = getPrintStyles(language);
+  const styles = getPrintStyles(isHindi ? 'hi' : 'en');
   
   // Generate the HTML header
-  const title = translate("traineeInfo", "RTC Trainee Information");
+  const title = isHindi ? "आरटीसी प्रशिक्षु जानकारी" : "RTC Trainee Information";
   const printHeader = createPrintHeader(title, styles);
   
   // Add RTC header content
   const rtcHeader = `
-    <h1 class="${language === 'hi' ? 'font-mangal' : ''}">
-      ${prepareTextForLanguage(translate("rtcPolice", "RTC POLICE LINE, MORADABAD"), language)}
+    <h1 class="${isHindi ? 'font-mangal' : ''}">
+      ${prepareTextForLanguage(isHindi ? "आरटीसी पुलिस लाइन, मुरादाबाद" : "RTC POLICE LINE, MORADABAD", isHindi)}
     </h1>
-    <h2 class="${language === 'hi' ? 'font-mangal' : ''}">
-      ${prepareTextForLanguage(translate("traineeInfo", "TRAINEE INFORMATION"), language)}
+    <h2 class="${isHindi ? 'font-mangal' : ''}">
+      ${prepareTextForLanguage(isHindi ? "प्रशिक्षु जानकारी" : "TRAINEE INFORMATION", isHindi)}
     </h2>
   `;
   
@@ -38,97 +32,97 @@ export const createPrintContent = (trainees: Trainee[], language = 'en', t?: TFu
     return `
       <div class="trainee-info">
         <div class="field">
-          <span class="field-label ${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(translate("name", "Name"), language)}:
+          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(isHindi ? "नाम" : "Name", isHindi)}:
           </span> 
-          <span class="${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(trainee.name, language)}
+          <span class="${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(trainee.name, isHindi)}
           </span>
         </div>
         <div class="field">
-          <span class="field-label ${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(translate("pno", "PNO"), language)}:
+          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(isHindi ? "पीएनओ" : "PNO", isHindi)}:
           </span> 
           ${trainee.pno}
         </div>
         <div class="field">
-          <span class="field-label ${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(translate("chestNo", "Chest No"), language)}:
+          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(isHindi ? "चेस्ट नंबर" : "Chest No", isHindi)}:
           </span> 
           ${trainee.chest_no}
         </div>
         <div class="field">
-          <span class="field-label ${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(translate("fatherName", "Father's Name"), language)}:
+          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(isHindi ? "पिता का नाम" : "Father's Name", isHindi)}:
           </span> 
-          <span class="${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(trainee.father_name, language)}
+          <span class="${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(trainee.father_name, isHindi)}
           </span>
         </div>
         <div class="field">
-          <span class="field-label ${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(translate("dateOfBirth", "Date of Birth"), language)}:
+          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(isHindi ? "जन्म तिथि" : "Date of Birth", isHindi)}:
           </span> 
           ${new Date(trainee.date_of_birth).toLocaleDateString()}
         </div>
         <div class="field">
-          <span class="field-label ${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(translate("dateOfJoining", "Date of Joining"), language)}:
+          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(isHindi ? "शामिल होने की तिथि" : "Date of Joining", isHindi)}:
           </span> 
           ${new Date(trainee.date_of_joining).toLocaleDateString()}
         </div>
         <div class="field">
-          <span class="field-label ${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(translate("trainingPeriod", "Training Period"), language)}:
+          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(isHindi ? "प्रशिक्षण अवधि" : "Training Period", isHindi)}:
           </span> 
           ${new Date(trainee.arrival_date).toLocaleDateString()} 
-          <span class="${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(translate("trainingPeriodTo", "to"), language)}
+          <span class="${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(isHindi ? "से" : "to", isHindi)}
           </span> 
           ${new Date(trainee.departure_date).toLocaleDateString()}
         </div>
         <div class="field">
-          <span class="field-label ${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(translate("currentPosting", "Current Posting"), language)}:
+          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(isHindi ? "वर्तमान पदस्थापना" : "Current Posting", isHindi)}:
           </span> 
-          <span class="${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(trainee.current_posting_district, language)}
+          <span class="${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(trainee.current_posting_district, isHindi)}
           </span>
         </div>
         <div class="field">
-          <span class="field-label ${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(translate("mobile", "Mobile"), language)}:
+          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(isHindi ? "मोबाइल" : "Mobile", isHindi)}:
           </span> 
           ${trainee.mobile_number}
         </div>
         <div class="field">
-          <span class="field-label ${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(translate("education", "Education"), language)}:
+          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(isHindi ? "शिक्षा" : "Education", isHindi)}:
           </span> 
-          <span class="${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(trainee.education, language)}
+          <span class="${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(trainee.education, isHindi)}
           </span>
         </div>
         <div class="field">
-          <span class="field-label ${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(translate("bloodGroup", "Blood Group"), language)}:
+          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(isHindi ? "रक्त समूह" : "Blood Group", isHindi)}:
           </span> 
           ${trainee.blood_group}
         </div>
         <div class="field">
-          <span class="field-label ${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(translate("nominee", "Nominee"), language)}:
+          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(isHindi ? "नामांकित व्यक्ति" : "Nominee", isHindi)}:
           </span> 
-          <span class="${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(trainee.nominee, language)}
+          <span class="${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(trainee.nominee, isHindi)}
           </span>
         </div>
         <div class="field">
-          <span class="field-label ${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(translate("homeAddress", "Home Address"), language)}:
+          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(isHindi ? "घर का पता" : "Home Address", isHindi)}:
           </span> 
-          <span class="${language === 'hi' ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(trainee.home_address, language)}
+          <span class="${isHindi ? 'font-mangal' : ''}">
+            ${prepareTextForLanguage(trainee.home_address, isHindi)}
           </span>
         </div>
       </div>
@@ -136,7 +130,7 @@ export const createPrintContent = (trainees: Trainee[], language = 'en', t?: TFu
   }).join('');
   
   // Generate footer
-  const printFooter = createPrintFooter(language, t);
+  const printFooter = createPrintFooter(isHindi);
   
   return printHeader + rtcHeader + printTrainees + printFooter;
 };

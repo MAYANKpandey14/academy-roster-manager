@@ -106,7 +106,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
     <form onSubmit={handleSearch} className="space-y-4 animate-fade-in">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="personType" className={isHindi ? "font-mangal" : ""}>
+          <Label htmlFor="personType" className={isHindi ? "font-hindi" : ""}>
             {isHindi ? "व्यक्ति का प्रकार" : "Person Type"}
           </Label>
           <Select
@@ -118,12 +118,12 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="trainee">
-                <span className={isHindi ? "font-mangal" : ""}>
+                <span className={isHindi ? "font-hindi" : ""}>
                   {isHindi ? "प्रशिक्षु" : "Trainee"}
                 </span>
               </SelectItem>
               <SelectItem value="staff">
-                <span className={isHindi ? "font-mangal" : ""}>
+                <span className={isHindi ? "font-hindi" : ""}>
                   {isHindi ? "स्टाफ" : "Staff"}
                 </span>
               </SelectItem>
@@ -132,7 +132,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="pno" className={isHindi ? "font-mangal" : ""}>
+          <Label htmlFor="pno" className={isHindi ? "font-hindi" : ""}>
             {isHindi ? "पी.एन.ओ. संख्या" : "PNO Number"}
           </Label>
           <div className="flex space-x-2">
@@ -141,7 +141,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
               value={pno}
               onChange={(e) => setPno(e.target.value)}
               placeholder={isHindi ? "पी.एन.ओ. दर्ज करें" : "Enter PNO"}
-              className={isHindi ? "font-mangal" : ""}
+              className={isHindi ? "font-hindi" : ""}
             />
             <Button 
               type="submit" 
@@ -149,13 +149,13 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
               className="transition-all duration-200 hover:scale-105 active:scale-95"
             >
               {isSearching ? (
-                <span className={isHindi ? "font-mangal" : ""}>
+                <span className={isHindi ? "font-hindi" : ""}>
                   {isHindi ? "खोज रहा है..." : "Searching..."}
                 </span>
               ) : (
                 <>
                   <Search className="h-4 w-4 mr-2" />
-                  <span className={isHindi ? "font-mangal" : ""}>
+                  <span className={isHindi ? "font-hindi" : ""}>
                     {isHindi ? "खोजें" : "Search"}
                   </span>
                 </>

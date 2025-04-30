@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { SortingState, ColumnFiltersState } from "@tanstack/react-table";
-import { useTranslation } from "react-i18next";
 import { TableWrapper } from "./TableWrapper";
 import { TableFilters } from "./TableFilters";
 import { TablePagination } from "./TablePagination";
 import { useDataTable } from "./useDataTable";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface DataTableProps<TData, TValue> {
   columns: any[];
@@ -26,11 +25,11 @@ export function DataTable<TData, TValue>({
   isLoading = false,
   rowSelection = {},
   onRowSelectionChange = () => {},
-  totalLabel = "totalTrainees",
+  totalLabel = "total",
 }: DataTableProps<TData, TValue>) {
+  const { isHindi } = useLanguage();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const { t, i18n } = useTranslation();
 
   const table = useDataTable({
     data,
@@ -48,7 +47,7 @@ export function DataTable<TData, TValue>({
       <TableFilters
         table={table}
         filterColumn={filterColumn}
-        filterPlaceholder={filterPlaceholder}
+        filterPlaceholder={isHindi ? "खोजें..." : filterPlaceholder}
         isLoading={isLoading}
       />
       

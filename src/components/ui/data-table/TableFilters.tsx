@@ -1,6 +1,5 @@
-
 import { Input } from "@/components/ui/input";
-import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TableFiltersProps {
   table: any;
@@ -14,7 +13,7 @@ export function TableFilters({
   filterColumn, 
   isLoading 
 }: TableFiltersProps) {
-  const { t, i18n } = useTranslation();
+  const { isHindi } = useLanguage();
   
   return (
     <div className="flex items-center justify-between py-4">
@@ -26,13 +25,13 @@ export function TableFilters({
           }
           className="max-w-sm"
           disabled={isLoading}
-          lang={i18n.language}
+          lang={isHindi ? 'hi' : 'en'}
         />
       </div>
       <div className="flex items-center space-x-2">
-        <p className={`text-sm text-gray-500 dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
-          {table.getFilteredSelectedRowModel().rows.length} {t("of")}{" "}
-          {table.getFilteredRowModel().rows.length} {t("rowsSelected")}
+        <p className={`text-sm text-gray-500 ${isHindi ? 'font-mangal' : ''}`}>
+          {table.getFilteredSelectedRowModel().rows.length} {isHindi ? "में से" : "of"}{" "}
+          {table.getFilteredRowModel().rows.length} {isHindi ? "पंक्तियाँ चुनी गईं" : "rows selected"}
         </p>
       </div>
     </div>
