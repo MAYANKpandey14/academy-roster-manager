@@ -61,7 +61,7 @@ export function Header() {
             </h1>
           </div>
 
-          <div className="flex justify-center items-center">
+          <div className="flex justify-center items-center animate-slide-in">
             <div className={`text-sm text-gray-500 text-center ${isHindi ? 'font-mangal' : ''}`}>{today}</div>
           </div>
 
@@ -71,7 +71,7 @@ export function Header() {
                 variant="outline"
                 size="sm"
                 onClick={() => navigate(-1)}
-                className="hidden sm:flex"
+                className="hidden sm:flex animate-slide-in"
               >
                 <ArrowLeft className="h-4 w-4 mr-1" />
                 <span className={isHindi ? 'font-mangal' : ''}>
@@ -83,6 +83,7 @@ export function Header() {
                 variant="outline"
                 size="sm"
                 onClick={() => navigate("/")}
+                className="animate-slide-in"
               >
                 <Home className="h-4 w-4 mr-1" />
                 <span className={`hidden sm:inline ${isHindi ? 'font-mangal' : ''}`}>
@@ -94,6 +95,7 @@ export function Header() {
                 variant="destructive"
                 size="sm"
                 onClick={handleLogout}
+                className="animate-slide-in"
               >
                 <LogOut className="h-4 w-4 mr-1" />
                 <span className={`hidden sm:inline ${isHindi ? 'font-mangal' : ''}`}>
@@ -112,6 +114,7 @@ export function Header() {
           variant="outline"
           size="sm"
           onClick={() => navigate(-1)}
+          className="animate-slide-in"
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
@@ -120,6 +123,7 @@ export function Header() {
           variant="outline"
           size="sm"
           onClick={() => navigate("/")}
+          className="animate-slide-in"
         >
           <Home className="h-4 w-4" />
         </Button>
@@ -128,6 +132,7 @@ export function Header() {
           variant="destructive"
           size="sm"
           onClick={handleLogout}
+          className="animate-slide-in"
         >
           <LogOut className="h-4 w-4" />
         </Button>

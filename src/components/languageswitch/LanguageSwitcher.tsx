@@ -14,7 +14,7 @@ const LanguageSwitcher = () => {
           variant={!isHindi ? "default" : "outline"}
           size="sm"
           onClick={() => !isHindi ? null : toggleLanguage()}
-          className={`rounded-none px-2 md:px-3 py-1 h-8 md:h-9 text-sm transition-colors ${
+          className={`rounded-none px-2 md:px-3 py-1 h-8 md:h-9 text-sm transition-colors duration-400 ease-in ${
             !isHindi ? 'bg-blue-600 hover:bg-blue-700' : 'bg-white text-gray-700'
           }`}
         >
@@ -24,7 +24,7 @@ const LanguageSwitcher = () => {
           variant={isHindi ? "default" : "outline"}
           size="sm"
           onClick={() => isHindi ? null : toggleLanguage()}
-          className={`rounded-none px-2 md:px-3 py-1 h-8 md:h-9 text-sm transition-colors ${
+          className={`rounded-none px-2 md:px-3 py-1 h-8 md:h-9 text-sm transition-colors duration-400 ease-in${
             isHindi ? 'bg-blue-600 hover:bg-blue-700 font-mangal' : 'bg-white text-gray-700'
           }`}
         >

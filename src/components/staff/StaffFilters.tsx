@@ -43,9 +43,9 @@ export function StaffFilters({
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-4">
+    <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-4 animate-scale-in">
       <h3 className="text-lg font-medium mb-4">
-        <span className={`dynamic-text ${isHindi ? 'krutidev-heading' : ''}`}>
+        <span className={`dynamic-text ${isHindi ? 'font-mangal' : ''}`}>
           {isHindi ? "स्टाफ खोजें" : "Search Staff"}
         </span>
       </h3>
@@ -66,15 +66,15 @@ export function StaffFilters({
       </div>
       
       <div className="flex flex-wrap justify-end gap-2">
-        <Button onClick={() => navigate('/add-staff')} variant="outline">
+        <Button onClick={() => navigate('/add-staff')} variant="outline" className="animate-slide-in">
           <UserPlus className="mr-2 h-4 w-4" />
           <span className="dynamic-text">{isHindi ? "स्टाफ जोड़ें" : "Add Staff"}</span>
         </Button>
-        <Button onClick={onShowAll} variant="outline" disabled={disabled}>
+        <Button onClick={onShowAll} variant="outline" disabled={disabled} className="animate-slide-in">
           <List className="mr-2 h-4 w-4" />
           <span className="dynamic-text">{isHindi ? "सभी स्टाफ दिखाएं" : "Show All Staff"}</span>
         </Button>
-        <Button onClick={handleSearch} disabled={disabled}>
+        <Button onClick={handleSearch} disabled={disabled} className="animate-slide-in">
           <Search className="mr-2 h-4 w-4" />
           <span className="dynamic-text">{isHindi ? "खोजें" : "Search"}</span>
         </Button>

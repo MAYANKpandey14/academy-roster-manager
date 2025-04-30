@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Download, Printer } from "lucide-react";
+import { Download, Printer, RefreshCw } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -8,24 +8,40 @@ interface StaffTableActionsProps {
   handlePrintAction: () => void;
   handleDownloadAction: () => void;
   isLoading: boolean;
+  onRefresh?: () => void;
 }
 
 export function StaffTableActions({
   selectedCount,
   handlePrintAction,
   handleDownloadAction,
-  isLoading
+  isLoading,
+  onRefresh
 }: StaffTableActionsProps) {
   const isMobile = useIsMobile();
   const { isHindi } = useLanguage();
 
   return (
     <div className="flex flex-wrap gap-2 justify-end">
+      {onRefresh && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onRefresh}
+          disabled={isLoading}
+          className="animate-slide-in"
+        >
+          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          {!isMobile && <span className={`ml-2 dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+            {isHindi ? "अपडेट करें" : "Refresh"}
+          </span>}
+        </Button>
+      )}
       <Button
         variant="outline"
         size="sm"
         onClick={handlePrintAction}
-        className="print-button"
+        className="print-button animate-slide-in"
         disabled={isLoading || selectedCount === 0}
       >
         <Printer className="h-4 w-4" />
@@ -37,7 +53,7 @@ export function StaffTableActions({
         variant="outline"
         size="sm"
         onClick={handleDownloadAction}
-        className="download-button"
+        className="download-button animate-slide-in"
         disabled={isLoading || selectedCount === 0}
       >
         <Download className="h-4 w-4" />

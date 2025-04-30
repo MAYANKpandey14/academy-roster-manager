@@ -50,7 +50,7 @@ export function TraineeTableActions({
       return;
     }
     
-    const content = createCSVContent(selectedTrainees, isHindi ? 'hi' : 'en');
+    const content = createCSVContent(selectedTrainees, isHindi);  
     handleDownload(content, `selected_trainees_${new Date().toISOString().split('T')[0]}.csv`);
     toast.success(isHindi ? "प्रशिक्षानिवेशी CSV फ़ाइल सफलतापूर्वक डाउनलोड हो गई है..." : `CSV file with ${selectedTrainees.length} trainees downloaded successfully`);
   }
@@ -63,6 +63,7 @@ export function TraineeTableActions({
           size="sm"
           onClick={onRefresh}
           disabled={isLoading}
+          className="animate-slide-in"
         >
           <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
           {!isMobile && <span className={`ml-2 dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
@@ -75,7 +76,7 @@ export function TraineeTableActions({
         variant="outline"
         size="sm"
         onClick={handlePrintAction}
-        className="print-button"
+        className="print-button animate-slide-in"
         disabled={isLoading || selectedCount === 0}
       >
         <Printer className="h-4 w-4" />
@@ -88,7 +89,7 @@ export function TraineeTableActions({
         variant="outline"
         size="sm"
         onClick={handleDownloadAction}
-        className="download-button"
+        className="download-button animate-slide-in"
         disabled={isLoading || selectedCount === 0}
       >
         <Download className="h-4 w-4" />

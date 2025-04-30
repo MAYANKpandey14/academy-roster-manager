@@ -76,7 +76,7 @@ const StaffPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <main className="container mx-auto py-6 px-4">
+      <main className="container mx-auto py-6 px-4 animate-fade-in">
         <div className="mb-6">
           <h1 className={`text-2xl font-semibold mb-6 ${isHindi ? 'font-hindi' : ''}`}>
             {isHindi ? 'स्टाफ' : 'Staff'}
@@ -89,7 +89,7 @@ const StaffPage = () => {
         </div>
         
         {showTable && (
-          <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mt-6">
+          <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mt-6 animate-scale-in">
             <StaffTable 
               staff={staff} 
               onRefresh={handleShowAll}

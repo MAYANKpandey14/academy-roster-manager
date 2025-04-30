@@ -4,12 +4,12 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -33,22 +33,22 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
   const [pno, setPno] = useState("");
   const [personType, setPersonType] = useState<'trainee' | 'staff'>('trainee');
   const [isSearching, setIsSearching] = useState(false);
-  
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!pno) {
-      toast.error(isHindi 
-        ? "कृपया पी.एन.ओ. दर्ज करें" 
+      toast.error(isHindi
+        ? "कृपया पी.एन.ओ. दर्ज करें"
         : "Please enter the PNO");
       return;
     }
-    
+
     setIsSearching(true);
-    
+
     try {
       const tableName = personType === 'trainee' ? 'trainees' : 'staff';
-      
+
       // Define specific columns to select based on person type
       let columns = 'id, pno, name, mobile_number';
       if (personType === 'trainee') {
@@ -56,25 +56,25 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
       } else {
         columns += ', rank';
       }
-      
+
       const { data, error } = await supabase
         .from(tableName)
         .select(columns)
         .eq('pno', pno)
         .single();
-        
+
       if (error) {
         throw error;
       }
-      
+
       // Validate that data is not null before proceeding
       if (!data) {
         toast.error(isHindi
-          ? "कोई व्यक्ति नहीं मिला" 
+          ? "कोई व्यक्ति नहीं मिला"
           : "No person found");
         return;
       }
-      
+
       // Use explicit type assertion since we've verified the data structure
       const personData: PersonData = {
         id: (data as Record<string, any>).id as string,
@@ -82,20 +82,20 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         name: (data as Record<string, any>).name as string,
         mobile_number: (data as Record<string, any>).mobile_number as string
       };
-      
+
       // Add type-specific fields with proper type assertions
       if (personType === 'trainee' && 'chest_no' in data) {
         personData.chest_no = (data as Record<string, any>).chest_no as string;
       } else if (personType === 'staff' && 'rank' in data) {
         personData.rank = (data as Record<string, any>).rank as string;
       }
-      
+
       onPersonFound(personData, personType);
-      
+
     } catch (error) {
       console.error("Error searching person:", error);
-      toast.error(isHindi 
-        ? "व्यक्ति खोजने में त्रुटि" 
+      toast.error(isHindi
+        ? "व्यक्ति खोजने में त्रुटि"
         : "Error searching for person");
     } finally {
       setIsSearching(false);
@@ -130,7 +130,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
             </SelectContent>
           </Select>
         </div>
-        
+
         <div className="space-y-2">
           <Label htmlFor="pno" className={isHindi ? "font-hindi" : ""}>
             {isHindi ? "पी.एन.ओ. संख्या" : "PNO Number"}
@@ -143,8 +143,8 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
               placeholder={isHindi ? "पी.एन.ओ. दर्ज करें" : "Enter PNO"}
               className={isHindi ? "font-hindi" : ""}
             />
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={isSearching}
               className="transition-all duration-200 hover:scale-105 active:scale-95"
             >
