@@ -65,7 +65,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
       
-      // Create a properly shaped PersonData object
+      // Create a properly shaped PersonData object - ensure type safety
       const personData: PersonData = {
         id: data.id,
         pno: data.pno,

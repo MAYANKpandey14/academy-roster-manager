@@ -10,6 +10,29 @@ export interface AttendanceRecord {
   leave_type?: string;
 }
 
+type AttendanceResponse = {
+  id: string;
+  date: string;
+  status: string;
+  trainee_id?: string;
+  staff_id?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+type LeaveResponse = {
+  id: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  leave_type?: string;
+  status: string;
+  trainee_id?: string;
+  staff_id?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export const useFetchAttendance = (personId?: string, personType: "staff" | "trainee" = "trainee") => {
   return useQuery({
     queryKey: ['attendance', personId, personType],
@@ -38,21 +61,20 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
 
       if (leaveError) throw leaveError;
 
-      // Format absences - handling the case where the schema might have status field instead of reason
-      const formattedAbsences: AttendanceRecord[] = (absences || []).map(item => ({
+      // Format absences
+      const formattedAbsences: AttendanceRecord[] = (absences as AttendanceResponse[] || []).map(item => ({
         id: `absence-${item.id}`,
         date: item.date,
         status: 'absent',
-        // Use the status field as the reason if no reason field exists
-        reason: item.status || 'Not specified'
+        reason: item.status // Use status field as the reason
       }));
 
       // Format leaves
-      const formattedLeaves: AttendanceRecord[] = (leaves || []).map(item => ({
+      const formattedLeaves: AttendanceRecord[] = (leaves as LeaveResponse[] || []).map(item => ({
         id: `leave-${item.id}`,
         date: `${item.start_date} - ${item.end_date}`,
         status: 'on_leave',
-        reason: item.reason || 'Not specified',
+        reason: item.reason,
         leave_type: item.leave_type
       }));
 

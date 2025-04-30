@@ -35,7 +35,7 @@ serve(async (req) => {
     const url = new URL(req.url);
     const path = url.pathname.split("/").pop();
 
-    // Get attendance by PNO
+    // Get attendance by PNO - Early return path
     if (path === "get-by-pno" && req.method === "GET") {
       const pno = url.searchParams.get("pno");
       const type = url.searchParams.get("type") || "trainee";
@@ -68,11 +68,12 @@ serve(async (req) => {
         );
       }
 
-      // Get attendance records
+      // Get attendance records in parallel
       const attendanceTable = type === "trainee" ? "trainee_attendance" : "staff_attendance";
       const leaveTable = type === "trainee" ? "trainee_leave" : "staff_leave";
       const idField = type === "trainee" ? "trainee_id" : "staff_id";
 
+      // Use Promise.all to parallelize requests
       const [attendanceResult, leaveResult] = await Promise.all([
         supabaseClient
           .from(attendanceTable)
@@ -101,7 +102,7 @@ serve(async (req) => {
       );
     }
 
-    // Add attendance or leave record
+    // Add attendance or leave record - Early validation path
     if (path === "add" && req.method === "POST") {
       const requestData: AttendanceRequest = await req.json();
       const { personId, personType, status, date, endDate, reason, leaveType } = requestData;
@@ -116,8 +117,8 @@ serve(async (req) => {
         );
       }
 
-      let result;
       const idField = personType === "trainee" ? "trainee_id" : "staff_id";
+      let result;
 
       if (status === "absent") {
         // Record absence
@@ -125,8 +126,7 @@ serve(async (req) => {
         result = await supabaseClient.from(tableName).insert({
           [idField]: personId,
           date,
-          status: "absent",
-          reason,
+          status: reason,
         });
       } else if (status === "on_leave") {
         // Record leave
@@ -142,6 +142,7 @@ serve(async (req) => {
       }
 
       if (result?.error) {
+        console.error("Error adding record:", result.error);
         return new Response(
           JSON.stringify({ error: result.error.message }),
           {

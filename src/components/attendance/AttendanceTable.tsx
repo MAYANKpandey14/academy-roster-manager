@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 import { useFetchAttendance } from "./hooks/useFetchAttendance";
+import { AttendanceTableRow } from "./AttendanceTableRow";
 
 interface AttendanceTableProps {
   personId: string;
@@ -104,15 +105,7 @@ export const AttendanceTable = ({ personId, personType, pno }: AttendanceTablePr
               </TableRow>
             ) : attendanceRecords && attendanceRecords.length > 0 ? (
               attendanceRecords.map((record) => (
-                <TableRow key={record.id}>
-                  <TableCell>{record.date}</TableCell>
-                  <TableCell className={isHindi ? 'font-mangal' : ''}>
-                    {record.status === 'absent' 
-                      ? (isHindi ? "अनुपस्थित" : "Absent") 
-                      : (isHindi ? "छुट्टी पर" : "On Leave")}
-                  </TableCell>
-                  <TableCell>{record.reason || "-"}</TableCell>
-                </TableRow>
+                <AttendanceTableRow key={record.id} record={record} />
               ))
             ) : (
               <TableRow>
