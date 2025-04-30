@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -81,41 +82,68 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
         const tableName = personType === "trainee" ? "trainee_attendance" : "staff_attendance";
         const idField = personType === "trainee" ? "trainee_id" : "staff_id";
         
-        // Explicitly type the attendance data according to table structure
-        const attendanceData = {
-          [idField]: personId,
-          date: format(values.startDate, "yyyy-MM-dd"),
-          status: values.reason // Using status field to store reason text
-        };
-        
-        const { error } = await supabase
-          .from(tableName)
-          .insert(attendanceData);
+        // Create a properly typed object based on personType
+        if (personType === "trainee") {
+          const attendanceData = {
+            trainee_id: personId,
+            date: format(values.startDate, "yyyy-MM-dd"),
+            status: values.reason // Using status field to store reason text
+          };
           
-        if (error) throw error;
+          const { error } = await supabase
+            .from("trainee_attendance")
+            .insert(attendanceData);
+            
+          if (error) throw error;
+        } else {
+          const attendanceData = {
+            staff_id: personId,
+            date: format(values.startDate, "yyyy-MM-dd"),
+            status: values.reason // Using status field to store reason text
+          };
+          
+          const { error } = await supabase
+            .from("staff_attendance")
+            .insert(attendanceData);
+            
+          if (error) throw error;
+        }
         
       } else if (values.status === "on_leave") {
         // Record leave in the leave table
-        const tableName = personType === "trainee" ? "trainee_leave" : "staff_leave";
-        const idField = personType === "trainee" ? "trainee_id" : "staff_id";
-        
         const endDate = values.endDate || values.startDate;
         
-        // Explicitly type the leave data according to table structure
-        const leaveData = {
-          [idField]: personId,
-          start_date: format(values.startDate, "yyyy-MM-dd"),
-          end_date: format(endDate, "yyyy-MM-dd"),
-          reason: values.reason,
-          leave_type: values.leaveType || null,
-          status: "approved" 
-        };
-        
-        const { error } = await supabase
-          .from(tableName)
-          .insert(leaveData);
+        if (personType === "trainee") {
+          const leaveData = {
+            trainee_id: personId,
+            start_date: format(values.startDate, "yyyy-MM-dd"),
+            end_date: format(endDate, "yyyy-MM-dd"),
+            reason: values.reason,
+            leave_type: values.leaveType || null,
+            status: "approved" 
+          };
           
-        if (error) throw error;
+          const { error } = await supabase
+            .from("trainee_leave")
+            .insert(leaveData);
+            
+          if (error) throw error;
+        } else {
+          const leaveData = {
+            staff_id: personId,
+            start_date: format(values.startDate, "yyyy-MM-dd"),
+            end_date: format(endDate, "yyyy-MM-dd"),
+            reason: values.reason,
+            leave_type: values.leaveType || null,
+            status: "approved" 
+          };
+          
+          const { error } = await supabase
+            .from("staff_leave")
+            .insert(leaveData);
+            
+          if (error) throw error;
+        }
       }
       
       toast.success(isHindi 

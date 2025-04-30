@@ -44,34 +44,41 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
       const absenceTable = personType === 'trainee' ? 'trainee_attendance' : 'staff_attendance';
       const absenceIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
       
-      const { data: absences, error: absenceError } = await supabase
-        .from(absenceTable)
-        .select('*')
-        .eq(absenceIdField, personId);
-
-      if (absenceError) throw absenceError;
-
       // Get leaves from leave table
       const leaveTable = personType === 'trainee' ? 'trainee_leave' : 'staff_leave';
       const leaveIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
       
-      const { data: leaves, error: leaveError } = await supabase
-        .from(leaveTable)
-        .select('*')
-        .eq(leaveIdField, personId);
-
+      // Use Promise.all to fetch data in parallel
+      const [absenceResult, leaveResult] = await Promise.all([
+        supabase
+          .from(absenceTable)
+          .select('*')
+          .eq(absenceIdField, personId),
+          
+        supabase
+          .from(leaveTable)
+          .select('*')
+          .eq(leaveIdField, personId)
+      ]);
+      
+      const absences = absenceResult.data || [];
+      const absenceError = absenceResult.error;
+      const leaves = leaveResult.data || [];
+      const leaveError = leaveResult.error;
+      
+      if (absenceError) throw absenceError;
       if (leaveError) throw leaveError;
 
-      // Format absences - using explicit typing to avoid deep type instantiation
-      const formattedAbsences: AttendanceRecord[] = (absences as AttendanceResponse[] || []).map(item => ({
+      // Format absences with explicit casting to avoid deep type instantiation
+      const formattedAbsences = absences.map((item: any) => ({
         id: `absence-${item.id}`,
         date: item.date,
         status: 'absent',
         reason: item.status // Using status field to store the reason
       }));
 
-      // Format leaves
-      const formattedLeaves: AttendanceRecord[] = (leaves as LeaveResponse[] || []).map(item => ({
+      // Format leaves with explicit casting to avoid deep type instantiation
+      const formattedLeaves = leaves.map((item: any) => ({
         id: `leave-${item.id}`,
         date: `${item.start_date} - ${item.end_date}`,
         status: 'on_leave',
