@@ -30,18 +30,26 @@ export const useAbsences = (personId?: string) => {
   return useQuery({
     queryKey: ['absences', personId],
     queryFn: async () => {
+      // Use the correct table names based on Supabase schema
       const { data, error } = await supabase
-        .from('absences')
+        .from('trainee_attendance') // This should be the correct table name in your Supabase
         .select('*')
         .eq('person_id', personId || '')
         .order('date', { ascending: false });
 
       if (error) throw error;
       
-      return (data || []).map((item): AbsenceRecord => ({
-        ...item,
+      // Map the data to the expected AbsenceRecord format
+      const absences: AbsenceRecord[] = (data || []).map(item => ({
+        id: item.id,
+        person_id: item.person_id,
+        date: item.date,
+        reason: item.reason || 'No reason provided',
+        created_at: item.created_at,
         type: 'absence'
       }));
+      
+      return absences;
     },
     enabled: !!personId,
   });
@@ -52,18 +60,28 @@ export const useLeaves = (personId?: string) => {
   return useQuery({
     queryKey: ['leaves', personId],
     queryFn: async () => {
+      // Use the correct table names based on Supabase schema
       const { data, error } = await supabase
-        .from('leaves')
+        .from('trainee_leave') // This should be the correct table name in your Supabase
         .select('*')
         .eq('person_id', personId || '')
         .order('start_date', { ascending: false });
 
       if (error) throw error;
       
-      return (data || []).map((item): LeaveRecord => ({
-        ...item,
+      // Map the data to the expected LeaveRecord format
+      const leaves: LeaveRecord[] = (data || []).map(item => ({
+        id: item.id,
+        person_id: item.person_id,
+        start_date: item.start_date,
+        end_date: item.end_date,
+        reason: item.reason || 'No reason provided',
+        status: item.status || 'pending',
+        created_at: item.created_at,
         type: 'leave'
       }));
+      
+      return leaves;
     },
     enabled: !!personId,
   });

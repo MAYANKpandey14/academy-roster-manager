@@ -16,7 +16,9 @@ interface StaffPrintServiceProps {
 
 export function useStaffPrintService(staff: Staff | null) {
   const { t } = useTranslation();
-  const { currentLanguage } = useLanguage();
+  const { isHindi } = useLanguage();
+  // Use isHindi instead of currentLanguage
+  const currentLanguage = isHindi ? 'hi' : 'en';
 
   const handlePrintStaff = () => {
     if (!staff) return;

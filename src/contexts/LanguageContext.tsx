@@ -5,12 +5,14 @@ interface LanguageContextType {
   isHindi: boolean;
   toggleLanguage: () => void;
   isLoading: boolean;
+  currentLanguage: string; // Added missing property
 }
 
 const LanguageContext = createContext<LanguageContextType>({
   isHindi: false,
   toggleLanguage: () => {},
   isLoading: false,
+  currentLanguage: 'en', // Default value
 });
 
 export const useLanguage = () => useContext(LanguageContext);
@@ -40,7 +42,12 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   };
 
   return (
-    <LanguageContext.Provider value={{ isHindi, toggleLanguage, isLoading }}>
+    <LanguageContext.Provider value={{ 
+      isHindi, 
+      toggleLanguage, 
+      isLoading,
+      currentLanguage: isHindi ? 'hi' : 'en' // Provide the current language code
+    }}>
       {children}
     </LanguageContext.Provider>
   );
