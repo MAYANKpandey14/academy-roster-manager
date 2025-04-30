@@ -16,11 +16,10 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
     queryFn: async (): Promise<AttendanceRecord[]> => {
       if (!personId) return [];
       
-      // Get absences from attendance table
+      // Get table names based on person type
       const absenceTable = personType === 'trainee' ? 'trainee_attendance' : 'staff_attendance';
       const absenceIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
       
-      // Get leaves from leave table
       const leaveTable = personType === 'trainee' ? 'trainee_leave' : 'staff_leave';
       const leaveIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
       
@@ -44,7 +43,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         const leaves = leaveResult.data || [];
 
         // Format absences
-        const formattedAbsences = absences.map((item) => ({
+        const formattedAbsences = absences.map((item: any) => ({
           id: `absence-${item.id}`,
           date: item.date,
           status: 'absent',
@@ -52,7 +51,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         }));
 
         // Format leaves
-        const formattedLeaves = leaves.map((item) => ({
+        const formattedLeaves = leaves.map((item: any) => ({
           id: `leave-${item.id}`,
           date: `${item.start_date} - ${item.end_date}`,
           status: 'on_leave',
