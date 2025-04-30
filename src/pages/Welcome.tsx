@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "@/components/languageswitch/LanguageSwitcher";
 import { Mail,Phone } from 'lucide-react';
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Welcome = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [imageLoaded, setImageLoaded] = useState(false);
     const { t } = useTranslation();
-
+    const { isHindi } = useLanguage();
     useEffect(() => {
         // Only log errors for invalid routes, not the welcome page itself
         if (location.pathname !== "/welcome") {
@@ -59,14 +60,14 @@ const Welcome = () => {
                     filter: "drop-shadow(0.5rem .75rem .75rem rgba(0, 0, 0, 1))",
                 }} />
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-black m-2">
-                    {t("headerTitle")}
+                    {isHindi ? "आरटीसी ट्रेनिंग सेंटर पुलिस लाइन, मुरादाबाद" : "RTI Training Center, Moradabad"}
                 </h1>
                 <button
                     onClick={handleNext}
                     className="m-4 px-4 sm:px-6 py-2 bg-blue-600 border-2 border-blue-600 hover:bg-white hover:text-blue-600 text-white font-semibold rounded-lg shadow-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    aria-label={t("openDashboard")}
+                    aria-label={isHindi ? "डैशबोर्ड खोलें" : "Open Dashboard"}
                 >
-                    {t("openDashboard")}
+                    {isHindi ? "डैशबोर्ड खोलें" : "Open Dashboard"}
                 </button>
             </div>
             <div className="flex flex-col items-center align-bottom text-center text-gray-600">

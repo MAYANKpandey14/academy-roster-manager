@@ -1,16 +1,15 @@
-
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { TraineeFormValues } from "../TraineeFormSchema";
-import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface DateFieldsProps {
   form: UseFormReturn<TraineeFormValues>;
 }
 
 export function DateFields({ form }: DateFieldsProps) {
-  const { t } = useTranslation();
+  const { isHindi } = useLanguage();
 
   return (
     <>
@@ -19,7 +18,9 @@ export function DateFields({ form }: DateFieldsProps) {
         name="date_of_birth"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="dynamic-text">{t("dateOfBirth", "Date of Birth")}</FormLabel>
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'जन्म तिथि' : 'Date of Birth'}
+            </FormLabel>
             <FormControl>
               <Input 
                 type="date" 
@@ -27,7 +28,7 @@ export function DateFields({ form }: DateFieldsProps) {
                 {...field}
               />
             </FormControl>
-            <FormMessage className="dynamic-text" />
+            <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
         )}
       />
@@ -37,7 +38,9 @@ export function DateFields({ form }: DateFieldsProps) {
         name="date_of_joining"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="dynamic-text">{t("dateOfJoining", "Date of Joining")}</FormLabel>
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'जॉइनिंग की तिथि' : 'Date of Joining'}
+            </FormLabel>
             <FormControl>
               <Input 
                 type="date" 
@@ -45,7 +48,7 @@ export function DateFields({ form }: DateFieldsProps) {
                 {...field}
               />
             </FormControl>
-            <FormMessage className="dynamic-text" />
+            <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
         )}
       />
@@ -55,7 +58,9 @@ export function DateFields({ form }: DateFieldsProps) {
         name="arrival_date"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="dynamic-text">{t("dateOfArrival", "Date of Arrival")}</FormLabel>
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'आगमन की तिथि' : 'Date of Arrival'}
+            </FormLabel>
             <FormControl>
               <Input 
                 type="date" 
@@ -63,7 +68,7 @@ export function DateFields({ form }: DateFieldsProps) {
                 {...field}
               />
             </FormControl>
-            <FormMessage className="dynamic-text" />
+            <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
         )}
       />
@@ -73,7 +78,9 @@ export function DateFields({ form }: DateFieldsProps) {
         name="departure_date"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="dynamic-text">{t("dateOfDeparture", "Date of Departure")}</FormLabel>
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'प्रस्थान की तिथि' : 'Date of Departure'}
+            </FormLabel>
             <FormControl>
               <Input 
                 type="date" 
@@ -81,7 +88,7 @@ export function DateFields({ form }: DateFieldsProps) {
                 {...field}
               />
             </FormControl>
-            <FormMessage className="dynamic-text" />
+            <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
         )}
       />
