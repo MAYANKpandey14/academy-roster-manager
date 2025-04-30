@@ -74,22 +74,27 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
       
-      // Create a properly shaped PersonData object
-      const personData: PersonData = {
-        id: data.id,
-        pno: data.pno,
-        name: data.name,
-        mobile_number: data.mobile_number
-      };
-      
-      // Add type-specific fields
-      if (personType === 'trainee' && data.chest_no) {
-        personData.chest_no = data.chest_no;
-      } else if (personType === 'staff' && data.rank) {
-        personData.rank = data.rank;
+      // Type guard to ensure data has the expected properties
+      if (typeof data === 'object' && data !== null && 'id' in data) {
+        // Create a properly shaped PersonData object
+        const personData: PersonData = {
+          id: data.id as string,
+          pno: data.pno as string,
+          name: data.name as string,
+          mobile_number: data.mobile_number as string
+        };
+        
+        // Add type-specific fields
+        if (personType === 'trainee' && 'chest_no' in data) {
+          personData.chest_no = data.chest_no as string;
+        } else if (personType === 'staff' && 'rank' in data) {
+          personData.rank = data.rank as string;
+        }
+        
+        onPersonFound(personData, personType);
+      } else {
+        throw new Error("Unexpected data format returned from database");
       }
-      
-      onPersonFound(personData, personType);
       
     } catch (error) {
       console.error("Error searching person:", error);
