@@ -1,10 +1,9 @@
 
+import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Edit, Printer, Download, ArrowLeft } from "lucide-react";
+import { Printer, Download } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Staff } from "@/types/staff";
-import { ActionButton } from "@/components/ui/action-button";
-import { ButtonGroup } from "@/components/ui/button-group";
 
 interface StaffHeaderProps {
   id?: string;
@@ -18,54 +17,40 @@ export function StaffHeader({ id, staff, onPrint, onDownload }: StaffHeaderProps
   const { t, i18n } = useTranslation();
 
   return (
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+    <div className="flex items-center justify-between mb-6">
       <h1 className="text-2xl font-semibold">
         <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
           {t("viewStaffDetails", "View Staff Details")}
         </span>
       </h1>
-      <ButtonGroup>
+      <div className="flex space-x-2">
         {staff && (
           <>
-            <ActionButton 
-              variant="outline" 
-              onClick={onPrint}
-              icon={<Printer className="h-4 w-4" />}
-            >
+            <Button variant="outline" onClick={onPrint}>
+              <Printer className="mr-2 h-4 w-4" />
               <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
                 {t("print", "Print")}
               </span>
-            </ActionButton>
-            <ActionButton 
-              variant="outline" 
-              onClick={onDownload}
-              icon={<Download className="h-4 w-4" />}
-            >
+            </Button>
+            <Button variant="outline" onClick={onDownload}>
+              <Download className="mr-2 h-4 w-4" />
               <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
                 {t("download", "Download")}
               </span>
-            </ActionButton>
-            <ActionButton 
-              variant="outline" 
-              onClick={() => navigate(`/edit-staff/${id}`)}
-              icon={<Edit className="h-4 w-4" />}
-            >
+            </Button>
+            <Button variant="outline" onClick={() => navigate(`/edit-staff/${id}`)}>
               <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
                 {t("edit", "Edit")}
               </span>
-            </ActionButton>
+            </Button>
           </>
         )}
-        <ActionButton 
-          variant="outline" 
-          onClick={() => navigate("/staff")}
-          icon={<ArrowLeft className="h-4 w-4" />}
-        >
+        <Button variant="outline" onClick={() => navigate("/staff")}>
           <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
             {t("back", "Back")}
           </span>
-        </ActionButton>
-      </ButtonGroup>
+        </Button>
+      </div>
     </div>
   );
 }

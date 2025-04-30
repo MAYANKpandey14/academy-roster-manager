@@ -1,37 +1,40 @@
 
 import { Trainee } from "@/types/trainee";
-import { toast } from "sonner";
 import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/export";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+export interface TraineePrintServiceProps {
+  trainee: Trainee;
+}
 
 export function useTraineePrintService(trainee: Trainee) {
+  const { t, i18n } = useTranslation();
+  const { currentLanguage } = useLanguage();
+
   const handlePrintTrainee = () => {
-    if (!trainee) {
-      toast.error("प्रशिक्षु विवरण उपलब्ध नहीं है");
-      return;
-    }
+    const printContent = createPrintContent([trainee], currentLanguage, t);
+    const printSuccess = handlePrint(printContent);
     
-    const printContent = createPrintContent(trainee);
-    const success = handlePrint(printContent);
-    
-    if (success) {
-      toast.success("प्रशिक्षु का प्रिंट हो रहा है");
+    if (!printSuccess) {
+      toast.error(t("failedToPrint", "Failed to open print window. Please check your pop-up blocker settings."));
     } else {
-      toast.error("प्रिंट विंडो खोलने में विफल। कृपया अपनी पॉप-अप ब्लॉकर सेटिंग्स जांचें।");
+      toast.success(t("printingTrainees", `Printing trainee details`));
     }
   };
-  
+
   const handleDownloadTrainee = () => {
-    if (!trainee) {
-      toast.error("प्रशिक्षु विवरण उपलब्ध नहीं है");
-      return;
-    }
-    
-    const csvContent = createCSVContent(trainee);
-    const filename = `trainee_${trainee.pno}_${new Date().toISOString().split('T')[0]}.csv`;
-    
-    handleDownload(csvContent, filename);
-    toast.success("प्रशिक्षु CSV फ़ाइल सफलतापूर्वक डाउनलोड की गई");
+    const csvContent = createCSVContent([trainee], currentLanguage, t);
+    handleDownload(
+      csvContent, 
+      `trainee_${trainee.pno}_${trainee.name.replace(/\s+/g, '_')}.csv`
+    );
+    toast.success(t("csvDownloaded", "CSV file downloaded successfully"));
   };
-  
-  return { handlePrintTrainee, handleDownloadTrainee };
+
+  return {
+    handlePrintTrainee,
+    handleDownloadTrainee
+  };
 }

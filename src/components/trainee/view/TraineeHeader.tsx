@@ -1,9 +1,9 @@
 
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 import { Edit, Printer, Download } from "lucide-react";
 import { Trainee } from "@/types/trainee";
-import { ActionButton } from "@/components/ui/action-button";
-import { ButtonGroup } from "@/components/ui/button-group";
 
 interface TraineeHeaderProps {
   trainee: Trainee;
@@ -13,42 +13,46 @@ interface TraineeHeaderProps {
 
 export function TraineeHeader({ trainee, onPrint, onDownload }: TraineeHeaderProps) {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
 
   return (
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-      <h1 className="text-2xl font-bold krutidev-heading">
-        प्रशिक्षु विवरण
+    <div className="flex justify-between items-center mb-6">
+      <h1 className="text-2xl font-bold">
+        <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-heading' : ''}`}>
+          {t("traineeDetails", "Trainee Details")}
+        </span>
       </h1>
-      <ButtonGroup>
-        <ActionButton 
+      <div className="flex gap-2">
+        <Button 
           variant="outline" 
           className="print-button"
           onClick={onPrint}
-          icon={<Printer className="h-4 w-4" />}
         >
-          <span className="krutidev-text">
-            प्रिंट करें
+          <Printer className="h-4 w-4 mr-2" />
+          <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+            {t("print", "Print")}
           </span>
-        </ActionButton>
-        <ActionButton 
+        </Button>
+        <Button 
           variant="outline"
           className="download-button"
           onClick={onDownload}
-          icon={<Download className="h-4 w-4" />}
         >
-          <span className="krutidev-text">
-            डाउनलोड करें
+          <Download className="h-4 w-4 mr-2" />
+          <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+            {t("downloadCSV", "Download CSV")}
           </span>
-        </ActionButton>
-        <ActionButton 
+        </Button>
+        <Button 
           onClick={() => navigate(`/edit-trainee/${trainee?.id}`)}
-          icon={<Edit className="h-4 w-4" />}
+          className="flex items-center gap-2"
         >
-          <span className="krutidev-text">
-            संपादित करें
+          <Edit className="h-4 w-4" />
+          <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+            {t("editTrainee", "Edit Trainee")}
           </span>
-        </ActionButton>
-      </ButtonGroup>
+        </Button>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 
 import { TFunction } from "i18next";
+import { prepareTextForLanguage } from "../textUtils";
 
 /**
  * Opens a print window and prints the content
@@ -14,27 +15,8 @@ export const handlePrint = (printContent: string): boolean => {
       return false;
     }
     
-    // Add common CSS styles
-    const styles = getPrintStyles();
-    
-    // Create complete HTML document
-    const fullHtml = `
-      <html>
-        <head>
-          <title>प्रिंट</title>
-          <style>${styles}</style>
-        </head>
-        <body>
-          ${printContent}
-          <div class="footer">
-            <p>यह दस्तावेज़ उत्पन्न किया गया ${new Date().toLocaleDateString('hi-IN')} को ${new Date().toLocaleTimeString('hi-IN')}</p>
-          </div>
-        </body>
-      </html>
-    `;
-    
     // Write the content to the new window
-    printWindow.document.write(fullHtml);
+    printWindow.document.write(printContent);
     printWindow.document.close();
     
     // Focus the window and trigger print
@@ -54,9 +36,10 @@ export const handlePrint = (printContent: string): boolean => {
 /**
  * Creates common print styling used across different print templates
  * 
+ * @param language Current language code
  * @returns CSS styles as string
  */
-export const getPrintStyles = (): string => {
+export const getPrintStyles = (language: string): string => {
   return `
     @font-face {
       font-family: 'KrutiDev';
@@ -66,8 +49,11 @@ export const getPrintStyles = (): string => {
       font-display: swap;
     }
     body { 
-      font-family: 'KrutiDev', sans-serif; 
+      font-family: Arial, sans-serif; 
       padding: 20px;
+    }
+    .hindi-text { 
+      font-family: 'KrutiDev', Arial, sans-serif; 
     }
     h1 { text-align: center; margin-bottom: 5px; }
     h2 { text-align: center; margin-top: 5px; margin-bottom: 30px; }
@@ -87,35 +73,6 @@ export const getPrintStyles = (): string => {
       margin-top: 30px; 
       font-size: 12px;
       page-break-inside: avoid;
-    }
-    .print-container {
-      margin-bottom: 30px;
-      page-break-after: always;
-      border: 1px solid #ccc;
-      padding: 15px;
-      border-radius: 5px;
-    }
-    .print-container:last-child {
-      page-break-after: avoid;
-    }
-    .print-header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .print-section {
-      margin-bottom: 25px;
-    }
-    .print-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-gap: 10px;
-    }
-    .print-field {
-      margin-bottom: 10px;
-    }
-    .print-field label {
-      font-weight: bold;
-      margin-right: 5px;
     }
   `;
 };
@@ -141,14 +98,18 @@ export const createPrintHeader = (title: string, styles: string): string => {
 /**
  * Creates HTML footer content for print templates
  * 
+ * @param language Current language code
+ * @param t Translation function
  * @returns HTML footer as string
  */
-export const createPrintFooter = (): string => {
+export const createPrintFooter = (language: string = 'en', t?: TFunction): string => {
+  const translate = t || ((key: string, fallback: string) => fallback);
+  
   return `
         <div class="footer">
-          <p>
-            यह दस्तावेज़ उत्पन्न किया गया
-            ${new Date().toLocaleDateString('hi-IN')} को ${new Date().toLocaleTimeString('hi-IN')}
+          <p class="${language === 'hi' ? 'hindi-text' : ''}">
+            ${prepareTextForLanguage(translate("documentGenerated", "This document was generated on"), language)}
+            ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
           </p>
         </div>
       </body>

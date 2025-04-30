@@ -1,16 +1,34 @@
 
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { prepareTextForLanguage, shouldAlwaysUseEnglish } from "@/utils/textUtils";
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, ...props }, ref) => {
-    // Always use 'en' language for date, number, tel inputs
-    const isSpecialField = type === 'date' || type === 'number' || type === 'tel' || type === 'email' || type === 'password';
+  ({ className, type, lang, value, ...props }, ref) => {
+    const { i18n } = useTranslation();
+    
+    // Always use 'en' language for date and number inputs
+    const isSpecialField = type && shouldAlwaysUseEnglish(type);
+    
+    // Use the provided lang or default to current app language
+    const inputLang = isSpecialField ? 'en' : (lang || i18n.language);
+    
+    // Determine if KrutiDev font should be applied, never for date/number fields
+    const isHindi = inputLang === 'hi' && !isSpecialField;
     
     // Apply appropriate font class based on input type
-    const fontClass = isSpecialField ? '' : 'font-mangal';
+    let fontClass = '';
+    if (isHindi) {
+      fontClass = 'krutidev-text';
+    }
+    
+    // Process value for proper encoding if it's a string
+    const processedValue = typeof value === 'string' 
+      ? prepareTextForLanguage(value, inputLang) 
+      : value;
     
     return (
       <input
@@ -21,7 +39,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           className
         )}
         ref={ref}
-        dir="ltr"
+        lang={inputLang}
+        dir="ltr" // Always LTR as specified
+        inputMode={isHindi ? "text" : undefined}
+        value={processedValue}
         {...props}
       />
     );

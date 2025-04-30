@@ -5,13 +5,17 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Navigation } from "./Navigation";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../languageswitch/LanguageSwitcher";
 
 export function Header() {
   const [today, setToday] = useState<string>("");
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
-    // Update date in Hindi format
+    // Update date when language changes
     const updateDate = () => {
       const date = new Date();
       const options: Intl.DateTimeFormatOptions = {
@@ -20,19 +24,30 @@ export function Header() {
         month: "long",
         day: "numeric",
       };
-      setToday(date.toLocaleDateString('hi-IN', options));
+      setToday(date.toLocaleDateString(i18n.language === 'hi' ? 'hi-IN' : 'en-US', options));
     };
     
     updateDate();
-  }, []);
+    
+    // Add listener for language changes
+    const handleLanguageChange = () => {
+      updateDate();
+    };
+    
+    i18n.on('languageChanged', handleLanguageChange);
+    
+    return () => {
+      i18n.off('languageChanged', handleLanguageChange);
+    };
+  }, [i18n]);
 
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
       navigate("/auth");
-      toast.success("सफलतापूर्वक लॉग आउट कर दिया गया");
+      toast.success(t("logoutSuccess"));
     } catch (error) {
-      toast.error("लॉगआउट में समस्या");
+      toast.error(t("logoutError"));
     }
   };
 
@@ -45,16 +60,16 @@ export function Header() {
             <div className="flex-shrink-0 mr-2">
               <img src="/images.svg" alt="logo" className="w-16 h-16 md:w-20 md:h-20" />
             </div>
-            <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-center md:text-left krutidev-heading">
-              आरटीसी प्रशिक्षु प्रबंधन प्रणाली
-            </h1>
+            <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-center md:text-left">{t("headerTitle")}</h1>
           </div>
           
           <div className="flex justify-center items-center">
-            <div className="text-sm text-gray-500 text-center krutidev-text">{today}</div>
+            <div className="text-sm text-gray-500 text-center">{today}</div>
           </div>
           
           <div className="flex items-center justify-center md:justify-end gap-2 md:gap-4">
+            <LanguageSwitcher />
+            
             <div className="hidden sm:flex items-center gap-2">
               <Button
                 variant="outline"
@@ -63,7 +78,7 @@ export function Header() {
                 className="hidden sm:flex"
               >
                 <ArrowLeft className="h-4 w-4 mr-1" />
-                <span className="krutidev-text">वापस</span>
+                <span>{t("back")}</span>
               </Button>
               
               <Button
@@ -72,7 +87,7 @@ export function Header() {
                 onClick={() => navigate("/")}
               >
                 <Home className="h-4 w-4 mr-1" />
-                <span className="hidden sm:inline krutidev-text">होम</span>
+                <span className="hidden sm:inline">{t("home")}</span>
               </Button>
               
               <Button
@@ -81,12 +96,13 @@ export function Header() {
                 onClick={handleLogout}
               >
                 <LogOut className="h-4 w-4 mr-1" />
-                <span className="hidden sm:inline krutidev-text">लॉग आउट</span>
+                <span className="hidden sm:inline">{t("logout")}</span>
               </Button>
             </div>
           </div>
         </div>
       </div>
+      <Navigation />
       
       {/* Mobile navigation buttons */}
       <div className="sm:hidden flex justify-center items-center gap-2 py-2 border-t border-gray-200">

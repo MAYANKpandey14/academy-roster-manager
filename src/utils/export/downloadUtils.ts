@@ -1,53 +1,29 @@
 
-// Helper function to handle print operation
-export function handlePrint(content: string): boolean {
+/**
+ * Downloads content as a file
+ * 
+ * @param content File content
+ * @param filename Name of the file to download
+ * @returns boolean indicating success or failure
+ */
+export const handleDownload = (content: string, filename: string): boolean => {
   try {
-    // Create a print window
-    const printWindow = window.open('', '_blank');
+    // Create a Blob with the content
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     
-    if (!printWindow) {
-      return false; // Pop-up was blocked
-    }
-    
-    // Add content to the print window
-    printWindow.document.write(content);
-    printWindow.document.close();
-    
-    // Trigger print dialog
-    printWindow.focus();
-    setTimeout(() => {
-      printWindow.print();
-    }, 300);
+    // Create a download link and trigger download
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     
     return true;
   } catch (error) {
-    console.error('Error while printing:', error);
+    console.error("Error during download:", error);
     return false;
   }
-}
-
-// Helper function to handle download operation
-export function handleDownload(content: string, filename: string): void {
-  try {
-    // Create a blob from the content
-    const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
-    
-    // Create a download link
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    
-    // Trigger download
-    document.body.appendChild(link);
-    link.click();
-    
-    // Cleanup
-    setTimeout(() => {
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    }, 100);
-  } catch (error) {
-    console.error('Error while downloading:', error);
-  }
-}
+};

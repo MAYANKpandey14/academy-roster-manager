@@ -21,7 +21,6 @@ export default {
 		extend: {
 			fontFamily: {
 				sans: ['Space Grotesk', 'sans-serif'],
-				mangal: ['Mangal', 'Arial Unicode MS', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -57,30 +56,27 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// New color specifically for action buttons
-				action: {
-					DEFAULT: '#3b82f6',
-					hover: '#2563eb',
-					foreground: '#ffffff'
-				},
-				// New colors for status indicators
-				status: {
-					success: '#10b981',
-					warning: '#f59e0b',
-					error: '#ef4444',
-					info: '#3b82f6'
+				sidebar: {
+					DEFAULT: 'hsl(var(--sidebar-background))',
+					foreground: 'hsl(var(--sidebar-foreground))',
+					primary: 'hsl(var(--sidebar-primary))',
+					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
+					accent: 'hsl(var(--sidebar-accent))',
+					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
+					border: 'hsl(var(--sidebar-border))',
+					ring: 'hsl(var(--sidebar-ring))'
 				}
 			},
 			width: {
 				'small': '12rem',
 				'mid': '16rem',
 				'large': '20rem',
-			},
-			height: {
+			  },
+			  height: {
 				'small': '14rem',
 				'mid': '20rem',
 				'large': '24rem',
-			},
+			  },
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
@@ -102,36 +98,11 @@ export default {
 					to: {
 						height: '0'
 					}
-				},
-				'fade-in': {
-					'0%': { opacity: '0' },
-					'100%': { opacity: '1' }
-				},
-				'fade-out': {
-					'0%': { opacity: '1' },
-					'100%': { opacity: '0' }
-				},
-				'slide-in': {
-					'0%': { transform: 'translateY(10px)', opacity: '0' },
-					'100%': { transform: 'translateY(0)', opacity: '1' }
-				},
-				'spin': {
-					'0%': { transform: 'rotate(0deg)' },
-					'100%': { transform: 'rotate(360deg)' }
-				},
-				'pulse': {
-					'0%, 100%': { opacity: '1' },
-					'50%': { opacity: '0.5' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out',
-				'fade-in': 'fade-in 0.3s ease-out',
-				'fade-out': 'fade-out 0.3s ease-out',
-				'slide-in': 'slide-in 0.3s ease-out',
-				'spin': 'spin 1s linear infinite',
-				'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+				'accordion-up': 'accordion-up 0.2s ease-out'
 			}
 		}
 	},

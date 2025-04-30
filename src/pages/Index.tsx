@@ -81,33 +81,27 @@ const Index = () => {
 
   const handleRefresh = () => {
     fetchTrainees();
-    toast.success("डेटा रीफ्रेश किया गया");
+    toast.success("Data refreshed");
   };
 
   const handlePrintAll = () => {
     if (filteredTrainees.length === 0) {
-      toast.error("प्रिंट करने के लिए कोई प्रशिक्षु नहीं है");
+      toast.error("No trainees to print");
       return;
     }
-    
-    // Create consolidated print content for all trainees
-    const allContent = createPrintContent(filteredTrainees);
-    
-    handlePrint(allContent);
-    toast.success(`${filteredTrainees.length} प्रशिक्षुओं का प्रिंट हो रहा है`);
+    const content = createPrintContent(filteredTrainees);
+    handlePrint(content);
+    toast.success(`Printing ${filteredTrainees.length} trainees`);
   };
 
   const handleDownloadAll = () => {
     if (filteredTrainees.length === 0) {
-      toast.error("डाउनलोड करने के लिए कोई प्रशिक्षु नहीं है");
+      toast.error("No trainees to download");
       return;
     }
-    
-    // Create consolidated CSV content
-    const csvContent = createCSVContent(filteredTrainees);
-    
-    handleDownload(csvContent, `trainees_export_${new Date().toISOString().split('T')[0]}.csv`);
-    toast.success(`${filteredTrainees.length} प्रशिक्षुओं वाली CSV फ़ाइल सफलतापूर्वक डाउनलोड की गई`);
+    const content = createCSVContent(filteredTrainees);
+    handleDownload(content, `trainees_export_${new Date().toISOString().split('T')[0]}.csv`);
+    toast.success(`CSV file with ${filteredTrainees.length} trainees downloaded successfully`);
   };
 
   return (
@@ -131,7 +125,7 @@ const Index = () => {
         
         <TraineeFilters
           onSearch={handleSearch}
-          onShowAll={fetchTrainees}
+          onShowAll={fetchTrainees}  // Added the missing onShowAll prop
           disabled={isLoading}
         />
         

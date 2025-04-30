@@ -1,19 +1,53 @@
 
-import { Layout } from "@/components/layout/Layout";
-import { PageHeader } from "@/components/ui/page-header";
-import { AttendanceManagement } from "@/components/attendance/AttendanceManagement";
+import { Header } from "@/components/layout/Header";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AttendanceForm } from "@/components/attendance/AttendanceForm";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 
 export default function AttendancePage() {
+  const [key, setKey] = useState(0);
+  const { t } = useTranslation();
+  
+  // Use the language inputs hook
+  useLanguageInputs();
+
+  const handleSuccess = () => {
+    setKey(prev => prev + 1);
+  };
+
   return (
-    <Layout>
-      <div className="container py-6 space-y-6">
-        <PageHeader
-          title="उपस्थिति प्रबंधन"
-          description="प्रशिक्षुओं और स्टाफ की अनुपस्थिति और अवकाश रिकॉर्ड प्रबंधित करें"
-        />
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <main className="container mx-auto py-6 px-4">
+        <h1 className="text-2xl font-semibold mb-6 dynamic-text">{t('attendanceManagement')}</h1>
         
-        <AttendanceManagement />
-      </div>
-    </Layout>
+        <Tabs defaultValue="trainee">
+          <TabsList className="mb-4">
+            <TabsTrigger value="trainee" className="dynamic-text">{t('traineeAttendance')}</TabsTrigger>
+            <TabsTrigger value="staff" className="dynamic-text">{t('staffAttendance')}</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="trainee" className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
+            <h2 className="text-xl font-semibold mb-4 dynamic-text">{t('markTraineeAttendance')}</h2>
+            <AttendanceForm 
+              key={`trainee-${key}`}
+              type="trainee"
+              onSuccess={handleSuccess}
+            />
+          </TabsContent>
+          
+          <TabsContent value="staff" className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
+            <h2 className="text-xl font-semibold mb-4 dynamic-text">{t('markStaffAttendance')}</h2>
+            <AttendanceForm 
+              key={`staff-${key}`}
+              type="staff"
+              onSuccess={handleSuccess}
+            />
+          </TabsContent>
+        </Tabs>
+      </main>
+    </div>
   );
 }

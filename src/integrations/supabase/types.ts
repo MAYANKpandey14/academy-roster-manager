@@ -133,7 +133,6 @@ export type Database = {
           created_at: string | null
           end_date: string
           id: string
-          leave_type: string | null
           reason: string
           staff_id: string
           start_date: string
@@ -144,7 +143,6 @@ export type Database = {
           created_at?: string | null
           end_date: string
           id?: string
-          leave_type?: string | null
           reason: string
           staff_id: string
           start_date: string
@@ -155,7 +153,6 @@ export type Database = {
           created_at?: string | null
           end_date?: string
           id?: string
-          leave_type?: string | null
           reason?: string
           staff_id?: string
           start_date?: string
@@ -212,7 +209,6 @@ export type Database = {
           created_at: string | null
           end_date: string
           id: string
-          leave_type: string | null
           reason: string
           start_date: string
           status: string
@@ -223,7 +219,6 @@ export type Database = {
           created_at?: string | null
           end_date: string
           id?: string
-          leave_type?: string | null
           reason: string
           start_date: string
           status?: string
@@ -234,7 +229,6 @@ export type Database = {
           created_at?: string | null
           end_date?: string
           id?: string
-          leave_type?: string | null
           reason?: string
           start_date?: string
           status?: string

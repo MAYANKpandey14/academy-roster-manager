@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 interface TableWrapperProps {
   table: any;
@@ -18,75 +17,67 @@ interface TableWrapperProps {
 }
 
 export function TableWrapper({ table, columns, isLoading }: TableWrapperProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   
   return (
-    <div className="overflow-hidden rounded-md border border-input bg-white">
-      <div className="relative overflow-x-auto">
-        <Table className="w-full">
-          <TableHeader className="bg-muted/50">
-            {table.getHeaderGroups().map((headerGroup: any) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent">
-                {headerGroup.headers.map((header: any) => {
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup: any) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header: any) => {
+                return (
+                  <TableHead key={header.id} className={i18n.language === 'hi' ? 'krutidev-heading' : ''}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {isLoading ? (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-16 text-center">
+                <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                  {t("loading")}
+                </span>
+              </TableCell>
+            </TableRow>
+          ) : table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row: any) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && "selected"}
+              >
+                {row.getVisibleCells().map((cell: any) => {
                   return (
-                    <TableHead 
-                      key={header.id} 
-                      className="h-11 whitespace-nowrap font-medium text-muted-foreground"
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
                   );
                 })}
               </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-60 text-center">
-                  <LoadingSpinner 
-                    size="lg" 
-                    color="primary" 
-                    text={t("loading", "Loading data...")} 
-                  />
-                </TableCell>
-              </TableRow>
-            ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row: any) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className="animate-fade-in hover:bg-muted/50 transition-colors"
-                >
-                  {row.getVisibleCells().map((cell: any) => {
-                    return (
-                      <TableCell key={cell.id} className="py-3">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  <span className="text-muted-foreground">
-                    {t("noResults", "No results found.")}
-                  </span>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell
+                colSpan={columns.length}
+                className="h-24 text-center"
+              >
+                <span className={`dynamic-text ${i18n.language === 'hi' ? 'krutidev-text' : ''}`}>
+                  {t("noResults")}
+                </span>
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 }

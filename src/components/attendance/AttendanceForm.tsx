@@ -1,254 +1,144 @@
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
-import { format } from "date-fns";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { useState, useEffect } from "react";
+import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { attendanceFormSchema, AttendanceFormValues } from "./schema";
-import { useAttendance } from "@/hooks/useAttendance";
-import { useQueryClient } from "@tanstack/react-query";
+import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
 
-interface AttendanceRecord {
-  id?: string;
-  pno: string;
-  name: string;
-  rank?: string;
-  phone?: string;
-  type: 'Absent' | 'On Leave';
-  leave_type?: 'CL' | 'EL' | 'ML' | 'Maternity Leave' | null;
-  date_from: string;
-  date_to: string;
-  reason?: string;
-  created_at?: string;
+interface AttendanceFormProps {
+  type: 'trainee' | 'staff';
+  onSuccess: () => void;
 }
 
-export function AttendanceForm({ onSuccess }: { onSuccess?: () => void }) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const queryClient = useQueryClient();
-  const { addAttendance } = useAttendance();
+export function AttendanceForm({ type, onSuccess }: AttendanceFormProps) {
+  const [date, setDate] = useState<Date>(new Date());
+  const [pno, setPno] = useState("");
+  const [status, setStatus] = useState<'absent' | 'on_leave'>('absent');
+  const { t, i18n } = useTranslation();
 
-  const form = useForm<AttendanceFormValues>({
-    resolver: zodResolver(attendanceFormSchema),
-    defaultValues: {
-      pno: "",
-      name: "",
-      type: "Absent",
-      rank: "",
-      phone: "",
-      status: "absent",
-      start_date: new Date(),
-      end_date: new Date(),
-      reason: "",
-      leave_type: undefined,
-    },
-  });
-
-  const handleSubmit = async (values: AttendanceFormValues) => {
-    try {
-      setIsSubmitting(true);
-      
-      // Create record with all required fields
-      const record: AttendanceRecord = {
-        pno: values.pno || '', // Ensure pno is always provided
-        name: values.name || '',
-        type: values.type,
-        rank: values.rank,
-        phone: values.phone,
-        date_from: format(values.start_date, 'yyyy-MM-dd'),
-        date_to: format(values.end_date, 'yyyy-MM-dd'),
-        reason: values.reason,
-        leave_type: values.type === 'On Leave' ? values.leave_type as 'CL' | 'EL' | 'ML' | 'Maternity Leave' : null
-      };
-      
-      // Call the addAttendance mutation
-      await addAttendance(queryClient).mutateAsync(record);
-
-      // Reset the form and state
-      form.reset();
-      setIsSubmitting(false);
-
-      // Optionally call the onSuccess callback
-      if (onSuccess) {
-        onSuccess();
+  // Update input language when the app language changes
+  useEffect(() => {
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+      if (input instanceof HTMLElement) {
+        input.lang = i18n.language;
+        
+        // Apply or remove KrutiDev font class based on language
+        if (i18n.language === 'hi') {
+          input.classList.add('krutidev-font');
+        } else {
+          input.classList.remove('krutidev-font');
+        }
       }
-    } catch (error: any) {
-      toast.error(`अटेंडेंस रिकॉर्ड जोड़ने में त्रुटि: ${error.message}`);
-      setIsSubmitting(false);
+    });
+  }, [i18n.language]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!pno || !date) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+
+    try {
+      // First, find the trainee/staff
+      const { data: person, error: findError } = await supabase
+        .from(type === 'trainee' ? 'trainees' : 'staff')
+        .select('id')
+        .eq('pno', pno)
+        .single();
+
+      if (findError || !person) {
+        toast.error(`${type === 'trainee' ? 'Trainee' : 'Staff member'} not found`);
+        return;
+      }
+
+      // Create the appropriate data object based on type
+      const formattedDate = date.toISOString().split('T')[0];
+      
+      if (type === 'trainee') {
+        const { error: insertError } = await supabase
+          .from('trainee_attendance')
+          .upsert({
+            trainee_id: person.id,
+            date: formattedDate,
+            status: status
+          });
+
+        if (insertError) throw insertError;
+      } else {
+        const { error: insertError } = await supabase
+          .from('staff_attendance')
+          .upsert({
+            staff_id: person.id,
+            date: formattedDate,
+            status: status
+          });
+
+        if (insertError) throw insertError;
+      }
+
+      toast.success("Attendance marked successfully");
+      setPno("");
+      setStatus('absent');
+      onSuccess();
+    } catch (error) {
+      console.error('Error marking attendance:', error);
+      toast.error("Failed to mark attendance");
     }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>नया अटेंडेंस रिकॉर्ड जोड़ें</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="pno"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>पी.एन.ओ.</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>नाम</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="rank"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>पद</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>फ़ोन</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>प्रकार</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Absent">अनुपस्थित</SelectItem>
-                      <SelectItem value="On Leave">अवकाश पर</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {form.watch("type") === "On Leave" && (
-              <FormField
-                control={form.control}
-                name="leave_type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>अवकाश प्रकार</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="CL">आकस्मिक छुट्टी (CL)</SelectItem>
-                        <SelectItem value="EL">अर्जित छुट्टी (EL)</SelectItem>
-                        <SelectItem value="ML">चिकित्सा छुट्टी (ML)</SelectItem>
-                        <SelectItem value="Maternity Leave">मातृत्व अवकाश</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-            <FormField
-              control={form.control}
-              name="start_date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>कब से</FormLabel>
-                  <FormControl>
-                    <Input type="date" value={field.value ? field.value.toISOString().split('T')[0] : ''} 
-                      onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="end_date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>कब तक</FormLabel>
-                  <FormControl>
-                    <Input type="date" value={field.value ? field.value.toISOString().split('T')[0] : ''} 
-                      onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="reason"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>कारण</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "जमा कर रहा है..." : "जमा करें"}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="pno" className="dynamic-text">{t("pnoNumber")}</Label>
+          <Input
+            id="pno"
+            value={pno}
+            onChange={(e) => setPno(e.target.value)}
+            placeholder={t("enterPNO")}
+            maxLength={9}
+            required
+            lang={i18n.language}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="status" className="dynamic-text">{t("status")}</Label>
+          <Select 
+            value={status} 
+            onValueChange={(value: 'absent' | 'on_leave') => setStatus(value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={t("status")} className="dynamic-text" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="absent" className="dynamic-text">{t("absent")}</SelectItem>
+              <SelectItem value="on_leave" className="dynamic-text">{t("onLeave")}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label className="dynamic-text">{t("date")}</Label>
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={(newDate) => newDate && setDate(newDate)}
+          className="rounded-md border"
+        />
+      </div>
+
+      <Button type="submit">
+        <span className="dynamic-text">{t("markAttendance")}</span>
+      </Button>
+    </form>
   );
 }

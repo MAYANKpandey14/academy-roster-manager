@@ -1,15 +1,17 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 
 export function Navigation() {
   const location = useLocation();
+  const { t } = useTranslation();
   
   const routes = [
-    { name: "प्रशिक्षु", path: "/trainees" },
-    { name: "स्टाफ", path: "/staff" },
-    { name: "उपस्थिति", path: "/attendance" },
-    { name: "अवकाश", path: "/leave" },
+    { name: t("trainees"), path: "/trainees" },
+    { name: t("staff"), path: "/staff" },
+    { name: t("attendance"), path: "/attendance" },
+    { name: t("leave"), path: "/leave" },
   ];
 
   return (
@@ -22,7 +24,7 @@ export function Navigation() {
               variant={location.pathname.startsWith(route.path) ? "default" : "ghost"}
               size="sm"
               asChild
-              className="whitespace-nowrap krutidev-text"
+              className="whitespace-nowrap"
             >
               <Link to={route.path}>{route.name}</Link>
             </Button>
