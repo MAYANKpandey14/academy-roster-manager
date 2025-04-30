@@ -38,14 +38,15 @@ export const AttendanceTable = ({ personId, personType, pno }: AttendanceTablePr
         <head>
           <title>${isHindi ? 'उपस्थिति रिकॉर्ड' : 'Attendance Records'}</title>
           <style>
-            body { font-family: Arial, sans-serif; }
+            body { font-family: 'Space Grotesk', Arial, sans-serif; }
+            .font-mangal { font-family: 'Mangal', 'Arial Unicode MS', sans-serif; }
             table { width: 100%; border-collapse: collapse; }
             th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
             th { background-color: #f2f2f2; }
           </style>
         </head>
         <body>
-          <h2>${pno ? `${isHindi ? 'पी.एन.ओ: ' : 'PNO: '} ${pno}` : ''}</h2>
+          <h2 class="${isHindi ? 'font-mangal' : ''}">${pno ? `${isHindi ? 'पी.एन.ओ: ' : 'PNO: '} ${pno}` : ''}</h2>
           ${printContent}
         </body>
       </html>

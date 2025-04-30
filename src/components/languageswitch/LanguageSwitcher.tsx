@@ -27,7 +27,7 @@ const LanguageSwitcher = () => {
           onClick={() => isHindi ? null : toggleLanguage()}
           disabled={isLoading}
           className={`rounded-none px-2 md:px-3 py-1 h-8 md:h-9 text-sm transition-colors ${
-            isHindi ? 'bg-blue-600 hover:bg-blue-700 font-hindi' : 'bg-white text-gray-700'
+            isHindi ? 'bg-blue-600 hover:bg-blue-700 font-mangal' : 'bg-white text-gray-700'
           }`}
         >
           हि

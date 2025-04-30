@@ -46,13 +46,13 @@ export function TraineeFilters({
 
   return (
     <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-4 animate-scale-in">
-      <h3 className={`text-lg font-medium mb-4 ${isHindi ? 'font-hindi' : ''}`}>
+      <h3 className={`text-lg font-medium mb-4 ${isHindi ? 'font-mangal' : ''}`}>
         {isHindi ? "प्रशिक्षु खोजें" : "Search Trainees"}
       </h3>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="pno" className={isHindi ? 'font-hindi' : ''}>
+          <Label htmlFor="pno" className={isHindi ? 'font-mangal' : ''}>
             {isHindi ? "पीएनओ नंबर" : "PNO Number"}
           </Label>
           <Input
@@ -67,7 +67,7 @@ export function TraineeFilters({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="chestNo" className={isHindi ? 'font-hindi' : ''}>
+          <Label htmlFor="chestNo" className={isHindi ? 'font-mangal' : ''}>
             {isHindi ? "चेस्ट नंबर" : "Chest Number"}
           </Label>
           <Input
@@ -82,7 +82,7 @@ export function TraineeFilters({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="rollNo" className={isHindi ? 'font-hindi' : ''}>
+          <Label htmlFor="rollNo" className={isHindi ? 'font-mangal' : ''}>
             {isHindi ? "रोल नंबर / विशिष्ट आईडी" : "Roll No / Unique Id"}
           </Label>
           <Input
@@ -100,19 +100,19 @@ export function TraineeFilters({
       <div className="flex flex-wrap justify-end gap-2">
         <Button onClick={() => navigate('/add-trainee')} variant="outline" className="animate-slide-in">
           <UserPlus className="mr-2 h-4 w-4" />
-          <span className={isHindi ? 'font-hindi' : ''}>
+          <span className={isHindi ? 'font-mangal' : ''}>
             {isHindi ? "नया प्रशिक्षु जोड़ें" : "Add New Trainee"}
           </span>
         </Button>
         <Button onClick={onShowAll} variant="outline" disabled={disabled} className="animate-slide-in">
           <List className="mr-2 h-4 w-4" />
-          <span className={isHindi ? 'font-hindi' : ''}>
+          <span className={isHindi ? 'font-mangal' : ''}>
             {isHindi ? "सभी प्रशिक्षु दिखाएं" : "Show All Trainees"}
           </span>
         </Button>
         <Button onClick={handleSearch} disabled={disabled} className="animate-slide-in">
           <Search className="mr-2 h-4 w-4" />
-          <span className={isHindi ? 'font-hindi' : ''}>
+          <span className={isHindi ? 'font-mangal' : ''}>
             {isHindi ? "प्रशिक्षु खोजें" : "Search Trainee"}
           </span>
         </Button>

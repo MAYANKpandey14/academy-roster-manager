@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,7 @@ export interface PersonData {
   pno: string;
   name: string;
   rank?: string;
+  chest_no?: string;
   mobile_number: string;
 }
 
@@ -47,9 +49,17 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
     try {
       const tableName = personType === 'trainee' ? 'trainees' : 'staff';
       
+      // Define specific columns to select based on person type
+      let columns = 'id, pno, name, mobile_number';
+      if (personType === 'trainee') {
+        columns += ', chest_no';
+      } else {
+        columns += ', rank';
+      }
+      
       const { data, error } = await supabase
         .from(tableName)
-        .select('id, pno, name, rank, mobile_number')
+        .select(columns)
         .eq('pno', pno)
         .single();
         
@@ -57,6 +67,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         throw error;
       }
       
+      // Validate that data is not null before proceeding
       if (!data) {
         toast.error(isHindi
           ? "कोई व्यक्ति नहीं मिला" 
@@ -64,17 +75,19 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
       
-      // Create a properly shaped PersonData object - ensure type safety
+      // Use explicit type assertion since we've verified the data structure
       const personData: PersonData = {
-        id: data.id,
-        pno: data.pno,
-        name: data.name,
-        mobile_number: data.mobile_number
+        id: (data as Record<string, any>).id as string,
+        pno: (data as Record<string, any>).pno as string,
+        name: (data as Record<string, any>).name as string,
+        mobile_number: (data as Record<string, any>).mobile_number as string
       };
       
-      // Add rank for staff if available
-      if (personType === 'staff' && data.rank) {
-        personData.rank = data.rank;
+      // Add type-specific fields with proper type assertions
+      if (personType === 'trainee' && 'chest_no' in data) {
+        personData.chest_no = (data as Record<string, any>).chest_no as string;
+      } else if (personType === 'staff' && 'rank' in data) {
+        personData.rank = (data as Record<string, any>).rank as string;
       }
       
       onPersonFound(personData, personType);
@@ -90,17 +103,17 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
   };
 
   return (
-    <form onSubmit={handleSearch} className="space-y-4">
+    <form onSubmit={handleSearch} className="space-y-4 animate-fade-in">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="personType" className={`${isHindi ? "font-mangal" : ""}`}>
+          <Label htmlFor="personType" className={isHindi ? "font-mangal" : ""}>
             {isHindi ? "व्यक्ति का प्रकार" : "Person Type"}
           </Label>
           <Select
             value={personType}
             onValueChange={(value: 'trainee' | 'staff') => setPersonType(value)}
           >
-            <SelectTrigger id="personType">
+            <SelectTrigger id="personType" className="transition-all duration-200">
               <SelectValue placeholder={isHindi ? "प्रकार चुनें" : "Select type"} />
             </SelectTrigger>
             <SelectContent>
@@ -119,7 +132,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="pno" className={`${isHindi ? "font-mangal" : ""}`}>
+          <Label htmlFor="pno" className={isHindi ? "font-mangal" : ""}>
             {isHindi ? "पी.एन.ओ. संख्या" : "PNO Number"}
           </Label>
           <div className="flex space-x-2">
@@ -130,7 +143,11 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
               placeholder={isHindi ? "पी.एन.ओ. दर्ज करें" : "Enter PNO"}
               className={isHindi ? "font-mangal" : ""}
             />
-            <Button type="submit" disabled={isSearching}>
+            <Button 
+              type="submit" 
+              disabled={isSearching}
+              className="transition-all duration-200 hover:scale-105 active:scale-95"
+            >
               {isSearching ? (
                 <span className={isHindi ? "font-mangal" : ""}>
                   {isHindi ? "खोज रहा है..." : "Searching..."}

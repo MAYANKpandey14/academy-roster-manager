@@ -41,19 +41,12 @@ export const handlePrint = (printContent: string): boolean => {
  */
 export const getPrintStyles = (language: string): string => {
   return `
-    @font-face {
-      font-family: 'KrutiDev';
-      src: url('/font/KrutiDev.woff') format('woff');
-      font-weight: normal;
-      font-style: normal;
-      font-display: swap;
-    }
     body { 
-      font-family: Arial, sans-serif; 
+      font-family: 'Space Grotesk', Arial, sans-serif; 
       padding: 20px;
     }
-    .hindi-text { 
-      font-family: 'KrutiDev', Arial, sans-serif; 
+    .hindi-text, .font-mangal { 
+      font-family: 'Mangal', 'Arial Unicode MS', sans-serif; 
     }
     h1 { text-align: center; margin-bottom: 5px; }
     h2 { text-align: center; margin-top: 5px; margin-bottom: 30px; }
@@ -89,6 +82,7 @@ export const createPrintHeader = (title: string, styles: string): string => {
     <html>
       <head>
         <title>${title}</title>
+        <meta charset="UTF-8">
         <style>${styles}</style>
       </head>
       <body>
@@ -107,7 +101,7 @@ export const createPrintFooter = (language: string = 'en', t?: TFunction): strin
   
   return `
         <div class="footer">
-          <p class="${language === 'hi' ? 'hindi-text' : ''}">
+          <p class="${language === 'hi' ? 'font-mangal' : ''}">
             ${prepareTextForLanguage(translate("documentGenerated", "This document was generated on"), language)}
             ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
           </p>

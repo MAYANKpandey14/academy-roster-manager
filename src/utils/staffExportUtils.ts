@@ -9,33 +9,17 @@ export const createStaffPrintContent = (staff: Staff[], language: string = 'en',
     return t ? t(key, defaultText) : defaultText;
   };
 
-  // Add lang attribute to parts that should use the specified language
-  const langAttr = language ? ` lang="${language}"` : '';
-
   // Add specialized font class for Hindi text
-  const hindiClass = language === 'hi' ? ' class="krutidev-font"' : '';
+  const hindiClass = language === 'hi' ? ' class="font-mangal"' : '';
   
-  // Include KrutiDev font for Hindi if needed
-  const hindiFont = language === 'hi' ? `
-    @font-face {
-      font-family: 'KrutiDev';
-      src: url('/font/KrutiDev.woff') format('woff');
-      font-weight: normal;
-      font-style: normal;
-    }
-    .krutidev-font {
-      font-family: 'KrutiDev', sans-serif;
-    }
-  ` : '';
-
   const printContent = `
     <html>
       <head>
         <title>${translate("staffInformation", "Staff Information")}</title>
         <meta charset="UTF-8">
         <style>
-          ${hindiFont}
-          body { font-family: Arial, sans-serif; padding: 20px; }
+          body { font-family: 'Space Grotesk', Arial, sans-serif; padding: 20px; }
+          .font-mangal { font-family: 'Mangal', 'Arial Unicode MS', sans-serif; }
           h1 { text-align: center; margin-bottom: 30px; }
           .staff-info { border: 1px solid #ddd; padding: 20px; margin-bottom: 30px; }
           .field { margin-bottom: 15px; }
@@ -47,30 +31,30 @@ export const createStaffPrintContent = (staff: Staff[], language: string = 'en',
       </head>
       <body>
         <div class="header">
-          <h1>${translate("rtcPolice", "RTC Police Line, Moradabad")}</h1>
-          <p>${translate("staffInfo", "Staff Information")}</p>
+          <h1${hindiClass}>${translate("rtcPolice", "RTC Police Line, Moradabad")}</h1>
+          <p${hindiClass}>${translate("staffInfo", "Staff Information")}</p>
         </div>
         ${staff.map(person => `
           <div class="staff-info">
-            <div class="field"><span class="field-label">${translate("pno", "PNO")}:</span> ${person.pno}</div>
-            <div class="field"><span class="field-label">${translate("name", "Name")}:</span> <span${hindiClass}${langAttr}>${person.name}</span></div>
-            <div class="field"><span class="field-label">${translate("fatherName", "Father's Name")}:</span> <span${hindiClass}${langAttr}>${person.father_name}</span></div>
-            <div class="field"><span class="field-label">${translate("rank", "Rank")}:</span> ${person.rank}</div>
-            <div class="field"><span class="field-label">${translate("currentPostingDistrict", "Current Posting District")}:</span> <span${hindiClass}${langAttr}>${person.current_posting_district}</span></div>
-            <div class="field"><span class="field-label">${translate("mobileNumber", "Mobile Number")}:</span> ${person.mobile_number}</div>
-            <div class="field"><span class="field-label">${translate("education", "Education")}:</span> <span${hindiClass}${langAttr}>${person.education}</span></div>
-            <div class="field"><span class="field-label">${translate("dateOfBirth", "Date of Birth")}:</span> ${person.date_of_birth ? format(new Date(person.date_of_birth), "PPP") : "N/A"}</div>
-            <div class="field"><span class="field-label">${translate("dateOfJoining", "Date of Joining")}:</span> ${person.date_of_joining ? format(new Date(person.date_of_joining), "PPP") : "N/A"}</div>
-            <div class="field"><span class="field-label">${translate("bloodGroup", "Blood Group")}:</span> ${person.blood_group}</div>
-            <div class="field"><span class="field-label">${translate("nominee", "Nominee")}:</span> <span${hindiClass}${langAttr}>${person.nominee}</span></div>
-            <div class="field"><span class="field-label">${translate("homeAddress", "Home Address")}:</span> <span${hindiClass}${langAttr}>${person.home_address}</span></div>
-            ${person.toli_no ? `<div class="field"><span class="field-label">${translate("toliNumber", "Toli Number")}:</span> ${person.toli_no}</div>` : ''}
-            ${person.class_no ? `<div class="field"><span class="field-label">${translate("classNumber", "Class Number")}:</span> ${person.class_no}</div>` : ''}
-            ${person.class_subject ? `<div class="field"><span class="field-label">${translate("classSubject", "Class Subject")}:</span> <span${hindiClass}${langAttr}>${person.class_subject}</span></div>` : ''}
+            <div class="field"><span class="field-label"${hindiClass}>${translate("pno", "PNO")}:</span> ${person.pno}</div>
+            <div class="field"><span class="field-label"${hindiClass}>${translate("name", "Name")}:</span> <span${hindiClass}>${person.name}</span></div>
+            <div class="field"><span class="field-label"${hindiClass}>${translate("fatherName", "Father's Name")}:</span> <span${hindiClass}>${person.father_name}</span></div>
+            <div class="field"><span class="field-label"${hindiClass}>${translate("rank", "Rank")}:</span> ${person.rank}</div>
+            <div class="field"><span class="field-label"${hindiClass}>${translate("currentPostingDistrict", "Current Posting District")}:</span> <span${hindiClass}>${person.current_posting_district}</span></div>
+            <div class="field"><span class="field-label"${hindiClass}>${translate("mobileNumber", "Mobile Number")}:</span> ${person.mobile_number}</div>
+            <div class="field"><span class="field-label"${hindiClass}>${translate("education", "Education")}:</span> <span${hindiClass}>${person.education}</span></div>
+            <div class="field"><span class="field-label"${hindiClass}>${translate("dateOfBirth", "Date of Birth")}:</span> ${person.date_of_birth ? format(new Date(person.date_of_birth), "PPP") : "N/A"}</div>
+            <div class="field"><span class="field-label"${hindiClass}>${translate("dateOfJoining", "Date of Joining")}:</span> ${person.date_of_joining ? format(new Date(person.date_of_joining), "PPP") : "N/A"}</div>
+            <div class="field"><span class="field-label"${hindiClass}>${translate("bloodGroup", "Blood Group")}:</span> ${person.blood_group}</div>
+            <div class="field"><span class="field-label"${hindiClass}>${translate("nominee", "Nominee")}:</span> <span${hindiClass}>${person.nominee}</span></div>
+            <div class="field"><span class="field-label"${hindiClass}>${translate("homeAddress", "Home Address")}:</span> <span${hindiClass}>${person.home_address}</span></div>
+            ${person.toli_no ? `<div class="field"><span class="field-label"${hindiClass}>${translate("toliNumber", "Toli Number")}:</span> ${person.toli_no}</div>` : ''}
+            ${person.class_no ? `<div class="field"><span class="field-label"${hindiClass}>${translate("classNumber", "Class Number")}:</span> ${person.class_no}</div>` : ''}
+            ${person.class_subject ? `<div class="field"><span class="field-label"${hindiClass}>${translate("classSubject", "Class Subject")}:</span> <span${hindiClass}>${person.class_subject}</span></div>` : ''}
           </div>
         `).join('')}
         <div style="text-align: center; margin-top: 30px; font-size: 12px;">
-          <p>${translate("documentGenerated", "This document was generated on")} ${format(new Date(), 'PP')} at ${new Date().toLocaleTimeString()}</p>
+          <p${hindiClass}>${translate("documentGenerated", "This document was generated on")} ${format(new Date(), 'PP')} at ${new Date().toLocaleTimeString()}</p>
         </div>
       </body>
     </html>

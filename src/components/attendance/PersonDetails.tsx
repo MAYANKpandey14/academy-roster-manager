@@ -12,7 +12,7 @@ export function PersonDetails({ person, personType }: PersonDetailsProps) {
   const { isHindi } = useLanguage();
 
   const renderField = (label: string, value: string | undefined) => (
-    <div className="flex flex-col mb-2">
+    <div className="flex flex-col mb-2 animate-fade-in">
       <span className={`text-sm text-gray-500 ${isHindi ? "font-mangal" : ""}`}>
         {label}
       </span>
@@ -29,7 +29,7 @@ export function PersonDetails({ person, personType }: PersonDetailsProps) {
           {isHindi ? "व्यक्तिगत विवरण" : "Person Details"}
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2">
           {renderField(
             isHindi ? "पी.एन.ओ. संख्या" : "PNO Number", 
             person.pno
@@ -40,7 +40,12 @@ export function PersonDetails({ person, personType }: PersonDetailsProps) {
             person.name
           )}
           
-          {personType === 'staff' && renderField(
+          {personType === 'trainee' && person.chest_no && renderField(
+            isHindi ? "छाती संख्या" : "Chest Number", 
+            person.chest_no
+          )}
+          
+          {personType === 'staff' && person.rank && renderField(
             isHindi ? "पद" : "Rank", 
             person.rank
           )}

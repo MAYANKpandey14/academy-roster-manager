@@ -19,13 +19,13 @@ export function TraineeInfoField({
   return (
     <div className="animate-fade-in">
       <h3 className="text-sm font-medium text-gray-500">
-        <span className={isHindi ? 'font-hindi' : ''}>
+        <span className={isHindi ? 'font-mangal' : ''}>
           {displayLabel}
         </span>
       </h3>
       <p className="mt-1">
         {isMultilingual ? (
-          <span className={isHindi ? 'font-hindi' : ''}>
+          <span className={isHindi ? 'font-mangal' : ''}>
             {value}
           </span>
         ) : (

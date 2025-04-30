@@ -17,22 +17,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Calendar } from "@/components/ui/calendar";
-import { 
-  Popover,
-  PopoverContent,
-  PopoverTrigger, 
-} from "@/components/ui/popover";
-import { format } from "date-fns";
+import { Input } from "@/components/ui/input";
+import { format, parse } from "date-fns";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { Textarea } from "@/components/ui/textarea";
-import { CalendarIcon } from "lucide-react";
 
 interface AttendanceFormProps {
   personType: 'trainee' | 'staff';
@@ -45,10 +38,10 @@ interface AttendanceFormProps {
 const formSchema = z.object({
   status: z.enum(["absent", "on_leave"]),
   leaveType: z.string().optional(),
-  startDate: z.date({
+  startDate: z.string({
     required_error: "Start date is required",
   }),
-  endDate: z.date().optional(),
+  endDate: z.string().optional(),
   reason: z.string().min(3, {
     message: "Reason must be at least 3 characters",
   }),
@@ -65,7 +58,7 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
     defaultValues: {
       status: "absent",
       leaveType: undefined,
-      startDate: new Date(),
+      startDate: format(new Date(), "yyyy-MM-dd"),
       endDate: undefined,
       reason: "",
     },
@@ -79,14 +72,10 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
     try {
       if (values.status === "absent") {
         // Record absence in the attendance table
-        const tableName = personType === "trainee" ? "trainee_attendance" : "staff_attendance";
-        const idField = personType === "trainee" ? "trainee_id" : "staff_id";
-        
-        // Create a properly typed object based on personType
         if (personType === "trainee") {
           const attendanceData = {
             trainee_id: personId,
-            date: format(values.startDate, "yyyy-MM-dd"),
+            date: values.startDate,
             status: values.reason // Using status field to store reason text
           };
           
@@ -98,7 +87,7 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
         } else {
           const attendanceData = {
             staff_id: personId,
-            date: format(values.startDate, "yyyy-MM-dd"),
+            date: values.startDate,
             status: values.reason // Using status field to store reason text
           };
           
@@ -116,8 +105,8 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
         if (personType === "trainee") {
           const leaveData = {
             trainee_id: personId,
-            start_date: format(values.startDate, "yyyy-MM-dd"),
-            end_date: format(endDate, "yyyy-MM-dd"),
+            start_date: values.startDate,
+            end_date: endDate,
             reason: values.reason,
             leave_type: values.leaveType || null,
             status: "approved" 
@@ -131,8 +120,8 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
         } else {
           const leaveData = {
             staff_id: personId,
-            start_date: format(values.startDate, "yyyy-MM-dd"),
-            end_date: format(endDate, "yyyy-MM-dd"),
+            start_date: values.startDate,
+            end_date: endDate,
             reason: values.reason,
             leave_type: values.leaveType || null,
             status: "approved" 
@@ -153,8 +142,6 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
       // Reset form and invalidate queries to refresh data
       form.reset();
       queryClient.invalidateQueries({ queryKey: ['attendance'] });
-      queryClient.invalidateQueries({ queryKey: ['absences'] });
-      queryClient.invalidateQueries({ queryKey: ['leaves'] });
       onSuccess();
       
     } catch (error) {
@@ -169,7 +156,7 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 animate-fade-in">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -184,7 +171,7 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
                   defaultValue={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="transition-all duration-200">
                       <SelectValue placeholder={isHindi ? "स्थिति चुनें" : "Select status"} />
                     </SelectTrigger>
                   </FormControl>
@@ -220,7 +207,7 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="transition-all duration-200">
                         <SelectValue placeholder={isHindi ? "छुट्टी का प्रकार चुनें" : "Select leave type"} />
                       </SelectTrigger>
                     </FormControl>
@@ -263,35 +250,13 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
                 <FormLabel className={isHindi ? "font-mangal" : ""}>
                   {isHindi ? "दिनांक से" : "Date From"}
                 </FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP")
-                        ) : (
-                          <span>{isHindi ? "दिनांक चुनें" : "Pick a date"}</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      initialFocus
-                      className="pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
+                <FormControl>
+                  <Input
+                    type="date"
+                    {...field}
+                    className="transition-all duration-200"
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -306,36 +271,14 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
                   <FormLabel className={isHindi ? "font-mangal" : ""}>
                     {isHindi ? "दिनांक तक" : "Date To"}
                   </FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>{isHindi ? "दिनांक चुनें" : "Pick a date"}</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) => date < form.getValues("startDate")}
-                        initialFocus
-                        className="pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      {...field}
+                      className="transition-all duration-200"
+                      min={form.getValues("startDate")}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -354,7 +297,7 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
               <FormControl>
                 <Textarea
                   placeholder={isHindi ? "कारण दर्ज करें" : "Enter reason"}
-                  className={isHindi ? "font-mangal" : ""}
+                  className={isHindi ? "font-mangal transition-all duration-200" : "transition-all duration-200"}
                   {...field}
                 />
               </FormControl>
@@ -363,7 +306,11 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
           )}
         />
         
-        <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto">
+        <Button 
+          type="submit" 
+          disabled={isSubmitting} 
+          className="w-full md:w-auto transition-all duration-200 hover:scale-105 active:scale-95 animate-fade-in"
+        >
           {isSubmitting ? (
             <span className={isHindi ? "font-mangal" : ""}>
               {isHindi ? "प्रस्तुत किया जा रहा है..." : "Submitting..."}

@@ -3,12 +3,15 @@ import { format } from "date-fns";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { AttendanceStatus } from "./AttendanceStatus";
 import { type AttendanceRecord } from "./hooks/useFetchAttendance";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AttendanceTableRowProps {
   record: AttendanceRecord;
 }
 
 export function AttendanceTableRow({ record }: AttendanceTableRowProps) {
+  const { isHindi } = useLanguage();
+  
   // Handle date formatting for both single dates and ranges
   const formatDate = (dateString: string) => {
     if (dateString.includes(" - ")) {
@@ -19,15 +22,19 @@ export function AttendanceTableRow({ record }: AttendanceTableRowProps) {
   };
 
   return (
-    <TableRow>
-      <TableCell>{formatDate(record.date)}</TableCell>
+    <TableRow className="animate-fade-in transition-colors duration-200 hover:bg-gray-50">
+      <TableCell className={isHindi ? "font-mangal" : ""}>
+        {formatDate(record.date)}
+      </TableCell>
       <TableCell>
         <AttendanceStatus 
           status={record.status as 'absent' | 'on_leave' | 'present'} 
           leaveType={record.leave_type} 
         />
       </TableCell>
-      <TableCell>{record.reason || "-"}</TableCell>
+      <TableCell className={isHindi ? "font-mangal" : ""}>
+        {record.reason || "-"}
+      </TableCell>
     </TableRow>
   );
 }
