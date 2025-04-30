@@ -56,13 +56,13 @@ export function Header() {
             <div className="flex-shrink-0 mr-2">
               <img src="/images.svg" alt="logo" className="w-16 h-16 md:w-20 md:h-20" />
             </div>
-            <h1 className={`text-lg md:text-xl lg:text-2xl font-bold text-center md:text-left ${isHindi ? 'font-hindi' : ''}`}>
+            <h1 className={`text-lg md:text-xl lg:text-2xl font-bold text-center md:text-left ${isHindi ? 'font-mangal' : ''}`}>
               {isHindi ? "पुलिस प्रशिक्षण अकादमी" : "Police Training Academy"}
             </h1>
           </div>
           
           <div className="flex justify-center items-center">
-            <div className={`text-sm text-gray-500 text-center ${isHindi ? 'font-hindi' : ''}`}>{today}</div>
+            <div className={`text-sm text-gray-500 text-center ${isHindi ? 'font-mangal' : ''}`}>{today}</div>
           </div>
           
           <div className="flex items-center justify-center md:justify-end gap-2 md:gap-4">
@@ -76,7 +76,7 @@ export function Header() {
                 className="hidden sm:flex"
               >
                 <ArrowLeft className="h-4 w-4 mr-1" />
-                <span className={isHindi ? 'font-hindi' : ''}>
+                <span className={isHindi ? 'font-mangal' : ''}>
                   {isHindi ? "वापस" : "Back"}
                 </span>
               </Button>
@@ -87,7 +87,7 @@ export function Header() {
                 onClick={() => navigate("/")}
               >
                 <Home className="h-4 w-4 mr-1" />
-                <span className={`hidden sm:inline ${isHindi ? 'font-hindi' : ''}`}>
+                <span className={`hidden sm:inline ${isHindi ? 'font-mangal' : ''}`}>
                   {isHindi ? "होम" : "Home"}
                 </span>
               </Button>
@@ -98,7 +98,7 @@ export function Header() {
                 onClick={handleLogout}
               >
                 <LogOut className="h-4 w-4 mr-1" />
-                <span className={`hidden sm:inline ${isHindi ? 'font-hindi' : ''}`}>
+                <span className={`hidden sm:inline ${isHindi ? 'font-mangal' : ''}`}>
                   {isHindi ? "लॉगआउट" : "Logout"}
                 </span>
               </Button>

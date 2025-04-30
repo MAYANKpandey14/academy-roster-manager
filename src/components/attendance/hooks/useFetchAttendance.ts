@@ -10,21 +10,6 @@ export interface AttendanceRecord {
   leave_type?: string;
 }
 
-// Define specific types for database records
-interface AbsenceRecord {
-  id: string;
-  date: string;
-  status: string;
-}
-
-interface LeaveRecord {
-  id: string;
-  start_date: string;
-  end_date: string;
-  reason: string;
-  leave_type?: string;
-}
-
 export const useFetchAttendance = (personId?: string, personType: "staff" | "trainee" = "trainee") => {
   return useQuery({
     queryKey: ['attendance', personId, personType],
@@ -58,16 +43,16 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         if (leaveResult.error) throw leaveResult.error;
         const leaves = leaveResult.data || [];
 
-        // Format absences with explicit typing
-        const formattedAbsences: AttendanceRecord[] = absences.map((item: any) => ({
+        // Format absences
+        const formattedAbsences = absences.map((item) => ({
           id: `absence-${item.id}`,
           date: item.date,
           status: 'absent',
           reason: item.status // Using status field to store the reason
         }));
 
-        // Format leaves with explicit typing
-        const formattedLeaves: AttendanceRecord[] = leaves.map((item: any) => ({
+        // Format leaves
+        const formattedLeaves = leaves.map((item) => ({
           id: `leave-${item.id}`,
           date: `${item.start_date} - ${item.end_date}`,
           status: 'on_leave',

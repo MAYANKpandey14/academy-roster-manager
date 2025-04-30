@@ -75,7 +75,6 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
       
-      // Now we know data is not null, create a properly shaped PersonData object
       // Use explicit type assertion since we've verified the data structure
       const personData: PersonData = {
         id: (data as Record<string, any>).id as string,
@@ -107,7 +106,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
     <form onSubmit={handleSearch} className="space-y-4 animate-fade-in">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="personType" className={`${isHindi ? "font-mangal" : ""}`}>
+          <Label htmlFor="personType" className={isHindi ? "font-mangal" : ""}>
             {isHindi ? "व्यक्ति का प्रकार" : "Person Type"}
           </Label>
           <Select
@@ -133,7 +132,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="pno" className={`${isHindi ? "font-mangal" : ""}`}>
+          <Label htmlFor="pno" className={isHindi ? "font-mangal" : ""}>
             {isHindi ? "पी.एन.ओ. संख्या" : "PNO Number"}
           </Label>
           <div className="flex space-x-2">
