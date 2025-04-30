@@ -10,3 +10,7 @@ verify_jwt = false
 
 [functions.update-trainee]
 verify_jwt = false
+
+[functions.attendance-manage]
+verify_jwt = false
+

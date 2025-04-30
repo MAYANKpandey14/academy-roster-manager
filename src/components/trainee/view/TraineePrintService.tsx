@@ -10,9 +10,9 @@ export interface TraineePrintServiceProps {
 }
 
 export function useTraineePrintService(trainee: Trainee) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { isHindi } = useLanguage();
-  // Use isHindi instead of currentLanguage
+  // Use isHindi directly instead of currentLanguage
   const currentLanguage = isHindi ? 'hi' : 'en';
 
   const handlePrintTrainee = () => {

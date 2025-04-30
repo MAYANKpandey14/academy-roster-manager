@@ -19,9 +19,9 @@ export const useLanguageInputs = () => {
       if (type === 'date' || type === 'number' || type === 'tel') return;
       
       if (isHindi) {
-        input.classList.add('font-hindi');
+        input.classList.add('font-mangal');
       } else {
-        input.classList.remove('font-hindi');
+        input.classList.remove('font-mangal');
       }
     });
     
@@ -29,9 +29,9 @@ export const useLanguageInputs = () => {
     const dynamicTexts = document.querySelectorAll('.dynamic-text');
     dynamicTexts.forEach(text => {
       if (isHindi) {
-        text.classList.add('font-hindi');
+        text.classList.add('font-mangal');
       } else {
-        text.classList.remove('font-hindi');
+        text.classList.remove('font-mangal');
       }
     });
     

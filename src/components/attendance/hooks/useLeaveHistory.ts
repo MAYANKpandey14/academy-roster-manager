@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 // Define explicit types for history records
 export interface AbsenceRecord {
-  id: number;
+  id: string;
   person_id: string;
   date: string;
   reason: string;
@@ -13,7 +13,7 @@ export interface AbsenceRecord {
 }
 
 export interface LeaveRecord {
-  id: number;
+  id: string;
   person_id: string;
   start_date: string;
   end_date: string;
@@ -32,9 +32,9 @@ export const useAbsences = (personId?: string) => {
     queryFn: async () => {
       // Use the correct table names based on Supabase schema
       const { data, error } = await supabase
-        .from('trainee_attendance') // This should be the correct table name in your Supabase
+        .from('trainee_attendance') 
         .select('*')
-        .eq('person_id', personId || '')
+        .eq('trainee_id', personId || '')
         .order('date', { ascending: false });
 
       if (error) throw error;
@@ -42,9 +42,9 @@ export const useAbsences = (personId?: string) => {
       // Map the data to the expected AbsenceRecord format
       const absences: AbsenceRecord[] = (data || []).map(item => ({
         id: item.id,
-        person_id: item.person_id,
+        person_id: item.trainee_id,
         date: item.date,
-        reason: item.reason || 'No reason provided',
+        reason: item.status || 'No reason provided',
         created_at: item.created_at,
         type: 'absence'
       }));
@@ -62,9 +62,9 @@ export const useLeaves = (personId?: string) => {
     queryFn: async () => {
       // Use the correct table names based on Supabase schema
       const { data, error } = await supabase
-        .from('trainee_leave') // This should be the correct table name in your Supabase
+        .from('trainee_leave')
         .select('*')
-        .eq('person_id', personId || '')
+        .eq('trainee_id', personId || '')
         .order('start_date', { ascending: false });
 
       if (error) throw error;
@@ -72,7 +72,7 @@ export const useLeaves = (personId?: string) => {
       // Map the data to the expected LeaveRecord format
       const leaves: LeaveRecord[] = (data || []).map(item => ({
         id: item.id,
-        person_id: item.person_id,
+        person_id: item.trainee_id,
         start_date: item.start_date,
         end_date: item.end_date,
         reason: item.reason || 'No reason provided',

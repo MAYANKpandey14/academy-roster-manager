@@ -2,63 +2,129 @@
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format } from "date-fns";
+import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow 
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Printer } from "lucide-react";
+import { useFetchAttendance } from "./hooks/useFetchAttendance";
 
 interface AttendanceTableProps {
   personId: string;
   personType: "staff" | "trainee";
-  searchData?: any;
+  pno?: string;
 }
 
-export const AttendanceTable = ({ personId, personType }: AttendanceTableProps) => {
+export const AttendanceTable = ({ personId, personType, pno }: AttendanceTableProps) => {
   const [month, setMonth] = useState(new Date());
   const { isHindi } = useLanguage();
+  const { data: attendanceRecords, isLoading } = useFetchAttendance(personId, personType);
 
-  // This is a placeholder component - in reality, you would fetch attendance data
-  // based on personId, personType and month
-  
+  const handlePrint = () => {
+    const printContent = document.getElementById('attendance-table')?.outerHTML;
+    if (!printContent) return;
+    
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+    
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>${isHindi ? 'उपस्थिति रिकॉर्ड' : 'Attendance Records'}</title>
+          <style>
+            body { font-family: Arial, sans-serif; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+          </style>
+        </head>
+        <body>
+          <h2>${pno ? `${isHindi ? 'पी.एन.ओ: ' : 'PNO: '} ${pno}` : ''}</h2>
+          ${printContent}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  };
+
   return (
     <div className="animate-fade-in">
       <div className="mb-4 flex justify-between items-center">
-        <h3 className={`font-medium ${isHindi ? 'font-hindi' : ''}`}>
+        <h3 className={`font-medium ${isHindi ? 'font-mangal' : ''}`}>
           {isHindi ? "उपस्थिति सारांश" : "Attendance Summary"}
         </h3>
         
-        <div>
+        <div className="flex items-center gap-4">
           <input 
             type="month" 
             value={format(month, 'yyyy-MM')}
             onChange={(e) => setMonth(new Date(e.target.value))} 
             className="p-2 border rounded"
           />
+          
+          <Button variant="outline" size="sm" onClick={handlePrint}>
+            <Printer className="h-4 w-4 mr-2" />
+            <span className={isHindi ? 'font-mangal' : ''}>
+              {isHindi ? "प्रिंट करें" : "Print"}
+            </span>
+          </Button>
         </div>
       </div>
       
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <span className={isHindi ? 'font-hindi' : ''}>
-                  {isHindi ? "दिनांक" : "Date"}
-                </span>
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <span className={isHindi ? 'font-hindi' : ''}>
-                  {isHindi ? "स्थिति" : "Status"}
-                </span>
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            <tr>
-              <td colSpan={2} className="px-6 py-4 text-center text-gray-500">
-                <span className={isHindi ? 'font-hindi' : ''}>
-                  {isHindi ? "कोई डेटा उपलब्ध नहीं है" : "No data available"}
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <Table id="attendance-table">
+          <TableHeader>
+            <TableRow>
+              <TableHead className={isHindi ? 'font-mangal' : ''}>
+                {isHindi ? "दिनांक" : "Date"}
+              </TableHead>
+              <TableHead className={isHindi ? 'font-mangal' : ''}>
+                {isHindi ? "स्थिति" : "Status"}
+              </TableHead>
+              <TableHead className={isHindi ? 'font-mangal' : ''}>
+                {isHindi ? "कारण" : "Reason"}
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={3} className="text-center py-8">
+                  <span className={isHindi ? 'font-mangal' : ''}>
+                    {isHindi ? "लोड हो रहा है..." : "Loading..."}
+                  </span>
+                </TableCell>
+              </TableRow>
+            ) : attendanceRecords && attendanceRecords.length > 0 ? (
+              attendanceRecords.map((record) => (
+                <TableRow key={record.id}>
+                  <TableCell>{record.date}</TableCell>
+                  <TableCell className={isHindi ? 'font-mangal' : ''}>
+                    {record.status === 'absent' 
+                      ? (isHindi ? "अनुपस्थित" : "Absent") 
+                      : (isHindi ? "छुट्टी पर" : "On Leave")}
+                  </TableCell>
+                  <TableCell>{record.reason || "-"}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={3} className="text-center py-8">
+                  <span className={isHindi ? 'font-mangal' : ''}>
+                    {isHindi ? "कोई डेटा उपलब्ध नहीं है" : "No data available"}
+                  </span>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

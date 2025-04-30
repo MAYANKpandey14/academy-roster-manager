@@ -1,52 +1,81 @@
 
-import { Header } from "@/components/layout/Header";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AttendanceForm } from "@/components/attendance/AttendanceForm";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { Header } from "@/components/layout/Header";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PersonSearch, PersonData } from "@/components/attendance/PersonSearch";
+import { PersonDetails } from "@/components/attendance/PersonDetails";
+import { AttendanceTable } from "@/components/attendance/AttendanceTable";
+import { AttendanceForm } from "@/components/attendance/AttendanceForm";
 
 export default function AttendancePage() {
-  const [key, setKey] = useState(0);
-  const { t } = useTranslation();
+  const { isHindi } = useLanguage();
+  const [person, setPerson] = useState<PersonData | null>(null);
+  const [personType, setPersonType] = useState<'trainee' | 'staff'>('trainee');
+  const [activeTab, setActiveTab] = useState<'view' | 'add'>('view');
   
-  // Use the language inputs hook
+  // Apply language-specific classes to inputs
   useLanguageInputs();
 
+  const handlePersonFound = (foundPerson: PersonData, type: 'trainee' | 'staff') => {
+    setPerson(foundPerson);
+    setPersonType(type);
+  };
+
   const handleSuccess = () => {
-    setKey(prev => prev + 1);
+    // Optionally switch to view tab after adding attendance
+    setActiveTab('view');
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
       <main className="container mx-auto py-6 px-4">
-        <h1 className="text-2xl font-semibold mb-6 dynamic-text">{t('attendanceManagement')}</h1>
+        <h1 className={`text-2xl font-semibold mb-6 ${isHindi ? "font-mangal" : "dynamic-text"}`}>
+          {isHindi ? "उपस्थिति प्रबंधन" : "Attendance Management"}
+        </h1>
         
-        <Tabs defaultValue="trainee">
-          <TabsList className="mb-4">
-            <TabsTrigger value="trainee" className="dynamic-text">{t('traineeAttendance')}</TabsTrigger>
-            <TabsTrigger value="staff" className="dynamic-text">{t('staffAttendance')}</TabsTrigger>
-          </TabsList>
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+          <PersonSearch onPersonFound={handlePersonFound} />
           
-          <TabsContent value="trainee" className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-            <h2 className="text-xl font-semibold mb-4 dynamic-text">{t('markTraineeAttendance')}</h2>
-            <AttendanceForm 
-              key={`trainee-${key}`}
-              type="trainee"
-              onSuccess={handleSuccess}
-            />
-          </TabsContent>
-          
-          <TabsContent value="staff" className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-            <h2 className="text-xl font-semibold mb-4 dynamic-text">{t('markStaffAttendance')}</h2>
-            <AttendanceForm 
-              key={`staff-${key}`}
-              type="staff"
-              onSuccess={handleSuccess}
-            />
-          </TabsContent>
-        </Tabs>
+          {person && (
+            <div className="mt-6 space-y-6 animate-fade-in">
+              <PersonDetails person={person} personType={personType} />
+              
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'view' | 'add')}>
+                <TabsList className="mb-4">
+                  <TabsTrigger value="view" className={`${isHindi ? "font-mangal" : ""}`}>
+                    {isHindi ? "उपस्थिति देखें" : "View Attendance"}
+                  </TabsTrigger>
+                  <TabsTrigger value="add" className={`${isHindi ? "font-mangal" : ""}`}>
+                    {isHindi ? "अनुपस्थिति/छुट्टी दर्ज करें" : "Mark Absence/Leave"}
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="view" className="pt-4">
+                  <AttendanceTable 
+                    personId={person.id} 
+                    personType={personType} 
+                    pno={person.pno}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="add" className="pt-4">
+                  <h3 className={`text-lg font-medium mb-4 ${isHindi ? "font-mangal" : ""}`}>
+                    {isHindi ? "अनुपस्थिति या छुट्टी दर्ज करें" : "Mark Absence or Leave"}
+                  </h3>
+                  <AttendanceForm
+                    personId={person.id}
+                    personType={personType}
+                    pno={person.pno}
+                    onSuccess={handleSuccess}
+                  />
+                </TabsContent>
+              </Tabs>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );

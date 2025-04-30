@@ -1,56 +1,42 @@
 
 import { Staff } from "@/types/staff";
-import { toast } from "sonner";
+import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/staffExportUtils";
 import { useTranslation } from "react-i18next";
-import { 
-  createStaffPrintContent, 
-  createStaffCSVContent, 
-  handlePrint, 
-  handleDownload 
-} from "@/utils/staffExportUtils";
+import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-interface StaffPrintServiceProps {
+export interface StaffPrintServiceProps {
   staff: Staff;
 }
 
-export function useStaffPrintService(staff: Staff | null) {
+export function useStaffPrintService(staff: Staff) {
   const { t } = useTranslation();
   const { isHindi } = useLanguage();
-  // Use isHindi instead of currentLanguage
+  // Use isHindi directly instead of currentLanguage
   const currentLanguage = isHindi ? 'hi' : 'en';
 
   const handlePrintStaff = () => {
-    if (!staff) return;
+    const printContent = createPrintContent([staff], currentLanguage, t);
+    const printSuccess = handlePrint(printContent);
     
-    const content = createStaffPrintContent([staff], currentLanguage, t);
-    const success = handlePrint(content);
-    
-    if (success) {
-      toast.success(t("printingStaff", "Printing staff details"));
+    if (!printSuccess) {
+      toast.error(t("failedToPrint", "Failed to open print window. Please check your pop-up blocker settings."));
     } else {
-      toast.error(t("printingError", "Could not open print dialog"));
+      toast.success(t("printingStaff", `Printing staff details`));
     }
   };
 
   const handleDownloadStaff = () => {
-    if (!staff) return;
-    
-    const content = createStaffCSVContent([staff], currentLanguage, t);
-    const success = handleDownload(
-      content, 
-      `staff_${staff.pno}_${new Date().toISOString().split('T')[0]}.csv`
+    const csvContent = createCSVContent([staff], currentLanguage, t);
+    handleDownload(
+      csvContent, 
+      `staff_${staff.pno}_${staff.name.replace(/\s+/g, '_')}.csv`
     );
-    
-    if (success) {
-      toast.success(t("staffCSVDownloaded", "Staff details downloaded as CSV"));
-    } else {
-      toast.error(t("downloadError", "Could not download file"));
-    }
+    toast.success(t("csvDownloaded", "CSV file downloaded successfully"));
   };
 
   return {
     handlePrintStaff,
-    handleDownloadStaff,
+    handleDownloadStaff
   };
 }

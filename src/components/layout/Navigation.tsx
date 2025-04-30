@@ -2,16 +2,26 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function Navigation() {
   const location = useLocation();
   const { t } = useTranslation();
+  const { isHindi } = useLanguage();
   
   const routes = [
-    { name: t("trainees"), path: "/trainees" },
-    { name: t("staff"), path: "/staff" },
-    { name: t("attendance"), path: "/attendance" },
-    { name: t("leave"), path: "/leave" },
+    { 
+      name: isHindi ? "प्रशिक्षु" : t("trainees"), 
+      path: "/trainees" 
+    },
+    { 
+      name: isHindi ? "स्टाफ" : t("staff"), 
+      path: "/staff" 
+    },
+    { 
+      name: isHindi ? "उपस्थिति" : t("attendance"),
+      path: "/attendance"
+    },
   ];
 
   return (
@@ -24,7 +34,7 @@ export function Navigation() {
               variant={location.pathname.startsWith(route.path) ? "default" : "ghost"}
               size="sm"
               asChild
-              className="whitespace-nowrap"
+              className={`whitespace-nowrap ${isHindi ? "font-mangal" : ""}`}
             >
               <Link to={route.path}>{route.name}</Link>
             </Button>
