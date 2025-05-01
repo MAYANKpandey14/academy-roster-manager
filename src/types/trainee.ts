@@ -8,6 +8,7 @@ export interface Trainee {
   name: string;
   father_name: string;
   rank: TraineeRank;
+  toli_no: string;
   arrival_date: string;
   departure_date: string;
   current_posting_district: string;

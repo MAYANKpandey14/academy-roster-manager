@@ -21,7 +21,7 @@ export function AttendanceTableRow({ record }: AttendanceTableRowProps) {
   // Format date to a readable format
   const formatDate = (dateString: string) => {
     try {
-      return format(new Date(dateString), "PP");
+    return format(new Date(dateString), "PP");
     } catch (error) {
       console.error('Error formatting date:', error);
       return dateString;

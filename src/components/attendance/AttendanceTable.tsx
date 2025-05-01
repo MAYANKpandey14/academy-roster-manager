@@ -14,6 +14,7 @@ import { Printer } from "lucide-react";
 import { useFetchAttendance } from "./hooks/useFetchAttendance";
 import { AttendanceTableRow } from "./AttendanceTableRow";
 import { PersonData } from "./PersonSearch";
+import { handlePrint } from "@/utils/export/printUtils";
 
 interface AttendanceTableProps {
   personId: string;
@@ -26,14 +27,11 @@ export const AttendanceTable = ({ personId, personType, personData }: Attendance
   const { isHindi } = useLanguage();
   const { data: attendanceRecords, isLoading } = useFetchAttendance(personId, personType);
 
-  const handlePrint = () => {
+  const handlePrintClick = () => {
     const printContent = document.getElementById('attendance-table')?.outerHTML;
     if (!printContent) return;
     
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-    
-    printWindow.document.write(`
+    const content = `
       <html>
         <head>
           <title>${isHindi ? 'उपस्थिति रिकॉर्ड' : 'Attendance Records'}</title>
@@ -62,9 +60,6 @@ export const AttendanceTable = ({ personId, personType, personData }: Attendance
               .print-button {
                 display: none;
               }
-              body {
-                padding: 0;
-              }
             }
           </style>
         </head>
@@ -84,9 +79,9 @@ export const AttendanceTable = ({ personId, personType, personData }: Attendance
           </button>
         </body>
       </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
+    `;
+    
+    handlePrint(content);
   };
 
   return (
@@ -104,7 +99,7 @@ export const AttendanceTable = ({ personId, personType, personData }: Attendance
             className="p-2 border rounded"
           />
           
-          <Button variant="outline" size="sm" onClick={handlePrint}>
+          <Button variant="outline" size="sm" onClick={handlePrintClick}>
             <Printer className="h-4 w-4 mr-2" />
             <span className={isHindi ? 'font-mangal' : ''}>
               {isHindi ? "प्रिंट करें" : "Print"}

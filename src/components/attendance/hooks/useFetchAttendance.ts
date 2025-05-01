@@ -59,7 +59,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
           .from(leaveTable)
           .select('*')
           .eq(leaveIdField, personId);
-        
+
         if (leaveError) throw leaveError;
         const leaves = (leaveData as unknown as DatabaseLeave[]) || [];
 

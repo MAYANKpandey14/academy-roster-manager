@@ -1,6 +1,5 @@
 import { Trainee } from "@/types/trainee";
-import { createCSVContent, handleDownload } from "@/utils/export";
-import { createPrintWindow } from "@/utils/printUtils";
+import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/export";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -18,6 +17,7 @@ export function useTraineePrintService(trainee: Trainee) {
       printSuccess: isHindi ? "ट्रेनी विवरण प्रिंट हो रहा है..." : "Printing trainee details",
       downloadSuccess: isHindi ? "CSV फ़ाइल सफलतापूर्वक डाउनलोड हो गई है..." : "CSV file downloaded successfully",
       traineeInfo: isHindi ? "आरटीसी प्रशिक्षु जानकारी" : "RTC Trainee Information",
+      rtcPolice: isHindi ? "आरटीसी पुलिस लाइन, मुरादाबाद" : "RTC POLICE LINE, MORADABAD",
       name: isHindi ? "नाम" : "Name",
       pno: isHindi ? "पीएनओ" : "PNO",
       chestNo: isHindi ? "चेस्ट नंबर" : "Chest No",
@@ -38,27 +38,8 @@ export function useTraineePrintService(trainee: Trainee) {
   };
 
   const handlePrintTrainee = () => {
-    const headerInfo = [
-      { label: t('name', 'Name'), value: trainee.name },
-      { label: t('pno', 'PNO'), value: trainee.pno },
-      { label: t('chestNo', 'Chest No'), value: trainee.chest_no },
-      { label: t('fatherName', 'Father\'s Name'), value: trainee.father_name },
-      { label: t('dateOfBirth', 'Date of Birth'), value: trainee.date_of_birth },
-      { label: t('dateOfJoining', 'Date of Joining'), value: trainee.date_of_joining },
-      { label: t('trainingPeriod', 'Training Period'), value: `${trainee.arrival_date} ${t('trainingPeriodTo', 'to')} ${trainee.departure_date}` },
-      { label: t('currentPosting', 'Current Posting'), value: trainee.current_posting_district },
-      { label: t('mobile', 'Mobile'), value: trainee.mobile_number },
-      { label: t('education', 'Education'), value: trainee.education },
-      { label: t('bloodGroup', 'Blood Group'), value: trainee.blood_group },
-      { label: t('nominee', 'Nominee'), value: trainee.nominee },
-      { label: t('homeAddress', 'Home Address'), value: trainee.home_address }
-    ];
-
-    const printSuccess = createPrintWindow({
-      title: t('traineeInfo', 'RTC Trainee Information'),
-      content: `<div class="document-info">${t('documentGenerated', 'This document was generated on')} ${new Date().toLocaleDateString()}</div>`,
-      headerInfo
-    });
+    const printContent = createPrintContent([trainee], isHindi);
+    const printSuccess = handlePrint(printContent);
     
     if (!printSuccess) {
       toast.error(t('printError', 'Failed to open print window'));
@@ -73,7 +54,7 @@ export function useTraineePrintService(trainee: Trainee) {
       csvContent, 
       `trainee_${trainee.pno}_${trainee.name.replace(/\s+/g, '_')}.csv`
     );
-    toast.success(t('downloadSuccess', 'CSV file downloaded successfully'));
+    toast.success(isHindi ? "CSV फ़ाइल सफलतापूर्वक डाउनलोड हो गई" : "CSV file downloaded successfully");
   };
 
   return {

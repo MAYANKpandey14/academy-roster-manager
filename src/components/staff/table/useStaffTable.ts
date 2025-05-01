@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { Staff } from "@/types/staff";
 import { toast } from "sonner";
 import { deleteStaff } from "@/services/staffApi";
-import { createStaffPrintContent, createStaffCSVContent, handlePrint, handleDownload } from "@/utils/staffExportUtils";
+import {handlePrint, handleDownload } from "@/utils/export";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { createStaffPrintContent, createStaffCSVContent } from "@/utils/staffExportUtils";
 
 export function useStaffTable(staff: Staff[], onRefresh: () => void) {
   const [rowSelection, setRowSelection] = useState({});

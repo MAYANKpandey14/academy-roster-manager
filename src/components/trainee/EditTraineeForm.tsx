@@ -49,6 +49,8 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
     chest_no: trainee.chest_no,
     name: trainee.name,
     father_name: trainee.father_name,
+    rank: trainee.rank,
+    toli_no: trainee.toli_no,
     arrival_date: formatDateForInput(trainee.arrival_date),
     departure_date: formatDateForInput(trainee.departure_date),
     current_posting_district: trainee.current_posting_district,

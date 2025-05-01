@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.21.0';
 
@@ -16,6 +15,12 @@ serve(async (req) => {
   }
 
   try {
+    // Check for authorization header
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('Missing authorization header');
+    }
+
     // Create a Supabase client with the Auth context of the function
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -23,7 +28,7 @@ serve(async (req) => {
       { 
         global: { 
           headers: { 
-            Authorization: req.headers.get('Authorization')!,
+            Authorization: authHeader,
             "Content-Type": "application/json; charset=utf-8"
           } 
         } 
@@ -80,7 +85,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ error: error.message || "An unknown error occurred" }),
       { 
-        status: 400, 
+        status: error.message.includes('authorization') ? 401 : 400, 
         headers: corsHeaders
       }
     );

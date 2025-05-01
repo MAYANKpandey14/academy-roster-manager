@@ -1,5 +1,5 @@
 import { Trainee } from "@/types/trainee";
-import { prepareTextForLanguage } from "../textUtils";
+import { prepareTextForLanguage } from "@/utils/textUtils";
 
 /**
  * Creates CSV content from trainee data

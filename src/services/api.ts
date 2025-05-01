@@ -1,4 +1,3 @@
-
 import { Trainee, TraineeFormValues } from "@/types/trainee";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -83,8 +82,15 @@ export async function updateTrainee(id: string, traineeData: TraineeFormValues):
     console.log("Updating trainee with id:", id);
     console.log("Update data:", JSON.stringify(traineeData));
     
+    // Get the current session
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      throw new Error("No active session. Please log in again.");
+    }
+    
     const { data, error } = await supabase.functions.invoke('update-trainee', {
-      method: 'POST', // Use POST instead of PUT to avoid CORS preflight issues
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
       },

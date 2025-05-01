@@ -1,6 +1,6 @@
 
 import { Trainee } from "@/types/trainee";
-import { prepareTextForLanguage } from "../textUtils";
+import { prepareTextForLanguage } from "@/utils/textUtils";
 import { createPrintFooter, createPrintHeader, getPrintStyles } from "./printUtils";
 
 /**
@@ -58,14 +58,12 @@ export const createPrintContent = (trainees: Trainee[], isHindi: boolean) => {
           </span> 
           ${trainee.rank}
         </div>
-        ${trainee.toli_no ? `
         <div class="field">
           <span class="field-label ${isHindi ? 'font-mangal' : ''}">
             ${prepareTextForLanguage(isHindi ? "टोली नंबर" : "Toli No", isHindi)}:
           </span> 
-          ${trainee.toli_no}
+          ${trainee.toli_no} 
         </div>
-        ` : ''}
         <div class="field">
           <span class="field-label ${isHindi ? 'font-mangal' : ''}">
             ${prepareTextForLanguage(isHindi ? "पिता का नाम" : "Father's Name", isHindi)}:
