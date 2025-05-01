@@ -57,7 +57,7 @@ export function TraineeFilters({
           </Label>
           <Input
             id="pno"
-            placeholder={isHindi ? "पीएनओ दर्ज करें" : "Enter PNO"}
+            placeholder={isHindi ? "पीएनओ दर्ज करें (9 अंक)" : "Enter PNO (9-digit)"}
             value={pno}
             onChange={(e) => setPno(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -72,7 +72,7 @@ export function TraineeFilters({
           </Label>
           <Input
             id="chestNo"
-            placeholder={isHindi ? "चेस्ट नंबर दर्ज करें" : "Enter Chest No"}
+            placeholder={isHindi ? "चेस्ट नंबर दर्ज करें (4 अंक)" : "Enter Chest No (4-digit)"}
             value={chestNo}
             onChange={(e) => setChestNo(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -83,11 +83,11 @@ export function TraineeFilters({
         
         <div className="space-y-2">
           <Label htmlFor="rollNo" className={isHindi ? 'font-mangal' : ''}>
-            {isHindi ? "रोल नंबर / विशिष्ट आईडी" : "Roll No / Unique Id"}
+            {isHindi ? "रोल नंबर / विशिष्ट आईडी " : "Roll No / Unique Id"}
           </Label>
           <Input
             id="rollNo"
-            placeholder={isHindi ? "रोल नंबर दर्ज करें" : "Enter Roll No"}
+            placeholder={isHindi ? "रोल नंबर दर्ज करें (12 अंक)" : "Enter Roll No (12-digit)"}
             value={rollNo}
             onChange={(e) => setRollNo(e.target.value)}
             onKeyDown={handleKeyDown}

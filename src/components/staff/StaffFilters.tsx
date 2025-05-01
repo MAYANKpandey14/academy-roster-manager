@@ -63,6 +63,18 @@ export function StaffFilters({
             maxLength={9}
           />
         </div>
+        <div className="space-y-2">
+          <Label htmlFor="pno" className="dynamic-text">{isHindi ? "पीएनओ नंबर" : " Number"}</Label>
+          <Input
+            id="pno"
+            placeholder={isHindi ? "पीएनओ दर्ज करें (9 अंक)" : "Enter PNO (9-digit)"}
+            value={pno}
+            onChange={(e) => setPno(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={disabled}
+            maxLength={9}
+          />
+        </div>
       </div>
       
       <div className="flex flex-wrap justify-end gap-2">

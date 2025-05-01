@@ -140,8 +140,9 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
               id="pno"
               value={pno}
               onChange={(e) => setPno(e.target.value)}
-              placeholder={isHindi ? "पी.एन.ओ. दर्ज करें" : "Enter PNO"}
+              placeholder={isHindi ? "पी.एन.ओ. दर्ज करें (9 अंक)" : "Enter PNO (9-digit)"}
               className={isHindi ? "font-hindi" : ""}
+              maxLength={9}
             />
             <Button
               type="submit"
