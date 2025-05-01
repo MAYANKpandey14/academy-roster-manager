@@ -3,7 +3,7 @@
 export { prepareTextForLanguage } from '../textUtils';
 
 // Export print utilities
-export { getPrintStyles, createPrintHeader, createPrintFooter } from './printUtils';
+export { getPrintStyles, createPrintHeader, createPrintFooter, handlePrint } from './printUtils';
 
 // Export download utilities
 export { handleDownload } from './downloadUtils';
