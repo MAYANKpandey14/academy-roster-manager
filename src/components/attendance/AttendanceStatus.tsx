@@ -1,13 +1,11 @@
-
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
 
 interface AttendanceStatusProps {
-  status: 'absent' | 'on_leave' | 'present';
-  leaveType?: string;
+  status: 'absent' | 'present' | 'leave' | 'on_leave';
 }
 
-export function AttendanceStatus({ status, leaveType }: AttendanceStatusProps) {
+export function AttendanceStatus({ status }: AttendanceStatusProps) {
   const { isHindi } = useLanguage();
   
   if (status === 'absent') {
@@ -20,12 +18,11 @@ export function AttendanceStatus({ status, leaveType }: AttendanceStatusProps) {
     );
   }
   
-  if (status === 'on_leave') {
+  if (status === 'leave' || status === 'on_leave') {
     return (
       <Badge variant="outline" className="font-normal">
         <span className={isHindi ? "font-hindi" : ""}>
           {isHindi ? "छुट्टी पर" : "On Leave"}
-          {leaveType && ` (${leaveType})`}
         </span>
       </Badge>
     );

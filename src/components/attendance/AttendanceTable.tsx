@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format } from "date-fns";
@@ -14,14 +13,15 @@ import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 import { useFetchAttendance } from "./hooks/useFetchAttendance";
 import { AttendanceTableRow } from "./AttendanceTableRow";
+import { PersonData } from "./PersonSearch";
 
 interface AttendanceTableProps {
   personId: string;
   personType: "staff" | "trainee";
-  pno?: string;
+  personData?: PersonData;
 }
 
-export const AttendanceTable = ({ personId, personType, pno }: AttendanceTableProps) => {
+export const AttendanceTable = ({ personId, personType, personData }: AttendanceTableProps) => {
   const [month, setMonth] = useState(new Date());
   const { isHindi } = useLanguage();
   const { data: attendanceRecords, isLoading } = useFetchAttendance(personId, personType);
@@ -38,22 +38,55 @@ export const AttendanceTable = ({ personId, personType, pno }: AttendanceTablePr
         <head>
           <title>${isHindi ? 'उपस्थिति रिकॉर्ड' : 'Attendance Records'}</title>
           <style>
-            body { font-family: 'Space Grotesk', Arial, sans-serif; }
+            body { font-family: 'Space Grotesk', Arial, sans-serif; padding: 20px; }
             .font-mangal { font-family: 'Mangal', 'Arial Unicode MS', sans-serif; }
-            table { width: 100%; border-collapse: collapse; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
             th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
             th { background-color: #f2f2f2; }
+            .header-info { margin-bottom: 20px; }
+            .header-info h3 { margin: 5px 0; }
+            .print-button {
+              background-color: rgb(41, 100, 188);
+              color: white;
+              padding: 10px 20px;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+              margin: 20px 0;
+              font-size: 16px;
+            }
+            .print-button:hover {
+              background-color: rgb(56, 111, 193);
+            }
+            @media print {
+              .print-button {
+                display: none;
+              }
+              body {
+                padding: 0;
+              }
+            }
           </style>
         </head>
         <body>
-          <h2 class="${isHindi ? 'font-mangal' : ''}">${pno ? `${isHindi ? 'पी.एन.ओ: ' : 'PNO: '} ${pno}` : ''}</h2>
+          <div class="header-info">
+            <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'पी.एन.ओ: ' : 'PNO: '} ${personData?.pno || '-'}</h3>
+            <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'नाम: ' : 'Name: '} ${personData?.name || '-'}</h3>
+            ${personType === 'staff' ? `
+              <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'रैंक: ' : 'Rank: '} ${personData?.rank || '-'}</h3>
+            ` : `
+              <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'छाती संख्या: ' : 'Chest No: '} ${personData?.chest_no || '-'}</h3>
+            `}
+          </div>
           ${printContent}
+          <button class="print-button" onclick="window.print()">
+            ${isHindi ? 'प्रिंट करें' : 'Print PDF'}
+          </button>
         </body>
       </html>
     `);
     printWindow.document.close();
     printWindow.focus();
-    printWindow.print();
   };
 
   return (
@@ -106,7 +139,7 @@ export const AttendanceTable = ({ personId, personType, pno }: AttendanceTablePr
               </TableRow>
             ) : attendanceRecords && attendanceRecords.length > 0 ? (
               attendanceRecords.map((record) => (
-                <AttendanceTableRow key={record.id} record={record} />
+                <AttendanceTableRow key={record.id} record={record} />  
               ))
             ) : (
               <TableRow>

@@ -4,14 +4,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AttendanceTable } from "./AttendanceTable";
 import { LeaveHistoryTable } from "./components/LeaveHistoryTable";
 import { useLanguage } from "@/contexts/LanguageContext";
-
+import { PersonData } from "./PersonSearch";
 interface AttendanceTabsProps {
   personId: string;
   personType: "staff" | "trainee";
-  pno?: string;
+  pno?: string; 
+  personData?: PersonData;
 }
 
-export const AttendanceTabs = ({ personId, personType, pno }: AttendanceTabsProps) => {
+export const AttendanceTabs = ({ personId, personType, personData }: AttendanceTabsProps) => {
   const [activeTab, setActiveTab] = useState("attendance");
   const { isHindi } = useLanguage();
 
@@ -36,7 +37,7 @@ export const AttendanceTabs = ({ personId, personType, pno }: AttendanceTabsProp
           key={`attendance-${personId}`}
           personId={personId} 
           personType={personType}
-          pno={pno}
+          personData={personData}
         />
       </TabsContent>
       

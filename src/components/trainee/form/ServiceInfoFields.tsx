@@ -38,7 +38,7 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
               {isHindi ? 'चेस्ट नंबर' : 'Chest No'}
             </FormLabel>
             <FormControl>
-              <Input required {...field} />
+              <Input maxLength={4} required {...field} />
             </FormControl>
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
@@ -54,7 +54,7 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
               {isHindi ? "टोली नंबर" : "Toli No"}
             </FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input maxLength={4} required {...field} />
             </FormControl>
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>

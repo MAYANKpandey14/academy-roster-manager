@@ -70,3 +70,12 @@ export const formatDate = (date: string | Date): string => {
     return String(date);
   }
 };
+
+/**
+ * Shows an error message in the appropriate language
+ * @param message The error message to show
+ * @param isHindi Whether to show the message in Hindi
+ */
+export const showError = (message: string, isHindi: boolean = false): void => {
+  console.error(isHindi ? `त्रुटि: ${message}` : `Error: ${message}`);
+};

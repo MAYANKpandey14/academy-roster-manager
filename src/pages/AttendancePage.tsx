@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -63,7 +62,7 @@ export default function AttendancePage() {
                   <AttendanceTable 
                     personId={person.id} 
                     personType={personType} 
-                    pno={person.pno}
+                    personData={person}
                   />
                 </TabsContent>
                 

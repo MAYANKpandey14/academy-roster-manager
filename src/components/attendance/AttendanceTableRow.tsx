@@ -1,9 +1,15 @@
-
 import { format } from "date-fns";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { AttendanceStatus } from "./AttendanceStatus";
-import { type AttendanceRecord } from "./hooks/useFetchAttendance";
 import { useLanguage } from "@/contexts/LanguageContext";
+
+interface AttendanceRecord {
+  id: string;
+  date: string;
+  status: 'absent' | 'present' | 'leave' | 'on_leave';
+  reason?: string;
+  leave_type?: string;
+}
 
 interface AttendanceTableRowProps {
   record: AttendanceRecord;
@@ -12,13 +18,14 @@ interface AttendanceTableRowProps {
 export function AttendanceTableRow({ record }: AttendanceTableRowProps) {
   const { isHindi } = useLanguage();
   
-  // Handle date formatting for both single dates and ranges
+  // Format date to a readable format
   const formatDate = (dateString: string) => {
-    if (dateString.includes(" - ")) {
-      const [start, end] = dateString.split(" - ");
-      return `${format(new Date(start), "PP")} - ${format(new Date(end), "PP")}`;
+    try {
+      return format(new Date(dateString), "PP");
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString;
     }
-    return format(new Date(dateString), "PP");
   };
 
   return (
@@ -27,10 +34,7 @@ export function AttendanceTableRow({ record }: AttendanceTableRowProps) {
         {formatDate(record.date)}
       </TableCell>
       <TableCell>
-        <AttendanceStatus 
-          status={record.status as 'absent' | 'on_leave' | 'present'} 
-          leaveType={record.leave_type} 
-        />
+        <AttendanceStatus status={record.status} />
       </TableCell>
       <TableCell className={isHindi ? "font-hindi" : ""}>
         {record.reason || "-"}

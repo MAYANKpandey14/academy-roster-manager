@@ -1,60 +1,95 @@
-
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { showError } from "@/utils/textUtils";
-import { useLanguage } from "@/contexts/LanguageContext";
 
-// Use more specific types to avoid infinite type instantiation
-type AttendanceStatus = 'present' | 'absent' | 'leave';
-type AttendanceData = {
+interface DatabaseAbsence {
   id: string;
   date: string;
-  status: AttendanceStatus;
-  [key: string]: any; // Use any for additional properties to avoid deep type instantiation
+  status: string;
+  trainee_id: string;
+  staff_id: string;
+  reason?: string;
 }
 
-export const useFetchAttendance = (personId: string, personType: 'trainee' | 'staff', date: Date) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [status, setStatus] = useState<AttendanceStatus | null>(null);
-  const { isHindi } = useLanguage();
+interface DatabaseLeave {
+  id: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  leave_type: string;
+  trainee_id: string;
+  staff_id: string;
+}
 
-  useEffect(() => {
-    const fetchAttendanceStatus = async () => {
-      if (!personId) return;
+export interface AttendanceRecord {
+  id: string;
+  date: string;
+  status: 'absent' | 'present' | 'leave' | 'on_leave';
+  leave_type?: string;
+  reason?: string;
+}
+
+export const useFetchAttendance = (personId?: string, personType: "staff" | "trainee" = "trainee") => {
+  return useQuery<AttendanceRecord[], Error>({
+    queryKey: ['attendance', personId, personType],
+    enabled: !!personId,
+    queryFn: async () => {
+      if (!personId) return [];
       
-      setIsLoading(true);
+      // Get table names based on person type
+      const absenceTable = personType === 'trainee' ? 'trainee_attendance' : 'staff_attendance';
+      const absenceIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
+      
+      const leaveTable = personType === 'trainee' ? 'trainee_leave' : 'staff_leave';
+      const leaveIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
+
       try {
-        const tableName = `${personType}_attendance`;
-        const { data, error } = await supabase.from(tableName)
+        // Fetch absence data
+        // @ts-ignore - Type instantiation is excessively deep due to Supabase's complex type system
+        const { data: absenceData, error: absenceError } = await supabase
+          .from(absenceTable)
           .select('*')
-          .eq(`${personType}_id`, personId)
-          .eq('date', date.toISOString().split('T')[0])
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single();
+          .eq(absenceIdField, personId);
+        
+        if (absenceError) throw absenceError;
+        const absences = (absenceData as unknown as DatabaseAbsence[]) || [];
+        
+        // Fetch leave data
+        // @ts-ignore - Type instantiation is excessively deep due to Supabase's complex type system
+        const { data: leaveData, error: leaveError } = await supabase
+          .from(leaveTable)
+          .select('*')
+          .eq(leaveIdField, personId);
+        
+        if (leaveError) throw leaveError;
+        const leaves = (leaveData as unknown as DatabaseLeave[]) || [];
 
-        if (error && error.code !== 'PGRST116') {
-          throw error;
-        }
+        const formattedAbsences = absences.map((item) => ({
+          id: `absence-${item.id}`,
+          date: item.date,
+          status: 'absent' as const,
+          reason: item.status
+        }));
 
-        if (data) {
-          setStatus(data.status as AttendanceStatus);
-        } else {
-          setStatus(null);
-        }
+        // Format leaves
+        const formattedLeaves = leaves.map((item) => ({
+          id: `leave-${item.id}`,
+          date: `${item.start_date} - ${item.end_date}`,
+          status: 'on_leave' as const,
+          reason: item.reason,
+          leave_type: item.leave_type
+        }));
+
+        // Combine and sort by date (most recent first)
+        return [...formattedAbsences, ...formattedLeaves].sort((a, b) => {
+          // Extract the first date in case of range
+          const dateA = a.date.split(' - ')[0];
+          const dateB = b.date.split(' - ')[0];
+          return new Date(dateB).getTime() - new Date(dateA).getTime();
+        });
       } catch (error) {
-        console.error(`Error fetching ${personType} attendance:`, error);
-        showError(isHindi
-          ? `उपस्थिति डेटा लाने में त्रुटि`
-          : `Error fetching attendance data`
-        );
-      } finally {
-        setIsLoading(false);
+        console.error("Error fetching attendance records:", error);
+        throw error;
       }
-    };
-
-    fetchAttendanceStatus();
-  }, [personId, personType, date, isHindi]);
-
-  return { isLoading, status };
+    }
+  });
 };

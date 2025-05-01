@@ -22,6 +22,9 @@ const ViewTrainee = () => {
   // Apply language inputs hook
   useLanguageInputs();
 
+  // Initialize print service with null trainee
+  const { handlePrintTrainee, handleDownloadTrainee } = useTraineePrintService(trainee);
+
   useEffect(() => {
     const fetchTrainee = async () => {
       try {
@@ -60,8 +63,6 @@ const ViewTrainee = () => {
   if (!trainee) {
     return <TraineeNotFound />;
   }
-
-  const { handlePrintTrainee, handleDownloadTrainee } = useTraineePrintService(trainee);
 
   return (
     <div className="min-h-screen bg-gray-50">
