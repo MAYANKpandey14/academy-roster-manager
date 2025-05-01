@@ -48,22 +48,22 @@ export const getPrintStyles = (isHindi: boolean): string => {
     .hindi-text, .font-mangal { 
       font-family: 'Mangal', 'Arial Unicode MS', sans-serif; 
     }
-    h1 { text-align: left; margin-bottom: 5px; }
-    h2 { text-align: left; margin-top: 5px; margin-bottom: 30px; }
+    h1 { text-align: center; margin-bottom: 5px; }
+    h3 { text-align: center; margin-top: 5px; margin-bottom: 20px; }
     .trainee-info { 
       border: 1px solid #ddd; 
-      padding: 20px; 
-      margin-bottom: 30px; 
+      padding: 16px; 
+      margin-bottom: 20px; 
       page-break-inside: avoid;
     }
     .trainee-info:not(:last-child) {
       page-break-after: always;
     }
-    .field { margin-bottom: 15px; }
+    .field { margin-bottom: 10px; }
     .field-label { font-weight: bold; }
     .footer { 
-      text-align: left; 
-      margin-top: 30px; 
+      text-align: center; 
+      margin-top: 20px; 
       font-size: 12px;
       page-break-inside: avoid;
     }
@@ -99,7 +99,7 @@ export const createPrintFooter = (isHindi: boolean = false): string => {
   return `
         <div class="footer">
           <p class="${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage("This document was generated on", isHindi)}
+            ${prepareTextForLanguage("Printed on", isHindi)}
             ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
           </p>
         </div>

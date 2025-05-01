@@ -13,18 +13,18 @@ export const createStaffPrintContent = (staff: Staff[], isHindi: boolean) => {
         <style>
           body { font-family: 'Space Grotesk', Arial, sans-serif; padding: 20px; }
           .font-hindi { font-family: 'Mangal', 'Arial Unicode MS', sans-serif; }
-          h1 { text-align: center; margin-bottom: 30px; }
-          .staff-info { border: 1px solid #ddd; padding: 20px; margin-bottom: 30px; }
-          .field { margin-bottom: 15px; }
+          h1 { text-align: center; margin-bottom: 20px; }
+          .staff-info { border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; }
+          .field { margin-bottom: 12px; }
           .field-label { font-weight: bold; }
-          .header { text-align: center; margin-bottom: 30px; }
+          .header { text-align: center; margin-bottom: 20px; }
           .header h1 { margin-bottom: 5px; }
           .header p { margin-top: 0; }
         </style>
       </head>
       <body>
         <div class="header">
-          <h1${hindiClass}>${isHindi ? "रिज़ल्ट केंद्र ट्रेनिंग सेंटर, मोरादाबाद" : "RTC Training Center, Moradabad"}</h1>
+          <h1${hindiClass}>${isHindi ? "आरटीसी पुलिस लाइन, मुरादाबाद" : "RTC Training Center, Moradabad"}</h1>
           <p${hindiClass}>${isHindi ? "स्टाफ विवरण" : "Staff Information"}</p>
         </div>
         ${staff.map(person => `

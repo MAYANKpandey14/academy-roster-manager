@@ -58,7 +58,7 @@ const Welcome = () => {
                     filter: "drop-shadow(0.5rem .75rem .75rem rgba(0, 0, 0, 1))",
                 }} />
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-black m-2">
-                    {isHindi ? "आरटीसी पुलिस लाइन, मुरादाबाद" : "RTC Police Line, Moradabad"}
+                    {isHindi ? "आरटीसी पुलिस लाइन, मुरादाबाद" : "RTC POLICE LINE, MORADABAD"}
                 </h1>
                 <button
                     onClick={handleNext}

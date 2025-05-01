@@ -11,7 +11,7 @@ import { createPrintFooter, createPrintHeader, getPrintStyles } from "./printUti
  */
 export const createPrintContent = (trainees: Trainee[], isHindi: boolean) => {
   // Get common print styles
-  const styles = getPrintStyles(isHindi ? 'hi' : 'en');
+  const styles = getPrintStyles(isHindi);
   
   // Generate the HTML header
   const title = isHindi ? "आरटीसी प्रशिक्षु जानकारी" : "RTC Trainee Information";
@@ -22,9 +22,9 @@ export const createPrintContent = (trainees: Trainee[], isHindi: boolean) => {
     <h1 class="${isHindi ? 'font-mangal' : ''}">
       ${prepareTextForLanguage(isHindi ? "आरटीसी पुलिस लाइन, मुरादाबाद" : "RTC POLICE LINE, MORADABAD", isHindi)}
     </h1>
-    <h2 class="${isHindi ? 'font-mangal' : ''}">
+    <h3 class="${isHindi ? 'font-mangal' : ''}">
       ${prepareTextForLanguage(isHindi ? "प्रशिक्षु जानकारी" : "TRAINEE INFORMATION", isHindi)}
-    </h2>
+    </h3>
   `;
   
   // Process each trainee
@@ -83,7 +83,7 @@ export const createPrintContent = (trainees: Trainee[], isHindi: boolean) => {
         </div>
         <div class="field">
           <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "वर्तमान पदस्थापना" : "Current Posting", isHindi)}:
+            ${prepareTextForLanguage(isHindi ? "वर्तमान नियुक्ति" : "Current Posting", isHindi)}:
           </span> 
           <span class="${isHindi ? 'font-mangal' : ''}">
             ${prepareTextForLanguage(trainee.current_posting_district, isHindi)}
@@ -111,7 +111,7 @@ export const createPrintContent = (trainees: Trainee[], isHindi: boolean) => {
         </div>
         <div class="field">
           <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "नामांकित व्यक्ति" : "Nominee", isHindi)}:
+            ${prepareTextForLanguage(isHindi ? "नॉमिनी " : "Nominee", isHindi)}:
           </span> 
           <span class="${isHindi ? 'font-mangal' : ''}">
             ${prepareTextForLanguage(trainee.nominee, isHindi)}

@@ -30,7 +30,7 @@ export function useTraineePrintService(trainee: Trainee) {
       mobile: isHindi ? "मोबाइल" : "Mobile",
       education: isHindi ? "शिक्षा" : "Education",
       bloodGroup: isHindi ? "रक्त समूह" : "Blood Group",
-      nominee: isHindi ? "नामांकित" : "Nominee",
+      nominee: isHindi ? "नॉमिनी " : "Nominee",
       homeAddress: isHindi ? "घर का पता" : "Home Address",
       documentGenerated: isHindi ? "यह दस्तावेज़ बनाया गया था" : "This document was generated on"
     };
