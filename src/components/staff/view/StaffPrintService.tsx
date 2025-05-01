@@ -1,6 +1,7 @@
 
 import { Staff } from "@/types/staff";
-import { createStaffPrintContent, createStaffCSVContent, handlePrint, handleDownload } from "@/utils/staffExportUtils";
+import { createStaffPrintContent, createStaffCSVContent } from "@/utils/staffExportUtils";
+import { handlePrint, handleDownload } from "@/utils/export";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -14,7 +15,7 @@ export function useStaffPrintService(staff: Staff) {
   const currentLanguage = isHindi ? 'hi' : 'en';
 
   const handlePrintStaff = () => {
-    const printContent = createStaffPrintContent([staff], currentLanguage);
+    const printContent = createStaffPrintContent([staff], isHindi);
     const printSuccess = handlePrint(printContent);
     
     if (!printSuccess) {
@@ -25,7 +26,7 @@ export function useStaffPrintService(staff: Staff) {
   };
 
   const handleDownloadStaff = () => {
-    const csvContent = createStaffCSVContent([staff], currentLanguage);
+    const csvContent = createStaffCSVContent([staff], isHindi);
     handleDownload(
       csvContent, 
       `staff_${staff.pno}_${staff.name.replace(/\s+/g, '_')}.csv`

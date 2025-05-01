@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { TraineeTable } from "@/components/trainee/TraineeTable";
 import { TraineeFilters } from "@/components/trainee/TraineeFilters";
-import { Trainee, BloodGroup } from "@/types/trainee";
+import { Trainee, BloodGroup, TraineeRank } from "@/types/trainee";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -30,7 +30,8 @@ const TraineesPage = () => {
       // Convert the data to ensure it matches the Trainee type
       const typedTrainees: Trainee[] = data?.map(item => ({
         ...item,
-        blood_group: item.blood_group as BloodGroup
+        blood_group: item.blood_group as BloodGroup,
+        rank: (item.rank || 'CONST') as TraineeRank // Cast and provide default if needed
       })) || [];
       
       setTrainees(typedTrainees);
@@ -58,7 +59,8 @@ const TraineesPage = () => {
       // Convert the data to ensure it matches the Trainee type
       const typedTrainees: Trainee[] = data?.map(item => ({
         ...item,
-        blood_group: item.blood_group as BloodGroup
+        blood_group: item.blood_group as BloodGroup,
+        rank: (item.rank || 'CONST') as TraineeRank // Cast and provide default
       })) || [];
       
       setTrainees(typedTrainees);

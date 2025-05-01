@@ -1,9 +1,11 @@
+
 import { Button } from "@/components/ui/button";
 import { Download, Printer, RefreshCw } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Trainee } from "@/types/trainee";
 import { toast } from "sonner";
-import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/export";
+import { createPrintContent, createCSVContent } from "@/utils/export";
+import { handlePrint, handleDownload } from "@/utils/export";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TraineeTableActionsProps {

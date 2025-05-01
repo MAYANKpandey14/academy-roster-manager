@@ -1,5 +1,7 @@
+
 import { Trainee } from "@/types/trainee";
-import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/export";
+import { createPrintContent, createCSVContent } from "@/utils/export";
+import { handlePrint, handleDownload } from "@/utils/export";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 

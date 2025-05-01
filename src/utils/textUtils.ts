@@ -1,81 +1,46 @@
-/**
- * Utility functions for handling text and language-specific operations
- */
 
 /**
- * Ensures text is properly encoded in UTF-8
- * @param text The text to ensure proper encoding
- * @returns The properly encoded text
+ * Prepares text for multilingual display
+ * @param text The text to display
+ * @param isHindi Whether to display in Hindi mode
+ * @returns The text with appropriate class name
  */
-export const ensureUtf8Encoding = (text: string | null | undefined): string => {
-  if (!text) return '';
-  
-  try {
-    return decodeURIComponent(escape(text));
-  } catch (e) {
-    console.warn('Error decoding text:', e);
+export function prepareTextForLanguage(text: string, isHindi: boolean) {
+  if (isHindi) {
     return text;
   }
-};
+  return text;
+}
 
 /**
- * Prepares text content for display based on the current language
- * @param text The text to prepare
- * @param isHindi Whether the current language is Hindi
- * @returns The prepared text
+ * Shows an error message with appropriate language handling
+ * @param error The error object or message to display
+ * @param isHindi Whether to display in Hindi mode
+ * @returns The formatted error message
  */
-export const prepareTextForLanguage = (text: string | null | undefined, isHindi: boolean): string => {
-  if (!text) return '';
-  return ensureUtf8Encoding(text);
-};
+export function showError(error: unknown, isHindi: boolean): string {
+  if (error instanceof Error) {
+    return isHindi ? `त्रुटि: ${error.message}` : `Error: ${error.message}`;
+  }
+  
+  if (typeof error === 'string') {
+    return isHindi ? `त्रुटि: ${error}` : `Error: ${error}`;
+  }
+  
+  return isHindi ? "एक अज्ञात त्रुटि हुई" : "An unknown error occurred";
+}
 
 /**
- * Determines if text contains Hindi characters
- * @param text The text to check
- * @returns Boolean indicating if text contains Hindi characters
- */
-export const isHindiText = (text: string | null | undefined): boolean => {
-  if (!text) return false;
-  const hindiPattern = /[\u0900-\u097F]/;
-  return hindiPattern.test(text);
-};
-
-/**
- * Gets the appropriate font class for Hindi text
- * @param isHindi Whether the current language is Hindi
- * @returns The appropriate font class name
- */
-export const getHindiFontClass = (isHindi: boolean): string => {
-  return isHindi ? 'font-mangal' : '';
-};
-
-/**
- * Formats a date value for display
- * Dates are always displayed in English format
- * @param date The date to format
+ * Utility function to format dates consistently across the app
+ * @param dateString Date string to format
  * @returns Formatted date string
  */
-export const formatDate = (date: string | Date): string => {
-  if (!date) return 'N/A';
-  
+export function formatDate(dateString: string): string {
+  if (!dateString) return '';
   try {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    return dateObj.toLocaleDateString('en-US', {
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric'
-    });
-  } catch (e) {
-    console.warn('Error formatting date:', e);
-    return String(date);
+    return new Date(dateString).toLocaleDateString();
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return dateString;
   }
-};
-
-/**
- * Shows an error message in the appropriate language
- * @param message The error message to show
- * @param isHindi Whether to show the message in Hindi
- */
-export const showError = (message: string, isHindi: boolean = false): void => {
-  console.error(isHindi ? `त्रुटि: ${message}` : `Error: ${message}`);
-};
+}

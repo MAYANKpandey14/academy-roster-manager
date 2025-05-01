@@ -10,7 +10,9 @@ import { useNavigate } from "react-router-dom";
 import { getTrainees, filterTrainees } from "@/services/api";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { createPrintContent, createCSVContent, handlePrint, handleDownload } from "@/utils/export";
+import { createPrintContent, createCSVContent } from "@/utils/export";
+import { handlePrint, handleDownload } from "@/utils/export";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -18,6 +20,7 @@ const Index = () => {
   const [trainees, setTrainees] = useState<Trainee[]>([]);
   const [filteredTrainees, setFilteredTrainees] = useState<Trainee[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { isHindi } = useLanguage();
 
   useEffect(() => {
     fetchTrainees();
@@ -89,7 +92,7 @@ const Index = () => {
       toast.error("No trainees to print");
       return;
     }
-    const content = createPrintContent(filteredTrainees);
+    const content = createPrintContent(filteredTrainees, isHindi);
     handlePrint(content);
     toast.success(`Printing ${filteredTrainees.length} trainees`);
   };
@@ -99,7 +102,7 @@ const Index = () => {
       toast.error("No trainees to download");
       return;
     }
-    const content = createCSVContent(filteredTrainees);
+    const content = createCSVContent(filteredTrainees, isHindi);
     handleDownload(content, `trainees_export_${new Date().toISOString().split('T')[0]}.csv`);
     toast.success(`CSV file with ${filteredTrainees.length} trainees downloaded successfully`);
   };
