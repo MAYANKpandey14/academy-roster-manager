@@ -1,6 +1,9 @@
+
 /**
  * Utility functions for handling text and language-specific operations
  */
+
+import { toast } from "sonner";
 
 /**
  * Ensures text is properly encoded in UTF-8
@@ -69,4 +72,20 @@ export const formatDate = (date: string | Date): string => {
     console.warn('Error formatting date:', e);
     return String(date);
   }
+};
+
+/**
+ * Shows an error message using toast
+ * @param message The error message to display
+ */
+export const showError = (message: string): void => {
+  toast.error(message);
+};
+
+/**
+ * Shows a success message using toast
+ * @param message The success message to display
+ */
+export const showSuccess = (message: string): void => {
+  toast.success(message);
 };
