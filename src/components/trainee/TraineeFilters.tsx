@@ -83,7 +83,7 @@ export function TraineeFilters({
         
         <div className="space-y-2">
           <Label htmlFor="rollNo" className={isHindi ? 'font-mangal' : ''}>
-            {isHindi ? "रोल नंबर / विशिष्ट आईडी " : "Roll No / Unique Id"}
+            {isHindi ? "रोल नंबर / यूनिक आईडी " : "Roll No / Unique Id"}
           </Label>
           <Input
             id="rollNo"

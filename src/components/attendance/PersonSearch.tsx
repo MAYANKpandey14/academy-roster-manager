@@ -133,14 +133,14 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
 
         <div className="space-y-2">
           <Label htmlFor="pno" className={isHindi ? "font-hindi" : ""}>
-            {isHindi ? "पी.एन.ओ. संख्या" : "PNO Number"}
+            {isHindi ? "पीएनओ नंबर" : "PNO Number"}
           </Label>
           <div className="flex space-x-2">
             <Input
               id="pno"
               value={pno}
               onChange={(e) => setPno(e.target.value)}
-              placeholder={isHindi ? "पी.एन.ओ. दर्ज करें (9 अंक)" : "Enter PNO (9-digit)"}
+              placeholder={isHindi ? "पीएनओ दर्ज करें (9 अंक)" : "Enter PNO (9-digit)"}
               className={isHindi ? "font-hindi" : ""}
               maxLength={9}
             />
