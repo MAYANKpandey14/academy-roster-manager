@@ -1,9 +1,9 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
-import { TraineeFormValues } from "../TraineeFormSchema";
+import { TraineeFormValues, traineeRanks } from "@/components/trainee/TraineeFormSchema";
 import { useLanguage } from "@/contexts/LanguageContext";
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 interface ServiceInfoFieldsProps {
   form: UseFormReturn<TraineeFormValues>;
 }
@@ -44,6 +44,51 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
           </FormItem>
         )}
       />
+
+      <FormField
+        control={form.control}
+        name="toli_no"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? "टोली नंबर" : "Toli No"}
+            </FormLabel>
+            <FormControl>
+              <Input {...field} />
+            </FormControl>
+            <FormMessage className={isHindi ? 'font-hindi' : ''} />
+          </FormItem>
+        )}
+      />
+
+
+      <FormField
+        control={form.control}
+        name="rank"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? "रैंक" : "Rank"}
+            </FormLabel>
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder={isHindi ? "रैंक चुनें" : "Select rank"} />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {traineeRanks.map((rank) => (
+                  <SelectItem key={rank} value={rank}>
+                    {rank}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage className={isHindi ? 'font-hindi' : ''} />
+          </FormItem>
+        )}
+      />
+
 
       <FormField
         control={form.control}

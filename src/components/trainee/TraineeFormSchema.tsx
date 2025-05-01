@@ -1,8 +1,8 @@
-
 import { z } from "zod";
-import { BloodGroup } from "@/types/trainee";
+import { BloodGroup, TraineeRank } from "@/types/trainee";
 
 export const bloodGroups: BloodGroup[] = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
+export const traineeRanks: TraineeRank[] = ["R/CONST", "CONST", "CONST/PTI", "HC/CP", "HC/AP", "HC-ITI", "HC-PTI", "SI/AP", "SI/CP", "RI", "RSI", "Inspector"];
 
 // Helper function to validate date string format (YYYY-MM-DD)
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -12,6 +12,9 @@ export const traineeFormSchema = z.object({
   chest_no: z.string().min(1, "Chest No is required"),
   name: z.string().min(1, "Name is required"),
   father_name: z.string().min(1, "Father's Name is required"),
+  rank: z.enum(traineeRanks as [TraineeRank, ...TraineeRank[]], {
+    required_error: "Rank is required",
+  }),
   arrival_date: z.string().regex(dateRegex, "Date must be in YYYY-MM-DD format"),
   departure_date: z.string().regex(dateRegex, "Date must be in YYYY-MM-DD format"),
   current_posting_district: z.string().min(1, "Current Posting District is required"),

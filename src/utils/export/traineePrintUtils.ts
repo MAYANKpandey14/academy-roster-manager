@@ -111,7 +111,7 @@ export const createPrintContent = (trainees: Trainee[], isHindi: boolean) => {
         </div>
         <div class="field">
           <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "नॉमिनी " : "Nominee", isHindi)}:
+            ${prepareTextForLanguage(isHindi ? "नौमिनी " : "Nominee", isHindi)}:
           </span> 
           <span class="${isHindi ? 'font-mangal' : ''}">
             ${prepareTextForLanguage(trainee.nominee, isHindi)}

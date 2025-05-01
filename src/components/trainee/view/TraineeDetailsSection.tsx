@@ -15,11 +15,11 @@ export function TraineeDetailsSection({ trainee }: TraineeDetailsSectionProps) {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="space-y-4">
         <TraineeInfoField 
-          label={isHindi ? "पीएनओ" : "PNO"} 
+          label={isHindi ? "पीएनओ नंबर" : "PNO Number"} 
           value={trainee.pno} 
         />
         <TraineeInfoField 
-          label={isHindi ? "छाती संख्या" : "Chest No"} 
+          label={isHindi ? "चेस्ट नंबर" : "Chest No"} 
           value={trainee.chest_no} 
         />
         <TraineeInfoField 
@@ -54,7 +54,7 @@ export function TraineeDetailsSection({ trainee }: TraineeDetailsSectionProps) {
           value={trainee.blood_group} 
         />
         <TraineeInfoField 
-          label={isHindi ? "नामिती" : "Nominee"} 
+          label={isHindi ? "नौमिनी" : "Nominee"} 
           value={trainee.nominee}
           isMultilingual
         />

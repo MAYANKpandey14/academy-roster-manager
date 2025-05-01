@@ -43,6 +43,9 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
       blood_group: "A+",
       nominee: "",
       home_address: "",
+      toli_no: "",
+      class_no: "",
+      class_subject: "",
     },
   });
 
@@ -238,7 +241,7 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             render={({ field }) => (
               <FormItem>
                 <FormLabel className={isHindi ? 'font-hindi' : ''}>
-                  {isHindi ? "नामांकित" : "Nominee"}
+                  {isHindi ? "नौमिनी" : "Nominee"}
                 </FormLabel>
                 <FormControl>
                   <Input {...field} />

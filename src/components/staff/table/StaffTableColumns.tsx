@@ -65,7 +65,7 @@ export const getStaffColumns = (
       cell: ({ row }) => {
         const value = row.getValue("name") as string;
         return <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-          {prepareTextForLanguage(value, isHindi ? 'hi' : 'en')}
+          {prepareTextForLanguage(value, isHindi)}
         </span>;
       }
     },
@@ -103,7 +103,7 @@ export const getStaffColumns = (
       cell: ({ row }) => {
         const value = row.getValue("current_posting_district") as string;
         return <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-          {prepareTextForLanguage(value, isHindi ? 'hi' : 'en')}
+          {prepareTextForLanguage(value, isHindi)}
         </span>;
       }
     },

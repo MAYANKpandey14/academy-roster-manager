@@ -17,7 +17,7 @@ export function StaffDetailsSection({ staff }: StaffDetailsSectionProps) {
           {isHindi ? "व्यक्तिगत जानकारी" : "Personal Information"}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <StaffInfoField label={isHindi ? "पीएनओ" : "PNO"} value={staff.pno} />
+          <StaffInfoField label={isHindi ? "पीएनओ नंबर" : "PNO Number"} value={staff.pno} />
           <StaffInfoField label={isHindi ? "नाम" : "Name"} value={staff.name} isMultilingual={true} />
           <StaffInfoField label={isHindi ? "बाप का नाम" : "Father's Name"} value={staff.father_name} isMultilingual={true} />
           <StaffInfoField label={isHindi ? "रैंक" : "Rank"} value={staff.rank} />
@@ -29,7 +29,7 @@ export function StaffDetailsSection({ staff }: StaffDetailsSectionProps) {
           />
           <StaffInfoField label={isHindi ? "शिक्षा" : "Education"} value={staff.education} isMultilingual={true} />
           <StaffInfoField label={isHindi ? "रक्त समूह" : "Blood Group"} value={staff.blood_group} />
-          <StaffInfoField label={isHindi ? "नामांकित" : "Nominee"} value={staff.nominee} isMultilingual={true} />
+          <StaffInfoField label={isHindi ? "नौमिनी" : "Nominee"} value={staff.nominee} isMultilingual={true} />
         </div>
       </div>
 

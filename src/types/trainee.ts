@@ -1,5 +1,5 @@
-
 export type BloodGroup = "A+" | "A-" | "B+" | "B-" | "O+" | "O-" | "AB+" | "AB-";
+export type TraineeRank = "R/CONST" | "CONST" | "CONST/PTI" | "HC/CP" | "HC/AP" | "HC-ITI" | "HC-PTI" | "SI/AP" | "SI/CP" | "RI" | "RSI" | "Inspector";
 
 export interface Trainee {
   id: string;
@@ -7,6 +7,7 @@ export interface Trainee {
   chest_no: string;
   name: string;
   father_name: string;
+  rank: TraineeRank;
   arrival_date: string;
   departure_date: string;
   current_posting_district: string;
