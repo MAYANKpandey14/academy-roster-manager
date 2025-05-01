@@ -58,7 +58,7 @@ export function PersonalInfoFields({ form }: PersonalInfoFieldsProps) {
             <Select onValueChange={field.onChange} defaultValue={field.value} required>
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder={isHindi ? 'रक्त समूह चुनें' : 'Select Blood Group'} />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
