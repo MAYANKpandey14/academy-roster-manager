@@ -33,6 +33,16 @@ export function TraineeDetailsSection({ trainee }: TraineeDetailsSectionProps) {
           isMultilingual
         />
         <TraineeInfoField 
+          label={isHindi ? "रैंक" : "Rank"} 
+          value={trainee.rank} 
+        />
+        {trainee.toli_no && (
+          <TraineeInfoField 
+            label={isHindi ? "टोली नंबर" : "Toli No"} 
+            value={trainee.toli_no} 
+          />
+        )}
+        <TraineeInfoField 
           label={isHindi ? "वर्तमान पोस्टिंग जिला" : "Current Posting District"} 
           value={trainee.current_posting_district}
           isMultilingual

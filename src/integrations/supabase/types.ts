@@ -269,6 +269,7 @@ export type Database = {
           name: string
           nominee: string
           pno: string
+          rank: string
           toli_no: string | null
           updated_at: string | null
         }
@@ -289,6 +290,7 @@ export type Database = {
           name: string
           nominee: string
           pno: string
+          rank?: string
           toli_no?: string | null
           updated_at?: string | null
         }
@@ -309,6 +311,7 @@ export type Database = {
           name?: string
           nominee?: string
           pno?: string
+          rank?: string
           toli_no?: string | null
           updated_at?: string | null
         }
