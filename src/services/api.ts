@@ -80,7 +80,7 @@ export async function addTrainee(traineeData: TraineeFormValues): Promise<{ data
 export async function updateTrainee(id: string, traineeData: TraineeFormValues): Promise<{ data: Trainee | null; error: Error | null }> {
   try {
     console.log("Updating trainee with id:", id);
-    console.log("Update data:", JSON.stringify(traineeData));
+    console.log("Update data:", traineeData);
     
     // Get the current session
     const { data: { session } } = await supabase.auth.getSession();
@@ -91,9 +91,6 @@ export async function updateTrainee(id: string, traineeData: TraineeFormValues):
     
     const { data, error } = await supabase.functions.invoke('update-trainee', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-      },
       body: { id, ...traineeData }
     });
     

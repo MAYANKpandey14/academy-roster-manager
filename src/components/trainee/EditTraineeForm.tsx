@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -50,7 +51,7 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
     name: trainee.name,
     father_name: trainee.father_name,
     rank: trainee.rank,
-    toli_no: trainee.toli_no,
+    toli_no: trainee.toli_no || '',
     arrival_date: formatDateForInput(trainee.arrival_date),
     departure_date: formatDateForInput(trainee.departure_date),
     current_posting_district: trainee.current_posting_district,
@@ -75,9 +76,8 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
     console.log("Form data to submit:", data);
     
     try {
-      // Ensure all dates are in the correct format YYYY-MM-DD
-      // No need to create Date objects here as that causes timezone issues
-      
+      // We don't need to create Date objects here as that causes timezone issues
+      // Send the data as it is since the backend will handle it
       console.log("Transformed form data:", data);
 
       // Call the API to update the trainee

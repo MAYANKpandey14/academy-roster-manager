@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.21.0';
 
@@ -36,30 +37,36 @@ serve(async (req) => {
     );
 
     // Get the request body
-    let body;
-    const contentType = req.headers.get('content-type') || '';
+    let requestData = null;
     
-    if (contentType.includes('application/json')) {
-      body = await req.json();
-    } else {
-      const text = await req.text();
-      try {
-        body = JSON.parse(text);
-      } catch (e) {
-        console.error("Failed to parse request body:", e);
-        console.log("Raw request body:", text);
-        throw new Error("Invalid JSON in request body");
-      }
+    try {
+      requestData = await req.json();
+    } catch (error) {
+      console.error("Failed to parse JSON body:", error);
+      return new Response(
+        JSON.stringify({ error: "Invalid JSON body" }),
+        { status: 400, headers: corsHeaders }
+      );
+    }
+    
+    if (!requestData) {
+      return new Response(
+        JSON.stringify({ error: "No request data provided" }),
+        { status: 400, headers: corsHeaders }
+      );
     }
 
-    const { id, ...updateData } = body;
+    const { id, ...updateData } = requestData;
     
     if (!id) {
-      throw new Error("Trainee ID is required");
+      return new Response(
+        JSON.stringify({ error: "Trainee ID is required" }),
+        { status: 400, headers: corsHeaders }
+      );
     }
     
     console.log(`Updating trainee with ID: ${id}`);
-    console.log("Update data:", updateData);
+    console.log("Update data:", JSON.stringify(updateData));
 
     // Update the trainee
     const { data, error } = await supabaseClient
@@ -71,7 +78,10 @@ serve(async (req) => {
 
     if (error) {
       console.error("Database error:", error);
-      throw error;
+      return new Response(
+        JSON.stringify({ error: error.message }),
+        { status: 400, headers: corsHeaders }
+      );
     }
     
     console.log("Trainee updated successfully:", data);
@@ -85,7 +95,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ error: error.message || "An unknown error occurred" }),
       { 
-        status: error.message.includes('authorization') ? 401 : 400, 
+        status: error.message?.includes('authorization') ? 401 : 400, 
         headers: corsHeaders
       }
     );
