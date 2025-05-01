@@ -39,7 +39,7 @@ export function DateFields({ form }: DateFieldsProps) {
         render={({ field }) => (
           <FormItem>
             <FormLabel className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? 'जॉइनिंग की तिथि' : 'Date of Joining'}
+              {isHindi ? 'भर्ती तिथि' : 'Date of Joining'}
             </FormLabel>
             <FormControl>
               <Input 
@@ -59,7 +59,7 @@ export function DateFields({ form }: DateFieldsProps) {
         render={({ field }) => (
           <FormItem>
             <FormLabel className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? 'आगमन की तिथि' : 'Date of Arrival'}
+              {isHindi ? 'आगमन तिथि' : 'Date of Arrival'}
             </FormLabel>
             <FormControl>
               <Input 
@@ -79,7 +79,7 @@ export function DateFields({ form }: DateFieldsProps) {
         render={({ field }) => (
           <FormItem>
             <FormLabel className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? 'प्रस्थान की तिथि' : 'Date of Departure'}
+              {isHindi ? 'प्रस्थान तिथि' : 'Date of Departure'}
             </FormLabel>
             <FormControl>
               <Input 

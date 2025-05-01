@@ -34,13 +34,13 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
       pno: "",
       name: "",
       father_name: "",
-      rank: "Instructor",
+      rank: undefined,
       current_posting_district: "",
       mobile_number: "",
       education: "",
       date_of_birth: "",
       date_of_joining: "",
-      blood_group: "A+",
+      blood_group: undefined,
       nominee: "",
       home_address: "",
       toli_no: "",
@@ -109,7 +109,7 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
                 <FormLabel className={isHindi ? 'font-hindi' : ''}>
                   {isHindi ? "रैंक" : "Rank"}
                 </FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder={isHindi ? "रैंक चुनें" : "Select rank"} />
@@ -198,7 +198,7 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             render={({ field }) => (
               <FormItem>
                 <FormLabel className={isHindi ? 'font-hindi' : ''}>
-                  {isHindi ? "शामिल होने की तिथि" : "Date of Joining"}
+                  {isHindi ? "भर्ती तिथि" : "Date of Joining"}
                 </FormLabel>
                 <FormControl>
                   <Input {...field} type="date" />
@@ -216,7 +216,7 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
                 <FormLabel className={isHindi ? 'font-hindi' : ''}>
                   {isHindi ? "रक्त समूह" : "Blood Group"}
                 </FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder={isHindi ? "रक्त समूह चुनें" : "Select blood group"} />
@@ -224,7 +224,7 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
                   </FormControl>
                   <SelectContent>
                     {bloodGroups.map((group) => (
-                      <SelectItem key={group} value={group}>
+                      <SelectItem key={group} value={group} >
                         {group}
                       </SelectItem>
                     ))}
@@ -241,7 +241,7 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             render={({ field }) => (
               <FormItem>
                 <FormLabel className={isHindi ? 'font-hindi' : ''}>
-                  {isHindi ? "नौमिनी" : "Nominee"}
+                  {isHindi ? "नॉमिनी" : "Nominee"}
                 </FormLabel>
                 <FormControl>
                   <Input {...field} />

@@ -48,18 +48,6 @@ export const AttendanceTable = ({ personId, personType, personData }: Attendance
               color: white;
               padding: 10px 20px;
               border: none;
-              border-radius: 4px;
-              cursor: pointer;
-              margin: 20px 0;
-              font-size: 16px;
-            }
-            .print-button:hover {
-              background-color: rgb(56, 111, 193);
-            }
-            @media print {
-              .print-button {
-                display: none;
-              }
             }
           </style>
         </head>
@@ -74,9 +62,6 @@ export const AttendanceTable = ({ personId, personType, personData }: Attendance
             `}
           </div>
           ${printContent}
-          <button class="print-button" onclick="window.print()">
-            ${isHindi ? 'प्रिंट करें' : 'Print PDF'}
-          </button>
         </body>
       </html>
     `;

@@ -1,6 +1,6 @@
 
 export type BloodGroup = "A+" | "A-" | "B+" | "B-" | "O+" | "O-" | "AB+" | "AB-";
-export type StaffRank = "Instructor" | "ITI" | "PTI" | "SI(Teacher)" | "Mess Staff" | "Cleaning Staff";
+export type StaffRank = "R/ CONST" | "CONST" | "CONST/ PTI" | "HC/CP" | "HC/AP" | "HC-ITI" | "HC-PTI" | "SI/AP" | "SI/CP" | "RI" | "RSI" | "Inspector" | "FALL" |"Sweeper" |"Barber"|"Washerman"|"Peon";
 
 export interface Staff {
   id: string;

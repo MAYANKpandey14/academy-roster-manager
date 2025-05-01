@@ -80,7 +80,7 @@ export function PersonalInfoFields({ form }: PersonalInfoFieldsProps) {
         render={({ field }) => (
           <FormItem>
             <FormLabel className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? 'नौमिनी' : 'Nominee'}
+              {isHindi ? 'नॉमिनी' : 'Nominee'}
             </FormLabel>
             <FormControl>
               <Input required {...field} />
