@@ -39,7 +39,7 @@ export function TraineeDetailsSection({ trainee }: TraineeDetailsSectionProps) {
         {trainee.toli_no && (
           <TraineeInfoField 
             label={isHindi ? "टोली नंबर" : "Toli No"} 
-            value={trainee.toli_no.toString()} 
+            value={trainee.toli_no} 
           />
         )}
         <TraineeInfoField 

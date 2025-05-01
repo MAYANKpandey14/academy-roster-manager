@@ -5,61 +5,56 @@ import { showError } from "@/utils/textUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 // Use more specific types to avoid infinite type instantiation
-export type AttendanceStatus = 'present' | 'absent' | 'on_leave';
-
-export interface AttendanceRecord {
+type AttendanceStatus = 'present' | 'absent' | 'leave';
+type AttendanceData = {
   id: string;
   date: string;
   status: AttendanceStatus;
-  leave_type?: string;
-  reason?: string;
-  [key: string]: any;
+  [key: string]: any; // Use any for additional properties to avoid deep type instantiation
 }
 
-export const useFetchAttendance = (personId: string, personType: 'trainee' | 'staff', monthDate?: Date) => {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [data, setData] = useState<AttendanceRecord[] | null>(null);
+export const useFetchAttendance = (personId: string, personType: 'trainee' | 'staff', date: Date) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState<AttendanceStatus | null>(null);
   const { isHindi } = useLanguage();
 
   useEffect(() => {
-    const fetchAttendanceRecords = async () => {
+    const fetchAttendanceStatus = async () => {
       if (!personId) return;
       
       setIsLoading(true);
-      
       try {
         const tableName = `${personType}_attendance`;
-        const month = monthDate ? new Date(monthDate) : new Date();
-        const startOfMonth = new Date(month.getFullYear(), month.getMonth(), 1).toISOString().split('T')[0];
-        const endOfMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).toISOString().split('T')[0];
-        
-        const { data, error } = await supabase
-          .from(tableName)
+        const { data, error } = await supabase.from(tableName)
           .select('*')
           .eq(`${personType}_id`, personId)
-          .gte('date', startOfMonth)
-          .lte('date', endOfMonth)
-          .order('date', { ascending: false });
+          .eq('date', date.toISOString().split('T')[0])
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
 
-        if (error) {
+        if (error && error.code !== 'PGRST116') {
           throw error;
         }
 
-        setData(data as AttendanceRecord[]);
+        if (data) {
+          setStatus(data.status as AttendanceStatus);
+        } else {
+          setStatus(null);
+        }
       } catch (error) {
-        console.error(`Error fetching ${personType} attendance records:`, error);
+        console.error(`Error fetching ${personType} attendance:`, error);
         showError(isHindi
           ? `उपस्थिति डेटा लाने में त्रुटि`
           : `Error fetching attendance data`
         );
-        setData(null);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchAttendanceRecords();
-  }, [personId, personType, monthDate, isHindi]);
+    fetchAttendanceStatus();
+  }, [personId, personType, date, isHindi]);
 
-  return { isLoading, data };
+  return { isLoading, status };
 };
