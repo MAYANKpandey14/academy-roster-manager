@@ -4,7 +4,8 @@ import {
   Edit,
   Eye,
   Download,
-  Printer 
+  Printer,
+  FileSpreadsheet
 } from "lucide-react";
 import { Trainee } from "@/types/trainee";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ interface TraineeActionsProps {
 export function TraineeActions({ trainee }: TraineeActionsProps) {
   const navigate = useNavigate();
   const {isHindi}=useLanguage();
-  const { handlePrintTrainee, handleDownloadTrainee } = useTraineePrintService(trainee);
+  const { handlePrintTrainee, handleDownloadTrainee, handleExcelExport } = useTraineePrintService(trainee);
   
   return (
     <DropdownMenu>
@@ -53,10 +54,16 @@ export function TraineeActions({ trainee }: TraineeActionsProps) {
             {isHindi ? "प्रिंट करें" : "Print"}
           </span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleDownloadTrainee}>
+        {/* <DropdownMenuItem onClick={handleDownloadTrainee}>
           <Download className="mr-2 h-4 w-4" />
           <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
             {isHindi ? "डाउनलोड करें" : "Download"}
+          </span>
+        </DropdownMenuItem> */}
+        <DropdownMenuItem onClick={handleExcelExport}>
+          <FileSpreadsheet className="mr-2 h-4 w-4" /> 
+          <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+            {isHindi ? "एक्सेल" : "Excel"}
           </span>
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -13,7 +13,8 @@ export const getStaffColumns = (
   isLoading: boolean,
   handlePrintAction: (staff: Staff[]) => void,
   handleDownloadAction: (staff: Staff[]) => void,
-  handleDelete: (id: string) => void
+  handleDelete: (id: string) => void,
+  handleExcelExport: (staff: Staff[]) => void
 ): ColumnDef<Staff>[] => {
   return [
     {
@@ -81,7 +82,7 @@ export const getStaffColumns = (
         return (
           <Badge 
             variant={
-              rank === "Instructor" || rank === "ITI" || rank === "PTI" || rank === "SI(Teacher)" 
+              rank === "R/ CONST" || rank === "CONST" || rank === "CONST/ PTI" || rank === "HC/CP" || rank === "HC/AP" || rank === "HC-ITI" || rank === "HC-PTI" || rank === "SI/AP" || rank === "SI/CP" || rank === "RI" || rank === "RSI" || rank === "Inspector" || rank === "FALL" || rank === "Sweeper" || rank === "Barber" || rank === "Washerman" || rank === "Peon"
                 ? "default" 
                 : "outline"
             }
@@ -134,6 +135,7 @@ export const getStaffColumns = (
             handlePrintAction={handlePrintAction}
             handleDownloadAction={handleDownloadAction}
             handleDelete={handleDelete}
+            handleExcelExport={handleExcelExport} 
           />
         );
       },

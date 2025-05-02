@@ -1,23 +1,24 @@
-
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { Edit, Printer, Download } from "lucide-react";
+import { Edit, Printer, Download, FileSpreadsheet } from "lucide-react";
 import { Trainee } from "@/types/trainee";
 import { useLanguage } from "@/contexts/LanguageContext";
+
 interface TraineeHeaderProps {
   trainee: Trainee;
   onPrint: () => void;
   onDownload: () => void;
+  onExcelExport: () => void;
 }
 
-export function TraineeHeader({ trainee, onPrint, onDownload }: TraineeHeaderProps) {
+export function TraineeHeader({ trainee, onPrint, onDownload, onExcelExport }: TraineeHeaderProps) {
   const navigate = useNavigate();
   const { isHindi } = useLanguage();
   return (
     <div className="flex justify-between items-center mb-6">
       <h1 className="text-2xl font-bold">
-        <span className={`dynamic-text ${isHindi ? 'font-mangal' : ''}`}>
+        <span className={`dynamic-text trainee-header-btn-text ${isHindi ? 'font-mangal' : ''}`}>
           {isHindi ? "ट्रेनी विवरण" : "Trainee Details"}
         </span>
       </h1>
@@ -28,26 +29,37 @@ export function TraineeHeader({ trainee, onPrint, onDownload }: TraineeHeaderPro
           onClick={onPrint}
         >
           <Printer className="h-4 w-4 mr-2" />
-          <span className={`dynamic-text ${isHindi ? 'font-mangal' : ''}`}>
+          <span className={`dynamic-text trainee-header-btn-text ${isHindi ? 'font-mangal' : ''}`}>
             {isHindi ? "प्रिंट" : "Print"}
           </span>
         </Button>
-        <Button 
+        {/* <Button 
           variant="outline"
           className="download-button"
           onClick={onDownload}
         >
           <Download className="h-4 w-4 mr-2" />
-          <span className={`dynamic-text ${isHindi ? 'font-mangal' : ''}`}>
+          <span className={`dynamic-text trainee-header-btn-text ${isHindi ? 'font-mangal' : ''}`}>
             {isHindi ? "डाउनलोड CSV" : "Download CSV"}
+          </span>
+        </Button> */}
+        <Button 
+          variant="outline"
+          className="excel-button"
+          onClick={onExcelExport}
+        >
+          <FileSpreadsheet className="h-4 w-4 mr-2" />
+          <span className={`dynamic-text trainee-header-btn-text ${isHindi ? 'font-mangal' : ''}`}>
+            {isHindi ? "एक्सेल" : "Excel"}
           </span>
         </Button>
         <Button 
+          variant="outline"
           onClick={() => navigate(`/edit-trainee/${trainee?.id}`)}
-          className="flex items-center gap-2"
+          className="edit-button" 
         >
           <Edit className="h-4 w-4" />
-          <span className={`dynamic-text ${isHindi ? 'font-mangal' : ''}`}>
+          <span className={`dynamic-text trainee-header-btn-text ${isHindi ? 'font-mangal' : ''}`}>
             {isHindi ? "ट्रेनी संपादित करें" : "Edit Trainee"}
           </span>
         </Button>

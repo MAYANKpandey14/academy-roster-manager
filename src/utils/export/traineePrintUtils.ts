@@ -82,7 +82,7 @@ export const createPrintContent = (trainees: Trainee[], isHindi: boolean) => {
         </div>
         <div class="field">
           <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "शामिल होने की तिथि" : "Date of Joining", isHindi)}:
+            ${prepareTextForLanguage(isHindi ? "भर्ती तिथि" : "Date of Joining", isHindi)}: 
           </span> 
           ${new Date(trainee.date_of_joining).toLocaleDateString()}
         </div>
@@ -98,7 +98,7 @@ export const createPrintContent = (trainees: Trainee[], isHindi: boolean) => {
         </div>
         <div class="field">
           <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "वर्तमान नियुक्ति" : "Current Posting", isHindi)}:
+            ${prepareTextForLanguage(isHindi ? "वर्तमान पोस्टिंग जिला" : "Current Posting", isHindi)}:
           </span> 
           <span class="${isHindi ? 'font-mangal' : ''}">
             ${prepareTextForLanguage(trainee.current_posting_district, isHindi)}
@@ -126,7 +126,7 @@ export const createPrintContent = (trainees: Trainee[], isHindi: boolean) => {
         </div>
         <div class="field">
           <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "नौमिनी " : "Nominee", isHindi)}:
+            ${prepareTextForLanguage(isHindi ? "नॉमिनी " : "Nominee", isHindi)}:
           </span> 
           <span class="${isHindi ? 'font-mangal' : ''}">
             ${prepareTextForLanguage(trainee.nominee, isHindi)}

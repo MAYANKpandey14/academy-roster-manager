@@ -54,7 +54,7 @@ const Welcome = () => {
 
             {/* Content positioned over the background */}
             <div className="flex flex-col items-center justify-center z-10 relative">
-                <img src="/commando.png" alt="" className="w-mid h-mid md:w-large md:h-large" style={{
+                <img src="/commando.png" alt="" className="bg-transparentw-mid h-mid md:w-large md:h-large" style={{
                     filter: "drop-shadow(0.5rem .75rem .75rem rgba(0, 0, 0, 1))",
                 }} />
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-black m-2">

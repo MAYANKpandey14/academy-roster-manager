@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Staff } from "@/types/staff";
 import { toast } from "sonner";
@@ -33,12 +32,12 @@ export function useStaffTable(staff: Staff[], onRefresh: () => void) {
     }
   };
 
-  function getSelectedStaff(): Staff[] {
+  const getSelectedStaff = (): Staff[] => {
     const selectedIndices = Object.keys(rowSelection).map(Number);
     return selectedIndices.map(index => staff[index]);
-  }
+  };
 
-  function handlePrintAction(staffToPrint: Staff[] = []) {
+  const handlePrintAction = (staffToPrint: Staff[] = []) => {
     const selectedStaff = staffToPrint.length ? staffToPrint : getSelectedStaff();
     
     if (selectedStaff.length === 0) {
@@ -49,9 +48,9 @@ export function useStaffTable(staff: Staff[], onRefresh: () => void) {
     const content = createStaffPrintContent(selectedStaff, isHindi);
     handlePrint(content);
     toast.success(isHindi ? "स्टाफ प्रिंट हो रहा है..." : "Printing staff member(s)");
-  }
+  };
 
-  function handleDownloadAction(staffToDownload: Staff[] = []) {
+  const handleDownloadAction = (staffToDownload: Staff[] = []) => {
     const selectedStaff = staffToDownload.length ? staffToDownload : getSelectedStaff();
     
     if (selectedStaff.length === 0) {
@@ -62,7 +61,9 @@ export function useStaffTable(staff: Staff[], onRefresh: () => void) {
     const content = createStaffCSVContent(selectedStaff, isHindi);
     handleDownload(content, `selected_staff_${new Date().toISOString().split('T')[0]}.csv`);
     toast.success(isHindi ? "स्टाफ CSV फ़ाइल सफलतापूर्वक डाउनलोड हो गई है..." : "CSV file downloaded successfully");
-  }
+  };
+
+  
 
   return {
     rowSelection,
@@ -70,6 +71,7 @@ export function useStaffTable(staff: Staff[], onRefresh: () => void) {
     selectedCount,
     handleDelete,
     handlePrintAction,
-    handleDownloadAction
+    handleDownloadAction,
+    getSelectedStaff
   };
 }

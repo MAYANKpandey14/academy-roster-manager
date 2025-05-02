@@ -23,7 +23,7 @@ const ViewStaff = () => {
   useLanguageInputs();
 
   // Get print and download functions
-  const { handlePrintStaff, handleDownloadStaff } = useStaffPrintService(staff);
+  const { handlePrintStaff, handleDownloadStaff, handleExcelExport } = useStaffPrintService(staff);
 
   useEffect(() => {
     const fetchStaff = async () => {
@@ -64,6 +64,7 @@ const ViewStaff = () => {
           staff={staff}
           onPrint={handlePrintStaff}
           onDownload={handleDownloadStaff}
+          onExcelExport={handleExcelExport}
         />
 
         <div className="grid gap-6 md:grid-cols-1">

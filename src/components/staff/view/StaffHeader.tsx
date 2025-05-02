@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Printer, Download } from "lucide-react";
+import { Printer, Download, FileSpreadsheet, Edit } from "lucide-react";
 import { Staff } from "@/types/staff";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -9,9 +9,10 @@ interface StaffHeaderProps {
   staff?: Staff;
   onPrint: () => void;
   onDownload: () => void;
+  onExcelExport: () => void;
 }
 
-export function StaffHeader({ id, staff, onPrint, onDownload }: StaffHeaderProps) {
+export function StaffHeader({ id, staff, onPrint, onDownload, onExcelExport }: StaffHeaderProps) {
   const navigate = useNavigate();
   const { isHindi } = useLanguage();
 
@@ -23,30 +24,32 @@ export function StaffHeader({ id, staff, onPrint, onDownload }: StaffHeaderProps
       <div className="flex space-x-2">
         {staff && (
           <>
-            <Button variant="outline" onClick={onPrint}>
+            <Button variant="outline" onClick={onPrint} className="print-button">
               <Printer className="mr-2 h-4 w-4" />
               <span className={isHindi ? 'font-hindi' : ''}>
                 {isHindi ? "प्रिंट" : "Print"}
               </span>
             </Button>
-            <Button variant="outline" onClick={onDownload}>
+            {/* <Button variant="outline" onClick={onDownload} className="download-button">
               <Download className="mr-2 h-4 w-4" />
               <span className={isHindi ? 'font-hindi' : ''}>
                 {isHindi ? "डाउनलोड" : "Download"}
               </span>
-            </Button>
-            <Button variant="outline" onClick={() => navigate(`/edit-staff/${id}`)}>
+            </Button> */}
+            <Button variant="outline" onClick={onExcelExport} className="excel-button">
+              <FileSpreadsheet className="mr-2 h-4 w-4" />
               <span className={isHindi ? 'font-hindi' : ''}>
-                {isHindi ? "संपादित करें" : "Edit"}
+                {isHindi ? "एक्सेल" : "Excel"}
+              </span>
+            </Button>
+            <Button variant="outline" onClick={() => navigate(`/edit-staff/${id}`)} className="edit-button">
+              <Edit className="h-4 w-4" />
+              <span className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? "संपादित करें" : "Edit Staff"}
               </span>
             </Button>
           </>
         )}
-        <Button variant="outline" onClick={() => navigate("/staff")}>
-          <span className={isHindi ? 'font-hindi' : ''}>
-            {isHindi ? "वापस" : "Back"}
-          </span>
-        </Button>
       </div>
     </div>
   );

@@ -23,7 +23,7 @@ const ViewTrainee = () => {
   useLanguageInputs();
 
   // Initialize print service with null trainee
-  const { handlePrintTrainee, handleDownloadTrainee } = useTraineePrintService(trainee);
+  const { handlePrintTrainee, handleDownloadTrainee, handleExcelExport } = useTraineePrintService(trainee);
 
   useEffect(() => {
     const fetchTrainee = async () => {
@@ -73,6 +73,7 @@ const ViewTrainee = () => {
             trainee={trainee} 
             onPrint={handlePrintTrainee} 
             onDownload={handleDownloadTrainee}
+            onExcelExport={handleExcelExport}
           />
           
           <TraineeDetailsSection trainee={trainee} />

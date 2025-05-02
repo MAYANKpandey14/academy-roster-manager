@@ -20,7 +20,7 @@ export default function Auth() {
 
   useEffect(() => {
     const img = new Image();
-    img.src = '/login.jpeg';
+    img.src = '/login.avif';
     img.onload = () => setImageLoaded(true);
   }, []);
 
@@ -55,7 +55,7 @@ export default function Auth() {
     <div 
       className="min-h-screen relative flex flex-col items-center p-4 md:p-6"
       style={{
-        backgroundImage: imageLoaded ? "url('/login.jpeg')" : "none",
+        backgroundImage: imageLoaded ? "url('/login.avif')" : "none",
         backgroundSize: "cover",
         backgroundPosition: "center",
         
@@ -75,7 +75,7 @@ export default function Auth() {
         <div className="bg-white/95 backdrop-blur-md p-6 md:p-8 rounded-xl shadow-2xl">
           <div className="text-center">
             <img 
-              src="/upp_logo.png" 
+              src="/upp_logo.avif" 
               alt="Logo" 
               className="mx-auto h-20 w-20 md:h-28 md:w-28" 
             />

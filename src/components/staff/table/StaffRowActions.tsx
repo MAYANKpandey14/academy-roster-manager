@@ -7,7 +7,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Edit, Eye, Download, Printer } from "lucide-react";
+import { MoreHorizontal, Edit, Eye, Download, Printer, FileSpreadsheet } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -15,14 +15,15 @@ interface StaffRowActionsProps {
   staff: Staff;
   handlePrintAction: (staff: Staff[]) => void;
   handleDownloadAction: (staff: Staff[]) => void;
+  handleExcelExport: (staff: Staff[]) => void;
   handleDelete: (id: string) => void;
 }
 
 export function StaffRowActions({ 
   staff, 
   handlePrintAction, 
-  handleDownloadAction, 
-  handleDelete 
+  handleDelete,
+  handleExcelExport,
 }: StaffRowActionsProps) {
   const navigate = useNavigate();
   const { isHindi } = useLanguage();
@@ -54,12 +55,18 @@ export function StaffRowActions({
             {isHindi ? "प्रिंट करें" : "Print"}
           </span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleDownloadAction([staff])}>
-          <Download className="mr-2 h-4 w-4" />
+        <DropdownMenuItem onClick={() => handleExcelExport([staff])}>
+          <FileSpreadsheet className="mr-2 h-4 w-4" />
           <span className={isHindi ? 'font-mangal' : ''}>
-            {isHindi ? "डाउनलोड करें" : "Download"}
+            {isHindi ? "एक्सेल" : "Excel"}
           </span>
         </DropdownMenuItem>
+        {/* <DropdownMenuItem onClick={() => handleExcelExport([staff])}>
+          <FileSpreadsheet className="mr-2 h-4 w-4" />
+          <span className={isHindi ? 'font-mangal' : ''}>
+            {isHindi ? "एक्सेल" : "Excel"}
+          </span>
+        </DropdownMenuItem> */}
       </DropdownMenuContent>
     </DropdownMenu>
   );

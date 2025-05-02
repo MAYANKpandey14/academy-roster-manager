@@ -1,4 +1,3 @@
-    
 import { useState } from "react";
 import { Staff } from "@/types/staff";
 import { DataTable } from "@/components/ui/data-table";
@@ -6,6 +5,7 @@ import { getStaffColumns } from "./table/StaffTableColumns";
 import { StaffTableActions } from "./table/StaffTableActions";
 import { useStaffTable } from "./table/useStaffTable";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { exportStaffToExcel } from "@/utils/export";
 
 interface StaffTableProps {
   staff: Staff[];
@@ -22,24 +22,36 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
     selectedCount,
     handleDelete,
     handlePrintAction,
-    handleDownloadAction
+    handleDownloadAction,
+    getSelectedStaff
   } = useStaffTable(staff, onRefresh);
 
+  const handleExcelExport = (staffToExport: Staff[] = []) => {
+    const selectedStaff = staffToExport.length ? staffToExport : getSelectedStaff();
+    if (selectedStaff.length === 0) {
+      // Optionally show a toast here
+      return;
+    }
+    exportStaffToExcel(selectedStaff, isHindi, selectedStaff.length > 1);
+  };
+  
   const columns = getStaffColumns(
     isHindi, 
     isLoading, 
     handlePrintAction,
     handleDownloadAction,
-    handleDelete
+    handleDelete,
+    handleExcelExport
   );
 
   return (
     <div className="space-y-4">
       <StaffTableActions
+        staff={staff}
         selectedCount={selectedCount}
-        handlePrintAction={() => handlePrintAction()}
-        handleDownloadAction={() => handleDownloadAction()}
+        getSelectedStaff={getSelectedStaff}
         isLoading={isLoading}
+        onRefresh={onRefresh}
       />
       
       <DataTable

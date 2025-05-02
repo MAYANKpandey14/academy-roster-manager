@@ -1,7 +1,6 @@
-
 import { Trainee } from "@/types/trainee";
 import { createPrintContent, createCSVContent } from "@/utils/export";
-import { handlePrint, handleDownload } from "@/utils/export";
+import { handlePrint, handleDownload, exportTraineesToExcel } from "@/utils/export";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -18,6 +17,8 @@ export function useTraineePrintService(trainee: Trainee) {
       printError: isHindi ? "ट्रेनी विवरण प्रिंट हो रहा है..." : "Failed to open print window. Please check your pop-up blocker settings.",
       printSuccess: isHindi ? "ट्रेनी विवरण प्रिंट हो रहा है..." : "Printing trainee details",
       downloadSuccess: isHindi ? "CSV फ़ाइल सफलतापूर्वक डाउनलोड हो गई है..." : "CSV file downloaded successfully",
+      excelSuccess: isHindi ? "एक्सेल फ़ाइल सफलतापूर्वक डाउनलोड हो गई" : "Excel file downloaded successfully",
+      excelError: isHindi ? "एक्सेल फ़ाइल डाउनलोड करने में त्रुटि" : "Error downloading Excel file",
       traineeInfo: isHindi ? "आरटीसी प्रशिक्षु जानकारी" : "RTC Trainee Information",
       rtcPolice: isHindi ? "आरटीसी पुलिस लाइन, मुरादाबाद" : "RTC POLICE LINE, MORADABAD",
       name: isHindi ? "नाम" : "Name",
@@ -56,11 +57,22 @@ export function useTraineePrintService(trainee: Trainee) {
       csvContent, 
       `trainee_${trainee.pno}_${trainee.name.replace(/\s+/g, '_')}.csv`
     );
-    toast.success(isHindi ? "CSV फ़ाइल सफलतापूर्वक डाउनलोड हो गई" : "CSV file downloaded successfully");
+    toast.success(t('downloadSuccess', 'CSV file downloaded successfully'));
+  };
+
+  const handleExcelExport = () => {
+    const success = exportTraineesToExcel([trainee], isHindi, false, trainee.id);
+    
+    if (success) {
+      toast.success(t('excelSuccess', 'Excel file downloaded successfully'));
+    } else {
+      toast.error(t('excelError', 'Error downloading Excel file'));
+    }
   };
 
   return {
     handlePrintTrainee,
-    handleDownloadTrainee
+    handleDownloadTrainee,
+    handleExcelExport
   };
 }

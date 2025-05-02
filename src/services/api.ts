@@ -55,6 +55,13 @@ export async function addTrainee(traineeData: TraineeFormValues): Promise<{ data
   try {
     console.log("Adding trainee with data:", traineeData);
     
+    // Get the current session
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      throw new Error("No active session. Please log in again.");
+    }
+    
     // Add extra validation or data processing if needed
     const { data, error } = await supabase.functions.invoke('add-trainee', {
       body: traineeData
