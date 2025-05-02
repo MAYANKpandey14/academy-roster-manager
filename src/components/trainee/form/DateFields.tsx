@@ -24,7 +24,6 @@ export function DateFields({ form }: DateFieldsProps) {
             <FormControl>
               <Input 
                 type="date" 
-                required
                 {...field}
               />
             </FormControl>
@@ -44,7 +43,6 @@ export function DateFields({ form }: DateFieldsProps) {
             <FormControl>
               <Input 
                 type="date" 
-                required
                 {...field}
               />
             </FormControl>
@@ -64,7 +62,6 @@ export function DateFields({ form }: DateFieldsProps) {
             <FormControl>
               <Input 
                 type="date" 
-                required
                 {...field}
               />
             </FormControl>
@@ -84,7 +81,6 @@ export function DateFields({ form }: DateFieldsProps) {
             <FormControl>
               <Input 
                 type="date" 
-                required
                 {...field}
               />
             </FormControl>

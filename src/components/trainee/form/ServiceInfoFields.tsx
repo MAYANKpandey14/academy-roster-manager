@@ -22,7 +22,7 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
               {isHindi ? 'पीएनओ' : 'PNO'}
             </FormLabel>
             <FormControl>
-              <Input maxLength={9} required {...field} />
+              <Input maxLength={9} {...field} />
             </FormControl>
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
@@ -38,7 +38,7 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
               {isHindi ? 'चेस्ट नंबर' : 'Chest No'}
             </FormLabel>
             <FormControl>
-              <Input maxLength={4} required {...field} />
+              <Input maxLength={4} {...field} />
             </FormControl>
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
@@ -54,7 +54,7 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
               {isHindi ? "टोली नंबर" : "Toli No"}
             </FormLabel>
             <FormControl>
-              <Input maxLength={4} required {...field} />
+              <Input maxLength={4} {...field} />
             </FormControl>
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
@@ -99,7 +99,7 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
               {isHindi ? 'वर्तमान पोस्टिंग जिला' : 'Current Posting District'}
             </FormLabel>
             <FormControl>
-              <Input required {...field} />
+              <Input {...field} />
             </FormControl>
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
@@ -115,7 +115,7 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
               {isHindi ? 'शिक्षा' : 'Education'}
             </FormLabel>
             <FormControl>
-              <Input required {...field} />
+              <Input {...field} />
             </FormControl>
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>

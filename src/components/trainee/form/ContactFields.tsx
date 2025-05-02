@@ -23,7 +23,7 @@ export function ContactFields({ form }: ContactFieldsProps) {
               {isHindi ? 'मोबाइल नंबर' : 'Mobile Number'}
             </FormLabel>
             <FormControl>
-              <Input maxLength={10} type="tel" required pattern="[0-9]{10}" {...field} />
+              <Input maxLength={10} type="tel" pattern="[0-9]{10}" {...field} />
             </FormControl>
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
@@ -41,7 +41,6 @@ export function ContactFields({ form }: ContactFieldsProps) {
             <FormControl>
               <Textarea 
                 className="min-h-[80px]" 
-                required
                 {...field} 
               />
             </FormControl>
