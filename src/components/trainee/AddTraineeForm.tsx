@@ -81,7 +81,7 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
 
   return (
     <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-      <h2 className="text-2xl font-semibold mb-6 dynamic-text">{isHindi ? "नया प्रशिक्षानिवेशी जोड़ें" : "Add New Trainee"}</h2>
+      <h2 className="text-2xl font-semibold mb-6 dynamic-text">{isHindi ? "प्रशिक्षु जोड़ें" : "Add New Trainee"}</h2>
       
       {formError && (
         <Alert variant="destructive" className="mb-6">
