@@ -40,7 +40,7 @@ export function PersonalInfoFields({ form }: PersonalInfoFieldsProps) {
               {isHindi ? 'पिता का नाम' : 'Father\'s Name'}
             </FormLabel>
             <FormControl>
-              <Input required {...field} />
+              <Input {...field} />
             </FormControl>
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
@@ -55,7 +55,7 @@ export function PersonalInfoFields({ form }: PersonalInfoFieldsProps) {
             <FormLabel className={isHindi ? 'font-hindi' : ''}>
               {isHindi ? 'रक्त समूह' : 'Blood Group'}
             </FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value} required>
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder={isHindi ? 'रक्त समूह चुनें' : 'Select Blood Group'} />
@@ -83,7 +83,7 @@ export function PersonalInfoFields({ form }: PersonalInfoFieldsProps) {
               {isHindi ? 'नॉमिनी' : 'Nominee'}
             </FormLabel>
             <FormControl>
-              <Input required {...field} />
+              <Input {...field} />
             </FormControl>
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
