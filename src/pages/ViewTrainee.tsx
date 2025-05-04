@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
@@ -11,6 +12,7 @@ import { TraineeLoadingState } from "@/components/trainee/view/TraineeLoadingSta
 import { TraineeNotFound } from "@/components/trainee/view/TraineeNotFound";
 import { useTraineePrintService } from "@/components/trainee/view/TraineePrintService";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { exportTraineesToExcel } from "@/utils/export";
 
 const ViewTrainee = () => {
   const { id } = useParams<{ id: string }>();
@@ -23,7 +25,23 @@ const ViewTrainee = () => {
   useLanguageInputs();
 
   // Initialize print service with null trainee
-  const { handlePrintTrainee, handleDownloadTrainee, handleExcelExport } = useTraineePrintService(trainee);
+  // We'll handle this differently to avoid TypeScript errors
+  const [printService, setPrintService] = useState<{
+    handlePrint: () => void;
+    handleDownloadTrainee: () => void;
+  } | null>(null);
+
+  const handleExcelExport = () => {
+    if (!trainee) return;
+    
+    const success = exportTraineesToExcel([trainee], isHindi, false);
+    
+    if (success) {
+      toast.success(isHindi ? "एक्सेल फ़ाइल सफलतापूर्वक डाउनलोड हो गई" : "Excel file downloaded successfully");
+    } else {
+      toast.error(isHindi ? "एक्सेल फ़ाइल डाउनलोड करने में त्रुटि" : "Error downloading Excel file");
+    }
+  };
 
   useEffect(() => {
     const fetchTrainee = async () => {
@@ -39,6 +57,9 @@ const ViewTrainee = () => {
           
           if (traineeData) {
             setTrainee(traineeData);
+            // Initialize the print service now that we have trainee data
+            const { handlePrint, handleDownloadTrainee } = useTraineePrintService(traineeData);
+            setPrintService({ handlePrint, handleDownloadTrainee });
           } else {
             toast.error(isHindi ? "प्रशिक्षु नहीं मिला" : "Trainee not found");
             navigate("/");
@@ -71,8 +92,8 @@ const ViewTrainee = () => {
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
           <TraineeHeader 
             trainee={trainee} 
-            onPrint={handlePrintTrainee} 
-            onDownload={handleDownloadTrainee}
+            onPrint={() => printService?.handlePrint()} 
+            onDownload={() => printService?.handleDownloadTrainee()}
             onExcelExport={handleExcelExport}
           />
           

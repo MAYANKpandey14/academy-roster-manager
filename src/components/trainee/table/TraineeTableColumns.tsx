@@ -1,7 +1,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
-import { TraineeRowActions } from "./TraineeRowActions";
 import { Trainee } from "@/types/trainee";
+import { TraineeRowActions } from "./TraineeRowActions";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCallback } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -28,7 +28,7 @@ export function useTraineeTableColumns(isLoading: boolean): ColumnDef<Trainee>[]
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
+            (table.getIsSomePageRowsSelected() ? "indeterminate" : false)
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"

@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { createPrintContent } from "@/utils/export/traineePrintUtils";
 import { createCSVContent } from "@/utils/export/traineeCSVUtils";
 import { handlePrint as printUtil, handleDownload } from "@/utils/export/printUtils";
+import { exportTraineesToExcel } from "@/utils/export";
 
 export interface TraineePrintServiceProps {
   trainee: Trainee;

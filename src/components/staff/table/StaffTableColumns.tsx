@@ -19,7 +19,7 @@ export const getStaffColumns = (
         type="checkbox"
         checked={
           table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          (table.getIsSomePageRowsSelected() && true)
         }
         onChange={(e) => table.toggleAllPageRowsSelected(!!e.target.checked)}
         aria-label="Select all"
@@ -92,10 +92,6 @@ export const getStaffColumns = (
       return (
         <StaffRowActions
           staff={staff}
-          onPrint={() => handlePrint(staff.id)}
-          onDownload={() => handleDownload(staff.id)}
-          onDelete={() => handleDelete(staff.id)}
-          onExcelExport={() => handleExcelExport([staff])}
         />
       );
     },

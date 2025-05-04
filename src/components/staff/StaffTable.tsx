@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Staff } from "@/types/staff";
 import { DataTable } from "@/components/ui/data-table";
@@ -21,15 +22,29 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
     setRowSelection,
     selectedCount,
     handleDelete,
-    handlePrintAction,
-    handleDownloadAction,
     getSelectedStaff
   } = useStaffTable(staff, onRefresh);
 
-  const handleExcelExport = (staffToExport: Staff[] = []) => {
+  // Define these functions in this component
+  const handlePrintAction = (staffId: string) => {
+    const staffMember = staff.find(s => s.id === staffId);
+    if (staffMember) {
+      // Implement print functionality
+      console.log("Printing staff:", staffId);
+    }
+  };
+
+  const handleDownloadAction = (staffId: string) => {
+    const staffMember = staff.find(s => s.id === staffId);
+    if (staffMember) {
+      // Implement download functionality
+      console.log("Downloading staff:", staffId);
+    }
+  };
+
+  const handleExcelExport = (staffToExport: Staff[]) => {
     const selectedStaff = staffToExport.length ? staffToExport : getSelectedStaff();
     if (selectedStaff.length === 0) {
-      // Optionally show a toast here
       return;
     }
     exportStaffToExcel(selectedStaff, isHindi, selectedStaff.length > 1);

@@ -18,14 +18,27 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTraineePrintService } from "@/components/trainee/view/TraineePrintService";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { toast } from "sonner";
+import { exportTraineesToExcel } from "@/utils/export";
+
 interface TraineeActionsProps {
   trainee: Trainee;
 }
 
 export function TraineeActions({ trainee }: TraineeActionsProps) {
   const navigate = useNavigate();
-  const {isHindi}=useLanguage();
-  const { handlePrintTrainee, handleDownloadTrainee, handleExcelExport } = useTraineePrintService(trainee);
+  const { isHindi } = useLanguage();
+  const { handlePrint, handleDownloadTrainee } = useTraineePrintService(trainee);
+  
+  const handleExcelExport = () => {
+    const success = exportTraineesToExcel([trainee], isHindi, false);
+    
+    if (success) {
+      toast.success(isHindi ? "एक्सेल फ़ाइल सफलतापूर्वक डाउनलोड हो गई" : "Excel file downloaded successfully");
+    } else {
+      toast.error(isHindi ? "एक्सेल फ़ाइल डाउनलोड करने में त्रुटि" : "Error downloading Excel file");
+    }
+  };
   
   return (
     <DropdownMenu>
@@ -48,18 +61,12 @@ export function TraineeActions({ trainee }: TraineeActionsProps) {
             {isHindi ? "संपादित करें" : "Edit"}
           </span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handlePrintTrainee}>
+        <DropdownMenuItem onClick={handlePrint}>
           <Printer className="mr-2 h-4 w-4" />
           <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
             {isHindi ? "प्रिंट करें" : "Print"}
           </span>
         </DropdownMenuItem>
-        {/* <DropdownMenuItem onClick={handleDownloadTrainee}>
-          <Download className="mr-2 h-4 w-4" />
-          <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-            {isHindi ? "डाउनलोड करें" : "Download"}
-          </span>
-        </DropdownMenuItem> */}
         <DropdownMenuItem onClick={handleExcelExport}>
           <FileSpreadsheet className="mr-2 h-4 w-4" /> 
           <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>

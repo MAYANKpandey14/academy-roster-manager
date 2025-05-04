@@ -1,105 +1,91 @@
+
 import * as XLSX from 'xlsx';
+import { Workbook, Worksheet, Row, Cell } from 'xlsx';
 
-// Font configurations
-export const FONTS = {
-  hindi: {
-    name: 'Mangal',
-    size: 11,
-    family: 'Mangal, Arial Unicode MS, Arial, sans-serif'
-  },
-  english: {
-    name: 'Space Grotesk',
-    size: 11,
-    family: 'Space Grotesk, Arial, sans-serif'
-  }
-};
-
-// Style configurations
-export const STYLES = {
-  header: {
-    font: { bold: true, sz: 12 },
-    fill: { fgColor: { rgb: "E0E0E0" } },
-    alignment: { horizontal: 'center', vertical: 'center' }
-  },
-  data: {
-    alignment: { vertical: 'center' }
-  }
-};
-
-// Get cell style based on language
-export const getCellStyle = (isHindi: boolean, isHeader: boolean = false) => {
-  const baseStyle = isHeader ? STYLES.header : STYLES.data;
-  return {
-    ...baseStyle,
-    font: {
-      ...baseStyle.font, 
-      name: isHindi ? FONTS.hindi.name : FONTS.english.name,
-      sz: isHindi ? FONTS.hindi.size : FONTS.english.size
-    }
+interface ExcelStyleOptions {
+  fill?: {
+    fgColor: { rgb: string };
   };
-};
-
-// Process cell data with proper styling
-export const processCellData = (value: any, isHindi: boolean, isHeader: boolean = false) => {
-  return {
-    v: value,
-    s: getCellStyle(isHindi, isHeader),
-    t: typeof value === 'number' ? 'n' : 's'
+  font?: {
+    bold?: boolean;
+    color?: { rgb: string };
+    sz?: number;
   };
-};
+  alignment?: {
+    vertical?: string;
+    horizontal?: string;
+  };
+  border?: {
+    top?: { style: string; color: { rgb: string } };
+    bottom?: { style: string; color: { rgb: string } };
+    left?: { style: string; color: { rgb: string } };
+    right?: { style: string; color: { rgb: string } };
+  };
+}
 
-// Create worksheet with proper styling
-export const createStyledWorksheet = (data: any[], headers: string[], isHindi: boolean) => {
-  const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+// Helper function to apply styles to cells in an Excel worksheet
+export function applyCellStyle(
+  worksheet: Worksheet,
+  cell: string,
+  style: ExcelStyleOptions
+) {
+  if (!worksheet['!cols']) worksheet['!cols'] = [];
+  if (!worksheet['!rows']) worksheet['!rows'] = [];
 
-  // Apply styles to headers
-  headers.forEach((_, index) => {
-    const cellRef = XLSX.utils.encode_cell({ r: 0, c: index });
-    if (!ws[cellRef]) ws[cellRef] = {};
-    ws[cellRef].s = getCellStyle(isHindi, true);
-  });
+  // Ensure the cell has a style object
+  if (!worksheet[cell]) {
+    worksheet[cell] = { t: 's', v: '' };
+  }
 
-  // Apply styles to data cells
-  data.forEach((row, rowIndex) => {
-    row.forEach((_, colIndex) => {
-      const cellRef = XLSX.utils.encode_cell({ r: rowIndex + 1, c: colIndex });
-      if (!ws[cellRef]) ws[cellRef] = {};
-      ws[cellRef].s = getCellStyle(isHindi);
-    });
-  });
+  // Create or update the style object for this cell
+  if (!worksheet[cell].s) {
+    worksheet[cell].s = {};
+  }
 
-  // Set column widths
-  ws['!cols'] = headers.map(() => ({ wch: 20 }));
+  // Apply the styles
+  const cellStyle = worksheet[cell].s as ExcelStyleOptions;
 
-  // Set row heights
-  ws['!rows'] = [{ hpt: 25 }];
+  // Apply fill if provided
+  if (style.fill) {
+    cellStyle.fill = style.fill;
+  }
 
-  return ws;
-};
+  // Apply font if provided
+  if (style.font) {
+    cellStyle.font = style.font;
+  }
 
-// Core export function
-export const exportToExcel = (
-  data: any[],
-  headers: string[],
-  filename: string,
-  isHindi: boolean
-) => {
+  // Apply alignment if provided
+  if (style.alignment) {
+    cellStyle.alignment = style.alignment;
+  }
+
+  // Apply border if provided
+  if (style.border) {
+    cellStyle.border = style.border;
+  }
+}
+
+export function createExcelWorkbook(): Workbook {
+  return XLSX.utils.book_new();
+}
+
+export function addWorksheet(
+  workbook: Workbook,
+  sheetName: string,
+  data: any[][]
+): Worksheet {
+  const worksheet = XLSX.utils.aoa_to_sheet(data);
+  XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+  return worksheet;
+}
+
+export function downloadWorkbook(workbook: Workbook, filename: string): boolean {
   try {
-    // Create workbook
-    const wb = XLSX.utils.book_new();
-
-    // Create worksheet with styling
-    const ws = createStyledWorksheet(data, headers, isHindi);
-
-    // Add worksheet to workbook
-    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-
-    // Generate and download file
-    XLSX.writeFile(wb, filename);
-
+    XLSX.writeFile(workbook, filename);
     return true;
   } catch (error) {
-    console.error('Excel export error:', error);
+    console.error('Error downloading Excel file:', error);
     return false;
   }
-}; 
+}
