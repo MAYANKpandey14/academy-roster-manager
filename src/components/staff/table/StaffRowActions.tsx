@@ -1,33 +1,42 @@
-import { useState } from "react";
+
 import { Staff } from "@/types/staff";
+import { 
+  MoreHorizontal, 
+  Edit,
+  Eye,
+  Download,
+  Printer,
+  FileSpreadsheet,
+  Trash2
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Edit, Eye, Download, Printer, FileSpreadsheet } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-interface StaffRowActionsProps {
+export interface StaffRowActionsProps {
   staff: Staff;
-  handlePrintAction: (staff: Staff[]) => void;
-  handleDownloadAction: (staff: Staff[]) => void;
-  handleExcelExport: (staff: Staff[]) => void;
-  handleDelete: (id: string) => void;
+  handlePrintAction?: (staffId: string) => void;
+  handleDownloadAction?: (staffId: string) => void;
+  handleExcelExport?: (staffId: string) => void;
+  handleDelete?: (staffId: string) => void;
 }
 
 export function StaffRowActions({ 
   staff, 
   handlePrintAction, 
-  handleDelete,
-  handleExcelExport,
+  handleDownloadAction, 
+  handleExcelExport, 
+  handleDelete 
 }: StaffRowActionsProps) {
   const navigate = useNavigate();
   const { isHindi } = useLanguage();
-
+  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -39,34 +48,43 @@ export function StaffRowActions({
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => navigate(`/view-staff/${staff.id}`)}>
           <Eye className="mr-2 h-4 w-4" />
-          <span className={isHindi ? 'font-mangal' : ''}>
+          <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
             {isHindi ? "देखें" : "View"}
           </span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate(`/edit-staff/${staff.id}`)}>
           <Edit className="mr-2 h-4 w-4" />
-          <span className={isHindi ? 'font-mangal' : ''}>
+          <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
             {isHindi ? "संपादित करें" : "Edit"}
           </span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handlePrintAction([staff])}>
-          <Printer className="mr-2 h-4 w-4" />
-          <span className={isHindi ? 'font-mangal' : ''}>
-            {isHindi ? "प्रिंट करें" : "Print"}
-          </span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleExcelExport([staff])}>
-          <FileSpreadsheet className="mr-2 h-4 w-4" />
-          <span className={isHindi ? 'font-mangal' : ''}>
-            {isHindi ? "एक्सेल" : "Excel"}
-          </span>
-        </DropdownMenuItem>
-        {/* <DropdownMenuItem onClick={() => handleExcelExport([staff])}>
-          <FileSpreadsheet className="mr-2 h-4 w-4" />
-          <span className={isHindi ? 'font-mangal' : ''}>
-            {isHindi ? "एक्सेल" : "Excel"}
-          </span>
-        </DropdownMenuItem> */}
+        {handlePrintAction && (
+          <DropdownMenuItem onClick={() => handlePrintAction(staff.id)}>
+            <Printer className="mr-2 h-4 w-4" />
+            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+              {isHindi ? "प्रिंट करें" : "Print"}
+            </span>
+          </DropdownMenuItem>
+        )}
+        {handleExcelExport && (
+          <DropdownMenuItem onClick={() => handleExcelExport(staff.id)}>
+            <FileSpreadsheet className="mr-2 h-4 w-4" /> 
+            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+              {isHindi ? "एक्सेल" : "Excel"}
+            </span>
+          </DropdownMenuItem>
+        )}
+        {handleDelete && (
+          <DropdownMenuItem 
+            onClick={() => handleDelete(staff.id)}
+            className="text-red-500 hover:text-red-600 hover:bg-red-50"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+              {isHindi ? "हटाएं" : "Delete"}
+            </span>
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

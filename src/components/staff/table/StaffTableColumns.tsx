@@ -1,4 +1,3 @@
-
 import { ColumnDef } from "@tanstack/react-table";
 import { Staff } from "@/types/staff";
 import { StaffRowActions } from "./StaffRowActions";
@@ -7,10 +6,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 export const getStaffColumns = (
   isHindi: boolean,
   isLoading: boolean,
-  handlePrint: (staffId: string) => void,
-  handleDownload: (staffId: string) => void,
-  handleDelete: (staffId: string) => void,
-  handleExcelExport: (staff: Staff[]) => void
+  handlePrint?: (staffId: string) => void,
+  handleDownload?: (staffId: string) => void,
+  handleDelete?: (staffId: string) => void,
+  handleExcelExport?: (staff: Staff[]) => void
 ): ColumnDef<Staff>[] => [
   {
     id: "select",
@@ -92,6 +91,10 @@ export const getStaffColumns = (
       return (
         <StaffRowActions
           staff={staff}
+          handlePrintAction={handlePrint}
+          handleDownloadAction={handleDownload}
+          handleExcelExport={handleExcelExport}
+          handleDelete={handleDelete}
         />
       );
     },

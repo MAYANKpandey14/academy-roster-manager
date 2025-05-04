@@ -1,6 +1,5 @@
 
 import * as XLSX from 'xlsx';
-import { Workbook, Worksheet, Row, Cell } from 'xlsx';
 
 interface ExcelStyleOptions {
   fill?: {
@@ -25,7 +24,7 @@ interface ExcelStyleOptions {
 
 // Helper function to apply styles to cells in an Excel worksheet
 export function applyCellStyle(
-  worksheet: Worksheet,
+  worksheet: XLSX.WorkSheet,
   cell: string,
   style: ExcelStyleOptions
 ) {
@@ -66,26 +65,62 @@ export function applyCellStyle(
   }
 }
 
-export function createExcelWorkbook(): Workbook {
+export function createExcelWorkbook(): XLSX.WorkBook {
   return XLSX.utils.book_new();
 }
 
 export function addWorksheet(
-  workbook: Workbook,
+  workbook: XLSX.WorkBook,
   sheetName: string,
   data: any[][]
-): Worksheet {
+): XLSX.WorkSheet {
   const worksheet = XLSX.utils.aoa_to_sheet(data);
   XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
   return worksheet;
 }
 
-export function downloadWorkbook(workbook: Workbook, filename: string): boolean {
+export function downloadWorkbook(workbook: XLSX.WorkBook, filename: string): boolean {
   try {
     XLSX.writeFile(workbook, filename);
     return true;
   } catch (error) {
     console.error('Error downloading Excel file:', error);
+    return false;
+  }
+}
+
+// Add exportToExcel function that was missing but referenced in other files
+export function exportToExcel(
+  data: any[],
+  columns: { key: string; header: string }[],
+  filename: string
+): boolean {
+  try {
+    const workbook = XLSX.utils.book_new();
+    
+    // Create header row
+    const headerRow = columns.map(col => col.header);
+    
+    // Create data rows
+    const rows = [
+      headerRow,
+      ...data.map(item => 
+        columns.map(col => item[col.key] !== undefined ? item[col.key] : '')
+      )
+    ];
+    
+    // Create worksheet
+    const worksheet = XLSX.utils.aoa_to_sheet(rows);
+    
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Data');
+    
+    // Write to file
+    XLSX.writeFile(workbook, filename);
+    
+    return true;
+  } catch (error) {
+    console.error('Error exporting to Excel:', error);
     return false;
   }
 }

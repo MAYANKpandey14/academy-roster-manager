@@ -18,8 +18,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTraineePrintService } from "@/components/trainee/view/TraineePrintService";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { toast } from "sonner";
-import { exportTraineesToExcel } from "@/utils/export";
 
 interface TraineeActionsProps {
   trainee: Trainee;
@@ -28,17 +26,7 @@ interface TraineeActionsProps {
 export function TraineeActions({ trainee }: TraineeActionsProps) {
   const navigate = useNavigate();
   const { isHindi } = useLanguage();
-  const { handlePrint, handleDownloadTrainee } = useTraineePrintService(trainee);
-  
-  const handleExcelExport = () => {
-    const success = exportTraineesToExcel([trainee], isHindi, false);
-    
-    if (success) {
-      toast.success(isHindi ? "एक्सेल फ़ाइल सफलतापूर्वक डाउनलोड हो गई" : "Excel file downloaded successfully");
-    } else {
-      toast.error(isHindi ? "एक्सेल फ़ाइल डाउनलोड करने में त्रुटि" : "Error downloading Excel file");
-    }
-  };
+  const { handlePrint, handleDownloadTrainee, handleExcelExport } = useTraineePrintService(trainee);
   
   return (
     <DropdownMenu>

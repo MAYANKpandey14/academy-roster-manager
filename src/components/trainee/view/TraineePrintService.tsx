@@ -37,8 +37,19 @@ export function useTraineePrintService(trainee: Trainee) {
     toast.success(isHindi ? "ट्रेनी CSV सफलतापूर्वक डाउनलोड हो गया" : "Trainee CSV downloaded successfully");
   };
 
+  const handleExcelExport = () => {
+    const success = exportTraineesToExcel([trainee], isHindi, false);
+    
+    if (success) {
+      toast.success(isHindi ? "एक्सेल फ़ाइल सफलतापूर्वक डाउनलोड हो गई" : "Excel file downloaded successfully");
+    } else {
+      toast.error(isHindi ? "एक्सेल फ़ाइल डाउनलोड करने में त्रुटि" : "Error downloading Excel file");
+    }
+  };
+
   return {
     handlePrint,
-    handleDownloadTrainee
+    handleDownloadTrainee,
+    handleExcelExport
   };
 }
