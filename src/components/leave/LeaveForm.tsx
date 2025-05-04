@@ -1,39 +1,15 @@
 
-import { useState } from "react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-
-const leaveFormSchema = z.object({
-  pno: z.string().min(1, "PNO is required"),
-  reason: z.string().min(1, "Reason is required"),
-  start_date: z.string().min(1, "Start date is required"),
-  end_date: z.string().min(1, "End date is required"),
-}).refine((data) => {
-  const start = new Date(data.start_date);
-  const end = new Date(data.end_date);
-  return end >= start;
-}, {
-  message: "End date must be after start date",
-  path: ["end_date"],
-});
-
-type LeaveFormValues = z.infer<typeof leaveFormSchema>;
+import { Form } from "@/components/ui/form";
+import { PnoField } from "./fields/PnoField";
+import { DateFields } from "./fields/DateFields";
+import { ReasonField } from "./fields/ReasonField";
+import { leaveFormSchema, LeaveFormValues } from "./LeaveFormSchema";
+import { useLeaveSubmit } from "./useLeaveSubmit";
 
 interface LeaveFormProps {
   type: 'trainee' | 'staff';
@@ -53,173 +29,21 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
     },
   });
 
+  const { handleSubmit } = useLeaveSubmit({ type, onSuccess });
+
   const onSubmit = async (data: LeaveFormValues) => {
-    try {
-      // First, find the trainee/staff
-      const { data: person, error: findError } = await supabase
-        .from(type === 'trainee' ? 'trainees' : 'staff')
-        .select('id')
-        .eq('pno', data.pno)
-        .single();
-
-      if (findError || !person) {
-        toast.error(isHindi 
-          ? (type === 'trainee' ? 'प्रशिक्षु नहीं मिला' : 'स्टाफ सदस्य नहीं मिला')
-          : `${type === 'trainee' ? 'Trainee' : 'Staff member'} not found`);
-        return;
-      }
-
-      const startDate = data.start_date;
-      const endDate = data.end_date;
-
-      // Insert leave record based on type
-      if (type === 'trainee') {
-        const { error: leaveError } = await supabase
-          .from('trainee_leave')
-          .insert({
-            trainee_id: person.id,
-            start_date: startDate,
-            end_date: endDate,
-            reason: data.reason,
-            status: 'pending'
-          });
-
-        if (leaveError) throw leaveError;
-      } else {
-        const { error: leaveError } = await supabase
-          .from('staff_leave')
-          .insert({
-            staff_id: person.id,
-            start_date: startDate,
-            end_date: endDate,
-            reason: data.reason,
-            status: 'pending'
-          });
-
-        if (leaveError) throw leaveError;
-      }
-
-      // Create attendance records for each day of leave
-      const start = new Date(data.start_date);
-      const end = new Date(data.end_date);
-      
-      for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
-        const formattedDate = date.toISOString().split('T')[0];
-        
-        if (type === 'trainee') {
-          await supabase
-            .from('trainee_attendance')
-            .upsert({
-              trainee_id: person.id,
-              date: formattedDate,
-              status: 'on_leave'
-            });
-        } else {
-          await supabase
-            .from('staff_attendance')
-            .upsert({
-              staff_id: person.id,
-              date: formattedDate,
-              status: 'on_leave'
-            });
-        }
-      }
-
-      toast.success(isHindi ? "अवकाश अनुरोध सफलतापूर्वक जमा किया गया" : "Leave request submitted successfully");
+    const success = await handleSubmit(data);
+    if (success) {
       form.reset();
-      onSuccess();
-    } catch (error) {
-      console.error('Error submitting leave:', error);
-      toast.error(isHindi ? "अवकाश अनुरोध जमा करने में विफल" : "Failed to submit leave request");
     }
   };
-
-  // Get today's date in YYYY-MM-DD format for min value
-  const today = new Date().toISOString().split('T')[0];
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="pno"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className={isHindi ? 'font-mangal' : ''}>
-                {isHindi ? "पीएनओ नंबर" : "PNO Number"}
-              </FormLabel>
-              <FormControl>
-                <Input 
-                  {...field} 
-                  placeholder={isHindi ? "पीएनओ दर्ज करें" : "Enter PNO"} 
-                  maxLength={9}
-                  lang={isHindi ? 'hi' : 'en'}
-                />
-              </FormControl>
-              <FormMessage className={isHindi ? 'font-mangal' : ''} />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="start_date"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className={isHindi ? 'font-mangal' : ''}>
-                {isHindi ? "प्रारंभ तिथि" : "Start Date"}
-              </FormLabel>
-              <FormControl>
-                <Input 
-                  {...field}
-                  type="date" 
-                  min={today}
-                />
-              </FormControl>
-              <FormMessage className={isHindi ? 'font-mangal' : ''} />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="end_date"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className={isHindi ? 'font-mangal' : ''}>
-                {isHindi ? "अंतिम तिथि" : "End Date"}
-              </FormLabel>
-              <FormControl>
-                <Input 
-                  {...field}
-                  type="date"
-                  min={form.watch("start_date") || today}
-                />
-              </FormControl>
-              <FormMessage className={isHindi ? 'font-mangal' : ''} />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="reason"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className={isHindi ? 'font-mangal' : ''}>
-                {isHindi ? "अवकाश का कारण" : "Reason for Leave"}
-              </FormLabel>
-              <FormControl>
-                <Textarea 
-                  {...field} 
-                  placeholder={isHindi ? "कारण दर्ज करें" : "Enter reason"} 
-                  lang={isHindi ? 'hi' : 'en'}
-                />
-              </FormControl>
-              <FormMessage className={isHindi ? 'font-mangal' : ''} />
-            </FormItem>
-          )}
-        />
+        <PnoField form={form} />
+        <DateFields form={form} />
+        <ReasonField form={form} />
 
         <Button type="submit">
           <span className={isHindi ? 'font-mangal' : ''}>
