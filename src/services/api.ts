@@ -114,8 +114,14 @@ export async function updateTrainee(id: string, traineeData: TraineeFormValues):
       throw new Error("No active session. Please log in again.");
     }
     
+    // Ensure we have a valid access token
+    if (!session.access_token) {
+      throw new Error("Invalid session token. Please log in again.");
+    }
+    
+    console.log("Auth token available:", !!session.access_token);
+    
     const { data, error } = await supabase.functions.invoke('update-trainee', {
-      method: 'POST',
       body: { id, ...traineeData },
       headers: {
         Authorization: `Bearer ${session.access_token}`
