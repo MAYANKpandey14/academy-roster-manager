@@ -5,6 +5,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.21.0';
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
   "Content-Type": "application/json; charset=utf-8",
 };
 
@@ -15,6 +16,16 @@ serve(async (req) => {
   }
 
   try {
+    // Check for authorization header
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error("Missing authorization header");
+      return new Response(
+        JSON.stringify({ error: "Missing authorization header", code: 401 }),
+        { status: 401, headers: corsHeaders }
+      );
+    }
+
     // Create a Supabase client with the Auth context of the function
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -22,7 +33,7 @@ serve(async (req) => {
       { 
         global: { 
           headers: { 
-            Authorization: req.headers.get('Authorization')!,
+            Authorization: authHeader,
             "Content-Type": "application/json; charset=utf-8"
           } 
         } 
@@ -30,10 +41,29 @@ serve(async (req) => {
     );
 
     // Get the request body
-    const traineeData = await req.json();
+    let traineeData = null;
     
-    console.log("Received trainee data:", traineeData);
+    try {
+      traineeData = await req.json();
+      console.log("Received trainee data:", JSON.stringify(traineeData));
+    } catch (error) {
+      console.error("Failed to parse JSON body:", error);
+      return new Response(
+        JSON.stringify({ error: "Invalid JSON body", code: 400 }),
+        { status: 400, headers: corsHeaders }
+      );
+    }
+    
+    if (!traineeData) {
+      return new Response(
+        JSON.stringify({ error: "No trainee data provided", code: 400 }),
+        { status: 400, headers: corsHeaders }
+      );
+    }
 
+    // Ensure photo_url is included, set to null if not provided
+    traineeData.photo_url = traineeData.photo_url || null;
+    
     // Insert the new trainee
     const { data, error } = await supabaseClient
       .from('trainees')
@@ -55,9 +85,9 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error in add-trainee function:", error);
     return new Response(
-      JSON.stringify({ error: error.message || "An unknown error occurred" }),
+      JSON.stringify({ error: error.message || "An unknown error occurred", code: 500 }),
       { 
-        status: 400, 
+        status: error.message?.includes('authorization') ? 401 : 500, 
         headers: corsHeaders
       }
     );

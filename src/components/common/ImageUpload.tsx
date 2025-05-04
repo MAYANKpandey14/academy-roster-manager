@@ -57,6 +57,18 @@ export const ImageUpload = ({
     setIsUploading(true);
     
     try {
+      // Get the current session to include auth token
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        console.warn("No active session found for image upload");
+        setError(isHindi ? 
+          "लॉगिन सत्र समाप्त हो गया है। कृपया पुनः लॉगिन करें।" : 
+          "Login session expired. Please log in again.");
+        setIsUploading(false);
+        return;
+      }
+      
       // Check if the storage bucket exists, create it if it doesn't
       const { data: buckets } = await supabase.storage.listBuckets();
       const bucketExists = buckets?.some(bucket => bucket.name === bucketName);

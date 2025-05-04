@@ -268,6 +268,7 @@ export type Database = {
           mobile_number: string
           name: string
           nominee: string
+          photo_url: string | null
           pno: string
           rank: string
           toli_no: string | null
@@ -289,6 +290,7 @@ export type Database = {
           mobile_number: string
           name: string
           nominee: string
+          photo_url?: string | null
           pno: string
           rank?: string
           toli_no?: string | null
@@ -310,6 +312,7 @@ export type Database = {
           mobile_number?: string
           name?: string
           nominee?: string
+          photo_url?: string | null
           pno?: string
           rank?: string
           toli_no?: string | null

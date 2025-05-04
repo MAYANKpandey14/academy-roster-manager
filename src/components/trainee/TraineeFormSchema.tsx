@@ -1,32 +1,46 @@
 
 import { z } from "zod";
-import { TraineeRank, BloodGroup } from "@/types/trainee";
+import { BloodGroup, TraineeRank } from "@/types/trainee";
 
-export const traineeRanks: TraineeRank[] = ["R/CONST", "CONST", "CONST/PTI", "HC/CP", "HC/AP", "HC-ITI", "HC-PTI", "SI/AP", "SI/CP", "RI", "RSI", "Inspector"];
-export const bloodGroups: BloodGroup[] = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
+// List of blood groups for selection
+export const bloodGroups: BloodGroup[] = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
 
+// List of ranks for selection
+export const traineeRanks: TraineeRank[] = [
+  "R/CONST", 
+  "CONST", 
+  "CONST/PTI", 
+  "HC/CP", 
+  "HC/AP", 
+  "HC-ITI", 
+  "HC-PTI", 
+  "SI/AP", 
+  "SI/CP", 
+  "RI", 
+  "RSI", 
+  "Inspector"
+];
+
+// Schema for form validation
 export const traineeFormSchema = z.object({
   pno: z.string().min(1, { message: "PNO is required" }),
-  chest_no: z.string().min(1, { message: "Chest No is required" }),
+  chest_no: z.string().min(1, { message: "Chest number is required" }),
   name: z.string().min(1, { message: "Name is required" }),
-  father_name: z.string().min(1, { message: "Father's Name is required" }),
-  rank: z.enum(traineeRanks as [TraineeRank, ...TraineeRank[]], {
-    required_error: "Rank is required",
-  }),
+  father_name: z.string().min(1, { message: "Father's name is required" }),
+  rank: z.enum(traineeRanks).optional(),
   toli_no: z.string().optional(),
-  arrival_date: z.string().min(1, { message: "Arrival Date is required" }),
-  departure_date: z.string().min(1, { message: "Departure Date is required" }),
-  current_posting_district: z.string().min(1, { message: "Current Posting District is required" }),
-  mobile_number: z.string().min(10, { message: "Mobile Number must be at least 10 digits" }),
+  arrival_date: z.string().min(1, { message: "Arrival date is required" }),
+  departure_date: z.string().min(1, { message: "Departure date is required" }),
+  current_posting_district: z.string().min(1, { message: "Current posting district is required" }),
+  mobile_number: z.string().min(10, { message: "Valid mobile number is required" }),
   education: z.string().min(1, { message: "Education is required" }),
-  date_of_birth: z.string().min(1, { message: "Date of Birth is required" }),
-  date_of_joining: z.string().min(1, { message: "Date of Joining is required" }),
-  blood_group: z.enum(bloodGroups as [BloodGroup, ...BloodGroup[]], {
-    required_error: "Blood Group is required",
-  }),
+  date_of_birth: z.string().min(1, { message: "Date of birth is required" }),
+  date_of_joining: z.string().min(1, { message: "Date of joining is required" }),
+  blood_group: z.enum(bloodGroups, { required_error: "Blood group is required" }),
   nominee: z.string().min(1, { message: "Nominee is required" }),
-  home_address: z.string().min(1, { message: "Home Address is required" }),
+  home_address: z.string().min(1, { message: "Home address is required" }),
   photo_url: z.string().optional(),
 });
 
+// Type for form values based on the schema
 export type TraineeFormValues = z.infer<typeof traineeFormSchema>;

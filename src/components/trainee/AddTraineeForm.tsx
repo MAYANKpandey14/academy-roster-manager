@@ -33,7 +33,9 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
 
   const form = useForm<TraineeFormValues>({
     resolver: zodResolver(traineeFormSchema),
-    defaultValues: {},
+    defaultValues: {
+      photo_url: "", // Initialize photo_url
+    },
   });
 
   const onSubmit = async (data: TraineeFormValues) => {
