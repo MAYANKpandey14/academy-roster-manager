@@ -10,8 +10,12 @@ export async function getTrainees(): Promise<{ data: Trainee[] | null; error: Er
     // Get the current session to include auth token
     const { data: { session } } = await supabase.auth.getSession();
     
+    if (!session?.access_token) {
+      console.warn("No active session found for fetching trainees");
+    }
+    
     const { data, error } = await supabase.functions.invoke('get-trainees', {
-      headers: session ? {
+      headers: session?.access_token ? {
         Authorization: `Bearer ${session.access_token}`
       } : {}
     });
@@ -45,9 +49,13 @@ export async function filterTrainees(
     // Get the current session to include auth token
     const { data: { session } } = await supabase.auth.getSession();
     
+    if (!session?.access_token) {
+      console.warn("No active session found for filtering trainees");
+    }
+    
     const { data, error } = await supabase.functions.invoke('get-trainees', {
       body: params,
-      headers: session ? {
+      headers: session?.access_token ? {
         Authorization: `Bearer ${session.access_token}`
       } : {}
     });
@@ -73,9 +81,12 @@ export async function addTrainee(traineeData: TraineeFormValues): Promise<{ data
     // Get the current session
     const { data: { session } } = await supabase.auth.getSession();
     
-    if (!session) {
+    if (!session?.access_token) {
+      console.error("No active session. Please log in again.");
       throw new Error("No active session. Please log in again.");
     }
+    
+    console.log("Authorization header available:", !!session.access_token);
     
     // Add extra validation or data processing if needed
     const { data, error } = await supabase.functions.invoke('add-trainee', {
@@ -110,19 +121,21 @@ export async function updateTrainee(id: string, traineeData: TraineeFormValues):
     // Get the current session
     const { data: { session } } = await supabase.auth.getSession();
     
-    if (!session) {
+    if (!session?.access_token) {
+      console.error("No active session. Please log in again.");
       throw new Error("No active session. Please log in again.");
     }
     
-    // Ensure we have a valid access token
-    if (!session.access_token) {
-      throw new Error("Invalid session token. Please log in again.");
-    }
+    console.log("Authorization header available:", !!session.access_token);
     
-    console.log("Auth token available:", !!session.access_token);
+    // Ensure we have the photo_url in the update data
+    const updateData = {
+      ...traineeData,
+      photo_url: traineeData.photo_url || null // Ensure photo_url is null if not provided
+    };
     
     const { data, error } = await supabase.functions.invoke('update-trainee', {
-      body: { id, ...traineeData },
+      body: { id, ...updateData },
       headers: {
         Authorization: `Bearer ${session.access_token}`
       }

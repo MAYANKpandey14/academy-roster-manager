@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -26,6 +26,13 @@ export const ImageUpload = ({
   const [imageUrl, setImageUrl] = useState<string | undefined>(initialImageUrl);
   const [error, setError] = useState<string | null>(null);
   const { isHindi } = useLanguage();
+  
+  // Set the initial image URL when the component mounts or when initialImageUrl changes
+  useEffect(() => {
+    if (initialImageUrl) {
+      setImageUrl(initialImageUrl);
+    }
+  }, [initialImageUrl]);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -50,17 +57,28 @@ export const ImageUpload = ({
     setIsUploading(true);
     
     try {
+      // Check if the storage bucket exists, create it if it doesn't
+      const { data: buckets } = await supabase.storage.listBuckets();
+      const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
+      
+      if (!bucketExists) {
+        console.log(`Creating bucket: ${bucketName}`);
+        await supabase.storage.createBucket(bucketName, {
+          public: true
+        });
+      }
+      
       // Use entityId if provided, otherwise generate a random name
       const fileName = entityId 
         ? `${entityId}.${file.name.split('.').pop()}`
         : `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${file.name.split('.').pop()}`;
       
       // Upload the file
-      const { data, error } = await supabase.storage
+      const { data, error: uploadError } = await supabase.storage
         .from(bucketName)
         .upload(fileName, file, { upsert: true });
       
-      if (error) throw error;
+      if (uploadError) throw uploadError;
       
       // Get the public URL
       const { data: publicUrlData } = supabase.storage
@@ -68,6 +86,7 @@ export const ImageUpload = ({
         .getPublicUrl(fileName);
       
       const url = publicUrlData.publicUrl;
+      console.log("Image uploaded successfully:", url);
       setImageUrl(url);
       onImageUpload(url);
     } catch (error) {

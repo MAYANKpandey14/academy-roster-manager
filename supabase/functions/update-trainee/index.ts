@@ -19,8 +19,14 @@ serve(async (req) => {
     // Check for authorization header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error('Missing authorization header');
+      console.error("Missing authorization header");
+      return new Response(
+        JSON.stringify({ error: "Missing authorization header", code: 401 }),
+        { status: 401, headers: corsHeaders }
+      );
     }
+
+    console.log("Auth header received:", authHeader ? "Yes" : "No");
 
     // Create a Supabase client with the Auth context of the function
     const supabaseClient = createClient(
@@ -30,7 +36,6 @@ serve(async (req) => {
         global: { 
           headers: { 
             Authorization: authHeader,
-            "Content-Type": "application/json; charset=utf-8"
           } 
         } 
       }
@@ -41,17 +46,18 @@ serve(async (req) => {
     
     try {
       requestData = await req.json();
+      console.log("Received request data:", JSON.stringify(requestData));
     } catch (error) {
       console.error("Failed to parse JSON body:", error);
       return new Response(
-        JSON.stringify({ error: "Invalid JSON body" }),
+        JSON.stringify({ error: "Invalid JSON body", code: 400 }),
         { status: 400, headers: corsHeaders }
       );
     }
     
     if (!requestData) {
       return new Response(
-        JSON.stringify({ error: "No request data provided" }),
+        JSON.stringify({ error: "No request data provided", code: 400 }),
         { status: 400, headers: corsHeaders }
       );
     }
@@ -60,7 +66,7 @@ serve(async (req) => {
     
     if (!id) {
       return new Response(
-        JSON.stringify({ error: "Trainee ID is required" }),
+        JSON.stringify({ error: "Trainee ID is required", code: 400 }),
         { status: 400, headers: corsHeaders }
       );
     }
@@ -79,7 +85,7 @@ serve(async (req) => {
     if (error) {
       console.error("Database error:", error);
       return new Response(
-        JSON.stringify({ error: error.message }),
+        JSON.stringify({ error: error.message, code: 400 }),
         { status: 400, headers: corsHeaders }
       );
     }
@@ -93,9 +99,9 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error in update-trainee function:", error);
     return new Response(
-      JSON.stringify({ error: error.message || "An unknown error occurred" }),
+      JSON.stringify({ error: error.message || "An unknown error occurred", code: 500 }),
       { 
-        status: error.message?.includes('authorization') ? 401 : 400, 
+        status: error.message?.includes('authorization') ? 401 : 500, 
         headers: corsHeaders
       }
     );

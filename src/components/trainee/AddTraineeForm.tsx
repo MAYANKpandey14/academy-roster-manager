@@ -46,7 +46,8 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
       // The form now contains properly formatted dates from the DateFields component,
       // so we don't need to transform them here
       const formData = {
-        ...data
+        ...data,
+        photo_url: data.photo_url || null // Ensure photo_url is null if not provided
       };
       
       console.log("Transformed form data:", formData);
@@ -80,6 +81,7 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
   };
 
   const handleImageUpload = (url: string) => {
+    console.log("Image URL set in form:", url);
     form.setValue("photo_url", url);
   };
 
