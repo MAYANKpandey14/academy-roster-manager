@@ -36,7 +36,11 @@ serve(async (req) => {
             Authorization: authHeader,
             "Content-Type": "application/json; charset=utf-8"
           } 
-        } 
+        },
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true
+        }
       }
     );
 
