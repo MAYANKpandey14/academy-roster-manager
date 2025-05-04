@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.21.0';
 
@@ -37,7 +36,11 @@ serve(async (req) => {
           headers: { 
             Authorization: authHeader,
           } 
-        } 
+        },
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true
+        }
       }
     );
 
@@ -69,6 +72,13 @@ serve(async (req) => {
         JSON.stringify({ error: "Trainee ID is required", code: 400 }),
         { status: 400, headers: corsHeaders }
       );
+    }
+    
+    // Ensure photo_url is included, keep as is if undefined
+    if (updateData.photo_url === undefined) {
+      console.log("No photo_url provided in update");
+    } else if (updateData.photo_url === "") {
+      updateData.photo_url = null;
     }
     
     console.log(`Updating trainee with ID: ${id}`);

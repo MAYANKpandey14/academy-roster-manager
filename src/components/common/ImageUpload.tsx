@@ -69,34 +69,22 @@ export const ImageUpload = ({
         return;
       }
       
-      // Check if bucket exists first instead of trying to create it
-      const { data: buckets } = await supabase.storage.listBuckets();
-      const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
-      
-      // Only try to create the bucket if it doesn't exist
-      if (!bucketExists) {
-        try {
-          console.log(`Creating bucket: ${bucketName}`);
-          await supabase.storage.createBucket(bucketName, {
-            public: true
-          });
-        } catch (bucketError) {
-          console.log("Bucket may already exist or couldn't be created, attempting upload anyway:", bucketError);
-          // Continue with upload even if bucket creation fails - it might already exist
-        }
-      }
+      console.log(`Using existing bucket: ${bucketName}`);
       
       // Use entityId if provided, otherwise generate a random name
       const fileName = entityId 
         ? `${entityId}.${file.name.split('.').pop()}`
         : `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${file.name.split('.').pop()}`;
       
-      // Upload the file
+      // Upload the file to the existing bucket without trying to create it
       const { data, error: uploadError } = await supabase.storage
         .from(bucketName)
         .upload(fileName, file, { upsert: true });
       
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
       
       // Get the public URL
       const { data: publicUrlData } = supabase.storage
