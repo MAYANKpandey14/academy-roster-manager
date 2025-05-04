@@ -23,7 +23,7 @@ export interface StaffRowActionsProps {
   staff: Staff;
   handlePrintAction?: (staffId: string) => void;
   handleDownloadAction?: (staffId: string) => void;
-  handleExcelExport?: (staffId: string) => void;
+  handleExcelExport?: (staff: Staff) => void;
   handleDelete?: (staffId: string) => void;
 }
 
@@ -67,7 +67,7 @@ export function StaffRowActions({
           </DropdownMenuItem>
         )}
         {handleExcelExport && (
-          <DropdownMenuItem onClick={() => handleExcelExport(staff.id)}>
+          <DropdownMenuItem onClick={() => handleExcelExport(staff)}>
             <FileSpreadsheet className="mr-2 h-4 w-4" /> 
             <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
               {isHindi ? "एक्सेल" : "Excel"}

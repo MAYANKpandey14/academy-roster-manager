@@ -1,3 +1,4 @@
+
 import { ColumnDef } from "@tanstack/react-table";
 import { Staff } from "@/types/staff";
 import { StaffRowActions } from "./StaffRowActions";
@@ -9,7 +10,7 @@ export const getStaffColumns = (
   handlePrint?: (staffId: string) => void,
   handleDownload?: (staffId: string) => void,
   handleDelete?: (staffId: string) => void,
-  handleExcelExport?: (staff: Staff[]) => void
+  handleExcelExport?: (staff: Staff) => void
 ): ColumnDef<Staff>[] => [
   {
     id: "select",
@@ -93,7 +94,7 @@ export const getStaffColumns = (
           staff={staff}
           handlePrintAction={handlePrint}
           handleDownloadAction={handleDownload}
-          handleExcelExport={handleExcelExport}
+          handleExcelExport={handleExcelExport ? () => handleExcelExport(staff) : undefined}
           handleDelete={handleDelete}
         />
       );

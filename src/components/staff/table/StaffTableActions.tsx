@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Download, Printer, RefreshCw, FileSpreadsheet } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -43,20 +44,6 @@ export function StaffTableActions({
     }
   }
 
-  // Download CSV button: white background, green text and border
-  // function handleDownloadAction() {
-  //   const selectedStaff = getSelectedStaff();
-    
-  //   if (selectedStaff.length === 0) {
-  //     toast.error(isHindi ? "कृपया कम से कम एक स्टाफ सदस्य चुनें" : "Please select at least one staff member to download");
-  //     return;
-  //   }
-    
-  //   const content = createStaffCSVContent(selectedStaff, isHindi);  
-  //   handleDownload(content, `selected_staff_${new Date().toISOString().split('T')[0]}.csv`);
-  //   toast.success(isHindi ? "स्टाफ CSV फ़ाइल सफलतापूर्वक डाउनलोड हो गई है..." : `CSV file with ${selectedStaff.length} staff members downloaded successfully`);
-  // }
-
   function handleExcelExport() {
     const selectedStaff = getSelectedStaff();
     
@@ -65,7 +52,7 @@ export function StaffTableActions({
       return;
     }
     
-    const success = exportStaffToExcel(selectedStaff, isHindi, true);
+    const success = exportStaffToExcel(selectedStaff, isHindi);
     
     if (success) {
       toast.success(isHindi ? "एक्सेल फ़ाइल सफलतापूर्वक डाउनलोड हो गई" : `Excel file with ${selectedStaff.length} staff members downloaded successfully`);
@@ -102,18 +89,6 @@ export function StaffTableActions({
           {isHindi ? "चयनित प्रिंट करें" : "Print Selected"}{selectedCount > 0 ? ` (${selectedCount})` : ''}
         </span>}
       </Button>
-      {/* <Button
-        variant="outline"
-        size="sm"
-        onClick={handleDownloadAction}
-        className="download-button animate-slide-in"
-        disabled={isLoading || selectedCount === 0}
-      >
-        <Download className="h-4 w-4" />
-        {!isMobile && <span className={`ml-2 ${isHindi ? 'font-mangal' : ''}`}>
-          {isHindi ? "CSV डाउनलोड करें" : "Download CSV"}{selectedCount > 0 ? ` (${selectedCount})` : ''}
-        </span>}
-      </Button> */}
       <Button
         variant="outline"
         size="sm"

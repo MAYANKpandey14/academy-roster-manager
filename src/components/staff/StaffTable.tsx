@@ -29,7 +29,6 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
   const handlePrintAction = (staffId: string) => {
     const staffMember = staff.find(s => s.id === staffId);
     if (staffMember) {
-      // Implement print functionality
       console.log("Printing staff:", staffId);
     }
   };
@@ -37,17 +36,13 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
   const handleDownloadAction = (staffId: string) => {
     const staffMember = staff.find(s => s.id === staffId);
     if (staffMember) {
-      // Implement download functionality
       console.log("Downloading staff:", staffId);
     }
   };
 
-  const handleExcelExport = (staffToExport: Staff[]) => {
-    const selectedStaff = staffToExport.length ? staffToExport : getSelectedStaff();
-    if (selectedStaff.length === 0) {
-      return;
-    }
-    exportStaffToExcel(selectedStaff, isHindi, selectedStaff.length > 1);
+  const handleExcelExport = (staffMember: Staff) => {
+    if (!staffMember) return;
+    exportStaffToExcel([staffMember], isHindi);
   };
   
   const columns = getStaffColumns(

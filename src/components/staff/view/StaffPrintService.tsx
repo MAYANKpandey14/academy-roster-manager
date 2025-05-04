@@ -1,3 +1,4 @@
+
 import { Staff } from "@/types/staff";
 import { createStaffPrintContent, createStaffCSVContent } from "@/utils/staffExportUtils";
 import { handlePrint, handleDownload, exportStaffToExcel } from "@/utils/export";
@@ -34,7 +35,7 @@ export function useStaffPrintService(staff: Staff) {
   };
 
   const handleExcelExport = () => {
-    const success = exportStaffToExcel([staff], isHindi, false, staff.id);
+    const success = exportStaffToExcel([staff], isHindi);
     
     if (success) {
       toast.success(isHindi ? "एक्सेल फ़ाइल सफलतापूर्वक डाउनलोड हो गई" : "Excel file downloaded successfully");
