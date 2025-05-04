@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { updateTrainee } from "@/services/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
+import { ImageUpload } from "@/components/common/ImageUpload";
 
 interface EditTraineeFormProps {
   trainee: Trainee;
@@ -62,6 +63,7 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
     blood_group: trainee.blood_group,
     nominee: trainee.nominee,
     home_address: trainee.home_address,
+    photo_url: trainee.photo_url,
   };
 
   console.log("Default form values:", defaultValues);
@@ -103,6 +105,10 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
     }
   };
 
+  const handleImageUpload = (url: string) => {
+    form.setValue("photo_url", url);
+  };
+
   return (
     <div className="container mx-auto py-6">
       <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
@@ -117,6 +123,16 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
                 <PersonalInfoFields form={form} />
                 <DateFields form={form} />
                 <ContactFields form={form} />
+                
+                <div className="col-span-1 md:col-span-2">
+                  <ImageUpload 
+                    bucketName="trainee_photos"
+                    entityId={trainee.id}
+                    initialImageUrl={trainee.photo_url}
+                    onImageUpload={handleImageUpload}
+                    label={isHindi ? 'प्रशिक्षु फोटो' : 'Trainee Photo'}
+                  />
+                </div>
               </div>
 
               <div className="flex justify-end space-x-4 pt-4">

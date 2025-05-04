@@ -16,6 +16,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ImageUpload } from "@/components/common/ImageUpload";
+
 interface AddTraineeFormProps {
   onSuccess?: () => void;
 }
@@ -24,7 +26,7 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const {isHindi}=useLanguage();
+  const {isHindi} = useLanguage();
   
   // Apply language inputs hook for form fields
   useLanguageInputs();
@@ -79,6 +81,10 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
     }
   };
 
+  const handleImageUpload = (url: string) => {
+    form.setValue("photo_url", url);
+  };
+
   return (
     <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
       <h2 className="text-2xl font-semibold mb-6 dynamic-text">{isHindi ? "प्रशिक्षु जोड़ें" : "Add New Trainee"}</h2>
@@ -98,6 +104,14 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
               <PersonalInfoFields form={form} />
               <DateFields form={form} />
               <ContactFields form={form} />
+              
+              <div className="col-span-1 md:col-span-2">
+                <ImageUpload 
+                  bucketName="trainee_photos"
+                  onImageUpload={handleImageUpload}
+                  label={isHindi ? 'प्रशिक्षु फोटो' : 'Trainee Photo'}
+                />
+              </div>
             </div>
 
             <div className="flex justify-end space-x-4 pt-4">

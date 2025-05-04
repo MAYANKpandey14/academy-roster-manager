@@ -1,27 +1,36 @@
 
 import { ColumnDef } from "@tanstack/react-table";
+import { TraineeRowActions } from "./TraineeRowActions";
 import { Trainee } from "@/types/trainee";
-import { Checkbox } from "@/components/ui/checkbox";
-import { TraineeActions } from "@/components/trainee/TraineeActions";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { CheckedState } from "@radix-ui/react-checkbox";
+import { useCallback } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export function useTraineeTableColumns(isLoading: boolean = false) {
+export function useTraineeTableColumns(isLoading: boolean): ColumnDef<Trainee>[] {
   const { isHindi } = useLanguage();
 
-  const columns: ColumnDef<Trainee>[] = [
+  const formatDate = useCallback((dateString: string) => {
+    if (!dateString) return "";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return dateString;
+    }
+  }, []);
+
+  return [
     {
       id: "select",
       header: ({ table }) => (
         <Checkbox
           checked={
-            table.getIsAllPageRowsSelected() 
-              ? true 
-              : table.getIsSomePageRowsSelected() 
-                ? "indeterminate" 
-                : false
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
           }
-          onCheckedChange={(value: CheckedState) => table.toggleAllPageRowsSelected(!!value)}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
           disabled={isLoading}
         />
@@ -29,7 +38,7 @@ export function useTraineeTableColumns(isLoading: boolean = false) {
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
-          onCheckedChange={(value: CheckedState) => row.toggleSelected(!!value)}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
           disabled={isLoading}
         />
@@ -38,74 +47,61 @@ export function useTraineeTableColumns(isLoading: boolean = false) {
       enableHiding: false,
     },
     {
-      accessorKey: "pno",
-      header: () => {
-        return <span className={isHindi ? 'font-hindi' : ''}>
-          {isHindi ? "पीएनओ" : "PNO"}
-        </span>
-      },
+      accessorKey: "photo_url",
+      header: isHindi ? "फोटो" : "Photo",
       cell: ({ row }) => {
-        return <span className="font-medium">{row.getValue("pno")}</span>;
-      }
+        const trainee = row.original;
+        const firstLetter = trainee.name.charAt(0).toUpperCase();
+        
+        return (
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={trainee.photo_url} alt={trainee.name} />
+            <AvatarFallback>{firstLetter}</AvatarFallback>
+          </Avatar>
+        );
+      },
+    },
+    {
+      accessorKey: "pno",
+      header: () => (isHindi ? "पीएनओ" : "PNO"),
+      cell: ({ row }) => <div className="font-medium">{row.getValue("pno")}</div>,
+      enableSorting: true,
     },
     {
       accessorKey: "chest_no",
-      header: () => {
-        return <span className={isHindi ? 'font-hindi' : ''}>
-          {isHindi ? "चेस्ट नंबर" : "Chest No."}
-        </span>
-      },
-      cell: ({ row }) => {
-        return <span>{row.getValue("chest_no")}</span>;
-      }
+      header: () => (isHindi ? "चेस्ट नंबर" : "Chest No"),
+      enableSorting: true,
     },
     {
       accessorKey: "name",
-      header: () => {
-        return <span className={isHindi ? 'font-hindi' : ''}>
-          {isHindi ? "नाम" : "Name"}
-        </span>
-      },
-      cell: ({ row }) => {
-        const value = row.getValue("name") as string;
-        return <span className={`${isHindi ? 'font-hindi' : ''} font-medium`}>
-          {value}
-        </span>;
-      }
+      header: () => (isHindi ? "नाम" : "Name"),
+      enableSorting: true,
+    },
+    {
+      accessorKey: "rank",
+      header: () => (isHindi ? "रैंक" : "Rank"),
+      enableSorting: true,
     },
     {
       accessorKey: "current_posting_district",
-      header: () => {
-        return <span className={isHindi ? 'font-hindi' : ''}>
-          {isHindi ? "वर्तमान पोस्टिंग" : "Current Posting"}
-        </span>
-      },
-      cell: ({ row }) => {
-        const value = row.getValue("current_posting_district") as string;
-        return <span className={isHindi ? 'font-hindi' : ''}>
-          {value}
-        </span>;
-      }
+      header: () => (isHindi ? "वर्तमान पोस्टिंग जिला" : "Current Posting District"),
+      enableSorting: true,
     },
     {
       accessorKey: "arrival_date",
-      header: () => {
-        return <span className={isHindi ? 'font-hindi' : ''}>
-          {isHindi ? "प्रशिक्षण प्रारंभ" : "Training Starts"}
-        </span>
-      },
-      cell: ({ row }) => {
-        const date = new Date(row.getValue("arrival_date") as string);
-        return <span>{date.toLocaleDateString()}</span>;
-      }
+      header: () => (isHindi ? "पहुंचने की तिथि" : "Arrival Date"),
+      cell: ({ row }) => formatDate(row.getValue("arrival_date")),
+      enableSorting: true,
+    },
+    {
+      accessorKey: "departure_date",
+      header: () => (isHindi ? "प्रस्थान की तिथि" : "Departure Date"),
+      cell: ({ row }) => formatDate(row.getValue("departure_date")),
+      enableSorting: true,
     },
     {
       id: "actions",
-      cell: ({ row }) => {
-        return <TraineeActions trainee={row.original} />;
-      },
+      cell: ({ row }) => <TraineeRowActions trainee={row.original} />,
     },
   ];
-
-  return columns;
 }

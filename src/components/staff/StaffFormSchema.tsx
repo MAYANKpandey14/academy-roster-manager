@@ -25,6 +25,7 @@ export const staffFormSchema = z.object({
   toli_no: z.string().optional(),
   class_no: z.string().optional(),
   class_subject: z.string().optional(),
+  photo_url: z.string().optional(),
 });
 
 export type StaffFormValues = z.infer<typeof staffFormSchema>;

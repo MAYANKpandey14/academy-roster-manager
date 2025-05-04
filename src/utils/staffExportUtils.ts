@@ -1,66 +1,191 @@
-import { Staff } from "@/types/staff";
-import { format } from "date-fns";
 
-export const createStaffPrintContent = (staff: Staff[], isHindi: boolean) => {
-  // Add specialized font class for Hindi text
-  const hindiClass = isHindi ? ' class="font-hindi"' : '';
-  
-  const printContent = `
-    <html>
-      <head>
-        <title>${isHindi ? "स्टाफ विवरण" : "Staff Information"}</title>
-        <meta charset="UTF-8">
-        <style>
-          body { font-family: 'Space Grotesk', Arial, sans-serif; padding: 20px; }
-          .font-hindi { font-family: 'Mangal', 'Arial Unicode MS', sans-serif; }
-          h1 { text-align: center; margin-bottom: 20px; }
-          .staff-info { border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; }
-          .field { margin-bottom: 12px; }
-          .field-label { font-weight: bold; }
-          .header { text-align: center; margin-bottom: 20px; }
-          .header h1 { margin-bottom: 5px; }
-          .header p { margin-top: 0; }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1${hindiClass}>${isHindi ? "आरटीसी पुलिस लाइन, मुरादाबाद" : "RTC Training Center, Moradabad"}</h1>
-          <p${hindiClass}>${isHindi ? "स्टाफ विवरण" : "Staff Information"}</p>
-        </div>
-        ${staff.map(person => `
-          <div class="staff-info">
-            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "पीएनओ" : "PNO"}:</span> ${person.pno}</div>
-            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "नाम" : "Name"}:</span> <span${hindiClass}>${person.name}</span></div>
-            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "बाप का नाम" : "Father's Name"}:</span> <span${hindiClass}>${person.father_name}</span></div>
-            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "रैंक" : "Rank"}:</span> ${person.rank}</div>
-            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "वर्तमान जगह" : "Current Posting District"}:</span> <span${hindiClass}>${person.current_posting_district}</span></div>
-            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "मोबाइल नंबर" : "Mobile Number"}:</span> ${person.mobile_number}</div>
-            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "शिक्षा" : "Education"}:</span> <span${hindiClass}>${person.education}</span></div>
-            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "जन्म तिथि" : "Date of Birth"}:</span> ${person.date_of_birth ? format(new Date(person.date_of_birth), "PPP") : "N/A"}</div>
-            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "शुल्क तिथि" : "Date of Joining"}:</span> ${person.date_of_joining ? format(new Date(person.date_of_joining), "PPP") : "N/A"}</div>
-            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "रक्त समूह" : "Blood Group"}:</span> ${person.blood_group}</div>
-            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "नामांकित" : "Nominee"}:</span> <span${hindiClass}>${person.nominee}</span></div>
-            <div class="field"><span class="field-label"${hindiClass}>${isHindi ? "घर पता" : "Home Address"}:</span> <span${hindiClass}>${person.home_address}</span></div>
-            ${person.toli_no ? `<div class="field"><span class="field-label"${hindiClass}>${isHindi ? "टोली नंबर" : "Toli Number"}:</span> ${person.toli_no}</div>` : ''}
-            ${person.class_no ? `<div class="field"><span class="field-label"${hindiClass}>${isHindi ? "कक्षा नंबर" : "Class Number"}:</span> ${person.class_no}</div>` : ''}
-            ${person.class_subject ? `<div class="field"><span class="field-label"${hindiClass}>${isHindi ? "कक्षा विषय" : "Class Subject"}:</span> <span${hindiClass}>${person.class_subject}</span></div>` : ''}
+import { Staff } from "@/types/staff";
+import { prepareTextForLanguage } from "./textUtils";
+
+/**
+ * Creates HTML content for printing staff details
+ */
+export function createStaffPrintContent(staffList: Staff[], isHindi: boolean): string {
+  const today = new Date().toLocaleDateString();
+
+  // Create header
+  const headerText = isHindi ? "कर्मचारी विवरण" : "Staff Details";
+  const header = `
+    <div class="print-header">
+      <h1>${headerText}</h1>
+      <p>${isHindi ? "दिनांक" : "Date"}: ${today}</p>
+    </div>
+  `;
+
+  // Create staff content
+  const staffContent = staffList.map(staff => {
+    const photoSection = staff.photo_url ? `
+      <div class="staff-photo">
+        <img src="${staff.photo_url}" alt="${staff.name}" style="max-width: 100px; max-height: 100px; border-radius: 4px; margin-bottom: 10px;">
+      </div>
+    ` : '';
+    
+    return `
+      <div class="staff-details">
+        ${photoSection}
+        <h2>${staff.name} (${staff.pno})</h2>
+        <div class="staff-info">
+          <div class="info-row">
+            <span class="label">${isHindi ? "पीएनओ" : "PNO"}:</span>
+            <span>${staff.pno}</span>
           </div>
-        `).join('')}
-        <div style="text-align: center; margin-top: 30px; font-size: 12px;">
-          <p${hindiClass}>${isHindi ? "यह दस्तावेज़ उत्पन्न हो गई है" : "This document was generated on"} ${format(new Date(), 'PP')} ${isHindi ? "को" : "at"} ${new Date().toLocaleTimeString()}</p>
+          <div class="info-row">
+            <span class="label">${isHindi ? "रैंक" : "Rank"}:</span>
+            <span>${staff.rank}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">${isHindi ? "पिता का नाम" : "Father's Name"}:</span>
+            <span>${staff.father_name}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">${isHindi ? "वर्तमान पोस्टिंग जिला" : "Current Posting District"}:</span>
+            <span>${staff.current_posting_district}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">${isHindi ? "मोबाइल नंबर" : "Mobile Number"}:</span>
+            <span>${staff.mobile_number}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">${isHindi ? "शिक्षा" : "Education"}:</span>
+            <span>${staff.education}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">${isHindi ? "जन्म तिथि" : "Date of Birth"}:</span>
+            <span>${new Date(staff.date_of_birth).toLocaleDateString()}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">${isHindi ? "भर्ती तिथि" : "Date of Joining"}:</span>
+            <span>${new Date(staff.date_of_joining).toLocaleDateString()}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">${isHindi ? "रक्त समूह" : "Blood Group"}:</span>
+            <span>${staff.blood_group}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">${isHindi ? "नॉमिनी" : "Nominee"}:</span>
+            <span>${staff.nominee}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">${isHindi ? "घर का पता" : "Home Address"}:</span>
+            <span>${staff.home_address}</span>
+          </div>
+          ${staff.toli_no ? `
+          <div class="info-row">
+            <span class="label">${isHindi ? "टोली नंबर" : "Toli No"}:</span>
+            <span>${staff.toli_no}</span>
+          </div>
+          ` : ''}
+          ${staff.class_no ? `
+          <div class="info-row">
+            <span class="label">${isHindi ? "क्लास नंबर" : "Class No"}:</span>
+            <span>${staff.class_no}</span>
+          </div>
+          ` : ''}
+          ${staff.class_subject ? `
+          <div class="info-row">
+            <span class="label">${isHindi ? "क्लास विषय" : "Class Subject"}:</span>
+            <span>${staff.class_subject}</span>
+          </div>
+          ` : ''}
         </div>
-      </body>
+      </div>
+    `;
+  }).join('<hr />');
+
+  // Create footer
+  const footer = `
+    <div class="print-footer">
+      <p>${isHindi ? "आरटीसी पुलिस लाइन, मुरादाबाद" : "RTC Police Line, Moradabad"}</p>
+    </div>
+  `;
+
+  // Create styles
+  const styles = `
+    <style>
+      @media print {
+        @page { margin: 2cm; }
+      }
+      body {
+        font-family: Arial, sans-serif;
+        color: #333;
+        line-height: 1.5;
+      }
+      .print-header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .print-header h1 {
+        margin-bottom: 5px;
+      }
+      .staff-details {
+        margin-bottom: 20px;
+      }
+      .staff-details h2 {
+        margin-bottom: 10px;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 5px;
+      }
+      .staff-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .info-row {
+        margin-bottom: 5px;
+      }
+      .label {
+        font-weight: bold;
+        margin-right: 5px;
+      }
+      .print-footer {
+        margin-top: 20px;
+        text-align: center;
+        border-top: 1px solid #ccc;
+        padding-top: 10px;
+      }
+      hr {
+        border: none;
+        border-top: 1px dashed #ccc;
+        margin: 30px 0;
+      }
+      .staff-photo {
+        text-align: center;
+        margin-bottom: 15px;
+      }
+    </style>
+  `;
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>${isHindi ? "कर्मचारी विवरण" : "Staff Details"}</title>
+      ${styles}
+    </head>
+    <body>
+      ${header}
+      ${staffContent}
+      ${footer}
+    </body>
     </html>
   `;
-  
-  return printContent;
-};
+}
 
-export const createStaffCSVContent = (staff: Staff[], isHindi: boolean) => {
+/**
+ * Creates CSV content for staff list
+ */
+export function createStaffCSVContent(staffList: Staff[], isHindi: boolean): string {
+  // Define headers based on language
   const headers = [
     isHindi ? "पीएनओ" : "PNO",
     isHindi ? "नाम" : "Name",
-    isHindi ? "पिता का नाम" : "Father's Name", 
+    isHindi ? "पिता का नाम" : "Father's Name",
     isHindi ? "रैंक" : "Rank",
     isHindi ? "वर्तमान पोस्टिंग जिला" : "Current Posting District",
     isHindi ? "मोबाइल नंबर" : "Mobile Number",
@@ -69,66 +194,49 @@ export const createStaffCSVContent = (staff: Staff[], isHindi: boolean) => {
     isHindi ? "भर्ती तिथि" : "Date of Joining",
     isHindi ? "रक्त समूह" : "Blood Group",
     isHindi ? "नॉमिनी" : "Nominee",
-    isHindi ? "घर का पता" : "Home Address", 
-    isHindi ? "टोली नंबर" : "Toli Number",
-    isHindi ? "कक्षा नंबर" : "Class Number",
-    isHindi ? "कक्षा विषय" : "Class Subject"
-  ];
+    isHindi ? "घर का पता" : "Home Address",
+    isHindi ? "टोली नंबर" : "Toli No",
+    isHindi ? "क्लास नंबर" : "Class No",
+    isHindi ? "क्लास विषय" : "Class Subject",
+    isHindi ? "फोटो URL" : "Photo URL"
+  ].join(",");
 
-  // CSV header row
-  let csvContent = headers.join(',') + '\n';
+  // Create rows
+  const rows = staffList.map(staff => {
+    // Format dates
+    const dateOfBirth = new Date(staff.date_of_birth).toLocaleDateString();
+    const dateOfJoining = new Date(staff.date_of_joining).toLocaleDateString();
+    
+    // Escape fields that may contain commas
+    const escapeCsvField = (field: string) => {
+      if (!field) return '';
+      if (field.includes(',') || field.includes('"') || field.includes('\n')) {
+        return `"${field.replace(/"/g, '""')}"`;
+      }
+      return field;
+    };
 
-  // Data rows
-  staff.forEach(person => {
-    const values = [
-      person.pno,
-      `"${person.name}"`,
-      `"${person.father_name}"`,
-      person.rank,
-      `"${person.current_posting_district}"`,
-      person.mobile_number,
-      `"${person.education}"`,
-      person.date_of_birth ? format(new Date(person.date_of_birth), "PPP") : "N/A",
-      person.date_of_joining ? format(new Date(person.date_of_joining), "PPP") : "N/A",
-      person.blood_group,
-      `"${person.nominee}"`,
-      `"${person.home_address}"`,
-      person.toli_no || "N/A",
-      person.class_no || "N/A",
-      `"${person.class_subject || "N/A"}"`
-    ];
-    csvContent += values.join(',') + '\n';
-  });
+    const row = [
+      staff.pno,
+      escapeCsvField(staff.name),
+      escapeCsvField(staff.father_name),
+      staff.rank,
+      escapeCsvField(staff.current_posting_district),
+      staff.mobile_number,
+      escapeCsvField(staff.education),
+      dateOfBirth,
+      dateOfJoining,
+      staff.blood_group,
+      escapeCsvField(staff.nominee),
+      escapeCsvField(staff.home_address),
+      staff.toli_no || '',
+      staff.class_no || '',
+      escapeCsvField(staff.class_subject || ''),
+      staff.photo_url || ''
+    ].join(",");
 
-  return csvContent;
-};
+    return row;
+  }).join("\n");
 
-export const handlePrint = (content: string) => {
-  const printWindow = window.open('', '_blank');
-  if (printWindow) {
-    printWindow.document.write(content);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 250);
-    return true;
-  } else {
-    return false;
-  }
-};
-
-export const handleDownload = (content: string, filename: string) => {
-  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.setAttribute('href', url);
-  link.setAttribute('download', filename);
-  link.style.visibility = 'hidden';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-  return true;
-};
+  return `${headers}\n${rows}`;
+}

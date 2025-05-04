@@ -1,151 +1,153 @@
 
 import { Trainee } from "@/types/trainee";
-import { prepareTextForLanguage } from "@/utils/textUtils";
-import { createPrintFooter, createPrintHeader, getPrintStyles } from "./printUtils";
+import { prepareTextForLanguage } from "../textUtils";
+import { getPrintStyles, createPrintHeader, createPrintFooter } from "./printUtils";
 
-/**
- * Creates HTML content for printing trainee data
- * 
- * @param trainees Array of trainees
- * @param isHindi Whether to display in Hindi
- * @returns HTML content as string
- */
-export const createPrintContent = (trainees: Trainee[], isHindi: boolean) => {
-  // Get common print styles
+export function createPrintContent(
+  trainees: Trainee[],
+  isHindi: boolean,
+  showHeader: boolean = true,
+  showFooter: boolean = true
+): string {
+  // Get styles for print
   const styles = getPrintStyles(isHindi);
-  
-  // Generate the HTML header
-  const title = isHindi ? "आरटीसी प्रशिक्षु जानकारी" : "RTC Trainee Information";
-  const printHeader = createPrintHeader(title, styles);
-  
-  // Add RTC header content
-  const rtcHeader = `
-    <h1 class="${isHindi ? 'font-mangal' : ''}">
-      ${prepareTextForLanguage(isHindi ? "आरटीसी पुलिस लाइन, मुरादाबाद" : "RTC POLICE LINE, MORADABAD", isHindi)}
-    </h1>
-    <h3 class="${isHindi ? 'font-mangal' : ''}">
-      ${prepareTextForLanguage(isHindi ? "प्रशिक्षु जानकारी" : "TRAINEE INFORMATION", isHindi)}
-    </h3>
-  `;
-  
-  // Process each trainee
-  const printTrainees = trainees.map(trainee => {
+
+  // Build the HTML body content for each trainee
+  const traineeCards = trainees.map((trainee) => {
+    const photoSection = trainee.photo_url ? `
+      <div class="trainee-photo">
+        <img src="${trainee.photo_url}" alt="${trainee.name}" style="max-width: 100px; max-height: 100px; border-radius: 4px; margin-bottom: 10px;">
+      </div>
+    ` : '';
+    
     return `
-      <div class="trainee-info">
-        <div class="field">
-          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "नाम" : "Name", isHindi)}:
-          </span> 
-          <span class="${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(trainee.name, isHindi)}
-          </span>
-        </div>
-        <div class="field">
-          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "पीएनओ" : "PNO", isHindi)}:
-          </span> 
-          ${trainee.pno}
-        </div>
-        <div class="field">
-          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "चेस्ट नंबर" : "Chest No", isHindi)}:
-          </span> 
-          ${trainee.chest_no}
-        </div>
-        <div class="field">
-          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "रैंक" : "Rank", isHindi)}:
-          </span> 
-          ${trainee.rank}
-        </div>
-        ${trainee.toli_no ? `
-        <div class="field">
-          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "टोली नंबर" : "Toli No", isHindi)}:
-          </span> 
-          ${trainee.toli_no} 
-        </div>
-        ` : ''}
-        <div class="field">
-          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "पिता का नाम" : "Father's Name", isHindi)}:
-          </span> 
-          <span class="${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(trainee.father_name, isHindi)}
-          </span>
-        </div>
-        <div class="field">
-          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "जन्म तिथि" : "Date of Birth", isHindi)}:
-          </span> 
-          ${new Date(trainee.date_of_birth).toLocaleDateString()}
-        </div>
-        <div class="field">
-          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "भर्ती तिथि" : "Date of Joining", isHindi)}: 
-          </span> 
-          ${new Date(trainee.date_of_joining).toLocaleDateString()}
-        </div>
-        <div class="field">
-          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "प्रशिक्षण अवधि" : "Training Period", isHindi)}:
-          </span> 
-          ${new Date(trainee.arrival_date).toLocaleDateString()} 
-          <span class="${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "से" : "to", isHindi)}
-          </span> 
-          ${new Date(trainee.departure_date).toLocaleDateString()}
-        </div>
-        <div class="field">
-          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "वर्तमान पोस्टिंग जिला" : "Current Posting", isHindi)}:
-          </span> 
-          <span class="${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(trainee.current_posting_district, isHindi)}
-          </span>
-        </div>
-        <div class="field">
-          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "मोबाइल" : "Mobile", isHindi)}:
-          </span> 
-          ${trainee.mobile_number}
-        </div>
-        <div class="field">
-          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "शिक्षा" : "Education", isHindi)}:
-          </span> 
-          <span class="${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(trainee.education, isHindi)}
-          </span>
-        </div>
-        <div class="field">
-          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "रक्त समूह" : "Blood Group", isHindi)}:
-          </span> 
-          ${trainee.blood_group}
-        </div>
-        <div class="field">
-          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "नॉमिनी " : "Nominee", isHindi)}:
-          </span> 
-          <span class="${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(trainee.nominee, isHindi)}
-          </span>
-        </div>
-        <div class="field">
-          <span class="field-label ${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(isHindi ? "घर का पता" : "Home Address", isHindi)}:
-          </span> 
-          <span class="${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage(trainee.home_address, isHindi)}
-          </span>
+      <div class="trainee-card">
+        ${photoSection}
+        <h2>${prepareTextForLanguage(trainee.name, isHindi)} (${trainee.chest_no})</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">${isHindi ? "पीएनओ" : "PNO"}:</span>
+            <span class="info-value">${trainee.pno}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">${isHindi ? "चेस्ट नंबर" : "Chest No"}:</span>
+            <span class="info-value">${trainee.chest_no}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">${isHindi ? "रैंक" : "Rank"}:</span>
+            <span class="info-value">${trainee.rank}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">${isHindi ? "पिता का नाम" : "Father's Name"}:</span>
+            <span class="info-value">${prepareTextForLanguage(trainee.father_name, isHindi)}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">${isHindi ? "मोबाइल नंबर" : "Mobile Number"}:</span>
+            <span class="info-value">${trainee.mobile_number}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">${isHindi ? "शिक्षा" : "Education"}:</span>
+            <span class="info-value">${prepareTextForLanguage(trainee.education, isHindi)}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">${isHindi ? "वर्तमान पोस्टिंग जिला" : "Current Posting District"}:</span>
+            <span class="info-value">${prepareTextForLanguage(trainee.current_posting_district, isHindi)}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">${isHindi ? "जन्म की तारीख" : "Date of Birth"}:</span>
+            <span class="info-value">${new Date(trainee.date_of_birth).toLocaleDateString()}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">${isHindi ? "भर्ती तिथि" : "Date of Joining"}:</span>
+            <span class="info-value">${new Date(trainee.date_of_joining).toLocaleDateString()}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">${isHindi ? "पहुंचने की तिथि" : "Arrival Date"}:</span>
+            <span class="info-value">${new Date(trainee.arrival_date).toLocaleDateString()}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">${isHindi ? "प्रस्थान की तिथि" : "Departure Date"}:</span>
+            <span class="info-value">${new Date(trainee.departure_date).toLocaleDateString()}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">${isHindi ? "रक्त समूह" : "Blood Group"}:</span>
+            <span class="info-value">${trainee.blood_group}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">${isHindi ? "नॉमिनी" : "Nominee"}:</span>
+            <span class="info-value">${prepareTextForLanguage(trainee.nominee, isHindi)}</span>
+          </div>
+          <div class="info-item full-width">
+            <span class="info-label">${isHindi ? "घर का पता" : "Home Address"}:</span>
+            <span class="info-value">${prepareTextForLanguage(trainee.home_address, isHindi)}</span>
+          </div>
+          ${trainee.toli_no ? `
+          <div class="info-item">
+            <span class="info-label">${isHindi ? "टोली नंबर" : "Toli No"}:</span>
+            <span class="info-value">${trainee.toli_no}</span>
+          </div>
+          ` : ''}
         </div>
       </div>
     `;
-  }).join('');
-  
-  // Generate footer
-  const printFooter = createPrintFooter(isHindi);
-  
-  return printHeader + rtcHeader + printTrainees + printFooter;
-};
+  }).join('<hr>');
+
+  // Create header if needed
+  const header = showHeader 
+    ? createPrintHeader(isHindi ? "प्रशिक्षु विवरण" : "Trainee Details", isHindi) 
+    : '';
+
+  // Create footer if needed
+  const footer = showFooter 
+    ? createPrintFooter(isHindi) 
+    : '';
+
+  // Assemble the complete HTML document
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <title>${isHindi ? "प्रशिक्षु विवरण" : "Trainee Details"}</title>
+        <style>${styles}</style>
+        <style>
+          .trainee-card {
+            margin-bottom: 2em;
+            page-break-inside: avoid;
+          }
+          .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+          }
+          .full-width {
+            grid-column: 1 / -1;
+          }
+          .info-item {
+            margin-bottom: 0.5em;
+          }
+          .info-label {
+            font-weight: bold;
+            margin-right: 0.5em;
+          }
+          hr {
+            border: none;
+            border-top: 1px dashed #ccc;
+            margin: 2em 0;
+          }
+          .trainee-photo {
+            text-align: center;
+            margin-bottom: 15px;
+          }
+        </style>
+      </head>
+      <body>
+        ${header}
+        <div class="content">
+          ${traineeCards}
+        </div>
+        ${footer}
+      </body>
+    </html>
+  `;
+}

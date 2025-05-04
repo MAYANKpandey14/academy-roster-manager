@@ -20,6 +20,7 @@ export interface Trainee {
   blood_group: BloodGroup;
   nominee: string;
   home_address: string;
+  photo_url?: string;
   created_at?: string;
   updated_at?: string;
 }

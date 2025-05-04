@@ -67,7 +67,8 @@ export async function addStaff(staffData: StaffFormValues): Promise<{ data: Staf
         home_address: staffData.home_address,
         toli_no: staffData.toli_no,
         class_no: staffData.class_no,
-        class_subject: staffData.class_subject
+        class_subject: staffData.class_subject,
+        photo_url: staffData.photo_url
       })
       .select()
       .single();
@@ -107,7 +108,8 @@ export async function updateStaff(id: string, staffData: StaffFormValues): Promi
         home_address: staffData.home_address,
         toli_no: staffData.toli_no,
         class_no: staffData.class_no,
-        class_subject: staffData.class_subject
+        class_subject: staffData.class_subject,
+        photo_url: staffData.photo_url
       })
       .eq('id', id)
       .select()

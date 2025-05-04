@@ -15,6 +15,7 @@ import { Staff } from "@/types/staff";
 import { staffFormSchema, StaffFormValues, bloodGroups, staffRanks } from "./StaffFormSchema";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ImageUpload } from "@/components/common/ImageUpload";
 
 interface StaffFormProps {
   initialData?: Staff;
@@ -46,12 +47,21 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
       toli_no: "",
       class_no: "",
       class_subject: "",
+      photo_url: "",
     },
   });
 
+  const handleFormSubmit = (data: StaffFormValues) => {
+    onSubmit(data);
+  };
+
+  const handleImageUpload = (url: string) => {
+    form.setValue("photo_url", url);
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
@@ -314,6 +324,16 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
               </FormItem>
             )}
           />
+          
+          <div className="col-span-1 md:col-span-2">
+            <ImageUpload 
+              bucketName="staff_photos"
+              entityId={initialData?.id}
+              initialImageUrl={initialData?.photo_url}
+              onImageUpload={handleImageUpload}
+              label={isHindi ? 'स्टाफ फोटो' : 'Staff Photo'}
+            />
+          </div>
         </div>
 
         <Button type="submit" disabled={isSubmitting}>

@@ -1,109 +1,133 @@
-import { prepareTextForLanguage } from "../textUtils";
-
-type TranslationFunction = (key: string, fallback: string) => string;
 
 /**
- * Opens a print window and prints the content
- * 
- * @param printContent HTML content to print
- * @returns boolean indicating success or failure
+ * Gets common print styles
  */
-export const handlePrint = (printContent: string): boolean => {
+export function getPrintStyles(isHindi: boolean): string {
+  return `
+    @media print {
+      @page { 
+        margin: 2cm; 
+      }
+      body { 
+        font-family: ${isHindi ? '"Mangal", "Noto Sans", Arial, sans-serif' : 'Arial, sans-serif'};
+        color: #333;
+        line-height: 1.5;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+    
+    body {
+      font-family: ${isHindi ? '"Mangal", "Noto Sans", Arial, sans-serif' : 'Arial, sans-serif'};
+      padding: 1em;
+      color: #333;
+      line-height: 1.5;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 2em;
+    }
+    
+    .header h1 {
+      margin-bottom: 0.5em;
+    }
+    
+    .content {
+      margin: 1em 0;
+    }
+    
+    .footer {
+      text-align: center;
+      margin-top: 2em;
+      padding-top: 1em;
+      border-top: 1px solid #ccc;
+    }
+  `;
+}
+
+/**
+ * Creates print header HTML
+ */
+export function createPrintHeader(title: string, isHindi: boolean): string {
+  const today = new Date().toLocaleDateString();
+  return `
+    <div class="header">
+      <h1>${title}</h1>
+      <p>${isHindi ? "दिनांक" : "Date"}: ${today}</p>
+    </div>
+  `;
+}
+
+/**
+ * Creates print footer HTML
+ */
+export function createPrintFooter(isHindi: boolean): string {
+  return `
+    <div class="footer">
+      <p>${isHindi ? "आरटीसी पुलिस लाइन, मुरादाबाद" : "RTC Police Line, Moradabad"}</p>
+    </div>
+  `;
+}
+
+/**
+ * Handle printing content by opening a new window
+ */
+export function handlePrint(content: string): boolean {
   try {
+    // Create a new window
     const printWindow = window.open('', '_blank');
+    
     if (!printWindow) {
+      console.error('Failed to open print window. Pop-up blocker may be enabled.');
       return false;
     }
     
-    // Write the content to the new window
-    printWindow.document.write(printContent);
+    // Write content to the new window
+    printWindow.document.open();
+    printWindow.document.write(content);
     printWindow.document.close();
     
-    // Focus the window and trigger print
-    printWindow.focus();
+    // Wait for images to load before printing
     setTimeout(() => {
       printWindow.print();
-      printWindow.close();
-    }, 300);
+      // Close the window after print dialog is closed
+      // printWindow.close(); // Commented out to allow user to close window manually
+    }, 500);
     
     return true;
   } catch (error) {
-    console.error("Error during print:", error);
+    console.error('Error printing:', error);
     return false;
   }
-};
+}
 
 /**
- * Creates common print styling used across different print templates
- * 
- * @param isHindi boolean indicating if the language is Hindi
- * @returns CSS styles as string
+ * Handle downloading content as a file
  */
-export const getPrintStyles = (isHindi: boolean): string => {
-  return `
-    body { 
-      font-family: 'Space Grotesk', Arial, sans-serif; 
-      padding: 20px;
-    }
-    .hindi-text, .font-mangal { 
-      font-family: 'Mangal', 'Arial Unicode MS', sans-serif; 
-    }
-    h1 { text-align: center; margin-bottom: 5px; }
-    h3 { text-align: center; margin-top: 5px; margin-bottom: 20px; }
-    .trainee-info { 
-      border: 1px solid #ddd; 
-      padding: 16px; 
-      margin-bottom: 20px; 
-      page-break-inside: avoid;
-    }
-    .trainee-info:not(:last-child) {
-      page-break-after: always;
-    }
-    .field { margin-bottom: 10px; }
-    .field-label { font-weight: bold; }
-    .footer { 
-      text-align: center; 
-      margin-top: 20px; 
-      font-size: 12px;
-      page-break-inside: avoid;
-    }
-  `;
-};
-
-/**
- * Creates HTML header content for print templates
- * 
- * @param title Page title
- * @param styles CSS styles
- * @returns HTML header as string
- */
-export const createPrintHeader = (title: string, styles: string): string => {
-  return `
-    <html>
-      <head>
-        <title>${title}</title>
-        <meta charset="UTF-8">
-        <style>${styles}</style>
-      </head>
-      <body>
-  `;
-};
-
-/**
- * Creates HTML footer content for print templates
- * 
- * @param isHindi boolean indicating if the language is Hindi
- * @returns HTML footer as string
- */
-export const createPrintFooter = (isHindi: boolean = false): string => {
-  return `
-        <div class="footer">
-          <p class="${isHindi ? 'font-mangal' : ''}">
-            ${prepareTextForLanguage("Printed on", isHindi)}
-            ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
-          </p>
-        </div>
-      </body>
-    </html>
-  `;
-};
+export function handleDownload(content: string, filename: string): boolean {
+  try {
+    // Create a Blob with the content
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
+    
+    // Create a download link
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    
+    // Trigger the download
+    document.body.appendChild(link);
+    link.click();
+    
+    // Clean up
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    
+    return true;
+  } catch (error) {
+    console.error('Error downloading:', error);
+    return false;
+  }
+}
