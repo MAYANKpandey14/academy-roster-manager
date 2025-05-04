@@ -43,12 +43,10 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
     try {
       console.log("Form data to submit:", data);
       
+      // The form now contains properly formatted dates from the DateFields component,
+      // so we don't need to transform them here
       const formData = {
-        ...data,
-        arrival_date: new Date(data.arrival_date).toISOString(),
-        departure_date: new Date(data.departure_date).toISOString(),
-        date_of_birth: new Date(data.date_of_birth).toISOString(),
-        date_of_joining: new Date(data.date_of_joining).toISOString(),
+        ...data
       };
       
       console.log("Transformed form data:", formData);

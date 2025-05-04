@@ -78,8 +78,7 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
     console.log("Form data to submit:", data);
     
     try {
-      // We don't need to create Date objects here as that causes timezone issues
-      // Send the data as it is since the backend will handle it
+      // We don't need to transform dates here since the form now handles it
       console.log("Transformed form data:", data);
 
       // Call the API to update the trainee
