@@ -1,5 +1,5 @@
+
 import { useState } from "react";
-import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -22,13 +22,13 @@ import {
 const leaveFormSchema = z.object({
   pno: z.string().min(1, "PNO is required"),
   reason: z.string().min(1, "Reason is required"),
-  start_date: z.date({
-    required_error: "Start date is required",
-  }),
-  end_date: z.date({
-    required_error: "End date is required",
-  }),
-}).refine((data) => data.end_date >= data.start_date, {
+  start_date: z.string().min(1, "Start date is required"),
+  end_date: z.string().min(1, "End date is required"),
+}).refine((data) => {
+  const start = new Date(data.start_date);
+  const end = new Date(data.end_date);
+  return end >= start;
+}, {
   message: "End date must be after start date",
   path: ["end_date"],
 });
@@ -48,6 +48,8 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
     defaultValues: {
       pno: "",
       reason: "",
+      start_date: "",
+      end_date: "",
     },
   });
 
@@ -67,8 +69,8 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
         return;
       }
 
-      const startDate = data.start_date.toISOString().split('T')[0];
-      const endDate = data.end_date.toISOString().split('T')[0];
+      const startDate = data.start_date;
+      const endDate = data.end_date;
 
       // Insert leave record based on type
       if (type === 'trainee') {
@@ -132,6 +134,9 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
     }
   };
 
+  // Get today's date in YYYY-MM-DD format for min value
+  const today = new Date().toISOString().split('T')[0];
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -160,17 +165,17 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
           control={form.control}
           name="start_date"
           render={({ field }) => (
-            <FormItem className="flex flex-col">
+            <FormItem>
               <FormLabel className={isHindi ? 'font-mangal' : ''}>
                 {isHindi ? "प्रारंभ तिथि" : "Start Date"}
               </FormLabel>
-              <Calendar
-                mode="single"
-                selected={field.value}
-                onSelect={field.onChange}
-                disabled={(date) => date < new Date()}
-                className="rounded-md border"
-              />
+              <FormControl>
+                <Input 
+                  {...field}
+                  type="date" 
+                  min={today}
+                />
+              </FormControl>
               <FormMessage className={isHindi ? 'font-mangal' : ''} />
             </FormItem>
           )}
@@ -180,17 +185,17 @@ export function LeaveForm({ type, onSuccess }: LeaveFormProps) {
           control={form.control}
           name="end_date"
           render={({ field }) => (
-            <FormItem className="flex flex-col">
+            <FormItem>
               <FormLabel className={isHindi ? 'font-mangal' : ''}>
                 {isHindi ? "अंतिम तिथि" : "End Date"}
               </FormLabel>
-              <Calendar
-                mode="single"
-                selected={field.value}
-                onSelect={field.onChange}
-                disabled={(date) => date < form.getValues("start_date") || date < new Date()}
-                className="rounded-md border"
-              />
+              <FormControl>
+                <Input 
+                  {...field}
+                  type="date"
+                  min={form.watch("start_date") || today}
+                />
+              </FormControl>
               <FormMessage className={isHindi ? 'font-mangal' : ''} />
             </FormItem>
           )}
