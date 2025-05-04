@@ -6,7 +6,15 @@ import { supabase } from "@/integrations/supabase/client";
 export async function getTrainees(): Promise<{ data: Trainee[] | null; error: Error | null }> {
   try {
     console.log("Fetching trainees");
-    const { data, error } = await supabase.functions.invoke('get-trainees');
+    
+    // Get the current session to include auth token
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    const { data, error } = await supabase.functions.invoke('get-trainees', {
+      headers: session ? {
+        Authorization: `Bearer ${session.access_token}`
+      } : {}
+    });
     
     if (error) {
       console.error("Supabase function error:", error);
@@ -34,8 +42,14 @@ export async function filterTrainees(
     if (chestNoFilter) params.chest_no = chestNoFilter;
     if (rollNoFilter) params.roll_no = rollNoFilter;
     
+    // Get the current session to include auth token
+    const { data: { session } } = await supabase.auth.getSession();
+    
     const { data, error } = await supabase.functions.invoke('get-trainees', {
-      body: params
+      body: params,
+      headers: session ? {
+        Authorization: `Bearer ${session.access_token}`
+      } : {}
     });
     
     if (error) {
@@ -65,7 +79,10 @@ export async function addTrainee(traineeData: TraineeFormValues): Promise<{ data
     
     // Add extra validation or data processing if needed
     const { data, error } = await supabase.functions.invoke('add-trainee', {
-      body: traineeData
+      body: traineeData,
+      headers: {
+        Authorization: `Bearer ${session.access_token}`
+      }
     });
     
     if (error) {
@@ -99,7 +116,10 @@ export async function updateTrainee(id: string, traineeData: TraineeFormValues):
     
     const { data, error } = await supabase.functions.invoke('update-trainee', {
       method: 'POST',
-      body: { id, ...traineeData }
+      body: { id, ...traineeData },
+      headers: {
+        Authorization: `Bearer ${session.access_token}`
+      }
     });
     
     if (error) {
