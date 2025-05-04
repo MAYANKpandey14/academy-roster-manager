@@ -4,7 +4,7 @@ import { ColumnFiltersState } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import { Trainee } from "@/types/trainee";
 import { TraineeTableActions } from "./table/TraineeTableActions";
-import { useTraineeTableColumns } from "./table/TraineeTableColumns";
+import { getTraineeTableColumns } from "./table/TraineeTableColumns";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TraineeTableProps {
@@ -19,8 +19,8 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
   const [selectedCount, setSelectedCount] = useState(0);
   const { isHindi } = useLanguage();
   
-  // Get table columns
-  const columns = useTraineeTableColumns(isLoading);
+  // Get table columns using getTraineeTableColumns function
+  const columns = getTraineeTableColumns(isHindi);
   
   useEffect(() => {
     // Update selected count when rowSelection changes

@@ -27,7 +27,8 @@ export const traineeFormSchema = z.object({
   chest_no: z.string().min(1, { message: "Chest number is required" }),
   name: z.string().min(1, { message: "Name is required" }),
   father_name: z.string().min(1, { message: "Father's name is required" }),
-  rank: z.enum(traineeRanks).optional(),
+  // Fix: Convert array to tuple with spread operator for z.enum()
+  rank: z.enum([...traineeRanks] as [string, ...string[]]).optional(),
   toli_no: z.string().optional(),
   arrival_date: z.string().min(1, { message: "Arrival date is required" }),
   departure_date: z.string().min(1, { message: "Departure date is required" }),
@@ -36,7 +37,8 @@ export const traineeFormSchema = z.object({
   education: z.string().min(1, { message: "Education is required" }),
   date_of_birth: z.string().min(1, { message: "Date of birth is required" }),
   date_of_joining: z.string().min(1, { message: "Date of joining is required" }),
-  blood_group: z.enum(bloodGroups, { required_error: "Blood group is required" }),
+  // Fix: Convert array to tuple with spread operator for z.enum()
+  blood_group: z.enum([...bloodGroups] as [string, ...string[]], { required_error: "Blood group is required" }),
   nominee: z.string().min(1, { message: "Nominee is required" }),
   home_address: z.string().min(1, { message: "Home address is required" }),
   photo_url: z.string().optional(),
