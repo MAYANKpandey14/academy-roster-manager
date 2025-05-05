@@ -24,8 +24,16 @@ export default function StaffPage() {
       if (error) throw error;
 
       if (data) {
-        // Cast data to Staff[] using type assertion
-        setStaff(data as unknown as Staff[]);
+        // Using a type assertion that properly transforms the data
+        const typedData = data.map(item => ({
+          ...item,
+          // Ensure specific fields match the expected types in Staff
+          id: item.id as string,
+          rank: item.rank as Staff['rank'],
+          // Add other fields that need explicit conversion
+        }));
+        
+        setStaff(typedData);
       }
     } catch (error) {
       console.error("Error fetching staff:", error);
@@ -54,8 +62,16 @@ export default function StaffPage() {
       if (error) throw error;
 
       if (data && data.length > 0) {
-        // Cast data to Staff[] using type assertion
-        setStaff(data as unknown as Staff[]);
+        // Using a type assertion that properly transforms the data
+        const typedData = data.map(item => ({
+          ...item,
+          // Ensure specific fields match the expected types in Staff
+          id: item.id as string,
+          rank: item.rank as Staff['rank'],
+          // Add other fields that need explicit conversion
+        }));
+        
+        setStaff(typedData);
         return true;
       } else {
         setStaff([]);

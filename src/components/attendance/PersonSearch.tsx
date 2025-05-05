@@ -99,27 +99,23 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
 
-      // Type guard to ensure data is of the right type and not an error
-      if (typeof data === 'object' && data !== null && 'id' in data) {
-        // Create a person data object with the correct shape
-        const personData: PersonData = {
-          id: data.id,
-          pno: data.pno,
-          name: data.name,
-          mobile_number: data.mobile_number
-        };
+      // Create a person data object with the correct shape
+      const personData: PersonData = {
+        id: data.id,
+        pno: data.pno,
+        name: data.name,
+        mobile_number: data.mobile_number
+      };
 
-        // Add type-specific fields
-        if (personType === 'trainee' && 'chest_no' in data && data.chest_no) {
-          personData.chest_no = data.chest_no;
-        } else if (personType === 'staff' && 'rank' in data && data.rank) {
-          personData.rank = data.rank;
-        }
-
-        onPersonFound(personData, personType);
-      } else {
-        throw new Error("Invalid data format received");
+      // Add type-specific fields
+      if (personType === 'trainee' && 'chest_no' in data && data.chest_no) {
+        personData.chest_no = data.chest_no;
+      } else if (personType === 'staff' && 'rank' in data && data.rank) {
+        personData.rank = data.rank;
       }
+
+      onPersonFound(personData, personType);
+
     } catch (error) {
       console.error("Error searching person:", error);
       toast.error(isHindi
