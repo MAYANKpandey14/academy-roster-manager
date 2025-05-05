@@ -75,12 +75,15 @@ export async function addStaff(staffData: StaffFormValues): Promise<{ data: Staf
         toli_no: staffData.toli_no,
         class_no: staffData.class_no,
         class_subject: staffData.class_subject,
-        photo_url: staffData.photo_url
+        photo_url: staffData.photo_url || null // Ensure photo_url is null if undefined
       })
       .select()
       .single();
     
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase insert error:', error);
+      throw error;
+    }
     
     return { 
       data: data as Staff, 
@@ -104,32 +107,39 @@ export async function updateStaff(id: string, staffData: StaffFormValues): Promi
       throw new Error("No active session found");
     }
     
-    // Ensure all required fields are present before update
+    // Prepare update data with proper handling for photo_url
+    const updateData = {
+      pno: staffData.pno,
+      name: staffData.name,
+      father_name: staffData.father_name,
+      rank: staffData.rank,
+      current_posting_district: staffData.current_posting_district,
+      mobile_number: staffData.mobile_number,
+      education: staffData.education,
+      date_of_birth: staffData.date_of_birth,
+      date_of_joining: staffData.date_of_joining,
+      blood_group: staffData.blood_group,
+      nominee: staffData.nominee,
+      home_address: staffData.home_address,
+      toli_no: staffData.toli_no,
+      class_no: staffData.class_no,
+      class_subject: staffData.class_subject,
+      photo_url: staffData.photo_url || null // Ensure photo_url is null if undefined
+    };
+    
+    console.log('Updating staff with data:', updateData);
+    
     const { data, error } = await supabase
       .from('staff')
-      .update({
-        pno: staffData.pno,
-        name: staffData.name,
-        father_name: staffData.father_name,
-        rank: staffData.rank,
-        current_posting_district: staffData.current_posting_district,
-        mobile_number: staffData.mobile_number,
-        education: staffData.education,
-        date_of_birth: staffData.date_of_birth,
-        date_of_joining: staffData.date_of_joining,
-        blood_group: staffData.blood_group,
-        nominee: staffData.nominee,
-        home_address: staffData.home_address,
-        toli_no: staffData.toli_no,
-        class_no: staffData.class_no,
-        class_subject: staffData.class_subject,
-        photo_url: staffData.photo_url
-      })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();
     
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase update error:', error);
+      throw error;
+    }
     
     return { 
       data: data as Staff, 
