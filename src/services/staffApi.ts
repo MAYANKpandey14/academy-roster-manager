@@ -50,7 +50,11 @@ export async function getStaffById(id: string): Promise<{ data: Staff | null; er
 export async function addStaff(staffData: StaffFormValues): Promise<{ data: Staff | null; error: Error | null }> {
   try {
     // Get current auth session to include the auth token
-    const { data: sessionData } = await supabase.auth.getSession();
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+
+    if (sessionError) {
+      throw new Error(`Session error: ${sessionError.message}`);
+    }
 
     if (!sessionData.session) {
       throw new Error("No active session found");
@@ -101,7 +105,11 @@ export async function addStaff(staffData: StaffFormValues): Promise<{ data: Staf
 export async function updateStaff(id: string, staffData: StaffFormValues): Promise<{ data: Staff | null; error: Error | null }> {
   try {
     // Get current auth session to include the auth token
-    const { data: sessionData } = await supabase.auth.getSession();
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+
+    if (sessionError) {
+      throw new Error(`Session error: ${sessionError.message}`);
+    }
 
     if (!sessionData.session) {
       throw new Error("No active session found");
@@ -157,7 +165,11 @@ export async function updateStaff(id: string, staffData: StaffFormValues): Promi
 export async function deleteStaff(id: string): Promise<{ error: Error | null }> {
   try {
     // Get current auth session to include the auth token
-    const { data: sessionData } = await supabase.auth.getSession();
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+
+    if (sessionError) {
+      throw new Error(`Session error: ${sessionError.message}`);
+    }
 
     if (!sessionData.session) {
       throw new Error("No active session found");
