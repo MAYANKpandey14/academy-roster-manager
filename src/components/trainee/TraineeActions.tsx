@@ -26,7 +26,9 @@ interface TraineeActionsProps {
 export function TraineeActions({ trainee }: TraineeActionsProps) {
   const navigate = useNavigate();
   const { isHindi } = useLanguage();
-  const { handlePrint, handleDownloadTrainee, handleExcelExport } = useTraineePrintService(trainee);
+  const { handlePrint, handleExcelExport } = useTraineePrintService(trainee);
+  
+  console.log("Trainee ID in actions:", trainee.id);
   
   return (
     <DropdownMenu>

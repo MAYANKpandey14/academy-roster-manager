@@ -13,6 +13,7 @@ import { TraineeNotFound } from "@/components/trainee/view/TraineeNotFound";
 import { useTraineePrintService } from "@/components/trainee/view/TraineePrintService";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { exportTraineesToExcel } from "@/utils/export";
+import { supabase } from "@/integrations/supabase/client";
 
 const ViewTrainee = () => {
   const { id } = useParams<{ id: string }>();
@@ -23,13 +24,9 @@ const ViewTrainee = () => {
   
   // Apply language inputs hook
   useLanguageInputs();
-
-  // Initialize print service with null trainee
-  // We'll handle this differently to avoid TypeScript errors
-  const [printService, setPrintService] = useState<{
-    handlePrint: () => void;
-    handleDownloadTrainee: () => void;
-  } | null>(null);
+  
+  // Initialize print service with the trainee data
+  const { handlePrint, handleDownloadTrainee } = useTraineePrintService(trainee);
 
   const handleExcelExport = () => {
     if (!trainee) return;
@@ -45,25 +42,36 @@ const ViewTrainee = () => {
 
   useEffect(() => {
     const fetchTrainee = async () => {
+      if (!id) {
+        toast.error(isHindi ? "प्रशिक्षु आईडी नहीं मिली" : "Trainee ID not found");
+        navigate("/");
+        return;
+      }
+      
+      setIsLoading(true);
+      
       try {
-        const { data, error } = await getTrainees();
+        console.log("Fetching trainee with ID:", id);
+        
+        // Direct Supabase query to fetch a single trainee by ID
+        const { data, error } = await supabase
+          .from('trainees')
+          .select('*')
+          .eq('id', id)
+          .single();
         
         if (error) {
+          console.error("Error fetching trainee:", error);
           throw error;
         }
         
         if (data) {
-          const traineeData = data.find(t => t.id === id);
-          
-          if (traineeData) {
-            setTrainee(traineeData);
-            // Initialize the print service now that we have trainee data
-            const { handlePrint, handleDownloadTrainee } = useTraineePrintService(traineeData);
-            setPrintService({ handlePrint, handleDownloadTrainee });
-          } else {
-            toast.error(isHindi ? "प्रशिक्षु नहीं मिला" : "Trainee not found");
-            navigate("/");
-          }
+          console.log("Trainee data fetched:", data);
+          setTrainee(data as Trainee);
+        } else {
+          console.error("No trainee found with ID:", id);
+          toast.error(isHindi ? "प्रशिक्षु नहीं मिला" : "Trainee not found");
+          navigate("/");
         }
       } catch (error) {
         console.error("Error fetching trainee:", error);
@@ -92,8 +100,8 @@ const ViewTrainee = () => {
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
           <TraineeHeader 
             trainee={trainee} 
-            onPrint={() => printService?.handlePrint()} 
-            onDownload={() => printService?.handleDownloadTrainee()}
+            onPrint={handlePrint} 
+            onDownload={handleDownloadTrainee}
             onExcelExport={handleExcelExport}
           />
           
