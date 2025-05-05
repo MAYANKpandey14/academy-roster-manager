@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Printer, Download, FileSpreadsheet, Edit } from "lucide-react";
@@ -17,11 +18,11 @@ export function StaffHeader({ id, staff, onPrint, onDownload, onExcelExport }: S
   const { isHindi } = useLanguage();
 
   return (
-    <div className="flex items-center justify-between mb-6">
+    <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between mb-6">
       <h1 className={`text-2xl font-semibold ${isHindi ? 'font-hindi' : ''}`}>
-        {isHindi ? "स्टाफ विवरण देखें" : "View Staff Details"}
+        {isHindi ? "स्टाफ विवरण" : "Staff Details"}
       </h1>
-      <div className="flex space-x-2">
+      <div className="flex flex-wrap gap-2">
         {staff && (
           <>
             <Button variant="outline" onClick={onPrint} className="print-button">
@@ -30,12 +31,6 @@ export function StaffHeader({ id, staff, onPrint, onDownload, onExcelExport }: S
                 {isHindi ? "प्रिंट" : "Print"}
               </span>
             </Button>
-            {/* <Button variant="outline" onClick={onDownload} className="download-button">
-              <Download className="mr-2 h-4 w-4" />
-              <span className={isHindi ? 'font-hindi' : ''}>
-                {isHindi ? "डाउनलोड" : "Download"}
-              </span>
-            </Button> */}
             <Button variant="outline" onClick={onExcelExport} className="excel-button">
               <FileSpreadsheet className="mr-2 h-4 w-4" />
               <span className={isHindi ? 'font-hindi' : ''}>
@@ -43,9 +38,9 @@ export function StaffHeader({ id, staff, onPrint, onDownload, onExcelExport }: S
               </span>
             </Button>
             <Button variant="outline" onClick={() => navigate(`/edit-staff/${id}`)} className="edit-button">
-              <Edit className="h-4 w-4" />
+              <Edit className="mr-2 h-4 w-4" />
               <span className={isHindi ? 'font-hindi' : ''}>
-                {isHindi ? "संपादित करें" : "Edit Staff"}
+                {isHindi ? "संपादित करें" : "Edit"}
               </span>
             </Button>
           </>

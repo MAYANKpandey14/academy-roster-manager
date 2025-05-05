@@ -1,3 +1,4 @@
+
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface StaffInfoFieldProps {
@@ -6,17 +7,21 @@ interface StaffInfoFieldProps {
   isMultilingual?: boolean;
 }
 
-export function StaffInfoField({ label, value, isMultilingual = false }: StaffInfoFieldProps) {
+export function StaffInfoField({ 
+  label, 
+  value, 
+  isMultilingual = false 
+}: StaffInfoFieldProps) {
   const { isHindi } = useLanguage();
 
   return (
-    <div>
-      <p className="text-sm font-medium text-muted-foreground">
+    <div className="animate-fade-in">
+      <h3 className="text-sm font-medium text-gray-500">
         <span className={isHindi ? 'font-hindi' : ''}>
           {label}
         </span>
-      </p>
-      <p>
+      </h3>
+      <p className="mt-1">
         {isMultilingual ? (
           <span className={isHindi ? 'font-hindi' : ''}>
             {value}
