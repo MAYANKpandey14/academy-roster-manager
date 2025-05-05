@@ -19,11 +19,18 @@ export function createStaffPrintContent(staffList: Staff[], isHindi: boolean): s
 
   // Create staff content
   const staffContent = staffList.map(staff => {
+    // Enhanced photo section with proper styling and fallback
     const photoSection = staff.photo_url ? `
       <div class="staff-photo">
-        <img src="${staff.photo_url}" alt="${staff.name}" style="max-width: 100px; max-height: 100px; border-radius: 4px; margin-bottom: 10px;">
+        <img src="${staff.photo_url}" alt="${staff.name}" style="max-width: 150px; max-height: 150px; border-radius: 4px; margin-bottom: 15px; object-fit: cover; border: 1px solid #ddd;">
       </div>
-    ` : '';
+    ` : `
+      <div class="staff-photo staff-photo-placeholder">
+        <div style="width: 150px; height: 150px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 4px; margin-bottom: 15px; font-size: 48px; color: #999;">
+          ${staff.name.charAt(0)}
+        </div>
+      </div>
+    `;
     
     return `
       <div class="staff-details">
@@ -104,7 +111,7 @@ export function createStaffPrintContent(staffList: Staff[], isHindi: boolean): s
     </div>
   `;
 
-  // Create styles
+  // Create styles with enhanced photo styling
   const styles = `
     <style>
       @media print {
@@ -123,17 +130,29 @@ export function createStaffPrintContent(staffList: Staff[], isHindi: boolean): s
         margin-bottom: 5px;
       }
       .staff-details {
-        margin-bottom: 20px;
+        margin-bottom: 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
       }
       .staff-details h2 {
-        margin-bottom: 10px;
+        margin-bottom: 15px;
         border-bottom: 1px solid #ccc;
-        padding-bottom: 5px;
+        padding-bottom: 8px;
+        width: 100%;
+      }
+      .staff-photo {
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: center;
       }
       .staff-info {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
+        width: 100%;
+        text-align: left;
       }
       .info-row {
         margin-bottom: 5px;
@@ -153,9 +172,12 @@ export function createStaffPrintContent(staffList: Staff[], isHindi: boolean): s
         border-top: 1px dashed #ccc;
         margin: 30px 0;
       }
-      .staff-photo {
-        text-align: center;
-        margin-bottom: 15px;
+      @media print {
+        .staff-photo img {
+          max-width: 150px;
+          max-height: 150px;
+          page-break-inside: avoid;
+        }
       }
     </style>
   `;

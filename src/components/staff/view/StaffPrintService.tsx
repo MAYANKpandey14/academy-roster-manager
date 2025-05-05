@@ -15,7 +15,13 @@ export function useStaffPrintService(staff: Staff) {
   const currentLanguage = isHindi ? 'hi' : 'en';
 
   const handlePrintStaff = () => {
-    const printContent = createStaffPrintContent([staff], isHindi);
+    // Ensure the staff object has the photo_url property before printing
+    const staffWithPhoto = {
+      ...staff,
+      photo_url: staff.photo_url || null
+    };
+    
+    const printContent = createStaffPrintContent([staffWithPhoto], isHindi);
     const printSuccess = handlePrint(printContent);
     
     if (!printSuccess) {

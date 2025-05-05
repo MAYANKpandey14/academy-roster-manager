@@ -16,6 +16,10 @@ export function getPrintStyles(isHindi: boolean): string {
       .no-print {
         display: none !important;
       }
+      img {
+        max-width: 100%;
+        page-break-inside: avoid;
+      }
     }
     
     body {
@@ -94,7 +98,7 @@ export function handlePrint(content: string): boolean {
       printWindow.print();
       // Close the window after print dialog is closed
       // printWindow.close(); // Commented out to allow user to close window manually
-    }, 500);
+    }, 1000); // Increased timeout to ensure images load
     
     return true;
   } catch (error) {
