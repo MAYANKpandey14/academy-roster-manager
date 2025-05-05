@@ -6,8 +6,7 @@ import {
   Eye,
   Download,
   Printer,
-  FileSpreadsheet,
-  Trash2
+  FileSpreadsheet
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -31,8 +30,7 @@ export function StaffRowActions({
   staff, 
   handlePrintAction, 
   handleDownloadAction, 
-  handleExcelExport, 
-  handleDelete 
+  handleExcelExport
 }: StaffRowActionsProps) {
   const navigate = useNavigate();
   const { isHindi } = useLanguage();
@@ -71,17 +69,6 @@ export function StaffRowActions({
             <FileSpreadsheet className="mr-2 h-4 w-4" /> 
             <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
               {isHindi ? "एक्सेल" : "Excel"}
-            </span>
-          </DropdownMenuItem>
-        )}
-        {handleDelete && (
-          <DropdownMenuItem 
-            onClick={() => handleDelete(staff.id)}
-            className="text-red-500 hover:text-red-600 hover:bg-red-50"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "हटाएं" : "Delete"}
             </span>
           </DropdownMenuItem>
         )}

@@ -7,6 +7,9 @@ import { StaffTableActions } from "./table/StaffTableActions";
 import { useStaffTable } from "./table/useStaffTable";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { exportStaffToExcel } from "@/utils/export";
+import { createStaffPrintContent, createStaffCSVContent } from "@/utils/staffExportUtils";
+import { handlePrint, handleDownload } from "@/utils/export";
+import { toast } from "sonner";
 
 interface StaffTableProps {
   staff: Staff[];
@@ -25,11 +28,25 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
     getSelectedStaff
   } = useStaffTable(staff, onRefresh);
 
-  // Define these functions in this component
+  // Define proper print action implementation
   const handlePrintAction = (staffId: string) => {
     const staffMember = staff.find(s => s.id === staffId);
     if (staffMember) {
       console.log("Printing staff:", staffId);
+      // Ensure the staff object has the photo_url property before printing
+      const staffWithPhoto = {
+        ...staffMember,
+        photo_url: staffMember.photo_url || null
+      };
+      
+      const printContent = createStaffPrintContent([staffWithPhoto], isHindi);
+      const printSuccess = handlePrint(printContent);
+      
+      if (!printSuccess) {
+        toast.error(isHindi ? "प्रिंट विंडो खोलने में विफल" : "Failed to open print window. Please check your pop-up blocker settings.");
+      } else {
+        toast.success(isHindi ? "स्टाफ विवरण प्रिंट हो रहा है..." : "Printing staff details");
+      }
     }
   };
 
@@ -37,6 +54,12 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
     const staffMember = staff.find(s => s.id === staffId);
     if (staffMember) {
       console.log("Downloading staff:", staffId);
+      const csvContent = createStaffCSVContent([staffMember], isHindi);
+      handleDownload(
+        csvContent, 
+        `staff_${staffMember.pno}_${staffMember.name.replace(/\s+/g, '_')}.csv`
+      );
+      toast.success(isHindi ? "स्टाफ CSV फ़ाइल सफलतापूर्वक डाउनलोड हो गई है..." : "CSV file downloaded successfully");
     }
   };
 
@@ -50,7 +73,7 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
     isLoading, 
     handlePrintAction,
     handleDownloadAction,
-    handleDelete,
+    null, // Pass null instead of handleDelete to remove delete functionality
     handleExcelExport
   );
 
