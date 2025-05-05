@@ -25,8 +25,7 @@ export default function StaffPage() {
 
       // Properly cast the data to Staff[]
       if (data) {
-        const typedData = data as unknown as Staff[];
-        setStaff(typedData);
+        setStaff(data as Staff[]);
       }
     } catch (error) {
       console.error("Error fetching staff:", error);
@@ -56,7 +55,7 @@ export default function StaffPage() {
 
       if (data && data.length > 0) {
         // Properly cast the data to Staff[]
-        setStaff(data as unknown as Staff[]);
+        setStaff(data as Staff[]);
         return true;
       } else {
         setStaff([]);

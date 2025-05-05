@@ -5,9 +5,6 @@ import { z } from "zod";
 export const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] as const;
 export const ranks = ["SI", "ASI", "HC", "CONST"] as const;
 
-// Add this for the ServiceInfoFields component
-export const traineeRanks = ["SI", "ASI", "HC", "CONST"] as const;
-
 // Schema for trainee form
 export const traineeFormSchema = z.object({
   pno: z.string().min(1, "PNO is required"),

@@ -85,7 +85,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         query = query.eq(fieldName, altId);
       }
 
-      const { data, error } = await query.single();
+      const { data, error } = await query.maybeSingle();
 
       if (error) {
         throw error;
