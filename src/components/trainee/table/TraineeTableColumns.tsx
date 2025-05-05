@@ -19,10 +19,10 @@ export const getTraineeTableColumns = (isHindi: boolean): ColumnDef<Trainee>[] =
               <ImageLoader
                 src={trainee.photo_url}
                 alt={`${trainee.name}'s photo`}
-                width={30}
-                height={30}
-                className="w-10 h-10 rounded-full border"
-                objectFit="cover"
+                width={60}
+                height={60}
+                className="w-10 h-10 rounded-md border"
+                objectFit="fill"
               />
             ) : (
               <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
