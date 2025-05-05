@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Download, Printer, RefreshCw, FileSpreadsheet } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -42,20 +43,7 @@ export function TraineeTableActions({
       toast.error(isHindi ? "प्रिंट विंडो खोलने में विफल" : "Failed to open print window. Please check your pop-up blocker settings.");
     }
   }
-  // Download CSV button: white background, green text and border
-  // function handleDownloadAction() {
-  //   const selectedTrainees = getSelectedTrainees();
-    
-  //   if (selectedTrainees.length === 0) {
-  //     toast.error(isHindi ? "कृपया कम से कम एक प्रशिक्षानिवेशी चुनें" : "Please select at least one trainee to download");
-  //     return;
-  //   }
-    
-  //   const content = createCSVContent(selectedTrainees, isHindi);  
-  //   handleDownload(content, `selected_trainees_${new Date().toISOString().split('T')[0]}.csv`);
-  //   toast.success(isHindi ? "प्रशिक्षानिवेशी CSV फ़ाइल सफलतापूर्वक डाउनलोड हो गई है..." : `CSV file with ${selectedTrainees.length} trainees downloaded successfully`);
-  // }
-
+  
   function handleExcelExport() {
     const selectedTrainees = getSelectedTrainees();
     
@@ -102,19 +90,6 @@ export function TraineeTableActions({
           {isHindi ? "चयनित प्रिंट करें" : "Print Selected"}{selectedCount > 0 ? ` (${selectedCount})` : ''}
         </span>}
       </Button>
-      
-      {/* <Button
-        variant="outline"
-        size="sm"
-        onClick={handleDownloadAction}
-        className="download-button animate-slide-in"
-        disabled={isLoading || selectedCount === 0}
-      >
-        <Download className="h-4 w-4" />
-        {!isMobile && <span className={`ml-2 ${isHindi ? 'font-mangal' : ''}`}>
-          {isHindi ? "CSV डाउनलोड करें" : "Download CSV"}{selectedCount > 0 ? ` (${selectedCount})` : ''}
-        </span>}
-      </Button> */}
       
       <Button
         variant="outline"

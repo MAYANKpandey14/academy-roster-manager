@@ -50,6 +50,7 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
         isLoading={isLoading}
         onRowSelectionChange={setRowSelection}
         rowSelection={rowSelection}
+        totalLabel={isHindi ? "कुल प्रशिक्षानिवेशी" : "Total Trainees"}
       />
     </div>
   );
