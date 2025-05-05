@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function StaffPage() {
-  const [staffList, setStaffList] = useState<Staff[]>([]);
+  const [staff, setStaff] = useState<Staff[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { isHindi } = useLanguage();
 
@@ -23,7 +23,11 @@ export default function StaffPage() {
 
       if (error) throw error;
 
-      setStaffList(data || []);
+      // Properly cast the data to Staff[]
+      if (data) {
+        const typedData = data as unknown as Staff[];
+        setStaff(typedData);
+      }
     } catch (error) {
       console.error("Error fetching staff:", error);
       toast.error(isHindi ? "स्टाफ लोड नहीं हो सका" : "Failed to load staff");
@@ -51,10 +55,11 @@ export default function StaffPage() {
       if (error) throw error;
 
       if (data && data.length > 0) {
-        setStaffList(data);
+        // Properly cast the data to Staff[]
+        setStaff(data as unknown as Staff[]);
         return true;
       } else {
-        setStaffList([]);
+        setStaff([]);
         return false;
       }
     } catch (error) {
@@ -86,7 +91,7 @@ export default function StaffPage() {
 
         <div className="mt-6">
           <StaffTable 
-            staffList={staffList} 
+            staff={staff} 
             isLoading={isLoading} 
             onRefresh={fetchAllStaff} 
           />

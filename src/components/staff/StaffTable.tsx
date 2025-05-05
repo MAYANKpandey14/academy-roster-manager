@@ -99,4 +99,4 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
       />
     </div>
   );
-};
+}

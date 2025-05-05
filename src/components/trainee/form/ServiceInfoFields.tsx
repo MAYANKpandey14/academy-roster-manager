@@ -1,9 +1,11 @@
+
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { TraineeFormValues, traineeRanks } from "@/components/trainee/TraineeFormSchema";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 interface ServiceInfoFieldsProps {
   form: UseFormReturn<TraineeFormValues>;
 }
@@ -61,7 +63,6 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
         )}
       />
 
-
       <FormField
         control={form.control}
         name="rank"
@@ -88,7 +89,6 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
           </FormItem>
         )}
       />
-
 
       <FormField
         control={form.control}

@@ -28,12 +28,15 @@ interface PersonSearchProps {
   onPersonFound: (person: PersonData, type: 'trainee' | 'staff') => void;
 }
 
+type SearchType = 'pno' | 'alt_id';
+type PersonType = 'trainee' | 'staff';
+
 export function PersonSearch({ onPersonFound }: PersonSearchProps) {
   const { isHindi } = useLanguage();
   const [pno, setPno] = useState("");
   const [altId, setAltId] = useState("");
-  const [personType, setPersonType] = useState<'trainee' | 'staff'>('trainee');
-  const [searchBy, setSearchBy] = useState<'pno' | 'alt_id'>('pno');
+  const [personType, setPersonType] = useState<PersonType>('trainee');
+  const [searchBy, setSearchBy] = useState<SearchType>('pno');
   const [isSearching, setIsSearching] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -96,19 +99,19 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
 
-      // Use explicit type assertion since we've verified the data structure
+      // Create a person data object with the correct shape
       const personData: PersonData = {
-        id: (data as Record<string, any>).id as string,
-        pno: (data as Record<string, any>).pno as string,
-        name: (data as Record<string, any>).name as string,
-        mobile_number: (data as Record<string, any>).mobile_number as string
+        id: data.id,
+        pno: data.pno,
+        name: data.name,
+        mobile_number: data.mobile_number
       };
 
-      // Add type-specific fields with proper type assertions
-      if (personType === 'trainee' && 'chest_no' in data) {
-        personData.chest_no = (data as Record<string, any>).chest_no as string;
-      } else if (personType === 'staff' && 'rank' in data) {
-        personData.rank = (data as Record<string, any>).rank as string;
+      // Add type-specific fields
+      if (personType === 'trainee' && data.chest_no) {
+        personData.chest_no = data.chest_no;
+      } else if (personType === 'staff' && data.rank) {
+        personData.rank = data.rank;
       }
 
       onPersonFound(personData, personType);
@@ -149,7 +152,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
           </Label>
           <Select
             value={personType}
-            onValueChange={(value: 'trainee' | 'staff') => {
+            onValueChange={(value: PersonType) => {
               setPersonType(value);
               // Reset IDs when changing person type
               setPno("");
@@ -180,8 +183,8 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
           </Label>
           <Select
             value={searchBy}
-            onValueChange={(value: 'pno' | 'alt_id') => {
-              setSearchBy(value as 'pno' | 'alt_id');
+            onValueChange={(value: SearchType) => {
+              setSearchBy(value);
               // Reset values when changing search method
               setPno("");
               setAltId("");
