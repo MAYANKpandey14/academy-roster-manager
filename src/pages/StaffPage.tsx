@@ -1,117 +1,105 @@
-
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
-import { StaffFilters } from "@/components/staff/StaffFilters";
 import { StaffTable } from "@/components/staff/StaffTable";
+import { StaffFilters } from "@/components/staff/StaffFilters";
+import { Staff, StaffRank } from "@/types/staff";
 import { supabase } from "@/integrations/supabase/client";
-import { Staff } from "@/types/staff";
 import { toast } from "sonner";
+import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-export default function StaffPage() {
+const StaffPage = () => {
   const [staff, setStaff] = useState<Staff[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showTable, setShowTable] = useState(false);
   const { isHindi } = useLanguage();
+  
+  // Use the language inputs hook for better language support
+  useLanguageInputs();
 
-  const fetchAllStaff = async () => {
+  const handleSearch = async (pno: string): Promise<boolean> => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
         .from('staff')
         .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      if (data) {
-        // Using a type assertion that properly transforms the data
-        const typedData = data.map(item => ({
-          ...item,
-          // Ensure specific fields match the expected types in Staff
-          id: item.id as string,
-          rank: item.rank as Staff['rank'],
-          // Add other fields that need explicit conversion
-        }));
-        
-        setStaff(typedData);
-      }
-    } catch (error) {
-      console.error("Error fetching staff:", error);
-      toast.error(isHindi ? "स्टाफ लोड नहीं हो सका" : "Failed to load staff");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSearch = async (identifier: string, uniqueId?: string, identifierType?: string) => {
-    setIsLoading(true);
-    try {
-      let query = supabase.from('staff').select('*');
+        .eq('pno', pno);
       
-      // Search based on identifier type
-      if (identifierType === "unique_id" && uniqueId) {
-        // Search by unique ID/Adhaar number using the adhaar_number field
-        query = query.eq('adhaar_number', uniqueId);
-      } else {
-        // Default: search by PNO
-        query = query.eq('pno', identifier);
-      }
-
-      const { data, error } = await query;
-
       if (error) throw error;
-
-      if (data && data.length > 0) {
-        // Using a type assertion that properly transforms the data
-        const typedData = data.map(item => ({
-          ...item,
-          // Ensure specific fields match the expected types in Staff
-          id: item.id as string,
-          rank: item.rank as Staff['rank'],
-          // Add other fields that need explicit conversion
-        }));
-        
-        setStaff(typedData);
-        return true;
-      } else {
-        setStaff([]);
-        return false;
-      }
+      
+      // Convert the data to ensure it matches the Staff type
+      const typedStaff: Staff[] = data?.map(item => ({
+        ...item,
+        rank: item.rank as StaffRank,
+        blood_group: item.blood_group as Staff['blood_group']
+      })) || [];
+      
+      setStaff(typedStaff);
+      setShowTable(true);
+      return typedStaff.length > 0;
     } catch (error) {
-      console.error("Error searching staff:", error);
-      toast.error(isHindi ? "स्टाफ खोज में त्रुटि" : "Error searching staff");
+      console.error('Error searching staff:', error);
+      toast.error(isHindi ? 'एक त्रुटि हुई' : 'An error occurred');
       return false;
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchAllStaff();
-  }, []);
+  const handleShowAll = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('staff')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      
+      // Convert the data to ensure it matches the Staff type
+      const typedStaff: Staff[] = data?.map(item => ({
+        ...item,
+        rank: item.rank as StaffRank,
+        blood_group: item.blood_group as Staff['blood_group']
+      })) || [];
+      
+      setStaff(typedStaff);
+      setShowTable(true);
+    } catch (error) {
+      console.error('Error fetching all staff:', error);
+      toast.error(isHindi ? 'एक त्रुटि हुई' : 'An error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <main className="container mx-auto py-6 px-4">
-        <h1 className={`text-2xl font-semibold mb-6 ${isHindi ? "font-mangal" : ""}`}>
-          {isHindi ? "स्टाफ प्रबंधन" : "Staff Management"}
-        </h1>
-
-        <StaffFilters 
-          onSearch={handleSearch} 
-          onShowAll={fetchAllStaff} 
-          disabled={isLoading}
-        />
-
-        <div className="mt-6">
-          <StaffTable 
-            staff={staff} 
-            isLoading={isLoading} 
-            onRefresh={fetchAllStaff} 
+      <main className="container mx-auto py-6 px-4 animate-fade-in">
+        <div className="mb-6">
+          <h1 className={`text-2xl font-semibold mb-6 ${isHindi ? 'font-hindi' : ''}`}>
+            {isHindi ? 'स्टाफ' : 'Staff'}
+          </h1>
+          <StaffFilters
+            onSearch={handleSearch}
+            onShowAll={handleShowAll}
+            disabled={isLoading}
           />
         </div>
+        
+        {showTable && (
+          <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mt-6 animate-scale-in">
+            <StaffTable 
+              staff={staff} 
+              onRefresh={handleShowAll}
+              isLoading={isLoading}
+            />
+          </div>
+        )}
       </main>
     </div>
   );
-}
+};
+
+export default StaffPage;
