@@ -31,16 +31,30 @@ interface PersonSearchProps {
 export function PersonSearch({ onPersonFound }: PersonSearchProps) {
   const { isHindi } = useLanguage();
   const [pno, setPno] = useState("");
+  const [altId, setAltId] = useState("");
   const [personType, setPersonType] = useState<'trainee' | 'staff'>('trainee');
+  const [searchBy, setSearchBy] = useState<'pno' | 'alt_id'>('pno');
   const [isSearching, setIsSearching] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!pno) {
+    // Validate input based on search type
+    if (searchBy === 'pno' && !pno) {
       toast.error(isHindi
         ? "कृपया पी.एन.ओ. दर्ज करें"
         : "Please enter the PNO");
+      return;
+    }
+
+    if (searchBy === 'alt_id' && !altId) {
+      toast.error(isHindi
+        ? personType === 'trainee' 
+          ? "कृपया रोल नंबर दर्ज करें" 
+          : "कृपया यूनिक आईडी दर्ज करें"
+        : personType === 'trainee'
+          ? "Please enter Roll Number"
+          : "Please enter Unique ID");
       return;
     }
 
@@ -57,11 +71,18 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         columns += ', rank';
       }
 
-      const { data, error } = await supabase
-        .from(tableName)
-        .select(columns)
-        .eq('pno', pno)
-        .single();
+      // Build query based on search type and person type
+      let query = supabase.from(tableName).select(columns);
+      
+      if (searchBy === 'pno') {
+        query = query.eq('pno', pno);
+      } else if (searchBy === 'alt_id') {
+        // For trainee, search by chest_no; for staff, search by adhaar_number
+        const fieldName = personType === 'trainee' ? 'chest_no' : 'adhaar_number';
+        query = query.eq(fieldName, altId);
+      }
+
+      const { data, error } = await query.single();
 
       if (error) {
         throw error;
@@ -102,16 +123,38 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
     }
   };
 
+  // Dynamic label and placeholder based on person type and search type
+  const getAltIdLabel = () => {
+    return personType === 'trainee' 
+      ? (isHindi ? "रोल नंबर / चेस्ट नंबर" : "Roll Number / Chest Number")
+      : (isHindi ? "यूनिक आईडी / आधार नंबर" : "Unique ID / Adhaar Number");
+  };
+
+  const getAltIdPlaceholder = () => {
+    return personType === 'trainee'
+      ? (isHindi ? "रोल नंबर / चेस्ट नंबर दर्ज करें" : "Enter Roll Number / Chest Number")
+      : (isHindi ? "यूनिक आईडी / आधार नंबर दर्ज करें (12 अंक)" : "Enter Unique ID / Adhaar Number (12-digit)");
+  };
+
+  const getAltIdMaxLength = () => {
+    return personType === 'trainee' ? undefined : 12;
+  };
+
   return (
     <form onSubmit={handleSearch} className="space-y-4 animate-fade-in">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="space-y-2">
           <Label htmlFor="personType" className={isHindi ? "font-hindi" : ""}>
             {isHindi ? "व्यक्ति का प्रकार" : "Person Type"}
           </Label>
           <Select
             value={personType}
-            onValueChange={(value: 'trainee' | 'staff') => setPersonType(value)}
+            onValueChange={(value: 'trainee' | 'staff') => {
+              setPersonType(value);
+              // Reset IDs when changing person type
+              setPno("");
+              setAltId("");
+            }}
           >
             <SelectTrigger id="personType" className="transition-all duration-200">
               <SelectValue placeholder={isHindi ? "प्रकार चुनें" : "Select type"} />
@@ -132,38 +175,107 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="pno" className={isHindi ? "font-hindi" : ""}>
-            {isHindi ? "पीएनओ नंबर" : "PNO Number"}
+          <Label htmlFor="searchBy" className={isHindi ? "font-hindi" : ""}>
+            {isHindi ? "इसके द्वारा खोजें" : "Search By"}
           </Label>
-          <div className="flex space-x-2">
-            <Input
-              id="pno"
-              value={pno}
-              onChange={(e) => setPno(e.target.value)}
-              placeholder={isHindi ? "पीएनओ दर्ज करें (9 अंक)" : "Enter PNO (9-digit)"}
-              className={isHindi ? "font-hindi" : ""}
-              maxLength={9}
-            />
-            <Button
-              type="submit"
-              disabled={isSearching}
-              className="transition-all duration-200 hover:scale-105 active:scale-95"
-            >
-              {isSearching ? (
+          <Select
+            value={searchBy}
+            onValueChange={(value: 'pno' | 'alt_id') => {
+              setSearchBy(value as 'pno' | 'alt_id');
+              // Reset values when changing search method
+              setPno("");
+              setAltId("");
+            }}
+          >
+            <SelectTrigger id="searchBy" className="transition-all duration-200">
+              <SelectValue placeholder={isHindi ? "खोज विधि चुनें" : "Select search method"} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="pno">
                 <span className={isHindi ? "font-hindi" : ""}>
-                  {isHindi ? "खोज रहा है..." : "Searching..."}
+                  {isHindi ? "पीएनओ नंबर" : "PNO Number"}
                 </span>
-              ) : (
-                <>
-                  <Search className="h-4 w-4 mr-2" />
-                  <span className={isHindi ? "font-hindi" : ""}>
-                    {isHindi ? "खोजें" : "Search"}
-                  </span>
-                </>
-              )}
-            </Button>
-          </div>
+              </SelectItem>
+              <SelectItem value="alt_id">
+                <span className={isHindi ? "font-hindi" : ""}>
+                  {personType === 'trainee' 
+                    ? (isHindi ? "रोल नंबर / चेस्ट नंबर" : "Roll Number / Chest Number")
+                    : (isHindi ? "यूनिक आईडी / आधार नंबर" : "Unique ID / Adhaar Number")}
+                </span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
+
+        {searchBy === 'pno' ? (
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="pno" className={isHindi ? "font-hindi" : ""}>
+              {isHindi ? "पीएनओ नंबर" : "PNO Number"}
+            </Label>
+            <div className="flex space-x-2">
+              <Input
+                id="pno"
+                value={pno}
+                onChange={(e) => setPno(e.target.value)}
+                placeholder={isHindi ? "पीएनओ दर्ज करें (9 अंक)" : "Enter PNO (9-digit)"}
+                className={isHindi ? "font-hindi" : ""}
+                maxLength={9}
+              />
+              <Button
+                type="submit"
+                disabled={isSearching}
+                className="transition-all duration-200 hover:scale-105 active:scale-95"
+              >
+                {isSearching ? (
+                  <span className={isHindi ? "font-hindi" : ""}>
+                    {isHindi ? "खोज रहा है..." : "Searching..."}
+                  </span>
+                ) : (
+                  <>
+                    <Search className="h-4 w-4 mr-2" />
+                    <span className={isHindi ? "font-hindi" : ""}>
+                      {isHindi ? "खोजें" : "Search"}
+                    </span>
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="altId" className={isHindi ? "font-hindi" : ""}>
+              {getAltIdLabel()}
+            </Label>
+            <div className="flex space-x-2">
+              <Input
+                id="altId"
+                value={altId}
+                onChange={(e) => setAltId(e.target.value)}
+                placeholder={getAltIdPlaceholder()}
+                className={isHindi ? "font-hindi" : ""}
+                maxLength={getAltIdMaxLength()}
+              />
+              <Button
+                type="submit"
+                disabled={isSearching}
+                className="transition-all duration-200 hover:scale-105 active:scale-95"
+              >
+                {isSearching ? (
+                  <span className={isHindi ? "font-hindi" : ""}>
+                    {isHindi ? "खोज रहा है..." : "Searching..."}
+                  </span>
+                ) : (
+                  <>
+                    <Search className="h-4 w-4 mr-2" />
+                    <span className={isHindi ? "font-hindi" : ""}>
+                      {isHindi ? "खोजें" : "Search"}
+                    </span>
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </form>
   );

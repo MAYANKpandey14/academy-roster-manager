@@ -16,6 +16,8 @@ import { staffFormSchema, StaffFormValues, bloodGroups, staffRanks } from "./Sta
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ImageUpload } from "@/components/common/ImageUpload";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState } from "react";
 
 interface StaffFormProps {
   initialData?: Staff;
@@ -25,6 +27,7 @@ interface StaffFormProps {
 
 export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: StaffFormProps) => {
   const { isHindi } = useLanguage();
+  const [identifierType, setIdentifierType] = useState<"pno" | "unique_id">("pno");
   
   // Apply language inputs hook
   useLanguageInputs();
@@ -33,6 +36,7 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
     resolver: zodResolver(staffFormSchema),
     defaultValues: initialData || {
       pno: "",
+      adhaar_number: "",
       name: "",
       father_name: "",
       rank: undefined,
@@ -62,23 +66,59 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="pno"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className={isHindi ? 'font-hindi' : ''}>
-                  {isHindi ? "पीएनओ" : "PNO"}
-                </FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage className={isHindi ? 'font-hindi' : ''} />
-              </FormItem>
-            )}
-          />
+        {/* Add tabs for identifier types */}
+        <Tabs value={identifierType} onValueChange={(value: "pno" | "unique_id") => setIdentifierType(value)}>
+          <TabsList className="mb-4">
+            <TabsTrigger value="pno">
+              <span className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? "पीएनओ" : "PNO"}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="unique_id">
+              <span className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? "यूनिक आईडी / आधार" : "Unique ID / Adhaar"}
+              </span>
+            </TabsTrigger>
+          </TabsList>
 
+          <TabsContent value="pno">
+            <FormField
+              control={form.control}
+              name="pno"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                    {isHindi ? "पीएनओ" : "PNO"}
+                  </FormLabel>
+                  <FormControl>
+                    <Input {...field} maxLength={9} />
+                  </FormControl>
+                  <FormMessage className={isHindi ? 'font-hindi' : ''} />
+                </FormItem>
+              )}
+            />
+          </TabsContent>
+
+          <TabsContent value="unique_id">
+            <FormField
+              control={form.control}
+              name="adhaar_number"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                    {isHindi ? "यूनिक आईडी / आधार नंबर" : "Unique ID / Adhaar Number"}
+                  </FormLabel>
+                  <FormControl>
+                    <Input {...field} maxLength={12} />
+                  </FormControl>
+                  <FormMessage className={isHindi ? 'font-hindi' : ''} />
+                </FormItem>
+              )}
+            />
+          </TabsContent>
+        </Tabs>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
             name="name"
