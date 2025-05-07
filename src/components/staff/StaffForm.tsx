@@ -72,7 +72,7 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
                   {isHindi ? "पीएनओ" : "PNO"}
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input maxLength={9} {...field} />
                 </FormControl>
                 <FormMessage className={isHindi ? 'font-hindi' : ''} />
               </FormItem>
@@ -163,7 +163,7 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
                   {isHindi ? "मोबाइल नंबर" : "Mobile Number"}
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} type="tel" />
+                  <Input maxLength={11} {...field} type="tel" />
                 </FormControl>
                 <FormMessage className={isHindi ? 'font-hindi' : ''} />
               </FormItem>
