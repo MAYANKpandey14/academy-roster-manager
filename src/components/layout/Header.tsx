@@ -8,9 +8,18 @@ import { toast } from "sonner";
 import { Navigation } from "./Navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "../languageswitch/LanguageSwitcher";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export function Header() {
   const [today, setToday] = useState<string>("");
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const navigate = useNavigate();
   const { isHindi } = useLanguage();
 
@@ -94,7 +103,7 @@ export function Header() {
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={handleLogout}
+                onClick={() => setLogoutDialogOpen(true)}
                 className="animate-slide-in"
               >
                 <LogOut className="h-4 w-4 mr-1" />
@@ -131,12 +140,47 @@ export function Header() {
         <Button
           variant="destructive"
           size="sm"
-          onClick={handleLogout}
+          onClick={() => setLogoutDialogOpen(true)}
           className="animate-slide-in"
         >
           <LogOut className="h-4 w-4" />
         </Button>
       </div>
+
+      {/* Logout Confirmation Dialog */}
+      <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+        <DialogContent className="sm:max-w-md animate-scale-in">
+          <DialogHeader>
+            <DialogTitle className={`${isHindi ? 'font-mangal' : ''}`}>
+              {isHindi ? "लॉगआउट की पुष्टि करें" : "Confirm Logout"}
+            </DialogTitle>
+            <DialogDescription className={`${isHindi ? 'font-mangal' : ''}`}>
+              {isHindi 
+                ? "क्या आप वाकई लॉगआउट करना चाहते हैं?" 
+                : "Are you sure you want to logout?"}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex sm:justify-between gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setLogoutDialogOpen(false)}
+              className="animate-fade-in"
+            >
+              {isHindi ? "रद्द करें" : "Cancel"}
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => {
+                setLogoutDialogOpen(false);
+                handleLogout();
+              }}
+              className="animate-fade-in"
+            >
+              {isHindi ? "हाँ, लॉगआउट करें" : "Yes, Logout"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }
