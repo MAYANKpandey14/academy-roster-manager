@@ -3,6 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Trainee } from "@/types/trainee";
 import { TraineeRowActions } from "./TraineeRowActions";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function getTraineeTableColumns(isHindi: boolean): ColumnDef<Trainee>[] {
   return [
@@ -31,6 +32,21 @@ export function getTraineeTableColumns(isHindi: boolean): ColumnDef<Trainee>[] {
       enableHiding: false,
     },
     {
+      accessorKey: "photo_url",
+      header: isHindi ? "फोटो" : "Photo",
+      cell: ({ row }) => {
+        const trainee = row.original;
+        const firstLetter = trainee.name.charAt(0).toUpperCase();
+        
+        return (
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={trainee.photo_url} alt={trainee.name} />
+            <AvatarFallback>{firstLetter}</AvatarFallback>
+          </Avatar>
+        );
+      },
+    },
+    {
       accessorKey: "pno",
       header: isHindi ? "पीएनओ" : "PNO",
       cell: ({ row }) => <div className="font-medium">{row.getValue("pno")}</div>,
@@ -44,11 +60,6 @@ export function getTraineeTableColumns(isHindi: boolean): ColumnDef<Trainee>[] {
       accessorKey: "name",
       header: isHindi ? "नाम" : "Name",
       cell: ({ row }) => <div>{row.getValue("name")}</div>,
-    },
-    {
-      accessorKey: "rank",
-      header: isHindi ? "रैंक" : "Rank",
-      cell: ({ row }) => <div>{row.getValue("rank")}</div>,
     },
     {
       accessorKey: "current_posting_district",
