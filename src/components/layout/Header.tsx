@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { ArrowLeft, Home, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -147,7 +146,7 @@ export function Header() {
         </Button>
       </div>
 
-      {/* Logout Confirmation Dialog */}
+      {/* Logout Confirmation Dialog - with improved animation classes */}
       <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
         <DialogContent className="sm:max-w-md animate-scale-in">
           <DialogHeader>
