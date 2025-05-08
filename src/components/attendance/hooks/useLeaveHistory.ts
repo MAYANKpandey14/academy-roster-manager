@@ -10,7 +10,7 @@ export interface AbsenceRecord {
   reason: string;
   created_at: string;
   type: 'absence';
-  status?: string; // Add status field to fix TypeScript error
+  status: string; // Status field is required for absence records
 }
 
 export interface LeaveRecord {
@@ -45,8 +45,9 @@ export const useAbsences = (personId?: string) => {
         id: item.id,
         person_id: item.trainee_id,
         date: item.date,
-        reason: item.reason || 'No reason provided',
-        status: item.status, // Include the status field
+        // Use status as reason if reason is not available
+        reason: item.reason || item.status || 'No reason provided',
+        status: item.status || 'absent',
         created_at: item.created_at,
         type: 'absence'
       }));
