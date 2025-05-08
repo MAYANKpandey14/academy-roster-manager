@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,9 +33,9 @@ interface AttendanceFormProps {
   onSuccess: () => void;
 }
 
-// Form schema with validation
+// Updated form schema with new status options
 const formSchema = z.object({
-  status: z.enum(["absent", "on_leave"]),
+  status: z.enum(["absent", "on_leave", "suspension", "resignation", "termination"]),
   leaveType: z.string().optional(),
   startDate: z.string({
     required_error: "Start date is required",
@@ -133,6 +132,35 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
             
           if (error) throw error;
         }
+      } else {
+        // Handle other status types (suspension, resignation, termination)
+        if (personType === "trainee") {
+          const statusData = {
+            trainee_id: personId,
+            date: values.startDate,
+            status: values.status,
+            reason: values.reason
+          };
+          
+          const { error } = await supabase
+            .from("trainee_attendance")
+            .insert(statusData);
+            
+          if (error) throw error;
+        } else {
+          const statusData = {
+            staff_id: personId,
+            date: values.startDate,
+            status: values.status,
+            reason: values.reason
+          };
+          
+          const { error } = await supabase
+            .from("staff_attendance")
+            .insert(statusData);
+            
+          if (error) throw error;
+        }
       }
       
       toast.success(isHindi 
@@ -183,7 +211,22 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
                     </SelectItem>
                     <SelectItem value="on_leave">
                       <span className={isHindi ? "font-mangal" : ""}>
-                        {isHindi ? "छुट्टी पर" : "On Leave"}
+                        {isHindi ? "अवकाश पर" : "On Leave"}
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="suspension">
+                      <span className={isHindi ? "font-mangal" : ""}>
+                        {isHindi ? "निलंबन" : "Suspension"}
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="resignation">
+                      <span className={isHindi ? "font-mangal" : ""}>
+                        {isHindi ? "इस्तीफ़ा" : "Resignation"}
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="termination">
+                      <span className={isHindi ? "font-mangal" : ""}>
+                        {isHindi ? "बर्खास्त" : "Termination"}
                       </span>
                     </SelectItem>
                   </SelectContent>
