@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -76,7 +75,7 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
           const attendanceData = {
             trainee_id: personId,
             date: values.startDate,
-            status: values.reason // Using status field to store reason text
+            status: "absent"  // Using the status field correctly
           };
           
           const { error } = await supabase
@@ -88,7 +87,7 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
           const attendanceData = {
             staff_id: personId,
             date: values.startDate,
-            status: values.reason // Using status field to store reason text
+            status: "absent" // Using the status field correctly
           };
           
           const { error } = await supabase
@@ -139,8 +138,7 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
           const statusData = {
             trainee_id: personId,
             date: values.startDate,
-            status: values.status,
-            reason: values.reason
+            status: values.status  // Store the status value directly
           };
           
           const { error } = await supabase
@@ -152,8 +150,7 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
           const statusData = {
             staff_id: personId,
             date: values.startDate,
-            status: values.status,
-            reason: values.reason
+            status: values.status  // Store the status value directly
           };
           
           const { error } = await supabase
