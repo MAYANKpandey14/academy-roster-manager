@@ -26,6 +26,61 @@ export const LeaveHistoryTableContent = ({
     );
   }
 
+  const getStatusDisplay = (record: HistoryRecord) => {
+    if (record.type === 'absence') {
+      switch (record.status) {
+        case 'absent':
+          return (
+            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 ${isHindi ? 'font-hindi' : ''}`}>
+              {isHindi ? "अनुपस्थित" : "Absent"}
+            </span>
+          );
+        case 'suspension':
+          return (
+            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 ${isHindi ? 'font-hindi' : ''}`}>
+              {isHindi ? "निलंबन" : "Suspension"}
+            </span>
+          );
+        case 'resignation':
+          return (
+            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 ${isHindi ? 'font-hindi' : ''}`}>
+              {isHindi ? "इस्तीफ़ा" : "Resignation"}
+            </span>
+          );
+        case 'termination':
+          return (
+            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-900 ${isHindi ? 'font-hindi' : ''}`}>
+              {isHindi ? "बर्खास्त" : "Termination"}
+            </span>
+          );
+        default:
+          return (
+            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 ${isHindi ? 'font-hindi' : ''}`}>
+              {isHindi ? "अनुपस्थित" : "Absent"}
+            </span>
+          );
+      }
+    }
+    
+    if (record.type === 'leave') {
+      return (
+        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+          ${record.status === 'approved' ? 'bg-green-100 text-green-800' : 
+            record.status === 'rejected' ? 'bg-red-100 text-red-800' : 
+            'bg-yellow-100 text-yellow-800'} 
+          ${isHindi ? 'font-hindi' : ''}`}>
+          {record.status === 'approved' 
+            ? (isHindi ? "स्वीकृत" : "Approved") 
+            : record.status === 'rejected' 
+              ? (isHindi ? "अस्वीकृत" : "Rejected") 
+              : (isHindi ? "लंबित" : "Pending")}
+        </span>
+      );
+    }
+    
+    return null;
+  };
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200">
@@ -74,24 +129,7 @@ export const LeaveHistoryTableContent = ({
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                {record.type === 'leave' && (
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                    ${record.status === 'approved' ? 'bg-green-100 text-green-800' : 
-                      record.status === 'rejected' ? 'bg-red-100 text-red-800' : 
-                      'bg-yellow-100 text-yellow-800'} 
-                    ${isHindi ? 'font-hindi' : ''}`}>
-                    {record.status === 'approved' 
-                      ? (isHindi ? "स्वीकृत" : "Approved") 
-                      : record.status === 'rejected' 
-                        ? (isHindi ? "अस्वीकृत" : "Rejected") 
-                        : (isHindi ? "लंबित" : "Pending")}
-                  </span>
-                )}
-                {record.type === 'absence' && (
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 ${isHindi ? 'font-hindi' : ''}`}>
-                    {isHindi ? "अनुपस्थित" : "Absent"}
-                  </span>
-                )}
+                {getStatusDisplay(record)}
               </td>
             </tr>
           ))}

@@ -1,3 +1,4 @@
+
 import { format } from "date-fns";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { AttendanceStatus } from "./AttendanceStatus";
@@ -6,7 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 interface AttendanceRecord {
   id: string;
   date: string;
-  status: 'absent' | 'present' | 'leave' | 'on_leave';
+  status: 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination';
   reason?: string;
   leave_type?: string;
 }
