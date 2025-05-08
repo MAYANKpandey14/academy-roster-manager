@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -23,7 +24,7 @@ interface DatabaseLeave {
 export interface AttendanceRecord {
   id: string;
   date: string;
-  status: 'absent' | 'present' | 'leave' | 'on_leave';
+  status: 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination';
   leave_type?: string;
   reason?: string;
 }
@@ -63,18 +64,19 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         if (leaveError) throw leaveError;
         const leaves = (leaveData as unknown as DatabaseLeave[]) || [];
 
+        // Format absences - using status directly from the database 
         const formattedAbsences = absences.map((item) => ({
           id: `absence-${item.id}`,
           date: item.date,
-          status: 'absent' as const,
-          reason: item.status
+          status: item.status as AttendanceRecord['status'], // Use the actual status value from DB
+          reason: item.reason || '-'
         }));
 
         // Format leaves
         const formattedLeaves = leaves.map((item) => ({
           id: `leave-${item.id}`,
           date: `${item.start_date} - ${item.end_date}`,
-          status: 'on_leave' as const,
+          status: 'on_leave' as AttendanceRecord['status'],
           reason: item.reason,
           leave_type: item.leave_type
         }));

@@ -28,13 +28,10 @@ export const LeaveHistoryTableContent = ({
 
   const getStatusDisplay = (record: HistoryRecord) => {
     if (record.type === 'absence') {
-      switch (record.status) {
-        case 'absent':
-          return (
-            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "अनुपस्थित" : "Absent"}
-            </span>
-          );
+      // Handle different status values that might be in the record.status or record.reason field
+      const statusValue = record.reason || 'absent';
+      
+      switch (statusValue) {
         case 'suspension':
           return (
             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 ${isHindi ? 'font-hindi' : ''}`}>
@@ -125,7 +122,7 @@ export const LeaveHistoryTableContent = ({
               </td>
               <td className="px-6 py-4">
                 <span className={isHindi ? 'font-hindi' : ''}>
-                  {record.reason}
+                  {record.reason || '-'}
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
