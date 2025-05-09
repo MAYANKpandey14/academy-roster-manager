@@ -10,7 +10,7 @@ const corsHeaders = {
 
 interface AttendanceRequest {
   traineeId: string;
-  status: "absent" | "on_leave";
+  status: "absent" | "on_leave" | "suspension" | "resignation" | "termination";
   date: string;
   endDate?: string;
   reason: string;
@@ -24,10 +24,33 @@ serve(async (req) => {
   }
 
   try {
-    // Create a Supabase client
+    // Get the token from the Authorization header
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error("No Authorization header found");
+      return new Response(
+        JSON.stringify({ 
+          error: "Missing Authorization header",
+          message: "Authorization header is required"
+        }),
+        {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Create a Supabase client with the authenticated user's JWT
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      {
+        global: {
+          headers: {
+            Authorization: authHeader,
+          },
+        },
+      }
     );
 
     // Add trainee attendance/leave
@@ -48,7 +71,7 @@ serve(async (req) => {
       let result;
 
       // Record absence or leave based on status
-      if (status === "absent") {
+      if (status === "absent" || status === "suspension" || status === "resignation" || status === "termination") {
         result = await supabaseClient.from("trainee_attendance").insert({
           trainee_id: traineeId,
           date,

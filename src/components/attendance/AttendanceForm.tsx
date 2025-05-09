@@ -69,101 +69,48 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
     setIsSubmitting(true);
     
     try {
-      if (values.status === "absent") {
-        // Record absence in the attendance table with reason
-        if (personType === "trainee") {
-          const attendanceData = {
-            trainee_id: personId,
-            date: values.startDate,
-            status: "absent",  // Using the status field correctly
-            reason: values.reason // Store reason explicitly
-          };
-          
-          const { error } = await supabase
-            .from("trainee_attendance")
-            .insert(attendanceData);
-            
-          if (error) throw error;
-        } else {
-          const attendanceData = {
-            staff_id: personId,
-            date: values.startDate,
-            status: "absent",
-            reason: values.reason // Store reason explicitly
-          };
-          
-          const { error } = await supabase
-            .from("staff_attendance")
-            .insert(attendanceData);
-            
-          if (error) throw error;
-        }
-        
-      } else if (values.status === "on_leave") {
-        // Record leave in the leave table
-        const endDate = values.endDate || values.startDate;
-        
-        if (personType === "trainee") {
-          const leaveData = {
-            trainee_id: personId,
-            start_date: values.startDate,
-            end_date: endDate,
-            reason: values.reason,
-            leave_type: values.leaveType || null,
-            status: "approved" 
-          };
-          
-          const { error } = await supabase
-            .from("trainee_leave")
-            .insert(leaveData);
-            
-          if (error) throw error;
-        } else {
-          const leaveData = {
-            staff_id: personId,
-            start_date: values.startDate,
-            end_date: endDate,
-            reason: values.reason,
-            leave_type: values.leaveType || null,
-            status: "approved" 
-          };
-          
-          const { error } = await supabase
-            .from("staff_leave")
-            .insert(leaveData);
-            
-          if (error) throw error;
-        }
-      } else {
-        // Handle other status types (suspension, resignation, termination)
-        if (personType === "trainee") {
-          const statusData = {
-            trainee_id: personId,
-            date: values.startDate,
-            status: values.status,
-            reason: values.reason // Store reason explicitly
-          };
-          
-          const { error } = await supabase
-            .from("trainee_attendance")
-            .insert(statusData);
-            
-          if (error) throw error;
-        } else {
-          const statusData = {
-            staff_id: personId,
-            date: values.startDate,
-            status: values.status,
-            reason: values.reason // Store reason explicitly
-          };
-          
-          const { error } = await supabase
-            .from("staff_attendance")
-            .insert(statusData);
-            
-          if (error) throw error;
-        }
+      // Get the current session to include auth token
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        console.error("No active session found for attendance submission");
+        toast.error(isHindi 
+          ? "सत्र समाप्त हो गया है। कृपया पुनः लॉगिन करें" 
+          : "Session expired. Please log in again");
+        setIsSubmitting(false);
+        return;
       }
+      
+      // Prepare the request data
+      const requestData = {
+        ...(personType === 'trainee' ? { traineeId: personId } : { staffId: personId }),
+        status: values.status,
+        date: values.startDate,
+        endDate: values.endDate || values.startDate,
+        reason: values.reason,
+        leaveType: values.leaveType
+      };
+      
+      // Call the appropriate edge function based on person type
+      const functionName = personType === 'trainee' ? 'trainee-attendance-add' : 'staff-attendance-add';
+      
+      console.log(`Submitting ${personType} attendance/leave data:`, requestData);
+      console.log(`Using function: ${functionName}`);
+      console.log(`Auth token available:`, !!session.access_token);
+      
+      const { data, error } = await supabase.functions.invoke(functionName, {
+        body: requestData,
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        }
+      });
+      
+      if (error) {
+        console.error(`Error from ${functionName} function:`, error);
+        throw error;
+      }
+      
+      console.log(`${personType} attendance/leave record added:`, data);
       
       toast.success(isHindi 
         ? "रिकॉर्ड सफलतापूर्वक जोड़ा गया" 
@@ -171,7 +118,12 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
         
       // Reset form and invalidate queries to refresh data
       form.reset();
-      queryClient.invalidateQueries({ queryKey: ['attendance'] });
+      
+      // Invalidate both attendance and leave queries for this person
+      queryClient.invalidateQueries({ queryKey: ['absences', personId] });
+      queryClient.invalidateQueries({ queryKey: ['leaves', personId] });
+      queryClient.invalidateQueries({ queryKey: ['attendance', personId] });
+      
       onSuccess();
       
     } catch (error) {

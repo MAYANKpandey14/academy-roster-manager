@@ -8,7 +8,7 @@ export interface AbsenceRecord {
   type: 'absence';
   date: string;
   status: string;
-  reason: string; // Adding reason explicitly to type definition
+  reason: string; 
 }
 
 export interface LeaveRecord {
