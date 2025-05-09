@@ -19,10 +19,10 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
         render={({ field }) => (
           <FormItem>
             <FormLabel className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? 'पीएनओ' : 'PNO'}
+              {isHindi ? 'पीएनओ/ यूनिक आईडी' : 'PNO/ Unique ID'}
             </FormLabel>
             <FormControl>
-              <Input maxLength={9} {...field} />
+              <Input maxLength={12} {...field} />
             </FormControl>
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>

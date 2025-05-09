@@ -53,7 +53,7 @@ export function StaffDetailsSection({ staff }: StaffDetailsSectionProps) {
           </h3>
           
           <StaffInfoField 
-            label={isHindi ? "पी.एन.ओ./यूनिक आईडी" : "PNO/Unique ID"} 
+            label={isHindi ? "पी.एन.ओ./ यूनिक आईडी" : "PNO/ Unique ID"} 
             value={staff.pno} 
           />
           

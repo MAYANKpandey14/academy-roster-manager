@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TraineeFiltersProps {
-  onSearch: (pno: string, chestNo: string, rollNo: string) => Promise<boolean>;
+  onSearch: (pno: string, chestNo: string) => Promise<boolean>;
   onShowAll: () => void;
   disabled?: boolean;
 }
@@ -22,16 +22,15 @@ export function TraineeFilters({
   const navigate = useNavigate();
   const [pno, setPno] = useState("");
   const [chestNo, setChestNo] = useState("");
-  const [rollNo, setRollNo] = useState("");
   const { isHindi } = useLanguage();
 
   const handleSearch = async () => {
-    if (!pno && !chestNo && !rollNo) {
+    if (!pno && !chestNo) {
       toast.error(isHindi ? "कृपया कम से कम एक खोज मानदंड दर्ज करें" : "Please enter at least one search criteria");
       return;
     }
-    
-    const found = await onSearch(pno, chestNo, rollNo);
+
+    const found = await onSearch(pno, chestNo);
     if (!found) {
       toast.error(isHindi ? "आपकी खोज मानदंडों से मेल खाने वाला कोई प्रशिक्षु नहीं मिला" : "No trainee found matching your search criteria");
     }
@@ -49,23 +48,23 @@ export function TraineeFilters({
       <h3 className={`text-lg font-medium mb-4 ${isHindi ? 'font-mangal' : ''}`}>
         {isHindi ? "प्रशिक्षु खोजें" : "Search Trainees"}
       </h3>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
           <Label htmlFor="pno" className={isHindi ? 'font-mangal' : ''}>
-            {isHindi ? "पीएनओ नंबर" : "PNO Number"}
+            {isHindi ? "पीएनओ/ यूनिक आईडी" : "PNO/ Unique ID"}
           </Label>
           <Input
             id="pno"
-            placeholder={isHindi ? "पीएनओ दर्ज करें (9 अंक)" : "Enter PNO (9-digit)"}
+            placeholder={isHindi ? "पीएनओ/ यूनिक आईडी दर्ज करें" : "Enter PNO/ Unique ID"}
             value={pno}
             onChange={(e) => setPno(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={disabled}
-            maxLength={9}
+            maxLength={12}
           />
         </div>
-        
+
         <div className="space-y-2">
           <Label htmlFor="chestNo" className={isHindi ? 'font-mangal' : ''}>
             {isHindi ? "चेस्ट नंबर" : "Chest Number"}
@@ -80,23 +79,8 @@ export function TraineeFilters({
             maxLength={4}
           />
         </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="rollNo" className={isHindi ? 'font-mangal' : ''}>
-            {isHindi ? "रोल नंबर / यूनिक आईडी " : "Roll No / Unique Id"}
-          </Label>
-          <Input
-            id="rollNo"
-            placeholder={isHindi ? "रोल नंबर दर्ज करें (12 अंक)" : "Enter Roll No (12-digit)"}
-            value={rollNo}
-            onChange={(e) => setRollNo(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={disabled}
-            maxLength={12}
-          />
-        </div>
       </div>
-      
+
       <div className="flex flex-wrap justify-end gap-2">
         <Button onClick={() => navigate('/add-trainee')} variant="outline" className="animate-slide-in">
           <UserPlus className="mr-2 h-4 w-4" />

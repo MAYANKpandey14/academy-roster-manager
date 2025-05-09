@@ -21,7 +21,6 @@ export function StaffFilters({
 }: StaffFiltersProps) {
   const navigate = useNavigate();
   const [pno, setPno] = useState("");
-  const [adhaar, setAdhaar] = useState("");
   const { isHindi } = useLanguage();
 
   const handleSearch = async () => {
@@ -53,24 +52,12 @@ export function StaffFilters({
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="pno" className="dynamic-text">{isHindi ? "पीएनओ नंबर" : "PNO Number"}</Label>
+          <Label htmlFor="pno" className="dynamic-text">{isHindi ? "पीएनओ/ यूनिक आईडी" : "PNO/ Unique ID"}</Label>
           <Input
             id="pno"
-            placeholder={isHindi ? "पीएनओ दर्ज करें (9 अंक)" : "Enter PNO (9-digit)"}
+            placeholder={isHindi ? "पीएनओ/ यूनिक आईडी" : "Enter PNO/ Unique ID"}
             value={pno}
             onChange={(e) => setPno(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={disabled}
-            maxLength={9}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="pno" className="dynamic-text">{isHindi ? "यूनिक आईडी / आधार नंबर" : "Unique ID / Adhaar Number"}</Label>
-          <Input
-            id="pno"
-            placeholder={isHindi ? "यूनिक आईडी / आधार नंबर (12 अंक)" : "Enter Unique ID / Adhaar Number (12-digit)"}
-            value={adhaar}
-            onChange={(e) => setAdhaar(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={disabled}
             maxLength={12}

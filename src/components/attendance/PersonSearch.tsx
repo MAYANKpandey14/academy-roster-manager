@@ -39,8 +39,8 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
 
     if (!pno) {
       toast.error(isHindi
-        ? "कृपया पी.एन.ओ. दर्ज करें"
-        : "Please enter the PNO");
+        ? "कृपया पी.एन.ओ./ यूनिक आईडी दर्ज करें"
+        : "Please enter the PNO/ Unique ID");
       return;
     }
 
@@ -140,9 +140,9 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
               id="pno"
               value={pno}
               onChange={(e) => setPno(e.target.value)}
-              placeholder={isHindi ? "पीएनओ दर्ज करें (9 अंक)" : "Enter PNO (9-digit)"}
+              placeholder={isHindi ? "पीएनओ/ यूनिक आईडी दर्ज करें" : "Enter PNO/ Unique ID"}
               className={isHindi ? "font-hindi" : ""}
-              maxLength={9}
+              maxLength={12}
             />
             <Button
               type="submit"
