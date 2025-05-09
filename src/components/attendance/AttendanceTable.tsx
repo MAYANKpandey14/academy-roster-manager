@@ -1,6 +1,5 @@
-import { useState } from "react";
+
 import { useLanguage } from "@/contexts/LanguageContext";
-import { format } from "date-fns";
 import { 
   Table,
   TableBody,
@@ -23,7 +22,6 @@ interface AttendanceTableProps {
 }
 
 export const AttendanceTable = ({ personId, personType, personData }: AttendanceTableProps) => {
-  const [month, setMonth] = useState(new Date());
   const { isHindi } = useLanguage();
   const { data: attendanceRecords, isLoading } = useFetchAttendance(personId, personType);
 
@@ -76,21 +74,12 @@ export const AttendanceTable = ({ personId, personType, personData }: Attendance
           {isHindi ? "उपस्थिति सारांश" : "Attendance Summary"}
         </h3>
         
-        <div className="flex items-center gap-4">
-          <input 
-            type="month" 
-            value={format(month, 'yyyy-MM')}
-            onChange={(e) => setMonth(new Date(e.target.value))} 
-            className="p-2 border rounded"
-          />
-          
-          <Button variant="outline" size="sm" onClick={handlePrintClick}>
-            <Printer className="h-4 w-4 mr-2" />
-            <span className={isHindi ? 'font-mangal' : ''}>
-              {isHindi ? "प्रिंट करें" : "Print"}
-            </span>
-          </Button>
-        </div>
+        <Button variant="outline" size="sm" onClick={handlePrintClick}>
+          <Printer className="h-4 w-4 mr-2" />
+          <span className={isHindi ? 'font-mangal' : ''}>
+            {isHindi ? "प्रिंट करें" : "Print"}
+          </span>
+        </Button>
       </div>
       
       <div className="overflow-x-auto">

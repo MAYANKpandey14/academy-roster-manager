@@ -70,12 +70,13 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
     
     try {
       if (values.status === "absent") {
-        // Record absence in the attendance table
+        // Record absence in the attendance table with reason
         if (personType === "trainee") {
           const attendanceData = {
             trainee_id: personId,
             date: values.startDate,
-            status: "absent"  // Using the status field correctly
+            status: "absent",  // Using the status field correctly
+            reason: values.reason // Store reason explicitly
           };
           
           const { error } = await supabase
@@ -87,7 +88,8 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
           const attendanceData = {
             staff_id: personId,
             date: values.startDate,
-            status: "absent" // Using the status field correctly
+            status: "absent",
+            reason: values.reason // Store reason explicitly
           };
           
           const { error } = await supabase
@@ -138,7 +140,8 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
           const statusData = {
             trainee_id: personId,
             date: values.startDate,
-            status: values.status  // Store the status value directly
+            status: values.status,
+            reason: values.reason // Store reason explicitly
           };
           
           const { error } = await supabase
@@ -150,7 +153,8 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
           const statusData = {
             staff_id: personId,
             date: values.startDate,
-            status: values.status  // Store the status value directly
+            status: values.status,
+            reason: values.reason // Store reason explicitly
           };
           
           const { error } = await supabase

@@ -64,12 +64,12 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         if (leaveError) throw leaveError;
         const leaves = (leaveData as unknown as DatabaseLeave[]) || [];
 
-        // Format absences - using status directly from the database 
+        // Format absences - use both status and reason from the database 
         const formattedAbsences = absences.map((item) => ({
           id: `absence-${item.id}`,
           date: item.date,
           status: item.status as AttendanceRecord['status'], // Use the actual status value from DB
-          reason: item.reason || '-'
+          reason: item.reason || '' // Include reason if available or empty string
         }));
 
         // Format leaves
@@ -77,7 +77,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
           id: `leave-${item.id}`,
           date: `${item.start_date} - ${item.end_date}`,
           status: 'on_leave' as AttendanceRecord['status'],
-          reason: item.reason,
+          reason: item.reason || '',
           leave_type: item.leave_type
         }));
 
