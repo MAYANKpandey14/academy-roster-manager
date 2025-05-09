@@ -29,6 +29,7 @@ export const useAbsences = (personId?: string) => {
     queryFn: async () => {
       if (!personId) return [];
       
+      // Fetch all absences without limit
       const { data, error } = await supabase
         .from('trainee_attendance')
         .select('*')
@@ -59,6 +60,7 @@ export const useLeaves = (personId?: string) => {
     queryFn: async () => {
       if (!personId) return [];
       
+      // Fetch all leaves without limit
       const { data, error } = await supabase
         .from('trainee_leave')
         .select('*')

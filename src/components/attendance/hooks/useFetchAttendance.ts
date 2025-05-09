@@ -43,22 +43,24 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
       const leaveIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
 
       try {
-        // Fetch absence data
+        // Fetch absence data (now without limiting to 3 records)
         // @ts-ignore - Type instantiation is excessively deep due to Supabase's complex type system
         const { data: absenceData, error: absenceError } = await supabase
           .from(absenceTable)
           .select('*')
-          .eq(absenceIdField, personId);
+          .eq(absenceIdField, personId)
+          .order('date', { ascending: false });
         
         if (absenceError) throw absenceError;
         const absences = (absenceData as unknown as DatabaseAbsence[]) || [];
         
-        // Fetch leave data
+        // Fetch leave data (now without limiting to 3 records)
         // @ts-ignore - Type instantiation is excessively deep due to Supabase's complex type system
         const { data: leaveData, error: leaveError } = await supabase
           .from(leaveTable)
           .select('*')
-          .eq(leaveIdField, personId);
+          .eq(leaveIdField, personId)
+          .order('start_date', { ascending: false });
 
         if (leaveError) throw leaveError;
         const leaves = (leaveData as unknown as DatabaseLeave[]) || [];

@@ -14,6 +14,7 @@ import { useFetchAttendance } from "./hooks/useFetchAttendance";
 import { AttendanceTableRow } from "./AttendanceTableRow";
 import { PersonData } from "./PersonSearch";
 import { handlePrint } from "@/utils/export/printUtils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface AttendanceTableProps {
   personId: string;
@@ -82,45 +83,47 @@ export const AttendanceTable = ({ personId, personType, personData }: Attendance
         </Button>
       </div>
       
-      <div className="overflow-x-auto">
-        <Table id="attendance-table">
-          <TableHeader>
-            <TableRow>
-              <TableHead className={isHindi ? 'font-mangal' : ''}>
-                {isHindi ? "दिनांक" : "Date"}
-              </TableHead>
-              <TableHead className={isHindi ? 'font-mangal' : ''}>
-                {isHindi ? "स्थिति" : "Status"}
-              </TableHead>
-              <TableHead className={isHindi ? 'font-mangal' : ''}>
-                {isHindi ? "कारण" : "Reason"}
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
+      <div className="border rounded-md">
+        <ScrollArea className="h-[350px]">
+          <Table id="attendance-table">
+            <TableHeader className="sticky top-0 bg-white z-10">
               <TableRow>
-                <TableCell colSpan={3} className="text-center py-8">
-                  <span className={isHindi ? 'font-mangal' : ''}>
-                    {isHindi ? "लोड हो रहा है..." : "Loading..."}
-                  </span>
-                </TableCell>
+                <TableHead className={isHindi ? 'font-mangal' : ''}>
+                  {isHindi ? "दिनांक" : "Date"}
+                </TableHead>
+                <TableHead className={isHindi ? 'font-mangal' : ''}>
+                  {isHindi ? "स्थिति" : "Status"}
+                </TableHead>
+                <TableHead className={isHindi ? 'font-mangal' : ''}>
+                  {isHindi ? "कारण" : "Reason"}
+                </TableHead>
               </TableRow>
-            ) : attendanceRecords && attendanceRecords.length > 0 ? (
-              attendanceRecords.map((record) => (
-                <AttendanceTableRow key={record.id} record={record} />  
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={3} className="text-center py-8">
-                  <span className={isHindi ? 'font-mangal' : ''}>
-                    {isHindi ? "कोई डेटा उपलब्ध नहीं है" : "No data available"}
-                  </span>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center py-8">
+                    <span className={isHindi ? 'font-mangal' : ''}>
+                      {isHindi ? "लोड हो रहा है..." : "Loading..."}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              ) : attendanceRecords && attendanceRecords.length > 0 ? (
+                attendanceRecords.map((record) => (
+                  <AttendanceTableRow key={record.id} record={record} />  
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center py-8">
+                    <span className={isHindi ? 'font-mangal' : ''}>
+                      {isHindi ? "कोई डेटा उपलब्ध नहीं है" : "No data available"}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </ScrollArea>
       </div>
     </div>
   );

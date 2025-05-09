@@ -1,137 +1,98 @@
 
-import { format } from "date-fns";
-import { HistoryRecord } from "../hooks/useLeaveHistory";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { AbsenceRecord, LeaveRecord } from "../hooks/useLeaveHistory";
+import { format } from "date-fns";
+import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow 
+} from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-export interface LeaveHistoryTableContentProps {
-  personId: string;
-  personType: "staff" | "trainee";
-  historyData: HistoryRecord[];
+interface LeaveHistoryTableContentProps {
+  absences: AbsenceRecord[];
+  leaves: LeaveRecord[];
 }
 
-export const LeaveHistoryTableContent = ({ 
-  personId, 
-  personType, 
-  historyData 
-}: LeaveHistoryTableContentProps) => {
+export function LeaveHistoryTableContent({
+  absences,
+  leaves,
+}: LeaveHistoryTableContentProps) {
   const { isHindi } = useLanguage();
 
-  if (historyData.length === 0) {
-    return (
-      <div className="text-center p-4">
-        <p className={`text-gray-500 ${isHindi ? 'font-hindi' : ''}`}>
-          {isHindi ? "कोई इतिहास नहीं मिला" : "No history found"}
-        </p>
-      </div>
-    );
-  }
+  // Combine absence and leave data, then sort by date
+  const combinedHistory = [
+    ...absences.map((absence) => ({
+      type: "absence" as const,
+      date: absence.date,
+      reason: absence.reason,
+      status: "Absence", // Display name
+    })),
+    ...leaves.map((leave) => ({
+      type: "leave" as const,
+      date: `${leave.start_date} - ${leave.end_date}`,
+      reason: leave.reason,
+      status: "Leave", // Display name
+    })),
+  ].sort((a, b) => {
+    // Extract the first date in case of ranges
+    const dateA = a.date.split(" - ")[0];
+    const dateB = b.date.split(" - ")[0];
+    return new Date(dateB).getTime() - new Date(dateA).getTime();
+  });
 
-  const getStatusDisplay = (record: HistoryRecord) => {
-    if (record.type === 'absence') {
-      // Handle different status values that might be in the record.status or record.reason field
-      const statusValue = record.reason || 'absent';
-      
-      switch (statusValue) {
-        case 'suspension':
-          return (
-            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "निलंबन" : "Suspension"}
-            </span>
-          );
-        case 'resignation':
-          return (
-            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "इस्तीफ़ा" : "Resignation"}
-            </span>
-          );
-        case 'termination':
-          return (
-            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-900 ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "बर्खास्त" : "Termination"}
-            </span>
-          );
-        default:
-          return (
-            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "अनुपस्थित" : "Absent"}
-            </span>
-          );
+  // Format date to a readable format
+  const formatDate = (dateString: string) => {
+    try {
+      if (dateString.includes(" - ")) {
+        // Handle date range format
+        const [startDate, endDate] = dateString.split(" - ");
+        return `${format(new Date(startDate), "PP")} - ${format(
+          new Date(endDate),
+          "PP"
+        )}`;
       }
+      return format(new Date(dateString), "PP");
+    } catch (error) {
+      return dateString;
     }
-    
-    if (record.type === 'leave') {
-      return (
-        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-          ${record.status === 'approved' ? 'bg-green-100 text-green-800' : 
-            record.status === 'rejected' ? 'bg-red-100 text-red-800' : 
-            'bg-yellow-100 text-yellow-800'} 
-          ${isHindi ? 'font-hindi' : ''}`}>
-          {record.status === 'approved' 
-            ? (isHindi ? "स्वीकृत" : "Approved") 
-            : record.status === 'rejected' 
-              ? (isHindi ? "अस्वीकृत" : "Rejected") 
-              : (isHindi ? "लंबित" : "Pending")}
-        </span>
-      );
-    }
-    
-    return null;
   };
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              <span className={isHindi ? 'font-hindi' : ''}>
+    <div className="border rounded-md">
+      <ScrollArea className="h-[350px]">
+        <Table>
+          <TableHeader className="sticky top-0 bg-white z-10">
+            <TableRow>
+              <TableHead className={isHindi ? "font-hindi" : ""}>
+                {isHindi ? "दिनांक" : "Date"}
+              </TableHead>
+              <TableHead className={isHindi ? "font-hindi" : ""}>
                 {isHindi ? "प्रकार" : "Type"}
-              </span>
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              <span className={isHindi ? 'font-hindi' : ''}>
-                {isHindi ? "तिथि" : "Date"}
-              </span>
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              <span className={isHindi ? 'font-hindi' : ''}>
+              </TableHead>
+              <TableHead className={isHindi ? "font-hindi" : ""}>
                 {isHindi ? "कारण" : "Reason"}
-              </span>
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              <span className={isHindi ? 'font-hindi' : ''}>
-                {isHindi ? "स्थिति" : "Status"}
-              </span>
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {historyData.map((record, index) => (
-            <tr key={`${record.type}-${record.id}-${index}`} className="hover:bg-gray-50">
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className={isHindi ? 'font-hindi' : ''}>
-                  {record.type === 'absence' 
-                    ? (isHindi ? "अनुपस्थिति" : "Absence") 
-                    : (isHindi ? "छुट्टी" : "Leave")}
-                </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                {record.type === 'absence' 
-                  ? format(new Date(record.date), 'PPP')
-                  : `${format(new Date(record.start_date), 'PPP')} - ${format(new Date(record.end_date), 'PPP')}`}
-              </td>
-              <td className="px-6 py-4">
-                <span className={isHindi ? 'font-hindi' : ''}>
-                  {record.reason || '-'}
-                </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                {getStatusDisplay(record)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {combinedHistory.map((record, index) => (
+              <TableRow key={index}>
+                <TableCell className={isHindi ? "font-hindi" : ""}>
+                  {formatDate(record.date)}
+                </TableCell>
+                <TableCell>{record.status}</TableCell>
+                <TableCell className={isHindi ? "font-hindi" : ""}>
+                  {record.reason}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </ScrollArea>
     </div>
   );
-};
+}
