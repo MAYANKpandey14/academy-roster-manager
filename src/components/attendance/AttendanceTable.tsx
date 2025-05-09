@@ -124,4 +124,4 @@ export const AttendanceTable = ({ personId, personType, personData }: Attendance
       </div>
     </div>
   );
-};
+}

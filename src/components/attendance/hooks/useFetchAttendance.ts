@@ -5,10 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 interface DatabaseAbsence {
   id: string;
   date: string;
-  status: string;
+  status: string; // This field contains the reason or status value
   trainee_id: string;
   staff_id: string;
-  reason?: string;
 }
 
 interface DatabaseLeave {
@@ -64,13 +63,22 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         if (leaveError) throw leaveError;
         const leaves = (leaveData as unknown as DatabaseLeave[]) || [];
 
-        // Format absences - use both status and reason from the database 
-        const formattedAbsences = absences.map((item) => ({
-          id: `absence-${item.id}`,
-          date: item.date,
-          status: item.status as AttendanceRecord['status'], // Use the actual status value from DB
-          reason: item.reason || '' // Include reason if available or empty string
-        }));
+        // Format absences - use status field for both status and reason
+        // NOTE: In the database, the status field contains the reason text for absences
+        const formattedAbsences = absences.map((item) => {
+          // Determine the actual status type based on the content
+          let statusType: AttendanceRecord['status'] = 'absent';
+          if (item.status === 'suspension') statusType = 'suspension';
+          else if (item.status === 'resignation') statusType = 'resignation';
+          else if (item.status === 'termination') statusType = 'termination';
+
+          return {
+            id: `absence-${item.id}`,
+            date: item.date,
+            status: statusType,
+            reason: item.status // Using status field for reason since that's where the reason is stored
+          };
+        });
 
         // Format leaves
         const formattedLeaves = leaves.map((item) => ({
