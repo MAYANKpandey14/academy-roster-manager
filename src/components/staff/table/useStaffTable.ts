@@ -16,21 +16,21 @@ export function useStaffTable(staff: Staff[], onRefresh: () => void) {
     setSelectedCount(Object.keys(rowSelection).length);
   }, [rowSelection]);
 
-  const handleDelete = async (id: string) => {
-    if (confirm(isHindi ? "क्या आप इस स्टाफ सदस्य को हटाना चाहते हैं?" : "Are you sure you want to delete this staff member?")) {
-      try {
-        const { error } = await deleteStaff(id);
+  // const handleDelete = async (id: string) => {
+  //   if (confirm(isHindi ? "क्या आप इस स्टाफ सदस्य को हटाना चाहते हैं?" : "Are you sure you want to delete this staff member?")) {
+  //     try {
+  //       const { error } = await deleteStaff(id);
         
-        if (error) throw error;
+  //       if (error) throw error;
         
-        toast.success(isHindi ? "स्टाफ सफलतापूर्वक हटाया गया" : "Staff deleted successfully");
-        onRefresh();
-      } catch (error) {
-        console.error("Error deleting staff:", error);
-        toast.error(isHindi ? "स्टाफ हटाने में विफल" : "Failed to delete staff");
-      }
-    }
-  };
+  //       toast.success(isHindi ? "स्टाफ सफलतापूर्वक हटाया गया" : "Staff deleted successfully");
+  //       onRefresh();
+  //     } catch (error) {
+  //       console.error("Error deleting staff:", error);
+  //       toast.error(isHindi ? "स्टाफ हटाने में विफल" : "Failed to delete staff");
+  //     }
+  //   }
+  // };
 
   const getSelectedStaff = (): Staff[] => {
     const selectedIndices = Object.keys(rowSelection).map(Number);
@@ -69,7 +69,7 @@ export function useStaffTable(staff: Staff[], onRefresh: () => void) {
     rowSelection,
     setRowSelection,
     selectedCount,
-    handleDelete,
+    // handleDelete,
     handlePrintAction,
     handleDownloadAction,
     getSelectedStaff

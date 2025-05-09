@@ -24,7 +24,7 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
     rowSelection,
     setRowSelection,
     selectedCount,
-    handleDelete,
+    // handleDelete,
     getSelectedStaff
   } = useStaffTable(staff, onRefresh);
 
