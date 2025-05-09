@@ -5,7 +5,6 @@ import { AttendanceTable } from "./AttendanceTable";
 import { LeaveHistoryTable } from "./components/LeaveHistoryTable";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PersonData } from "./PersonSearch";
-
 interface AttendanceTabsProps {
   personId: string;
   personType: "staff" | "trainee";
