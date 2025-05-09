@@ -45,8 +45,8 @@ export const useAbsences = (personId?: string) => {
         id: item.id,
         person_id: item.trainee_id,
         date: item.date,
-        // The database record might not have a 'reason' field, so use the status or a default
-        reason: item.reason || item.status || 'No reason provided',
+        // The database record doesn't have a 'reason' field, so use the status instead
+        reason: item.status || 'absent',
         status: item.status || 'absent',
         created_at: item.created_at,
         type: 'absence'
