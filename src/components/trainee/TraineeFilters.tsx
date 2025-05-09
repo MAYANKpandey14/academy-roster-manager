@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TraineeFiltersProps {
-  onSearch: (pno: string, chestNo: string) => Promise<boolean>;
+  onSearch: (pno: string, chestNo: string, rollNo?: string) => Promise<boolean>;
   onShowAll: () => void;
   disabled?: boolean;
 }
@@ -30,7 +30,8 @@ export function TraineeFilters({
       return;
     }
 
-    const found = await onSearch(pno, chestNo);
+    // Passing an empty string as the third parameter (rollNo)
+    const found = await onSearch(pno, chestNo, "");
     if (!found) {
       toast.error(isHindi ? "आपकी खोज मानदंडों से मेल खाने वाला कोई प्रशिक्षु नहीं मिला" : "No trainee found matching your search criteria");
     }
