@@ -1,7 +1,7 @@
-
 import { format } from "date-fns";
 import { HistoryRecord } from "../hooks/useLeaveHistory";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export interface LeaveHistoryTableContentProps {
   personId: string;
@@ -79,59 +79,61 @@ export const LeaveHistoryTableContent = ({
   };
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              <span className={isHindi ? 'font-hindi' : ''}>
-                {isHindi ? "प्रकार" : "Type"}
-              </span>
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              <span className={isHindi ? 'font-hindi' : ''}>
-                {isHindi ? "तिथि" : "Date"}
-              </span>
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              <span className={isHindi ? 'font-hindi' : ''}>
-                {isHindi ? "कारण" : "Reason"}
-              </span>
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              <span className={isHindi ? 'font-hindi' : ''}>
-                {isHindi ? "स्थिति" : "Status"}
-              </span>
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {historyData.map((record, index) => (
-            <tr key={`${record.type}-${record.id}-${index}`} className="hover:bg-gray-50">
-              <td className="px-6 py-4 whitespace-nowrap">
+    <div className="border rounded-md">
+      <ScrollArea className="h-[400px]">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky top-0 bg-gray-50 z-10">
                 <span className={isHindi ? 'font-hindi' : ''}>
-                  {record.type === 'absence' 
-                    ? (isHindi ? "अनुपस्थिति" : "Absence") 
-                    : (isHindi ? "छुट्टी" : "Leave")}
+                  {isHindi ? "प्रकार" : "Type"}
                 </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                {record.type === 'absence' 
-                  ? format(new Date(record.date), 'PPP')
-                  : `${format(new Date(record.start_date), 'PPP')} - ${format(new Date(record.end_date), 'PPP')}`}
-              </td>
-              <td className="px-6 py-4">
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky top-0 bg-gray-50 z-10">
                 <span className={isHindi ? 'font-hindi' : ''}>
-                  {record.reason || '-'}
+                  {isHindi ? "तिथि" : "Date"}
                 </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                {getStatusDisplay(record)}
-              </td>
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky top-0 bg-gray-50 z-10">
+                <span className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "कारण" : "Reason"}
+                </span>
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky top-0 bg-gray-50 z-10">
+                <span className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "स्थिति" : "Status"}
+                </span>
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {historyData.map((record, index) => (
+              <tr key={`${record.type}-${record.id}-${index}`} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className={isHindi ? 'font-hindi' : ''}>
+                    {record.type === 'absence' 
+                      ? (isHindi ? "अनुपस्थिति" : "Absence") 
+                      : (isHindi ? "छुट्टी" : "Leave")}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {record.type === 'absence' 
+                    ? format(new Date(record.date), 'PPP')
+                    : `${format(new Date(record.start_date), 'PPP')} - ${format(new Date(record.end_date), 'PPP')}`}
+                </td>
+                <td className="px-6 py-4">
+                  <span className={isHindi ? 'font-hindi' : ''}>
+                    {record.reason || '-'}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {getStatusDisplay(record)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </ScrollArea>
     </div>
   );
 };
