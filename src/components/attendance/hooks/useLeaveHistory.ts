@@ -41,7 +41,6 @@ export const useAbsences = (personId?: string) => {
       }
       
       // Map the database records to our expected format
-      // Note: The status field in the database contains the reason text
       return (data || []).map(record => ({
         id: record.id,
         type: 'absence' as const,

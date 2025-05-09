@@ -24,8 +24,9 @@ serve(async (req) => {
   }
 
   try {
-    // Get the token from the Authorization header
+    // Extract the authorization header correctly
     const authHeader = req.headers.get('Authorization');
+    
     if (!authHeader) {
       console.error("No Authorization header found");
       return new Response(
@@ -58,6 +59,7 @@ serve(async (req) => {
       const requestData: AttendanceRequest = await req.json();
       const { staffId, status, date, endDate, reason, leaveType } = requestData;
 
+      // Validate required fields
       if (!staffId || !status || !date || !reason) {
         return new Response(
           JSON.stringify({ error: "Missing required fields" }),
@@ -70,22 +72,86 @@ serve(async (req) => {
 
       let result;
 
-      // Record absence or leave based on status
-      if (status === "absent" || status === "suspension" || status === "resignation" || status === "termination") {
-        result = await supabaseClient.from("staff_attendance").insert({
-          staff_id: staffId,
-          date,
-          status: reason, // Using status field to store reason text
-        });
-      } else if (status === "on_leave") {
-        result = await supabaseClient.from("staff_leave").insert({
-          staff_id: staffId,
-          start_date: date,
-          end_date: endDate || date,
-          reason,
-          leave_type: leaveType,
-          status: "approved",
-        });
+      try {
+        // Record absence or leave based on status
+        if (status === "absent" || status === "suspension" || status === "resignation" || status === "termination") {
+          // Check if a record already exists for this date and staff
+          const { data: existingRecord, error: checkError } = await supabaseClient
+            .from("staff_attendance")
+            .select("*")
+            .eq("staff_id", staffId)
+            .eq("date", date)
+            .maybeSingle();
+            
+          if (checkError) {
+            console.error("Error checking for existing record:", checkError);
+            throw checkError;
+          }
+          
+          if (existingRecord) {
+            // Update existing record
+            result = await supabaseClient
+              .from("staff_attendance")
+              .update({ status: reason })
+              .eq("id", existingRecord.id)
+              .select();
+          } else {
+            // Insert new record
+            result = await supabaseClient.from("staff_attendance").insert({
+              staff_id: staffId,
+              date,
+              status: reason, // Using status field to store reason text
+            }).select();
+          }
+        } else if (status === "on_leave") {
+          // Check if a leave record already exists for this period and staff
+          const { data: existingLeave, error: checkError } = await supabaseClient
+            .from("staff_leave")
+            .select("*")
+            .eq("staff_id", staffId)
+            .eq("start_date", date)
+            .maybeSingle();
+            
+          if (checkError) {
+            console.error("Error checking for existing leave record:", checkError);
+            throw checkError;
+          }
+          
+          if (existingLeave) {
+            // Update existing leave record
+            result = await supabaseClient
+              .from("staff_leave")
+              .update({ 
+                end_date: endDate || date,
+                reason,
+                leave_type: leaveType
+              })
+              .eq("id", existingLeave.id)
+              .select();
+          } else {
+            // Insert new leave record
+            result = await supabaseClient.from("staff_leave").insert({
+              staff_id: staffId,
+              start_date: date,
+              end_date: endDate || date,
+              reason,
+              leave_type: leaveType,
+              status: "approved",
+            }).select();
+          }
+        }
+      } catch (dbError) {
+        console.error("Database error:", dbError);
+        return new Response(
+          JSON.stringify({ 
+            error: "Database error",
+            message: dbError.message || "Error processing database request" 
+          }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
 
       if (result?.error) {
@@ -123,7 +189,10 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error processing request:", error);
     return new Response(
-      JSON.stringify({ error: error.message || "Internal server error" }),
+      JSON.stringify({ 
+        error: "Internal server error", 
+        message: error.message || "Unknown error occurred"
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
