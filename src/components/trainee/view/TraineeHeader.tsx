@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -55,7 +56,7 @@ export function TraineeHeader({ trainee, onPrint, onDownload, onExcelExport }: T
         </Button>
         <Button 
           variant="outline"
-          onClick={() => navigate(`/edit-trainee/${trainee?.id}`)}
+          onClick={() => navigate(`/trainees/${trainee?.id}/edit`)}
           className="edit-button" 
         >
           <Edit className="h-4 w-4" />

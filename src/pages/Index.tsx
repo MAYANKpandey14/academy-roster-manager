@@ -119,7 +119,7 @@ const Index = () => {
               <RefreshCcw className="h-4 w-4" />
               {!isMobile && <span className="ml-2">Refresh</span>}
             </Button>
-            <Button onClick={() => navigate('/add-trainee')} disabled={isLoading}>
+            <Button onClick={() => navigate('/trainees/add')} disabled={isLoading}>
               <Plus className="h-4 w-4" />
               {!isMobile && <span className="ml-2">Add New Trainee</span>}
             </Button>

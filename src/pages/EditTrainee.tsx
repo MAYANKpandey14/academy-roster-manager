@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { EditTraineeForm } from "@/components/trainee/EditTraineeForm";
 import { Trainee } from "@/types/trainee";
 import { toast } from "sonner";
-import { getTrainees } from "@/services/api";
+import { supabase } from "@/integrations/supabase/client";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -22,27 +22,38 @@ const EditTraineePage = () => {
   useEffect(() => {
     const fetchTrainee = async () => {
       try {
-        // Fetch all trainees and find the one with matching ID
-        const { data, error } = await getTrainees();
+        if (!id) {
+          toast.error(isHindi ? "प्रशिक्षु आईडी नहीं मिली" : "Trainee ID not found");
+          navigate("/trainees");
+          return;
+        }
+        
+        setIsLoading(true);
+        
+        // Direct Supabase query to fetch a single trainee by ID
+        const { data, error } = await supabase
+          .from('trainees')
+          .select('*')
+          .eq('id', id)
+          .single();
         
         if (error) {
+          console.error("Error fetching trainee:", error);
           throw error;
         }
         
         if (data) {
-          const traineeData = data.find(t => t.id === id);
-          
-          if (traineeData) {
-            setTrainee(traineeData);
-          } else {
-            toast.error(isHindi ? "प्रशिक्षु नहीं मिला" : "Trainee not found");
-            navigate("/");
-          }
+          console.log("Trainee data fetched:", data);
+          setTrainee(data as Trainee);
+        } else {
+          console.error("No trainee found with ID:", id);
+          toast.error(isHindi ? "प्रशिक्षु नहीं मिला" : "Trainee not found");
+          navigate("/trainees");
         }
       } catch (error) {
         console.error("Error fetching trainee:", error);
         toast.error(isHindi ? "प्रशिक्षु लोड नहीं हो सकते" : "Failed to load trainee data");
-        navigate("/");
+        navigate("/trainees");
       } finally {
         setIsLoading(false);
       }
@@ -84,7 +95,7 @@ const EditTraineePage = () => {
         <EditTraineeForm 
           trainee={trainee}
           onSuccess={() => {
-            navigate("/");
+            navigate(`/trainees/${trainee.id}`);
           }}
         />
       </main>
