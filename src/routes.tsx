@@ -19,7 +19,7 @@ import LeavePage from "@/pages/LeavePage";
 import Welcome from "@/pages/Welcome";
 import TraineeRegister from "@/pages/TraineeRegister";
 
-export const router = createBrowserRouter([
+const router = createBrowserRouter([
   {
     path: "/",
     element: <ProtectedRoute><Index /></ProtectedRoute>,
@@ -86,7 +86,7 @@ export const router = createBrowserRouter([
   },
 ]);
 
-// Create a default export for the router component
+// Create the AppRoutes component that will be the default export
 const AppRoutes = () => {
   return <RouterProvider router={router} />;
 };

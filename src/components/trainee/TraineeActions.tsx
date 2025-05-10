@@ -39,13 +39,13 @@ export function TraineeActions({ trainee }: TraineeActionsProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => navigate(`/view-trainee/${trainee.id}`)}>
+        <DropdownMenuItem onClick={() => navigate(`/trainees/${trainee.id}`)}>
           <Eye className="mr-2 h-4 w-4" />
           <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
             {isHindi ? "देखें" : "View"}
           </span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate(`/edit-trainee/${trainee.id}`)}>
+        <DropdownMenuItem onClick={() => navigate(`/trainees/${trainee.id}/edit`)}>
           <Edit className="mr-2 h-4 w-4" />
           <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
             {isHindi ? "संपादित करें" : "Edit"}
