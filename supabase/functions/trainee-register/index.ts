@@ -16,10 +16,10 @@ serve(async (req) => {
   }
 
   try {
-    // Create a Supabase client
+    // Create a Supabase client with service role key to bypass RLS for admin operations
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',  // Using service role key to bypass RLS
       {
         global: {
           headers: {
@@ -90,26 +90,28 @@ serve(async (req) => {
       );
     }
 
-    // Create trainee record with minimal required data
-    // Set default values for required fields in the database
+    // Create trainee record with all the data provided
     const traineeData = {
       pno: formData.pno,
+      chest_no: formData.chest_no || formData.pno,
       name: formData.name,
       father_name: formData.father_name,
       mobile_number: formData.mobile_number,
       home_address: formData.home_address,
-      // Default values for other required fields
-      chest_no: formData.pno, // Using PNO as chest number for now
-      arrival_date: new Date().toISOString(),
-      departure_date: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString(), // 6 months from now
       current_posting_district: formData.current_posting_district || "Not specified",
       education: formData.education || "Not specified",
       date_of_birth: formData.date_of_birth || new Date("1990-01-01").toISOString(),
       date_of_joining: formData.date_of_joining || new Date().toISOString(),
+      arrival_date: formData.arrival_date || new Date().toISOString(),
+      departure_date: formData.departure_date || new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString(),
       blood_group: formData.blood_group || "Not specified",
       nominee: formData.nominee || "Not specified",
-      rank: formData.rank || "CONST"
+      rank: formData.rank || "CONST",
+      toli_no: formData.toli_no || null,
+      photo_url: formData.photo_url || null
     };
+    
+    console.log("Inserting trainee data:", traineeData);
     
     // Insert the new trainee
     const { data, error } = await supabaseClient
