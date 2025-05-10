@@ -1,55 +1,57 @@
 
+import { useState } from "react";
 import { Trainee } from "@/types/trainee";
 import { toast } from "sonner";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { createPrintContent } from "@/utils/export/traineePrintUtils";
-import { createCSVContent } from "@/utils/export/traineeCSVUtils";
-import { handlePrint as printUtil, handleDownload } from "@/utils/export/printUtils";
-import { exportTraineesToExcel } from "@/utils/export";
-
-export interface TraineePrintServiceProps {
-  trainee: Trainee;
-}
+import { handlePrint } from "@/utils/export/printUtils";
+import { exportTraineesToExcel } from "@/utils/export/traineeExcelUtils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function useTraineePrintService(trainee: Trainee) {
+  const [isLoading, setIsLoading] = useState(false);
   const { isHindi } = useLanguage();
 
   const handlePrint = () => {
-    // Generate print content 
-    const printContent = createPrintContent([trainee], isHindi);
-    
-    // Print the content
-    const printSuccess = printUtil(printContent);
-    
-    if (!printSuccess) {
-      toast.error(isHindi ? "प्रिंट विंडो खोलने में विफल" : "Failed to open print window");
-    } else {
-      toast.success(isHindi ? "ट्रेनी विवरण प्रिंट हो रहा है..." : "Printing trainee details");
+    setIsLoading(true);
+    try {
+      const content = createPrintContent([trainee], isHindi);
+      const success = window.open("", "_blank")?.document.write(content);
+      
+      if (success) {
+        toast.success(isHindi ? "प्रिंट विंडो खोल दी गई है" : "Print window opened");
+      } else {
+        toast.error(isHindi ? "प्रिंट विंडो खोलने में विफल" : "Failed to open print window");
+      }
+    } catch (error) {
+      console.error("Error printing:", error);
+      toast.error(isHindi ? "प्रिंट करते समय त्रुटि हुई" : "Error while printing");
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  const handleDownloadTrainee = () => {
-    const csvContent = createCSVContent([trainee], isHindi);
-    
-    const filename = `trainee_${trainee.pno}_${trainee.name.replace(/\s+/g, '_')}.csv`;
-    handleDownload(csvContent, filename);
-    
-    toast.success(isHindi ? "ट्रेनी CSV सफलतापूर्वक डाउनलोड हो गया" : "Trainee CSV downloaded successfully");
-  };
-
+  
   const handleExcelExport = () => {
-    const success = exportTraineesToExcel([trainee], isHindi, false);
-    
-    if (success) {
-      toast.success(isHindi ? "एक्सेल फ़ाइल सफलतापूर्वक डाउनलोड हो गई" : "Excel file downloaded successfully");
-    } else {
-      toast.error(isHindi ? "एक्सेल फ़ाइल डाउनलोड करने में त्रुटि" : "Error downloading Excel file");
+    setIsLoading(true);
+    try {
+      // Export a single trainee with all fields
+      const success = exportTraineesToExcel([trainee], isHindi, true);
+      
+      if (success) {
+        toast.success(isHindi ? "एक्सेल फ़ाइल सफलतापूर्वक डाउनलोड हो गई" : "Excel file downloaded successfully");
+      } else {
+        toast.error(isHindi ? "एक्सेल फ़ाइल डाउनलोड करने में त्रुटि" : "Error downloading Excel file");
+      }
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+      toast.error(isHindi ? "एक्सेल फ़ाइल बनाते समय त्रुटि हुई" : "Error creating Excel file");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return {
+    isLoading,
     handlePrint,
-    handleDownloadTrainee,
     handleExcelExport
   };
 }

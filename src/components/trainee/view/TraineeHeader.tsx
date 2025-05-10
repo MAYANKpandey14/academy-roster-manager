@@ -34,16 +34,6 @@ export function TraineeHeader({ trainee, onPrint, onDownload, onExcelExport }: T
             {isHindi ? "प्रिंट" : "Print"}
           </span>
         </Button>
-        {/* <Button 
-          variant="outline"
-          className="download-button"
-          onClick={onDownload}
-        >
-          <Download className="h-4 w-4 mr-2" />
-          <span className={`dynamic-text trainee-header-btn-text ${isHindi ? 'font-mangal' : ''}`}>
-            {isHindi ? "डाउनलोड CSV" : "Download CSV"}
-          </span>
-        </Button> */}
         <Button 
           variant="outline"
           className="excel-button"

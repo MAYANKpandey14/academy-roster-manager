@@ -10,6 +10,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TraineeTableActionsProps {
   trainees: Trainee[];
+  sortedTrainees: Trainee[];
+  sortBy: string;
   isLoading: boolean;
   selectedCount: number;
   getSelectedTrainees: () => Trainee[];
@@ -18,6 +20,8 @@ interface TraineeTableActionsProps {
 
 export function TraineeTableActions({ 
   trainees, 
+  sortedTrainees,
+  sortBy,
   isLoading, 
   selectedCount,
   getSelectedTrainees,
@@ -56,6 +60,19 @@ export function TraineeTableActions({
     
     if (success) {
       toast.success(isHindi ? "एक्सेल फ़ाइल सफलतापूर्वक डाउनलोड हो गई" : `Excel file with ${selectedTrainees.length} trainees downloaded successfully`);
+    } else {
+      toast.error(isHindi ? "एक्सेल फ़ाइल डाउनलोड करने में त्रुटि" : "Error downloading Excel file");
+    }
+  }
+  
+  function handleAllExcelExport() {
+    // Export all trainees (sorted if sorting is applied)
+    const dataToExport = sortBy !== "none" ? sortedTrainees : trainees;
+    
+    const success = exportTraineesToExcel(dataToExport, isHindi, true, sortBy);
+    
+    if (success) {
+      toast.success(isHindi ? "सभी प्रशिक्षानिवेशी एक्सेल फ़ाइल में डाउनलोड हो गए" : `All trainees exported to Excel successfully`);
     } else {
       toast.error(isHindi ? "एक्सेल फ़ाइल डाउनलोड करने में त्रुटि" : "Error downloading Excel file");
     }
@@ -100,7 +117,20 @@ export function TraineeTableActions({
       >
         <FileSpreadsheet className="h-4 w-4" />
         {!isMobile && <span className={`ml-2 ${isHindi ? 'font-mangal' : ''}`}>
-          {isHindi ? "एक्सेल डाउनलोड करें" : "Download Excel"}{selectedCount > 0 ? ` (${selectedCount})` : ''}
+          {isHindi ? "चयनित एक्सेल डाउनलोड करें" : "Export Selected"}{selectedCount > 0 ? ` (${selectedCount})` : ''}
+        </span>}
+      </Button>
+      
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleAllExcelExport}
+        className="excel-all-button animate-slide-in"
+        disabled={isLoading}
+      >
+        <FileSpreadsheet className="h-4 w-4" />
+        {!isMobile && <span className={`ml-2 ${isHindi ? 'font-mangal' : ''}`}>
+          {isHindi ? "सभी एक्सेल डाउनलोड करें" : "Export All"}
         </span>}
       </Button>
     </div>
