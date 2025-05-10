@@ -3,19 +3,22 @@ import { useState } from "react";
 import { Trainee } from "@/types/trainee";
 import { toast } from "sonner";
 import { createPrintContent } from "@/utils/export/traineePrintUtils";
-import { handlePrint } from "@/utils/export/printUtils";
+import { handlePrint as utilHandlePrint } from "@/utils/export/printUtils";
 import { exportTraineesToExcel } from "@/utils/export/traineeExcelUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-export function useTraineePrintService(trainee: Trainee) {
+export function useTraineePrintService(trainee: Trainee | null) {
   const [isLoading, setIsLoading] = useState(false);
   const { isHindi } = useLanguage();
 
   const handlePrint = () => {
+    if (!trainee) return;
+    
     setIsLoading(true);
     try {
       const content = createPrintContent([trainee], isHindi);
-      const success = window.open("", "_blank")?.document.write(content);
+      // Use the utility function and store its return value
+      const success = utilHandlePrint(content);
       
       if (success) {
         toast.success(isHindi ? "प्रिंट विंडो खोल दी गई है" : "Print window opened");
@@ -31,6 +34,8 @@ export function useTraineePrintService(trainee: Trainee) {
   };
   
   const handleExcelExport = () => {
+    if (!trainee) return;
+    
     setIsLoading(true);
     try {
       // Export a single trainee with all fields

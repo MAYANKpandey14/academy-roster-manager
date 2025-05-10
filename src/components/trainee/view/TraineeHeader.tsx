@@ -49,7 +49,7 @@ export function TraineeHeader({ trainee, onPrint, onDownload, onExcelExport }: T
           onClick={() => navigate(`/trainees/${trainee?.id}/edit`)}
           className="edit-button" 
         >
-          <Edit className="h-4 w-4" />
+          <Edit className="h-4 w-4 mr-2" />
           <span className={`dynamic-text trainee-header-btn-text ${isHindi ? 'font-mangal' : ''}`}>
             {isHindi ? "ट्रेनी संपादित करें" : "Edit Trainee"}
           </span>

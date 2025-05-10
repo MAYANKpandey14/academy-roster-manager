@@ -26,19 +26,7 @@ const ViewTrainee = () => {
   useLanguageInputs();
   
   // Initialize print service with the trainee data
-  const { handlePrint, handleDownloadTrainee } = useTraineePrintService(trainee);
-
-  const handleExcelExport = () => {
-    if (!trainee) return;
-    
-    const success = exportTraineesToExcel([trainee], isHindi, false);
-    
-    if (success) {
-      toast.success(isHindi ? "एक्सेल फ़ाइल सफलतापूर्वक डाउनलोड हो गई" : "Excel file downloaded successfully");
-    } else {
-      toast.error(isHindi ? "एक्सेल फ़ाइल डाउनलोड करने में त्रुटि" : "Error downloading Excel file");
-    }
-  };
+  const { handlePrint, handleExcelExport } = useTraineePrintService(trainee);
 
   useEffect(() => {
     const fetchTrainee = async () => {
@@ -101,8 +89,8 @@ const ViewTrainee = () => {
           <TraineeHeader 
             trainee={trainee} 
             onPrint={handlePrint} 
-            onDownload={handleDownloadTrainee}
             onExcelExport={handleExcelExport}
+            onDownload={handleExcelExport} // Use handleExcelExport as onDownload as well
           />
           
           <TraineeDetailsSection trainee={trainee} />
