@@ -1,5 +1,5 @@
 
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 import Index from "@/pages/Index";
@@ -85,3 +85,10 @@ export const router = createBrowserRouter([
     element: <NotFound />,
   },
 ]);
+
+// Create a default export for the router component
+const AppRoutes = () => {
+  return <RouterProvider router={router} />;
+};
+
+export default AppRoutes;

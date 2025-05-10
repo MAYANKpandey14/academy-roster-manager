@@ -1,3 +1,4 @@
+
 import { BrowserRouter } from "react-router-dom";
 import { Toaster } from "sonner";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -6,12 +7,10 @@ import "./App.css";
 
 function App() {
   return (
-    <BrowserRouter>
-      <LanguageProvider>
-        <AppRoutes />
-        <Toaster position="top-right" />
-      </LanguageProvider>
-    </BrowserRouter>
+    <LanguageProvider>
+      <AppRoutes />
+      <Toaster position="top-right" />
+    </LanguageProvider>
   );
 }
 
