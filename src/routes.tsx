@@ -1,126 +1,87 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { TooltipProvider } from "@/components/ui/tooltip";
+
+import { createBrowserRouter } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import NotFound from "@/pages/NotFound";
-import AddTrainee from "@/pages/AddTrainee";
-import EditTrainee from "@/pages/EditTrainee";
-import ViewTrainee from "@/pages/ViewTrainee";
+
+import Index from "@/pages/Index";
 import Auth from "@/pages/Auth";
+import NotFound from "@/pages/NotFound";
 import ResetPassword from "@/pages/ResetPassword";
-import TraineesPage from "@/pages/TraineesPage";
 import StaffPage from "@/pages/StaffPage";
-import AttendancePage from "@/pages/AttendancePage";
 import AddStaff from "@/pages/AddStaff";
 import EditStaff from "@/pages/EditStaff";
 import ViewStaff from "@/pages/ViewStaff";
+import TraineesPage from "@/pages/TraineesPage";
+import AddTrainee from "@/pages/AddTrainee";
+import EditTrainee from "@/pages/EditTrainee";
+import ViewTrainee from "@/pages/ViewTrainee";
+import AttendancePage from "@/pages/AttendancePage";
+import LeavePage from "@/pages/LeavePage";
 import Welcome from "@/pages/Welcome";
+import TraineeRegister from "@/pages/TraineeRegister";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  }
-});
-
-export default function AppRoutes() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Routes>
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route
-            path="/welcome"
-            element={
-              <ProtectedRoute>
-                <Welcome />
-              </ProtectedRoute>} />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Navigate to="/trainees" replace />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/trainees"
-            element={
-              <ProtectedRoute>
-                <TraineesPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/staff"
-            element={
-              <ProtectedRoute>
-                <StaffPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/attendance"
-            element={
-              <ProtectedRoute>
-                <AttendancePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/add-trainee"
-            element={
-              <ProtectedRoute>
-                <AddTrainee />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/edit-trainee/:id"
-            element={
-              <ProtectedRoute>
-                <EditTrainee />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/view-trainee/:id"
-            element={
-              <ProtectedRoute>
-                <ViewTrainee />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/add-staff"
-            element={
-              <ProtectedRoute>
-                <AddStaff />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/edit-staff/:id"
-            element={
-              <ProtectedRoute>
-                <EditStaff />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/view-staff/:id"
-            element={
-              <ProtectedRoute>
-                <ViewStaff />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </TooltipProvider>
-    </QueryClientProvider>
-  );
-} 
+export const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <ProtectedRoute><Index /></ProtectedRoute>,
+  },
+  {
+    path: "welcome",
+    element: <Welcome />,
+  },
+  {
+    path: "login",
+    element: <Auth />,
+  },
+  {
+    path: "reset-password",
+    element: <ResetPassword />,
+  },
+  {
+    path: "staff",
+    element: <ProtectedRoute><StaffPage /></ProtectedRoute>,
+  },
+  {
+    path: "staff/add",
+    element: <ProtectedRoute><AddStaff /></ProtectedRoute>,
+  },
+  {
+    path: "staff/:id/edit",
+    element: <ProtectedRoute><EditStaff /></ProtectedRoute>,
+  },
+  {
+    path: "staff/:id",
+    element: <ProtectedRoute><ViewStaff /></ProtectedRoute>,
+  },
+  {
+    path: "trainees",
+    element: <ProtectedRoute><TraineesPage /></ProtectedRoute>,
+  },
+  {
+    path: "trainees/add",
+    element: <ProtectedRoute><AddTrainee /></ProtectedRoute>,
+  },
+  {
+    path: "trainees/:id/edit",
+    element: <ProtectedRoute><EditTrainee /></ProtectedRoute>,
+  },
+  {
+    path: "trainees/:id",
+    element: <ProtectedRoute><ViewTrainee /></ProtectedRoute>,
+  },
+  {
+    path: "attendance",
+    element: <ProtectedRoute><AttendancePage /></ProtectedRoute>,
+  },
+  {
+    path: "leave",
+    element: <ProtectedRoute><LeavePage /></ProtectedRoute>,
+  },
+  {
+    path: "register",
+    element: <TraineeRegister />,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
+  },
+]);
