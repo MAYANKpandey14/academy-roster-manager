@@ -27,7 +27,7 @@ const Welcome = () => {
     }, [location.pathname]);
 
     const handleNext = () => {
-        navigate("/");
+        navigate("/trainees");
     };
 
     return (
