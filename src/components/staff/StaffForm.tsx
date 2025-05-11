@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -55,8 +56,8 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
     onSubmit(data);
   };
 
-  const handleImageUpload = (url: string) => {
-    form.setValue("photo_url", url);
+  const handleImageUpload = (url: string | null) => {
+    form.setValue("photo_url", url || '');
   };
 
   return (
@@ -331,7 +332,7 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
               entityId={initialData?.id}
               initialImageUrl={initialData?.photo_url}
               onImageUpload={handleImageUpload}
-              label={isHindi ? 'स्टाफ फोटो' : 'Staff Photo'}
+              label={isHindi ? 'स्टाफ फोटो (वैकल्पिक)' : 'Staff Photo (Optional)'}
             />
           </div>
         </div>

@@ -11,7 +11,7 @@ interface ImageUploadProps {
   bucketName: string;
   entityId?: string;
   initialImageUrl?: string;
-  onImageUpload: (url: string) => void;
+  onImageUpload: (url: string | null) => void;
   label?: string;
 }
 
@@ -108,7 +108,7 @@ export const ImageUpload = ({
   return (
     <FormItem>
       <FormLabel className={isHindi ? 'font-hindi' : ''}>
-        {label || (isHindi ? 'प्रोफाइल फोटो' : 'Profile Photo')}
+        {label || (isHindi ? 'प्रोफाइल फोटो (वैकल्पिक)' : 'Profile Photo (Optional)')}
       </FormLabel>
       <FormControl>
         <div className="space-y-4">

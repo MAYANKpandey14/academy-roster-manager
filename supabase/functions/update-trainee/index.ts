@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.21.0';
 
@@ -74,11 +75,15 @@ serve(async (req) => {
       );
     }
     
-    // Ensure photo_url is included, keep as is if undefined
+    // Fix: Better handling of photo_url to allow null or empty values
     if (updateData.photo_url === undefined) {
-      console.log("No photo_url provided in update");
+      console.log("photo_url is undefined, keeping existing value");
+      // Don't modify photo_url if it's undefined
     } else if (updateData.photo_url === "") {
+      console.log("Setting photo_url to null");
       updateData.photo_url = null;
+    } else {
+      console.log("Using provided photo_url:", updateData.photo_url);
     }
     
     console.log(`Updating trainee with ID: ${id}`);

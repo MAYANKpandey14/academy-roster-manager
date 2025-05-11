@@ -1,7 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Tables } from '@/integrations/supabase/types';
 
 // Define a simpler interface for attendance records
 export interface AttendanceRecord {
@@ -22,7 +21,7 @@ function requiresApproval(status: string): boolean {
 }
 
 export const useFetchAttendance = (personId?: string, personType: "staff" | "trainee" = "trainee") => {
-  return useQuery<AttendanceRecord[]>({
+  return useQuery({
     queryKey: ['attendance', personId, personType],
     enabled: !!personId,
     queryFn: async () => {

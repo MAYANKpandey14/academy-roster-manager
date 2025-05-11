@@ -63,7 +63,7 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
     blood_group: trainee.blood_group,
     nominee: trainee.nominee,
     home_address: trainee.home_address,
-    photo_url: trainee.photo_url,
+    photo_url: trainee.photo_url || '',
   };
 
   console.log("Default form values:", defaultValues);
@@ -78,10 +78,7 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
     console.log("Form data to submit:", data);
     
     try {
-      // We don't need to transform dates here since the form now handles it
-      console.log("Transformed form data:", data);
-
-      // Call the API to update the trainee
+      // Submit the data, allowing photo_url to be null if not set
       const response = await updateTrainee(trainee.id, data);
       
       if (response.error) {
@@ -104,8 +101,8 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
     }
   };
 
-  const handleImageUpload = (url: string) => {
-    form.setValue("photo_url", url);
+  const handleImageUpload = (url: string | null) => {
+    form.setValue("photo_url", url || '');
   };
 
   return (
@@ -129,7 +126,7 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
                     entityId={trainee.id}
                     initialImageUrl={trainee.photo_url}
                     onImageUpload={handleImageUpload}
-                    label={isHindi ? 'प्रशिक्षु फोटो' : 'Trainee Photo'}
+                    label={isHindi ? 'प्रशिक्षु फोटो (वैकल्पिक)' : 'Trainee Photo (Optional)'}
                   />
                 </div>
               </div>
