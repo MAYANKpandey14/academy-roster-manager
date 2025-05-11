@@ -65,20 +65,23 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         if (leaveError) throw leaveError;
         const leaves = (leaveData as unknown as DatabaseLeave[]) || [];
 
-        // Format absences - use status field for both status and reason
-        // NOTE: In the database, the status field contains the reason text for absences
+        // Format absences - check if the status is a special status or a regular absence
         const formattedAbsences = absences.map((item) => {
-          // Determine the actual status type based on the content
-          let statusType: AttendanceRecord['status'] = 'absent';
-          if (item.status === 'suspension') statusType = 'suspension';
-          else if (item.status === 'resignation') statusType = 'resignation';
-          else if (item.status === 'termination') statusType = 'termination';
-
+          // Check if the status is one of our special statuses
+          const specialStatuses = ['suspension', 'resignation', 'termination'];
+          const isSpecialStatus = specialStatuses.includes(item.status.toLowerCase());
+          
           return {
             id: `absence-${item.id}`,
             date: item.date,
-            status: statusType,
-            reason: item.status // Using status field for reason since that's where the reason is stored
+            // If it's a special status, use that status directly; otherwise, it's a regular absence
+            status: isSpecialStatus ? 
+              (item.status.toLowerCase() as AttendanceRecord['status']) : 
+              'absent',
+            // For regular absences, use status field for reason; for special statuses, provide a default if empty
+            reason: isSpecialStatus ? 
+              (item.status === item.status.toLowerCase() ? '' : item.status) :
+              item.status
           };
         });
 
