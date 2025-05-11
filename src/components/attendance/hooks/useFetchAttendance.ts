@@ -2,26 +2,52 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-interface DatabaseAbsence {
+// Define separate types for staff and trainee records
+interface StaffAbsence {
+  id: string;
+  date: string;
+  status: string;
+  staff_id: string;
+  approval_status: string;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+interface TraineeAbsence {
   id: string;
   date: string;
   status: string;
   trainee_id: string;
-  staff_id: string;
   approval_status: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
-interface DatabaseLeave {
+interface StaffLeave {
   id: string;
   start_date: string;
   end_date: string;
   reason: string;
-  leave_type: string;
-  trainee_id: string;
+  leave_type: string | null;
   staff_id: string;
   status: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
+interface TraineeLeave {
+  id: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  leave_type: string | null;
+  trainee_id: string;
+  status: string;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+// Type for our standardized attendance record
 export interface AttendanceRecord {
   id: string;
   recordId: string; // Original database record ID
@@ -63,7 +89,9 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
           .limit(50); // Limit results for better performance
         
         if (absenceError) throw absenceError;
-        const absences = (absenceData as DatabaseAbsence[]) || [];
+        
+        // Correctly type the absence data based on personType
+        let absences: (StaffAbsence | TraineeAbsence)[] = absenceData || [];
         
         // Fetch leave data with limit and pagination for better performance
         const { data: leaveData, error: leaveError } = await supabase
@@ -74,7 +102,9 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
           .limit(50); // Limit results for better performance
 
         if (leaveError) throw leaveError;
-        const leaves = (leaveData as DatabaseLeave[]) || [];
+        
+        // Correctly type the leave data based on personType
+        let leaves: (StaffLeave | TraineeLeave)[] = leaveData || [];
 
         // Format absences - detect special status types
         const formattedAbsences = absences.map((item) => {
