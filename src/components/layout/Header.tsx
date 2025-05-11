@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { ArrowLeft, Home, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -48,7 +49,7 @@ export function Header() {
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
-      navigate("/auth");
+      navigate("/login");
       toast.success(isHindi ? "सफलतापूर्वक लॉग आउट हुआ" : "Successfully logged out");
     } catch (error) {
       toast.error(isHindi ? "लॉग आउट करने में समस्या" : "Error logging out");

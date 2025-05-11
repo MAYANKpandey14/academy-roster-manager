@@ -33,6 +33,11 @@ const router = createBrowserRouter([
     element: <Auth />,
   },
   {
+    // Add a redirect from the old auth path to login
+    path: "auth",
+    element: <Auth />,
+  },
+  {
     path: "reset-password",
     element: <ResetPassword />,
   },
