@@ -68,7 +68,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
           const isSpecialStatus = specialStatuses.includes(item.status.toLowerCase());
           
           const type = isSpecialStatus 
-            ? (item.status.toLowerCase() as AttendanceRecord['type']) 
+            ? (item.status.toLowerCase() as 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination') 
             : 'absent';
             
           // Always use status as the reason

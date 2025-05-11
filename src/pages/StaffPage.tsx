@@ -10,12 +10,14 @@ import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Share2 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const StaffPage = () => {
   const [staff, setStaff] = useState<Staff[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showTable, setShowTable] = useState(false);
   const { isHindi } = useLanguage();
+  const isMobile = useIsMobile();
   
   // Use the language inputs hook for better language support
   useLanguageInputs();
@@ -117,9 +119,11 @@ const StaffPage = () => {
             className="flex items-center gap-2 ml-auto mb-4"
           >
             <Share2 size={16} />
-            <span className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? 'स्टाफ पंजीकरण फॉर्म शेयर करें' : 'Share Staff Register Form'}
-            </span>
+            {!isMobile && (
+              <span className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? 'स्टाफ पंजीकरण फॉर्म शेयर करें' : 'Share Staff Register Form'}
+              </span>
+            )}
           </Button>
         </div>
 

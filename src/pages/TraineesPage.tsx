@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { TraineeTable } from "@/components/trainee/TraineeTable";
@@ -9,12 +8,14 @@ import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Share2 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const TraineesPage = () => {
   const [trainees, setTrainees] = useState<Trainee[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showTable, setShowTable] = useState(false);
   const { isHindi } = useLanguage();
+  const isMobile = useIsMobile();
 
   const handleSearch = async (pno: string, chestNo: string, rollNo: string): Promise<boolean> => {
     setIsLoading(true);
@@ -123,9 +124,11 @@ const TraineesPage = () => {
             className="flex items-center gap-2 ml-auto mb-4"
           >
             <Share2 size={16} />
-            <span className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? 'प्रशिक्षु पंजीकरण फॉर्म शेयर करें' : 'Share Trainee Register Form'}
-            </span>
+            {!isMobile && (
+              <span className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? 'प्रशिक्षु पंजीकरण फॉर्म शेयर करें' : 'Share Trainee Register Form'}
+              </span>
+            )}
           </Button>
         </div>
         
