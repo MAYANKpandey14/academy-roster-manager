@@ -83,7 +83,7 @@ export function TraineeFilters({
       </div>
 
       <div className="flex flex-wrap justify-end gap-2">
-        <Button onClick={() => navigate('/add-trainee')} variant="outline" className="animate-slide-in">
+        <Button onClick={() => navigate('/trainees/add')} variant="outline" className="animate-slide-in">
           <UserPlus className="mr-2 h-4 w-4" />
           <span className={isHindi ? 'font-mangal' : ''}>
             {isHindi ? "नया प्रशिक्षु जोड़ें" : "Add New Trainee"}

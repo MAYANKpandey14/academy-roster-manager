@@ -1,5 +1,5 @@
 
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 import Index from "@/pages/Index";
@@ -35,7 +35,7 @@ const router = createBrowserRouter([
   {
     // Add a redirect from the old auth path to login
     path: "auth",
-    element: <Auth />,
+    element: <Navigate to="/login" replace />,
   },
   {
     path: "reset-password",

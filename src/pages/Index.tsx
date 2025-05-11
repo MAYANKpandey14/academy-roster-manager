@@ -128,7 +128,7 @@ const Index = () => {
         
         <TraineeFilters
           onSearch={handleSearch}
-          onShowAll={fetchTrainees}  // Added the missing onShowAll prop
+          onShowAll={fetchTrainees}
           disabled={isLoading}
         />
         
