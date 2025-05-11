@@ -91,7 +91,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         if (absenceError) throw absenceError;
         
         // Correctly type the absence data based on personType
-        let absences: (StaffAbsence | TraineeAbsence)[] = absenceData || [];
+        let absences = absenceData || [];
         
         // Fetch leave data with limit and pagination for better performance
         const { data: leaveData, error: leaveError } = await supabase
@@ -104,7 +104,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         if (leaveError) throw leaveError;
         
         // Correctly type the leave data based on personType
-        let leaves: (StaffLeave | TraineeLeave)[] = leaveData || [];
+        let leaves = leaveData || [];
 
         // Format absences - detect special status types
         const formattedAbsences = absences.map((item) => {
@@ -116,10 +116,9 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
             ? (item.status.toLowerCase() as AttendanceRecord['type']) 
             : 'absent';
             
-          // For regular absences, use status field for reason
-          const reason = isSpecialStatus
-            ? (item.status === item.status.toLowerCase() ? '' : item.status)
-            : item.status;
+          // IMPORTANT FIX: Always use status as the reason, not just for special statuses
+          // This ensures the reason field from the database is always used
+          const reason = item.status;
             
           // Apply the new approval logic
           // Check if this status type should be auto-approved
