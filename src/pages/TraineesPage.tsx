@@ -7,6 +7,8 @@ import { Trainee, BloodGroup, TraineeRank } from "@/types/trainee";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
+import { Share2 } from "lucide-react";
 
 const TraineesPage = () => {
   const [trainees, setTrainees] = useState<Trainee[]>([]);
@@ -73,6 +75,33 @@ const TraineesPage = () => {
     }
   };
 
+  const handleShareRegistrationForm = () => {
+    const registrationUrl = `${window.location.origin}/trainee-register`;
+    
+    // Use Web Share API if available
+    if (navigator.share) {
+      navigator.share({
+        title: isHindi ? 'प्रशिक्षु पंजीकरण फॉर्म' : 'Trainee Registration Form',
+        text: isHindi ? 'कृपया इस लिंक का उपयोग करके पंजीकरण फॉर्म भरें' : 'Please fill the registration form using this link',
+        url: registrationUrl
+      }).catch(err => {
+        console.error('Error sharing:', err);
+        fallbackCopyToClipboard(registrationUrl);
+      });
+    } else {
+      fallbackCopyToClipboard(registrationUrl);
+    }
+  };
+
+  const fallbackCopyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success(isHindi ? 'लिंक क्लिपबोर्ड पर कॉपी किया गया' : 'Link copied to clipboard');
+    }).catch(err => {
+      console.error('Could not copy text: ', err);
+      toast.error(isHindi ? 'लिंक कॉपी नहीं किया जा सका' : 'Could not copy link');
+    });
+  };
+
   const handleRefresh = () => {
     if (trainees.length > 0) {
       // If we already have trainees, refresh with the same query
@@ -84,16 +113,27 @@ const TraineesPage = () => {
     <div className="min-h-screen bg-gray-50">
       <Header />
       <main className="container mx-auto py-6 px-4 animate-fade-in">
-        <div className="mb-6">
-          <h1 className={`text-2xl font-semibold mb-6 ${isHindi ? 'font-hindi' : ''}`}>
+        <div className="mb-6 flex flex-wrap items-center justify-between">
+          <h1 className={`text-2xl font-semibold ${isHindi ? 'font-hindi' : ''}`}>
             {isHindi ? 'प्रशिक्षु' : 'Trainees'}
           </h1>
-          <TraineeFilters
-            onSearch={handleSearch}
-            onShowAll={handleShowAll}
-            disabled={isLoading}
-          />
+          <Button 
+            variant="outline" 
+            onClick={handleShareRegistrationForm}
+            className="flex items-center gap-2 ml-auto mb-4"
+          >
+            <Share2 size={16} />
+            <span className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'प्रशिक्षु पंजीकरण फॉर्म शेयर करें' : 'Share Trainee Register Form'}
+            </span>
+          </Button>
         </div>
+        
+        <TraineeFilters
+          onSearch={handleSearch}
+          onShowAll={handleShowAll}
+          disabled={isLoading}
+        />
         
         {showTable && (
           <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mt-6 animate-scale-in">

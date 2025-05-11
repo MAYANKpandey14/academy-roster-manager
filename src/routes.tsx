@@ -18,6 +18,7 @@ import AttendancePage from "@/pages/AttendancePage";
 import LeavePage from "@/pages/LeavePage";
 import Welcome from "@/pages/Welcome";
 import TraineeRegister from "@/pages/TraineeRegister";
+import StaffRegister from "@/pages/StaffRegister";
 
 const router = createBrowserRouter([
   {
@@ -82,8 +83,17 @@ const router = createBrowserRouter([
     element: <ProtectedRoute><LeavePage /></ProtectedRoute>,
   },
   {
-    path: "register",
+    path: "trainee-register",
     element: <TraineeRegister />,
+  },
+  {
+    path: "staff-register",
+    element: <StaffRegister />,
+  },
+  {
+    // Add a redirect from the old register path to trainee-register
+    path: "register",
+    element: <Navigate to="/trainee-register" replace />,
   },
   {
     path: "*",
