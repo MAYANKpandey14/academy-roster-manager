@@ -5,7 +5,7 @@ import { ApprovalStatus } from "./ApprovalStatus";
 import { ApprovalActions } from "./ApprovalActions";
 import { format } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { AttendanceRecord } from "./hooks/useFetchAttendance";
+import { AttendanceRecord } from "./hooks/useFetchAttendance";
 import { memo } from "react";
 
 interface AttendanceTableRowProps {

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
-import { useFetchAttendance } from "./hooks/useFetchAttendance";
+import { useFetchAttendance, AttendanceRecord } from "./hooks/useFetchAttendance";
 import { AttendanceTableRow } from "./AttendanceTableRow";
 import { PersonData } from "./PersonSearch";
 import { handlePrint } from "@/utils/export/printUtils";

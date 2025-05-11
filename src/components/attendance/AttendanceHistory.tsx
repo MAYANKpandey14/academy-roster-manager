@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Printer, FileSpreadsheet } from "lucide-react";
 import { handlePrint } from "@/utils/export/printUtils";
 import { exportToExcel } from "@/utils/export/excelUtils";
-import { useFetchAttendance } from "./hooks/useFetchAttendance";
+import { useFetchAttendance, AttendanceRecord } from "./hooks/useFetchAttendance";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Table,

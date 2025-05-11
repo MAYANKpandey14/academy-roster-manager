@@ -40,7 +40,7 @@ function requiresApproval(status: string): boolean {
 }
 
 export const useFetchAttendance = (personId?: string, personType: "staff" | "trainee" = "trainee") => {
-  return useQuery({
+  return useQuery<AttendanceRecord[]>({
     queryKey: ['attendance', personId, personType],
     enabled: !!personId,
     queryFn: async () => {
@@ -63,7 +63,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
           .limit(50); // Limit results for better performance
         
         if (absenceError) throw absenceError;
-        const absences = (absenceData as unknown as DatabaseAbsence[]) || [];
+        const absences = (absenceData as DatabaseAbsence[]) || [];
         
         // Fetch leave data with limit and pagination for better performance
         const { data: leaveData, error: leaveError } = await supabase
@@ -74,7 +74,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
           .limit(50); // Limit results for better performance
 
         if (leaveError) throw leaveError;
-        const leaves = (leaveData as unknown as DatabaseLeave[]) || [];
+        const leaves = (leaveData as DatabaseLeave[]) || [];
 
         // Format absences - detect special status types
         const formattedAbsences = absences.map((item) => {
@@ -149,7 +149,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
       }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes cache
-    cacheTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 10 * 60 * 1000,   // 10 minutes (replacing the outdated cacheTime)
     refetchOnWindowFocus: false // Reduce unnecessary refetches
   });
 };
