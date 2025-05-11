@@ -37,7 +37,7 @@ export function StaffHeader({ id, staff, onPrint, onDownload, onExcelExport }: S
                 {isHindi ? "एक्सेल" : "Excel"}
               </span>
             </Button>
-            <Button variant="outline" onClick={() => navigate(`/edit-staff/${id}`)} className="edit-button">
+            <Button variant="outline" onClick={() => navigate(`/staff/${id}/edit`)} className="edit-button">
               <Edit className="mr-2 h-4 w-4" />
               <span className={isHindi ? 'font-hindi' : ''}>
                 {isHindi ? "संपादित करें" : "Edit"}

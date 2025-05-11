@@ -55,7 +55,7 @@ const EditStaff = () => {
       if (error) throw error;
       
       toast.success(isHindi ? "स्टाफ सफलतापूर्वक अपडेट हो गया" : "Staff updated successfully");
-      navigate("/staff");
+      navigate(`/staff/${id}`);
     } catch (error) {
       console.error("Error updating staff:", error);
       toast.error(isHindi ? "स्टाफ अपडेट नहीं हो सकते" : "Failed to update staff");

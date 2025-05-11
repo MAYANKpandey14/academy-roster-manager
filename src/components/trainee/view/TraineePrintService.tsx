@@ -17,14 +17,11 @@ export function useTraineePrintService(trainee: Trainee | null) {
     setIsLoading(true);
     try {
       const content = createPrintContent([trainee], isHindi);
-      // Use the utility function and store its return value
-      const success = utilHandlePrint(content);
+      // Use the utility function and don't check its return value directly
+      utilHandlePrint(content);
       
-      if (success) {
-        toast.success(isHindi ? "प्रिंट विंडो खोल दी गई है" : "Print window opened");
-      } else {
-        toast.error(isHindi ? "प्रिंट विंडो खोलने में विफल" : "Failed to open print window");
-      }
+      // Just show success toast - the utility function handles opening the print dialog
+      toast.success(isHindi ? "प्रिंट विंडो खोल दी गई है" : "Print window opened");
     } catch (error) {
       console.error("Error printing:", error);
       toast.error(isHindi ? "प्रिंट करते समय त्रुटि हुई" : "Error while printing");
@@ -39,13 +36,10 @@ export function useTraineePrintService(trainee: Trainee | null) {
     setIsLoading(true);
     try {
       // Export a single trainee with all fields
-      const success = exportTraineesToExcel([trainee], isHindi, true);
+      exportTraineesToExcel([trainee], isHindi, true);
       
-      if (success) {
-        toast.success(isHindi ? "एक्सेल फ़ाइल सफलतापूर्वक डाउनलोड हो गई" : "Excel file downloaded successfully");
-      } else {
-        toast.error(isHindi ? "एक्सेल फ़ाइल डाउनलोड करने में त्रुटि" : "Error downloading Excel file");
-      }
+      // Show success toast
+      toast.success(isHindi ? "एक्सेल फ़ाइल सफलतापूर्वक डाउनलोड हो गई" : "Excel file downloaded successfully");
     } catch (error) {
       console.error("Error exporting to Excel:", error);
       toast.error(isHindi ? "एक्सेल फ़ाइल बनाते समय त्रुटि हुई" : "Error creating Excel file");

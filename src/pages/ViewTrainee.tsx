@@ -32,7 +32,7 @@ const ViewTrainee = () => {
     const fetchTrainee = async () => {
       if (!id) {
         toast.error(isHindi ? "प्रशिक्षु आईडी नहीं मिली" : "Trainee ID not found");
-        navigate("/");
+        navigate("/trainees");
         return;
       }
       
@@ -59,12 +59,12 @@ const ViewTrainee = () => {
         } else {
           console.error("No trainee found with ID:", id);
           toast.error(isHindi ? "प्रशिक्षु नहीं मिला" : "Trainee not found");
-          navigate("/");
+          navigate("/trainees");
         }
       } catch (error) {
         console.error("Error fetching trainee:", error);
         toast.error(isHindi ? "प्रशिक्षु डेटा लोड नहीं हो सका" : "Failed to load trainee data");
-        navigate("/");
+        navigate("/trainees");
       } finally {
         setIsLoading(false);
       }
@@ -89,8 +89,8 @@ const ViewTrainee = () => {
           <TraineeHeader 
             trainee={trainee} 
             onPrint={handlePrint} 
+            onDownload={handleExcelExport} 
             onExcelExport={handleExcelExport}
-            onDownload={handleExcelExport} // Use handleExcelExport as onDownload as well
           />
           
           <TraineeDetailsSection trainee={trainee} />
