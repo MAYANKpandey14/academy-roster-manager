@@ -62,7 +62,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         const leaves = leaveData || [];
 
         // Format absences - detect special status types
-        const formattedAbsences = absences.map((item: any) => {
+        const formattedAbsences: AttendanceRecord[] = absences.map((item: any) => {
           // Check if the status is one of our special statuses
           const specialStatuses = ['suspension', 'resignation', 'termination'];
           const isSpecialStatus = specialStatuses.includes(item.status.toLowerCase());
@@ -85,17 +85,17 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
           return {
             id: `absence-${item.id}`,
             recordId: item.id,
-            recordType: 'absence' as const,
+            recordType: 'absence',
             date: item.date,
             type,
             reason,
             approvalStatus,
-            absenceType // Include the actual absence type for conditional rendering
+            absenceType
           };
-        }) as AttendanceRecord[];
+        });
 
         // Format leaves
-        const formattedLeaves = leaves.map((item: any) => {
+        const formattedLeaves: AttendanceRecord[] = leaves.map((item: any) => {
           // Format date range for leaves
           const dateDisplay = item.start_date === item.end_date 
             ? item.start_date 
@@ -109,15 +109,15 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
           return {
             id: `leave-${item.id}`,
             recordId: item.id,
-            recordType: 'leave' as const,
+            recordType: 'leave',
             date: dateDisplay,
-            type: 'on_leave' as const,
+            type: 'on_leave',
             reason: item.reason || '',
             leave_type: item.leave_type,
             approvalStatus: approvalStatus as 'approved' | 'pending' | 'rejected',
             absenceType: 'on_leave' // All leaves are of type on_leave
           };
-        }) as AttendanceRecord[];
+        });
 
         // Combine and sort by date (most recent first)
         return [...formattedAbsences, ...formattedLeaves].sort((a, b) => {
