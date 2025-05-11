@@ -119,12 +119,15 @@ serve(async (req) => {
               .select();
           } else {
             // Insert new record
-            result = await supabaseClient.from("trainee_attendance").insert({
-              trainee_id: traineeId,
-              date,
-              status: status === "absent" ? reason : status,
-              approval_status: "pending" // New records require approval
-            }).select();
+            result = await supabaseClient
+              .from("trainee_attendance")
+              .insert({
+                trainee_id: traineeId,
+                date,
+                status: status === "absent" ? reason : status,
+                approval_status: "pending" // New records require approval
+              })
+              .select();
           }
         } else if (status === "on_leave") {
           // Check if a leave record already exists for this period and trainee
@@ -154,14 +157,17 @@ serve(async (req) => {
               .select();
           } else {
             // Insert new leave record
-            result = await supabaseClient.from("trainee_leave").insert({
-              trainee_id: traineeId,
-              start_date: date,
-              end_date: endDate || date,
-              reason,
-              leave_type: leaveType,
-              status: "pending", // All new leaves start as pending
-            }).select();
+            result = await supabaseClient
+              .from("trainee_leave")
+              .insert({
+                trainee_id: traineeId,
+                start_date: date,
+                end_date: endDate || date,
+                reason,
+                leave_type: leaveType,
+                status: "pending", // All new leaves start as pending
+              })
+              .select();
           }
         }
 

@@ -98,6 +98,7 @@ export type Database = {
       }
       staff_attendance: {
         Row: {
+          approval_status: string
           created_at: string | null
           date: string
           id: string
@@ -106,6 +107,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          approval_status?: string
           created_at?: string | null
           date: string
           id?: string
@@ -114,6 +116,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          approval_status?: string
           created_at?: string | null
           date?: string
           id?: string
@@ -177,6 +180,7 @@ export type Database = {
       }
       trainee_attendance: {
         Row: {
+          approval_status: string
           created_at: string | null
           date: string
           id: string
@@ -185,6 +189,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          approval_status?: string
           created_at?: string | null
           date: string
           id?: string
@@ -193,6 +198,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          approval_status?: string
           created_at?: string | null
           date?: string
           id?: string
