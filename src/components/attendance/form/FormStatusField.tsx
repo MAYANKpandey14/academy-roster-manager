@@ -7,6 +7,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { 
   Select, 
@@ -46,7 +47,7 @@ export function FormStatusField() {
               </SelectItem>
               <SelectItem value="on_leave">
                 <span className={isHindi ? "font-mangal" : ""}>
-                  {isHindi ? "अवकाश पर" : "On Leave"}
+                  {isHindi ? "अवकाश पर" : "On Leave"} *
                 </span>
               </SelectItem>
               <SelectItem value="suspension">
@@ -56,7 +57,7 @@ export function FormStatusField() {
               </SelectItem>
               <SelectItem value="resignation">
                 <span className={isHindi ? "font-mangal" : ""}>
-                  {isHindi ? "इस्तीफ़ा" : "Resignation"}
+                  {isHindi ? "इस्तीफ़ा" : "Resignation"} *
                 </span>
               </SelectItem>
               <SelectItem value="termination">
@@ -66,6 +67,11 @@ export function FormStatusField() {
               </SelectItem>
             </SelectContent>
           </Select>
+          <FormDescription className="text-xs">
+            {isHindi 
+              ? "* अनुमोदन की आवश्यकता है" 
+              : "* Requires approval"}
+          </FormDescription>
           <FormMessage />
         </FormItem>
       )}

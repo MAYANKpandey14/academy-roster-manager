@@ -17,6 +17,16 @@ interface AttendanceRequest {
   leaveType?: string;
 }
 
+// Helper function to determine approval status based on absence type
+function getApprovalStatus(status: string): string {
+  // Based on new requirements: No approval required for absent, suspension, termination
+  if (['absent', 'suspension', 'termination'].includes(status)) {
+    return 'approved';
+  }
+  // Approval required for on_leave and resignation
+  return 'pending';
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -24,7 +34,7 @@ serve(async (req) => {
   }
 
   try {
-    // Extract the authorization header correctly
+    // Extract the authorization header
     const authHeader = req.headers.get('Authorization');
     
     if (!authHeader) {
@@ -40,9 +50,6 @@ serve(async (req) => {
         }
       );
     }
-
-    // Log the auth header (masked) for debugging
-    console.log("Auth header present:", authHeader ? "Yes (length: " + authHeader.length + ")" : "No");
 
     // Create a Supabase client with the authenticated user's JWT
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
@@ -89,89 +96,42 @@ serve(async (req) => {
         );
       }
 
+      // Determine approval status based on absence type
+      const approvalStatus = getApprovalStatus(status);
+      console.log(`Status: ${status}, Determined approval status: ${approvalStatus}`);
+      
       let result;
 
       try {
-        // Record absence or leave based on status
-        if (status === "absent" || status === "suspension" || status === "resignation" || status === "termination") {
-          // Check if a record already exists for this date and trainee
-          const { data: existingRecord, error: checkError } = await supabaseClient
-            .from("trainee_attendance")
-            .select("*")
-            .eq("trainee_id", traineeId)
-            .eq("date", date)
-            .maybeSingle();
-            
-          if (checkError) {
-            console.error("Error checking for existing record:", checkError);
-            throw checkError;
-          }
-          
-          if (existingRecord) {
-            // Update existing record
-            result = await supabaseClient
-              .from("trainee_attendance")
-              .update({ 
-                status: status === "absent" ? reason : status,
-                approval_status: "pending" // Set all updates to pending for approval workflow
-              })
-              .eq("id", existingRecord.id)
-              .select();
-          } else {
-            // Insert new record
-            result = await supabaseClient
-              .from("trainee_attendance")
-              .insert({
-                trainee_id: traineeId,
-                date,
-                status: status === "absent" ? reason : status,
-                approval_status: "pending" // New records require approval
-              })
-              .select();
-          }
-        } else if (status === "on_leave") {
-          // Check if a leave record already exists for this period and trainee
-          const { data: existingLeave, error: checkError } = await supabaseClient
-            .from("trainee_leave")
-            .select("*")
-            .eq("trainee_id", traineeId)
-            .eq("start_date", date)
-            .maybeSingle();
-            
-          if (checkError) {
-            console.error("Error checking for existing leave record:", checkError);
-            throw checkError;
-          }
-          
-          if (existingLeave) {
-            // Update existing leave record
-            result = await supabaseClient
-              .from("trainee_leave")
-              .update({ 
-                end_date: endDate || date,
-                reason,
-                leave_type: leaveType,
-                status: "pending" // Reset to pending for approval
-              })
-              .eq("id", existingLeave.id)
-              .select();
-          } else {
-            // Insert new leave record
-            result = await supabaseClient
-              .from("trainee_leave")
-              .insert({
-                trainee_id: traineeId,
-                start_date: date,
-                end_date: endDate || date,
-                reason,
-                leave_type: leaveType,
-                status: "pending", // All new leaves start as pending
-              })
-              .select();
-          }
+        // Handle different status types
+        if (status === "on_leave") {
+          // Leave record handling
+          result = await handleLeaveRequest(
+            supabaseClient, 
+            traineeId, 
+            date, 
+            endDate || date, 
+            reason, 
+            leaveType
+          );
+        } else {
+          // Absence record handling (includes absent, suspension, resignation, termination)
+          result = await handleAbsenceRequest(
+            supabaseClient,
+            traineeId,
+            date,
+            status,
+            reason,
+            approvalStatus
+          );
         }
-
+        
         console.log("Database operation result:", result);
+        
+        if (result.error) {
+          throw result.error;
+        }
+        
       } catch (dbError) {
         console.error("Database error:", dbError);
         return new Response(
@@ -181,17 +141,6 @@ serve(async (req) => {
           }),
           {
             status: 500,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
-        );
-      }
-
-      if (result?.error) {
-        console.error("Error adding record:", result.error);
-        return new Response(
-          JSON.stringify({ error: result.error.message }),
-          {
-            status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           }
         );
@@ -232,3 +181,107 @@ serve(async (req) => {
     );
   }
 });
+
+// Helper function to handle leave requests
+async function handleLeaveRequest(
+  supabaseClient: any,
+  traineeId: string,
+  startDate: string,
+  endDate: string,
+  reason: string,
+  leaveType?: string
+) {
+  // Check if a leave record already exists for this period and trainee
+  const { data: existingLeave, error: checkError } = await supabaseClient
+    .from("trainee_leave")
+    .select("*")
+    .eq("trainee_id", traineeId)
+    .eq("start_date", startDate)
+    .maybeSingle();
+    
+  if (checkError) {
+    console.error("Error checking for existing leave record:", checkError);
+    throw checkError;
+  }
+  
+  let result;
+  
+  if (existingLeave) {
+    // Update existing leave record
+    result = await supabaseClient
+      .from("trainee_leave")
+      .update({ 
+        end_date: endDate,
+        reason,
+        leave_type: leaveType,
+        status: "pending" // Reset to pending for approval per requirements
+      })
+      .eq("id", existingLeave.id)
+      .select();
+  } else {
+    // Insert new leave record
+    result = await supabaseClient
+      .from("trainee_leave")
+      .insert({
+        trainee_id: traineeId,
+        start_date: startDate,
+        end_date: endDate,
+        reason,
+        leave_type: leaveType,
+        status: "pending", // All leaves require approval per requirements
+      })
+      .select();
+  }
+  
+  return result;
+}
+
+// Helper function to handle absence requests
+async function handleAbsenceRequest(
+  supabaseClient: any,
+  traineeId: string,
+  date: string,
+  status: string,
+  reason: string,
+  approvalStatus: string
+) {
+  // Check if a record already exists for this date and trainee
+  const { data: existingRecord, error: checkError } = await supabaseClient
+    .from("trainee_attendance")
+    .select("*")
+    .eq("trainee_id", traineeId)
+    .eq("date", date)
+    .maybeSingle();
+    
+  if (checkError) {
+    console.error("Error checking for existing record:", checkError);
+    throw checkError;
+  }
+  
+  let result;
+  
+  if (existingRecord) {
+    // Update existing record
+    result = await supabaseClient
+      .from("trainee_attendance")
+      .update({ 
+        status: status === "absent" ? reason : status,
+        approval_status: approvalStatus // Use determined approval status
+      })
+      .eq("id", existingRecord.id)
+      .select();
+  } else {
+    // Insert new record
+    result = await supabaseClient
+      .from("trainee_attendance")
+      .insert({
+        trainee_id: traineeId,
+        date,
+        status: status === "absent" ? reason : status,
+        approval_status: approvalStatus // Use determined approval status
+      })
+      .select();
+  }
+  
+  return result;
+}

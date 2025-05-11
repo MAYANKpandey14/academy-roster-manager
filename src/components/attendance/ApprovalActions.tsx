@@ -12,20 +12,30 @@ interface ApprovalActionsProps {
   recordType: 'absence' | 'leave';
   personType: 'staff' | 'trainee';
   currentStatus: 'approved' | 'pending' | 'rejected';
+  absenceType?: string; // Added to know the type of absence
 }
 
 export function ApprovalActions({ 
   recordId, 
   recordType, 
   personType, 
-  currentStatus 
+  currentStatus,
+  absenceType
 }: ApprovalActionsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
   const { isHindi } = useLanguage();
   
-  // Skip showing actions if already approved/rejected
+  // Skip showing actions if already approved/rejected or if auto-approval applies
   if (currentStatus !== 'pending') {
+    return null;
+  }
+  
+  // Check if this absence type requires approval based on the new business rules
+  const requiresApproval = (absenceType && ['on_leave', 'resignation'].includes(absenceType));
+  
+  // If it's an absence type that doesn't require approval, don't show approval actions
+  if (recordType === 'absence' && absenceType && !requiresApproval) {
     return null;
   }
   
@@ -68,6 +78,8 @@ export function ApprovalActions({
       
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['attendance'] });
+      queryClient.invalidateQueries({ queryKey: ['absences'] });
+      queryClient.invalidateQueries({ queryKey: ['leaves'] });
       
     } catch (error) {
       console.error('Error updating approval status:', error);

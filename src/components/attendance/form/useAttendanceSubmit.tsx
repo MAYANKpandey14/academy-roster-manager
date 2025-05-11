@@ -48,6 +48,10 @@ export function useAttendanceSubmit({ personType, personId, onSuccess }: UseAtte
         return;
       }
       
+      // Determine if auto-approval applies based on status
+      const requiresApproval = ['on_leave', 'resignation'].includes(values.status);
+      console.log(`Status: ${values.status}, Requires Approval: ${requiresApproval}`);
+      
       // Prepare the request data
       const requestData = {
         ...(personType === 'trainee' ? { traineeId: personId } : { staffId: personId }),
@@ -63,7 +67,6 @@ export function useAttendanceSubmit({ personType, personId, onSuccess }: UseAtte
       
       console.log(`Submitting ${personType} attendance/leave data:`, requestData);
       console.log(`Using function: ${functionName}`);
-      console.log(`Auth token available:`, !!session.access_token);
       
       const { data, error } = await supabase.functions.invoke(functionName, {
         body: requestData,
@@ -79,14 +82,24 @@ export function useAttendanceSubmit({ personType, personId, onSuccess }: UseAtte
       
       console.log(`${personType} attendance/leave record added:`, data);
       
-      toast.success(isHindi 
-        ? "रिकॉर्ड सफलतापूर्वक जोड़ा गया" 
-        : "Record added successfully");
+      // Show different messages based on whether the request requires approval
+      if (requiresApproval) {
+        toast.success(isHindi 
+          ? "अनुरोध सफलतापूर्वक जमा किया गया और अनुमोदन के लिए लंबित है" 
+          : "Request submitted successfully and pending approval");
+      } else {
+        toast.success(isHindi 
+          ? "रिकॉर्ड सफलतापूर्वक जोड़ा गया और स्वचालित रूप से अनुमोदित किया गया" 
+          : "Record added successfully and automatically approved");
+      }
         
-      // Invalidate both attendance and leave queries for this person
-      queryClient.invalidateQueries({ queryKey: ['absences', personId] });
-      queryClient.invalidateQueries({ queryKey: ['leaves', personId] });
-      queryClient.invalidateQueries({ queryKey: ['attendance', personId] });
+      // Invalidate all relevant queries to refresh the data
+      queryClient.invalidateQueries({ 
+        predicate: (query) => {
+          const key = Array.isArray(query.queryKey) ? query.queryKey[0] : null;
+          return ['absences', 'leaves', 'attendance'].includes(String(key));
+        }
+      });
       
       onSuccess();
       

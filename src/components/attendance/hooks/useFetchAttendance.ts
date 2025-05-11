@@ -8,7 +8,7 @@ interface DatabaseAbsence {
   status: string;
   trainee_id: string;
   staff_id: string;
-  approval_status?: string;
+  approval_status: string;
 }
 
 interface DatabaseLeave {
@@ -31,6 +31,12 @@ export interface AttendanceRecord {
   reason?: string;
   leave_type?: string;
   approvalStatus: 'approved' | 'pending' | 'rejected';
+  absenceType?: string; // Added to track the original absence type
+}
+
+// Helper to determine if a status requires approval
+function requiresApproval(status: string): boolean {
+  return ['on_leave', 'resignation'].includes(status);
 }
 
 export const useFetchAttendance = (personId?: string, personType: "staff" | "trainee" = "trainee") => {
@@ -85,8 +91,15 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
             ? (item.status === item.status.toLowerCase() ? '' : item.status)
             : item.status;
             
-          // Default to approved for historical records without approval status
-          const approvalStatus = (item.approval_status?.toLowerCase() || 'approved') as 'approved' | 'pending' | 'rejected';
+          // Apply the new approval logic
+          // Check if this status type should be auto-approved
+          const absenceType = isSpecialStatus ? item.status.toLowerCase() : 'absent';
+          let approvalStatus = item.approval_status?.toLowerCase() as 'approved' | 'pending' | 'rejected';
+          
+          // For historical data without approval_status field, apply the new rules
+          if (!approvalStatus) {
+            approvalStatus = requiresApproval(absenceType) ? 'pending' : 'approved';
+          }
 
           return {
             id: `absence-${item.id}`,
@@ -95,7 +108,8 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
             date: item.date,
             type,
             reason,
-            approvalStatus
+            approvalStatus,
+            absenceType // Include the actual absence type for conditional rendering
           };
         });
 
@@ -119,7 +133,8 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
             type: 'on_leave' as const,
             reason: item.reason || '',
             leave_type: item.leave_type,
-            approvalStatus: approvalStatus as 'approved' | 'pending' | 'rejected'
+            approvalStatus: approvalStatus as 'approved' | 'pending' | 'rejected',
+            absenceType: 'on_leave' // All leaves are of type on_leave
           };
         });
 
