@@ -1,26 +1,29 @@
 
-import { format } from "date-fns";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { AttendanceStatus } from "./AttendanceStatus";
+import { ApprovalStatus } from "./ApprovalStatus";
+import { ApprovalActions } from "./ApprovalActions";
+import { format } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-interface AttendanceRecord {
-  id: string;
-  date: string;
-  status: 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination';
-  reason?: string;
-  leave_type?: string;
-}
+import type { AttendanceRecord } from "./hooks/useFetchAttendance";
 
 interface AttendanceTableRowProps {
   record: AttendanceRecord;
+  personType: 'staff' | 'trainee';
 }
 
-export function AttendanceTableRow({ record }: AttendanceTableRowProps) {
+export function AttendanceTableRow({ record, personType }: AttendanceTableRowProps) {
   const { isHindi } = useLanguage();
   
   // Format date to a readable format
   const formatDate = (dateString: string) => {
+    // If it's a date range (for leaves)
+    if (dateString.includes(' - ')) {
+      const [startDate, endDate] = dateString.split(' - ');
+      return `${format(new Date(startDate), "PP")} - ${format(new Date(endDate), "PP")}`;
+    }
+    
+    // Single date
     try {
       return format(new Date(dateString), "PP");
     } catch (error) {
@@ -34,11 +37,26 @@ export function AttendanceTableRow({ record }: AttendanceTableRowProps) {
       <TableCell className={isHindi ? "font-hindi" : ""}>
         {formatDate(record.date)}
       </TableCell>
+      
       <TableCell>
-        <AttendanceStatus status={record.status} />
+        <AttendanceStatus type={record.type} />
       </TableCell>
+      
       <TableCell className={isHindi ? "font-hindi" : ""}>
         {record.reason || "-"}
+      </TableCell>
+      
+      <TableCell>
+        <ApprovalStatus status={record.approvalStatus} />
+      </TableCell>
+      
+      <TableCell>
+        <ApprovalActions
+          recordId={record.recordId}
+          recordType={record.recordType}
+          personType={personType}
+          currentStatus={record.approvalStatus}
+        />
       </TableCell>
     </TableRow>
   );

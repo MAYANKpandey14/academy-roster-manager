@@ -1,0 +1,103 @@
+
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Check, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+interface ApprovalActionsProps {
+  recordId: string;
+  recordType: 'absence' | 'leave';
+  personType: 'staff' | 'trainee';
+  currentStatus: 'approved' | 'pending' | 'rejected';
+}
+
+export function ApprovalActions({ 
+  recordId, 
+  recordType, 
+  personType, 
+  currentStatus 
+}: ApprovalActionsProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
+  const { isHindi } = useLanguage();
+  
+  // Skip showing actions if already approved/rejected
+  if (currentStatus !== 'pending') {
+    return null;
+  }
+  
+  const handleApprovalAction = async (action: 'approve' | 'reject') => {
+    setIsLoading(true);
+    
+    try {
+      // Determine which table to update
+      let table = '';
+      if (recordType === 'absence') {
+        table = personType === 'trainee' ? 'trainee_attendance' : 'staff_attendance';
+      } else {
+        table = personType === 'trainee' ? 'trainee_leave' : 'staff_leave';
+      }
+      
+      // Field to update depends on record type
+      const updateField = recordType === 'leave' ? 'status' : 'approval_status';
+      const updateValue = action === 'approve' ? 'approved' : 'rejected';
+      
+      // Update the record
+      const { error } = await supabase
+        .from(table)
+        .update({ [updateField]: updateValue })
+        .eq('id', recordId);
+      
+      if (error) throw error;
+      
+      // Show success message
+      toast.success(
+        isHindi
+          ? (action === 'approve' ? 'अनुरोध स्वीकृत' : 'अनुरोध अस्वीकृत')
+          : (action === 'approve' ? 'Request approved' : 'Request rejected')
+      );
+      
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['attendance'] });
+      
+    } catch (error) {
+      console.error('Error updating approval status:', error);
+      toast.error(
+        isHindi
+          ? 'स्थिति अपडेट करने में त्रुटि'
+          : 'Error updating status'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  return (
+    <div className="flex space-x-2">
+      <Button
+        variant="ghost"
+        size="sm"
+        className="w-8 h-8 p-0 text-green-500 hover:text-green-700 hover:bg-green-100"
+        disabled={isLoading}
+        onClick={() => handleApprovalAction('approve')}
+        title={isHindi ? 'स्वीकृत करें' : 'Approve'}
+      >
+        <Check className="h-4 w-4" />
+      </Button>
+      
+      <Button
+        variant="ghost"
+        size="sm"
+        className="w-8 h-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-100"
+        disabled={isLoading}
+        onClick={() => handleApprovalAction('reject')}
+        title={isHindi ? 'अस्वीकृत करें' : 'Reject'}
+      >
+        <X className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+}

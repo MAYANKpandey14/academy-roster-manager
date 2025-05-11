@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -75,6 +74,15 @@ serve(async (req) => {
       try {
         // Record absence or leave based on status
         if (status === "absent" || status === "suspension" || status === "resignation" || status === "termination") {
+          // First try to add approval_status column if it doesn't exist
+          try {
+            await supabaseClient.rpc('add_approval_status_if_not_exists', { 
+              table_name: 'staff_attendance' 
+            });
+          } catch (alterError) {
+            console.log("Note: approval_status may already exist or couldn't be added:", alterError);
+          }
+          
           // Check if a record already exists for this date and staff
           const { data: existingRecord, error: checkError } = await supabaseClient
             .from("staff_attendance")
@@ -92,7 +100,10 @@ serve(async (req) => {
             // Update existing record
             result = await supabaseClient
               .from("staff_attendance")
-              .update({ status: reason })
+              .update({ 
+                status: status === "absent" ? reason : status,
+                approval_status: "pending" // Set all updates to pending for approval workflow
+              })
               .eq("id", existingRecord.id)
               .select();
           } else {
@@ -100,7 +111,8 @@ serve(async (req) => {
             result = await supabaseClient.from("staff_attendance").insert({
               staff_id: staffId,
               date,
-              status: reason, // Using status field to store reason text
+              status: status === "absent" ? reason : status,
+              approval_status: "pending" // New records require approval
             }).select();
           }
         } else if (status === "on_leave") {
@@ -124,7 +136,8 @@ serve(async (req) => {
               .update({ 
                 end_date: endDate || date,
                 reason,
-                leave_type: leaveType
+                leave_type: leaveType,
+                status: "pending" // Reset to pending for approval
               })
               .eq("id", existingLeave.id)
               .select();
@@ -136,7 +149,7 @@ serve(async (req) => {
               end_date: endDate || date,
               reason,
               leave_type: leaveType,
-              status: "approved",
+              status: "pending", // All new leaves start as pending
             }).select();
           }
         }
@@ -200,3 +213,10 @@ serve(async (req) => {
     );
   }
 });
+
+// And at the very beginning of the file, add this function to the database if it doesn't exist
+try {
+  await supabaseClient.rpc('create_add_column_function');
+} catch (funcError) {
+  console.log("Function may already exist:", funcError);
+}

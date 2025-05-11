@@ -1,8 +1,4 @@
 
-import { useEffect, useState } from "react";
-import { AttendanceTable } from "./AttendanceTable";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { PersonData } from "./PersonSearch";
 import { Button } from "@/components/ui/button";
 import { Printer, FileSpreadsheet } from "lucide-react";
 import { handlePrint } from "@/utils/export/printUtils";
@@ -19,6 +15,8 @@ import {
 } from "@/components/ui/table";
 import { AttendanceTableRow } from "./AttendanceTableRow";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { PersonData } from "./PersonSearch";
 
 interface AttendanceHistoryProps {
   personId: string;
@@ -46,12 +44,6 @@ export const AttendanceHistory = ({ personId, personType, personData }: Attendan
             th { background-color: #f2f2f2; }
             .header-info { margin-bottom: 20px; }
             .header-info h3 { margin: 5px 0; }
-            .print-button {
-              background-color: rgb(41, 100, 188);
-              color: white;
-              padding: 10px 20px;
-              border: none;
-            }
           </style>
         </head>
         <body>
@@ -80,16 +72,18 @@ export const AttendanceHistory = ({ personId, personType, personData }: Attendan
 
     const exportData = attendanceRecords.map((record, index) => ({
       id: index + 1,
-      date: new Date(record.date).toLocaleDateString(),
-      status: record.status,
-      reason: record.reason || '-'
+      date: record.date,
+      type: record.type,
+      reason: record.reason || '-',
+      status: record.approvalStatus
     }));
 
     const columns = [
       { key: 'id', header: isHindi ? 'क्र.सं.' : 'S.No.' },
       { key: 'date', header: isHindi ? 'दिनांक' : 'Date' },
-      { key: 'status', header: isHindi ? 'स्थिति' : 'Status' },
-      { key: 'reason', header: isHindi ? 'कारण' : 'Reason' }
+      { key: 'type', header: isHindi ? 'प्रकार' : 'Type' },
+      { key: 'reason', header: isHindi ? 'कारण' : 'Reason' },
+      { key: 'status', header: isHindi ? 'स्थिति' : 'Status' }
     ];
 
     const personName = personData?.name || 'person';
@@ -135,17 +129,23 @@ export const AttendanceHistory = ({ personId, personType, personData }: Attendan
                   {isHindi ? "दिनांक" : "Date"}
                 </TableHead>
                 <TableHead className={isHindi ? 'font-mangal' : ''}>
-                  {isHindi ? "स्थिति" : "Status"}
+                  {isHindi ? "प्रकार" : "Type"}
                 </TableHead>
                 <TableHead className={isHindi ? 'font-mangal' : ''}>
                   {isHindi ? "कारण" : "Reason"}
+                </TableHead>
+                <TableHead className={isHindi ? 'font-mangal' : ''}>
+                  {isHindi ? "स्थिति" : "Status"}
+                </TableHead>
+                <TableHead className={isHindi ? 'font-mangal' : ''}>
+                  {isHindi ? "कार्रवाई" : "Actions"}
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center py-8">
+                  <TableCell colSpan={5} className="text-center py-8">
                     <span className={isHindi ? 'font-mangal' : ''}>
                       {isHindi ? "लोड हो रहा है..." : "Loading..."}
                     </span>
@@ -153,11 +153,15 @@ export const AttendanceHistory = ({ personId, personType, personData }: Attendan
                 </TableRow>
               ) : attendanceRecords && attendanceRecords.length > 0 ? (
                 attendanceRecords.map((record) => (
-                  <AttendanceTableRow key={record.id} record={record} />  
+                  <AttendanceTableRow 
+                    key={record.id} 
+                    record={record} 
+                    personType={personType} 
+                  />  
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center py-8">
+                  <TableCell colSpan={5} className="text-center py-8">
                     <span className={isHindi ? 'font-mangal' : ''}>
                       {isHindi ? "कोई डेटा उपलब्ध नहीं है" : "No data available"}
                     </span>

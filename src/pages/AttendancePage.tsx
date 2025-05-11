@@ -24,7 +24,7 @@ export default function AttendancePage() {
   };
 
   const handleSuccess = () => {
-    // Optionally switch to view tab after adding attendance
+    // Switch to view tab after adding attendance
     setActiveTab('view');
   };
 

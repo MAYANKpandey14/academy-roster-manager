@@ -5,9 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 interface DatabaseAbsence {
   id: string;
   date: string;
-  status: string; // This field contains the reason or status value
+  status: string;
   trainee_id: string;
   staff_id: string;
+  approval_status?: string;
 }
 
 interface DatabaseLeave {
@@ -18,14 +19,18 @@ interface DatabaseLeave {
   leave_type: string;
   trainee_id: string;
   staff_id: string;
+  status: string;
 }
 
 export interface AttendanceRecord {
   id: string;
+  recordId: string; // Original database record ID
+  recordType: 'absence' | 'leave'; // To identify record type for approval actions
   date: string;
-  status: 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination';
-  leave_type?: string;
+  type: 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination';
   reason?: string;
+  leave_type?: string;
+  approvalStatus: 'approved' | 'pending' | 'rejected';
 }
 
 export const useFetchAttendance = (personId?: string, personType: "staff" | "trainee" = "trainee") => {
@@ -43,7 +48,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
       const leaveIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
 
       try {
-        // Fetch absence data (now without limiting to 3 records)
+        // Fetch absence data
         // @ts-ignore - Type instantiation is excessively deep due to Supabase's complex type system
         const { data: absenceData, error: absenceError } = await supabase
           .from(absenceTable)
@@ -54,7 +59,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         if (absenceError) throw absenceError;
         const absences = (absenceData as unknown as DatabaseAbsence[]) || [];
         
-        // Fetch leave data (now without limiting to 3 records)
+        // Fetch leave data
         // @ts-ignore - Type instantiation is excessively deep due to Supabase's complex type system
         const { data: leaveData, error: leaveError } = await supabase
           .from(leaveTable)
@@ -65,34 +70,58 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         if (leaveError) throw leaveError;
         const leaves = (leaveData as unknown as DatabaseLeave[]) || [];
 
-        // Format absences - check if the status is a special status or a regular absence
+        // Format absences - detect special status types
         const formattedAbsences = absences.map((item) => {
           // Check if the status is one of our special statuses
           const specialStatuses = ['suspension', 'resignation', 'termination'];
           const isSpecialStatus = specialStatuses.includes(item.status.toLowerCase());
           
+          const type = isSpecialStatus 
+            ? (item.status.toLowerCase() as AttendanceRecord['type']) 
+            : 'absent';
+            
+          // For regular absences, use status field for reason
+          const reason = isSpecialStatus
+            ? (item.status === item.status.toLowerCase() ? '' : item.status)
+            : item.status;
+            
+          // Default to approved for historical records without approval status
+          const approvalStatus = (item.approval_status?.toLowerCase() || 'approved') as 'approved' | 'pending' | 'rejected';
+
           return {
             id: `absence-${item.id}`,
+            recordId: item.id,
+            recordType: 'absence' as const,
             date: item.date,
-            // If it's a special status, use that status directly; otherwise, it's a regular absence
-            status: isSpecialStatus ? 
-              (item.status.toLowerCase() as AttendanceRecord['status']) : 
-              'absent',
-            // For regular absences, use status field for reason; for special statuses, provide a default if empty
-            reason: isSpecialStatus ? 
-              (item.status === item.status.toLowerCase() ? '' : item.status) :
-              item.status
+            type,
+            reason,
+            approvalStatus
           };
         });
 
         // Format leaves
-        const formattedLeaves = leaves.map((item) => ({
-          id: `leave-${item.id}`,
-          date: `${item.start_date} - ${item.end_date}`,
-          status: 'on_leave' as AttendanceRecord['status'],
-          reason: item.reason || '',
-          leave_type: item.leave_type
-        }));
+        const formattedLeaves = leaves.map((item) => {
+          // Format date range for leaves
+          const dateDisplay = item.start_date === item.end_date 
+            ? item.start_date 
+            : `${item.start_date} - ${item.end_date}`;
+            
+          // Map leave status to our approval status
+          const approvalStatus = (item.status === 'approved' || item.status === 'rejected')
+            ? item.status
+            : 'pending';
+
+          return {
+            id: `leave-${item.id}`,
+            recordId: item.id,
+            recordType: 'leave' as const,
+            date: dateDisplay,
+            type: 'on_leave' as const,
+            reason: item.reason || '',
+            leave_type: item.leave_type,
+            approvalStatus: approvalStatus as 'approved' | 'pending' | 'rejected'
+          };
+        });
 
         // Combine and sort by date (most recent first)
         return [...formattedAbsences, ...formattedLeaves].sort((a, b) => {
