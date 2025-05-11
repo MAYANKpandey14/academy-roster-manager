@@ -1,53 +1,9 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Tables } from '@/integrations/supabase/types';
 
-// Define separate types for staff and trainee records
-interface StaffAbsence {
-  id: string;
-  date: string;
-  status: string;
-  staff_id: string;
-  approval_status: string;
-  created_at: string | null;
-  updated_at: string | null;
-}
-
-interface TraineeAbsence {
-  id: string;
-  date: string;
-  status: string;
-  trainee_id: string;
-  approval_status: string;
-  created_at: string | null;
-  updated_at: string | null;
-}
-
-interface StaffLeave {
-  id: string;
-  start_date: string;
-  end_date: string;
-  reason: string;
-  leave_type: string | null;
-  staff_id: string;
-  status: string;
-  created_at: string | null;
-  updated_at: string | null;
-}
-
-interface TraineeLeave {
-  id: string;
-  start_date: string;
-  end_date: string;
-  reason: string;
-  leave_type: string | null;
-  trainee_id: string;
-  status: string;
-  created_at: string | null;
-  updated_at: string | null;
-}
-
-// Type for our standardized attendance record
+// Define a simpler interface for attendance records
 export interface AttendanceRecord {
   id: string;
   recordId: string; // Original database record ID
@@ -90,8 +46,8 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         
         if (absenceError) throw absenceError;
         
-        // Correctly type the absence data based on personType
-        let absences = absenceData || [];
+        // Use a simpler approach to handle the data
+        const absences = absenceData || [];
         
         // Fetch leave data with limit and pagination for better performance
         const { data: leaveData, error: leaveError } = await supabase
@@ -103,11 +59,11 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
 
         if (leaveError) throw leaveError;
         
-        // Correctly type the leave data based on personType
-        let leaves = leaveData || [];
+        // Use a simpler approach to handle the data
+        const leaves = leaveData || [];
 
         // Format absences - detect special status types
-        const formattedAbsences = absences.map((item) => {
+        const formattedAbsences = absences.map((item: any) => {
           // Check if the status is one of our special statuses
           const specialStatuses = ['suspension', 'resignation', 'termination'];
           const isSpecialStatus = specialStatuses.includes(item.status.toLowerCase());
@@ -116,8 +72,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
             ? (item.status.toLowerCase() as AttendanceRecord['type']) 
             : 'absent';
             
-          // IMPORTANT FIX: Always use status as the reason, not just for special statuses
-          // This ensures the reason field from the database is always used
+          // Always use status as the reason
           const reason = item.status;
             
           // Apply the new approval logic
@@ -141,7 +96,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         });
 
         // Format leaves
-        const formattedLeaves = leaves.map((item) => {
+        const formattedLeaves = leaves.map((item: any) => {
           // Format date range for leaves
           const dateDisplay = item.start_date === item.end_date 
             ? item.start_date 
