@@ -31,7 +31,7 @@ serve(async (req) => {
       console.error("No Authorization header found");
       return new Response(
         JSON.stringify({ 
-          error: "Missing Authorization header",
+          error: "Missing authorization header",
           message: "Authorization header is required"
         }),
         {
@@ -41,26 +41,45 @@ serve(async (req) => {
       );
     }
 
+    // Log the auth header (masked) for debugging
+    console.log("Auth header present:", authHeader ? "Yes (length: " + authHeader.length + ")" : "No");
+
     // Create a Supabase client with the authenticated user's JWT
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      {
-        global: {
-          headers: {
-            Authorization: authHeader,
-          },
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error("Supabase environment variables not set");
+      return new Response(
+        JSON.stringify({ 
+          error: "Server configuration error",
+          message: "Required environment variables are missing"
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: {
+          Authorization: authHeader,
         },
-      }
-    );
+      },
+    });
 
     // Add trainee attendance/leave
     if (req.method === "POST") {
       const requestData: AttendanceRequest = await req.json();
+      console.log("Request data:", JSON.stringify(requestData));
+      
       const { traineeId, status, date, endDate, reason, leaveType } = requestData;
 
       // Validate required fields
       if (!traineeId || !status || !date || !reason) {
+        console.error("Missing required fields:", { traineeId, status, date, reason });
         return new Response(
           JSON.stringify({ error: "Missing required fields" }),
           {
@@ -145,6 +164,8 @@ serve(async (req) => {
             }).select();
           }
         }
+
+        console.log("Database operation result:", result);
       } catch (dbError) {
         console.error("Database error:", dbError);
         return new Response(
