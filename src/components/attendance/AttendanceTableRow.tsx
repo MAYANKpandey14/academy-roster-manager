@@ -6,13 +6,18 @@ import { ApprovalActions } from "./ApprovalActions";
 import { format } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { AttendanceRecord } from "./hooks/useFetchAttendance";
+import { memo } from "react";
 
 interface AttendanceTableRowProps {
   record: AttendanceRecord;
   personType: 'staff' | 'trainee';
 }
 
-export function AttendanceTableRow({ record, personType }: AttendanceTableRowProps) {
+// Using memo to prevent unnecessary re-renders
+export const AttendanceTableRow = memo(function AttendanceTableRow({ 
+  record, 
+  personType 
+}: AttendanceTableRowProps) {
   const { isHindi } = useLanguage();
   
   // Format date to a readable format
@@ -20,7 +25,12 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
     // If it's a date range (for leaves)
     if (dateString.includes(' - ')) {
       const [startDate, endDate] = dateString.split(' - ');
-      return `${format(new Date(startDate), "PP")} - ${format(new Date(endDate), "PP")}`;
+      try {
+        return `${format(new Date(startDate), "PP")} - ${format(new Date(endDate), "PP")}`;
+      } catch (error) {
+        console.error('Error formatting date range:', error);
+        return dateString;
+      }
     }
     
     // Single date
@@ -61,4 +71,4 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
       </TableCell>
     </TableRow>
   );
-}
+});

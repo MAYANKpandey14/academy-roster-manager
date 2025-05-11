@@ -12,7 +12,7 @@ interface ApprovalActionsProps {
   recordType: 'absence' | 'leave';
   personType: 'staff' | 'trainee';
   currentStatus: 'approved' | 'pending' | 'rejected';
-  absenceType?: string; // Added to know the type of absence
+  absenceType?: string; // To know the type of absence
 }
 
 export function ApprovalActions({ 
@@ -26,12 +26,12 @@ export function ApprovalActions({
   const queryClient = useQueryClient();
   const { isHindi } = useLanguage();
   
-  // Skip showing actions if already approved/rejected or if auto-approval applies
+  // Skip showing actions if already approved/rejected
   if (currentStatus !== 'pending') {
     return null;
   }
   
-  // Check if this absence type requires approval based on the new business rules
+  // Check if this absence type requires approval based on the business rules
   const requiresApproval = (absenceType && ['on_leave', 'resignation'].includes(absenceType));
   
   // If it's an absence type that doesn't require approval, don't show approval actions
@@ -98,7 +98,7 @@ export function ApprovalActions({
       <Button
         variant="ghost"
         size="sm"
-        className="w-8 h-8 p-0 text-green-500 hover:text-green-700 hover:bg-green-100"
+        className="w-8 h-8 p-0 text-green-500 hover:text-green-700 hover:bg-green-100 transition-colors duration-200"
         disabled={isLoading}
         onClick={() => handleApprovalAction('approve')}
         title={isHindi ? 'स्वीकृत करें' : 'Approve'}
@@ -109,7 +109,7 @@ export function ApprovalActions({
       <Button
         variant="ghost"
         size="sm"
-        className="w-8 h-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-100"
+        className="w-8 h-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-100 transition-colors duration-200"
         disabled={isLoading}
         onClick={() => handleApprovalAction('reject')}
         title={isHindi ? 'अस्वीकृत करें' : 'Reject'}

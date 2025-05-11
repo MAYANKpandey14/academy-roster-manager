@@ -12,7 +12,7 @@ interface UseAttendanceSubmitProps {
   onSuccess: () => void;
 }
 
-// Form schema
+// Form schema with better validation
 export const attendanceFormSchema = z.object({
   status: z.enum(["absent", "on_leave", "suspension", "resignation", "termination"]),
   leaveType: z.string().optional(),
@@ -23,6 +23,15 @@ export const attendanceFormSchema = z.object({
   reason: z.string().min(3, {
     message: "Reason must be at least 3 characters",
   }),
+}).refine(data => {
+  // If end date is provided, it should be on or after start date
+  if (data.endDate) {
+    return new Date(data.endDate) >= new Date(data.startDate);
+  }
+  return true;
+}, {
+  message: "End date must be on or after start date",
+  path: ["endDate"],
 });
 
 export type AttendanceFormValues = z.infer<typeof attendanceFormSchema>;
@@ -66,7 +75,6 @@ export function useAttendanceSubmit({ personType, personId, onSuccess }: UseAtte
       const functionName = personType === 'trainee' ? 'trainee-attendance-add' : 'staff-attendance-add';
       
       console.log(`Submitting ${personType} attendance/leave data:`, requestData);
-      console.log(`Using function: ${functionName}`);
       
       const { data, error } = await supabase.functions.invoke(functionName, {
         body: requestData,

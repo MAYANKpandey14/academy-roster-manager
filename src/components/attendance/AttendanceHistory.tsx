@@ -17,6 +17,7 @@ import { AttendanceTableRow } from "./AttendanceTableRow";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PersonData } from "./PersonSearch";
+import { useState } from "react";
 
 interface AttendanceHistoryProps {
   personId: string;
@@ -27,6 +28,7 @@ interface AttendanceHistoryProps {
 export const AttendanceHistory = ({ personId, personType, personData }: AttendanceHistoryProps) => {
   const { isHindi } = useLanguage();
   const { data: attendanceRecords, isLoading } = useFetchAttendance(personId, personType);
+  const [isExporting, setIsExporting] = useState(false);
 
   const handlePrintClick = () => {
     const printContent = document.getElementById('attendance-table')?.outerHTML;
@@ -64,36 +66,45 @@ export const AttendanceHistory = ({ personId, personType, personData }: Attendan
     handlePrint(content);
   };
 
-  const handleExcelExport = () => {
+  const handleExcelExport = async () => {
     if (!attendanceRecords || attendanceRecords.length === 0) {
       toast.error(isHindi ? "निर्यात के लिए कोई डेटा नहीं है" : "No data to export");
       return;
     }
 
-    const exportData = attendanceRecords.map((record, index) => ({
-      id: index + 1,
-      date: record.date,
-      type: record.type,
-      reason: record.reason || '-',
-      status: record.approvalStatus
-    }));
-
-    const columns = [
-      { key: 'id', header: isHindi ? 'क्र.सं.' : 'S.No.' },
-      { key: 'date', header: isHindi ? 'दिनांक' : 'Date' },
-      { key: 'type', header: isHindi ? 'प्रकार' : 'Type' },
-      { key: 'reason', header: isHindi ? 'कारण' : 'Reason' },
-      { key: 'status', header: isHindi ? 'स्थिति' : 'Status' }
-    ];
-
-    const personName = personData?.name || 'person';
-    const filename = `attendance_${personType}_${personName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    setIsExporting(true);
     
-    const success = exportToExcel(exportData, columns, filename);
-    if (success) {
-      toast.success(isHindi ? 'एक्सेल फ़ाइल डाउनलोड हो गई है' : 'Excel file downloaded successfully');
-    } else {
+    try {
+      const exportData = attendanceRecords.map((record, index) => ({
+        id: index + 1,
+        date: record.date,
+        type: record.type,
+        reason: record.reason || '-',
+        status: record.approvalStatus
+      }));
+
+      const columns = [
+        { key: 'id', header: isHindi ? 'क्र.सं.' : 'S.No.' },
+        { key: 'date', header: isHindi ? 'दिनांक' : 'Date' },
+        { key: 'type', header: isHindi ? 'प्रकार' : 'Type' },
+        { key: 'reason', header: isHindi ? 'कारण' : 'Reason' },
+        { key: 'status', header: isHindi ? 'स्थिति' : 'Status' }
+      ];
+
+      const personName = personData?.name || 'person';
+      const filename = `attendance_${personType}_${personName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      
+      const success = await exportToExcel(exportData, columns, filename);
+      if (success) {
+        toast.success(isHindi ? 'एक्सेल फ़ाइल डाउनलोड हो गई है' : 'Excel file downloaded successfully');
+      } else {
+        toast.error(isHindi ? 'एक्सेल निर्यात विफल हुआ' : 'Excel export failed');
+      }
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
       toast.error(isHindi ? 'एक्सेल निर्यात विफल हुआ' : 'Excel export failed');
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -105,13 +116,23 @@ export const AttendanceHistory = ({ personId, personType, personData }: Attendan
         </h3>
         
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleExcelExport} disabled={isLoading || !attendanceRecords || attendanceRecords.length === 0}>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleExcelExport} 
+            disabled={isLoading || !attendanceRecords || attendanceRecords.length === 0 || isExporting}
+          >
             <FileSpreadsheet className="h-4 w-4 mr-2" />
             <span className={isHindi ? 'font-mangal' : ''}>
-              {isHindi ? "एक्सेल" : "Excel"}
+              {isHindi ? (isExporting ? "निर्यात हो रहा है..." : "एक्सेल") : (isExporting ? "Exporting..." : "Excel")}
             </span>
           </Button>
-          <Button variant="outline" size="sm" onClick={handlePrintClick} disabled={isLoading || !attendanceRecords || attendanceRecords.length === 0}>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handlePrintClick} 
+            disabled={isLoading || !attendanceRecords || attendanceRecords.length === 0}
+          >
             <Printer className="h-4 w-4 mr-2" />
             <span className={isHindi ? 'font-mangal' : ''}>
               {isHindi ? "प्रिंट करें" : "Print"}

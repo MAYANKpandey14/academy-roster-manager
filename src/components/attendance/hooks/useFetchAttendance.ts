@@ -31,7 +31,7 @@ export interface AttendanceRecord {
   reason?: string;
   leave_type?: string;
   approvalStatus: 'approved' | 'pending' | 'rejected';
-  absenceType?: string; // Added to track the original absence type
+  absenceType?: string; // To track the original absence type
 }
 
 // Helper to determine if a status requires approval
@@ -40,7 +40,7 @@ function requiresApproval(status: string): boolean {
 }
 
 export const useFetchAttendance = (personId?: string, personType: "staff" | "trainee" = "trainee") => {
-  return useQuery<AttendanceRecord[], Error>({
+  return useQuery({
     queryKey: ['attendance', personId, personType],
     enabled: !!personId,
     queryFn: async () => {
@@ -54,24 +54,24 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
       const leaveIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
 
       try {
-        // Fetch absence data
-        // @ts-ignore - Type instantiation is excessively deep due to Supabase's complex type system
+        // Fetch absence data with limit and pagination for better performance
         const { data: absenceData, error: absenceError } = await supabase
           .from(absenceTable)
           .select('*')
           .eq(absenceIdField, personId)
-          .order('date', { ascending: false });
+          .order('date', { ascending: false })
+          .limit(50); // Limit results for better performance
         
         if (absenceError) throw absenceError;
         const absences = (absenceData as unknown as DatabaseAbsence[]) || [];
         
-        // Fetch leave data
-        // @ts-ignore - Type instantiation is excessively deep due to Supabase's complex type system
+        // Fetch leave data with limit and pagination for better performance
         const { data: leaveData, error: leaveError } = await supabase
           .from(leaveTable)
           .select('*')
           .eq(leaveIdField, personId)
-          .order('start_date', { ascending: false });
+          .order('start_date', { ascending: false })
+          .limit(50); // Limit results for better performance
 
         if (leaveError) throw leaveError;
         const leaves = (leaveData as unknown as DatabaseLeave[]) || [];
@@ -94,12 +94,10 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
           // Apply the new approval logic
           // Check if this status type should be auto-approved
           const absenceType = isSpecialStatus ? item.status.toLowerCase() : 'absent';
-          let approvalStatus = item.approval_status?.toLowerCase() as 'approved' | 'pending' | 'rejected';
           
-          // For historical data without approval_status field, apply the new rules
-          if (!approvalStatus) {
-            approvalStatus = requiresApproval(absenceType) ? 'pending' : 'approved';
-          }
+          // Use the database approval_status value, defaulting to auto-approval logic if not set
+          const approvalStatus = item.approval_status?.toLowerCase() as 'approved' | 'pending' | 'rejected' 
+            || (requiresApproval(absenceType) ? 'pending' : 'approved');
 
           return {
             id: `absence-${item.id}`,
@@ -149,6 +147,9 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         console.error("Error fetching attendance records:", error);
         throw error;
       }
-    }
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
+    cacheTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false // Reduce unnecessary refetches
   });
 };
