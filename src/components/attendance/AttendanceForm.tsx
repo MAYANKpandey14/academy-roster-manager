@@ -1,30 +1,18 @@
-import { useState } from "react";
+
+import { useWatch } from "react-hook-form";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Button } from "@/components/ui/button";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, FormProvider } from "react-hook-form";
+import { format } from "date-fns";
 import { 
   Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { format } from "date-fns";
-import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
-import { Textarea } from "@/components/ui/textarea";
+import { FormStatusField } from "./form/FormStatusField";
+import { FormLeaveTypeField } from "./form/FormLeaveTypeField";
+import { FormDateFields } from "./form/FormDateFields";
+import { FormReasonField } from "./form/FormReasonField";
+import { FormSubmitButton } from "./form/FormSubmitButton";
+import { useAttendanceSubmit, attendanceFormSchema, type AttendanceFormValues } from "./form/useAttendanceSubmit";
 
 interface AttendanceFormProps {
   personType: 'trainee' | 'staff';
@@ -33,27 +21,12 @@ interface AttendanceFormProps {
   onSuccess: () => void;
 }
 
-// Updated form schema with new status options
-const formSchema = z.object({
-  status: z.enum(["absent", "on_leave", "suspension", "resignation", "termination"]),
-  leaveType: z.string().optional(),
-  startDate: z.string({
-    required_error: "Start date is required",
-  }),
-  endDate: z.string().optional(),
-  reason: z.string().min(3, {
-    message: "Reason must be at least 3 characters",
-  }),
-});
-
 export function AttendanceForm({ personType, personId, pno, onSuccess }: AttendanceFormProps) {
   const { isHindi } = useLanguage();
-  const queryClient = useQueryClient();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Setup form with default values
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<AttendanceFormValues>({
+    resolver: zodResolver(attendanceFormSchema),
     defaultValues: {
       status: "absent",
       leaveType: undefined,
@@ -63,262 +36,26 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
     },
   });
   
-  const watchStatus = form.watch("status");
-  
-  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-    setIsSubmitting(true);
-    
-    try {
-      // Get the current session to include auth token
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session?.access_token) {
-        console.error("No active session found for attendance submission");
-        toast.error(isHindi 
-          ? "सत्र समाप्त हो गया है। कृपया पुनः लॉगिन करें" 
-          : "Session expired. Please log in again");
-        setIsSubmitting(false);
-        return;
-      }
-      
-      // Prepare the request data
-      const requestData = {
-        ...(personType === 'trainee' ? { traineeId: personId } : { staffId: personId }),
-        status: values.status,
-        date: values.startDate,
-        endDate: values.endDate || values.startDate,
-        reason: values.reason,
-        leaveType: values.leaveType
-      };
-      
-      // Call the appropriate edge function based on person type
-      const functionName = personType === 'trainee' ? 'trainee-attendance-add' : 'staff-attendance-add';
-      
-      console.log(`Submitting ${personType} attendance/leave data:`, requestData);
-      console.log(`Using function: ${functionName}`);
-      console.log(`Auth token available:`, !!session.access_token);
-      
-      const { data, error } = await supabase.functions.invoke(functionName, {
-        body: requestData,
-        headers: {
-          Authorization: `Bearer ${session.access_token}`
-        }
-      });
-      
-      if (error) {
-        console.error(`Error from ${functionName} function:`, error);
-        throw error;
-      }
-      
-      console.log(`${personType} attendance/leave record added:`, data);
-      
-      toast.success(isHindi 
-        ? "रिकॉर्ड सफलतापूर्वक जोड़ा गया" 
-        : "Record added successfully");
-        
-      // Reset form and invalidate queries to refresh data
-      form.reset();
-      
-      // Invalidate both attendance and leave queries for this person
-      queryClient.invalidateQueries({ queryKey: ['absences', personId] });
-      queryClient.invalidateQueries({ queryKey: ['leaves', personId] });
-      queryClient.invalidateQueries({ queryKey: ['attendance', personId] });
-      
-      onSuccess();
-      
-    } catch (error) {
-      console.error("Error submitting record:", error);
-      toast.error(isHindi 
-        ? "रिकॉर्ड जोड़ने में त्रुटि" 
-        : "Error adding record");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const watchStatus = useWatch({ control: form.control, name: "status" });
+  const { isSubmitting, handleSubmit } = useAttendanceSubmit({ personType, personId, onSuccess });
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 animate-fade-in">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className={isHindi ? "font-mangal" : ""}>
-                  {isHindi ? "स्थिति" : "Status"}
-                </FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger className="transition-all duration-200">
-                      <SelectValue placeholder={isHindi ? "स्थिति चुनें" : "Select status"} />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="absent">
-                      <span className={isHindi ? "font-mangal" : ""}>
-                        {isHindi ? "अनुपस्थित" : "Absent"}
-                      </span>
-                    </SelectItem>
-                    <SelectItem value="on_leave">
-                      <span className={isHindi ? "font-mangal" : ""}>
-                        {isHindi ? "अवकाश पर" : "On Leave"}
-                      </span>
-                    </SelectItem>
-                    <SelectItem value="suspension">
-                      <span className={isHindi ? "font-mangal" : ""}>
-                        {isHindi ? "निलंबन" : "Suspension"}
-                      </span>
-                    </SelectItem>
-                    <SelectItem value="resignation">
-                      <span className={isHindi ? "font-mangal" : ""}>
-                        {isHindi ? "इस्तीफ़ा" : "Resignation"}
-                      </span>
-                    </SelectItem>
-                    <SelectItem value="termination">
-                      <span className={isHindi ? "font-mangal" : ""}>
-                        {isHindi ? "बर्खास्त" : "Termination"}
-                      </span>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          {watchStatus === "on_leave" && (
-            <FormField
-              control={form.control}
-              name="leaveType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={isHindi ? "font-mangal" : ""}>
-                    {isHindi ? "छुट्टी का प्रकार" : "Leave Type"}
-                  </FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="transition-all duration-200">
-                        <SelectValue placeholder={isHindi ? "छुट्टी का प्रकार चुनें" : "Select leave type"} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="CL">
-                        <span>
-                          {isHindi ? "आकस्मिक अवकाश (CL)" : "Casual Leave (CL)"}
-                        </span>
-                      </SelectItem>
-                      <SelectItem value="EL">
-                        <span>
-                          {isHindi ? "अर्जित अवकाश (EL)" : "Earned Leave (EL)"}
-                        </span>
-                      </SelectItem>
-                      <SelectItem value="ML">
-                        <span>
-                          {isHindi ? "चिकित्सा अवकाश (ML)" : "Medical Leave (ML)"}
-                        </span>
-                      </SelectItem>
-                      <SelectItem value="MAT">
-                        <span>
-                          {isHindi ? "मातृत्व अवकाश" : "Maternity Leave"}
-                        </span>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-        </div>
+    <FormProvider {...form}>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 animate-fade-in">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormStatusField />
+            
+            {watchStatus === "on_leave" && <FormLeaveTypeField />}
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="startDate"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel className={isHindi ? "font-mangal" : ""}>
-                  {isHindi ? "दिनांक से" : "Date From"}
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    type="date"
-                    {...field}
-                    className="transition-all duration-200"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          {watchStatus === "on_leave" && (
-            <FormField
-              control={form.control}
-              name="endDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel className={isHindi ? "font-mangal" : ""}>
-                    {isHindi ? "दिनांक तक" : "Date To"}
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="date"
-                      {...field}
-                      className="transition-all duration-200"
-                      min={form.getValues("startDate")}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-        </div>
+          <FormDateFields />
 
-        <FormField
-          control={form.control}
-          name="reason"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className={isHindi ? "font-mangal" : ""}>
-                {isHindi ? "कारण" : "Reason"}
-              </FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder={isHindi ? "कारण दर्ज करें" : "Enter reason"}
-                  className={isHindi ? "font-mangal transition-all duration-200" : "transition-all duration-200"}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <Button 
-          type="submit" 
-          disabled={isSubmitting} 
-          className="w-full md:w-auto transition-all duration-200 hover:scale-105 active:scale-95 animate-fade-in"
-        >
-          {isSubmitting ? (
-            <span className={isHindi ? "font-mangal" : ""}>
-              {isHindi ? "प्रस्तुत किया जा रहा है..." : "Submitting..."}
-            </span>
-          ) : (
-            <span className={isHindi ? "font-mangal" : ""}>
-              {isHindi ? "जमा करें" : "Submit"}
-            </span>
-          )}
-        </Button>
-      </form>
-    </Form>
+          <FormReasonField />
+          
+          <FormSubmitButton isSubmitting={isSubmitting} />
+        </form>
+      </Form>
+    </FormProvider>
   );
 }

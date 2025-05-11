@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -74,15 +75,6 @@ serve(async (req) => {
       try {
         // Record absence or leave based on status
         if (status === "absent" || status === "suspension" || status === "resignation" || status === "termination") {
-          // First try to add approval_status column if it doesn't exist
-          try {
-            await supabaseClient.rpc('add_approval_status_if_not_exists', { 
-              table_name: 'trainee_attendance' 
-            });
-          } catch (alterError) {
-            console.log("Note: approval_status may already exist or couldn't be added:", alterError);
-          }
-          
           // Check if a record already exists for this date and trainee
           const { data: existingRecord, error: checkError } = await supabaseClient
             .from("trainee_attendance")
@@ -213,10 +205,3 @@ serve(async (req) => {
     );
   }
 });
-
-// And at the very beginning of the file, add this function to the database if it doesn't exist
-try {
-  await supabaseClient.rpc('create_add_column_function');
-} catch (funcError) {
-  console.log("Function may already exist:", funcError);
-}

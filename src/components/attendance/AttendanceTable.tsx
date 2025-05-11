@@ -97,12 +97,15 @@ export const AttendanceTable = ({ personId, personType, personData }: Attendance
                 <TableHead className={isHindi ? 'font-mangal' : ''}>
                   {isHindi ? "कारण" : "Reason"}
                 </TableHead>
+                <TableHead className={isHindi ? 'font-mangal' : ''}>
+                  {isHindi ? "स्थिति" : "Status"}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center py-8">
+                  <TableCell colSpan={4} className="text-center py-8">
                     <span className={isHindi ? 'font-mangal' : ''}>
                       {isHindi ? "लोड हो रहा है..." : "Loading..."}
                     </span>
@@ -110,11 +113,15 @@ export const AttendanceTable = ({ personId, personType, personData }: Attendance
                 </TableRow>
               ) : attendanceRecords && attendanceRecords.length > 0 ? (
                 attendanceRecords.map((record) => (
-                  <AttendanceTableRow key={record.id} record={record} />  
+                  <AttendanceTableRow 
+                    key={record.id} 
+                    record={record} 
+                    personType={personType} 
+                  />  
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center py-8">
+                  <TableCell colSpan={4} className="text-center py-8">
                     <span className={isHindi ? 'font-mangal' : ''}>
                       {isHindi ? "कोई डेटा उपलब्ध नहीं है" : "No data available"}
                     </span>

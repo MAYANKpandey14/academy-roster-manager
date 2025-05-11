@@ -34,11 +34,11 @@ export function ApprovalActions({
     
     try {
       // Determine which table to update
-      let table = '';
+      let tableName = '';
       if (recordType === 'absence') {
-        table = personType === 'trainee' ? 'trainee_attendance' : 'staff_attendance';
+        tableName = personType === 'trainee' ? 'trainee_attendance' : 'staff_attendance';
       } else {
-        table = personType === 'trainee' ? 'trainee_leave' : 'staff_leave';
+        tableName = personType === 'trainee' ? 'trainee_leave' : 'staff_leave';
       }
       
       // Field to update depends on record type
@@ -47,7 +47,7 @@ export function ApprovalActions({
       
       // Update the record
       const { error } = await supabase
-        .from(table)
+        .from(tableName)
         .update({ [updateField]: updateValue })
         .eq('id', recordId);
       
