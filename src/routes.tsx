@@ -25,81 +25,60 @@ const router = createBrowserRouter([
     element: <ProtectedRoute><Index /></ProtectedRoute>,
   },
   {
-    path: "/welcome",
+    path: "welcome",
     element: <Welcome />,
   },
   {
-    path: "/login",
+    path: "login",
     element: <Auth />,
   },
   {
-    path: "/auth",
-    element: <Auth />,
-  },
-  {
-    path: "/reset-password",
+    path: "reset-password",
     element: <ResetPassword />,
   },
   {
-    path: "/staff",
+    path: "staff",
     element: <ProtectedRoute><StaffPage /></ProtectedRoute>,
   },
   {
-    path: "/staff/add",
+    path: "staff/add",
     element: <ProtectedRoute><AddStaff /></ProtectedRoute>,
   },
   {
-    path: "/staff/:id/edit",
+    path: "staff/:id/edit",
     element: <ProtectedRoute><EditStaff /></ProtectedRoute>,
   },
   {
-    path: "/staff/:id",
+    path: "staff/:id",
     element: <ProtectedRoute><ViewStaff /></ProtectedRoute>,
   },
   {
-    path: "/trainees",
+    path: "trainees",
     element: <ProtectedRoute><TraineesPage /></ProtectedRoute>,
   },
   {
-    path: "/trainees/add",
+    path: "trainees/add",
     element: <ProtectedRoute><AddTrainee /></ProtectedRoute>,
   },
   {
-    path: "/trainees/:id/edit",
+    path: "trainees/:id/edit",
     element: <ProtectedRoute><EditTrainee /></ProtectedRoute>,
   },
   {
-    path: "/trainees/:id",
+    path: "trainees/:id",
     element: <ProtectedRoute><ViewTrainee /></ProtectedRoute>,
   },
   {
-    path: "/attendance",
+    path: "attendance",
     element: <ProtectedRoute><AttendancePage /></ProtectedRoute>,
   },
   {
-    path: "/leave",
+    path: "leave",
     element: <ProtectedRoute><LeavePage /></ProtectedRoute>,
   },
   {
-    path: "/register",
+    path: "register",
     element: <TraineeRegister />,
-  },
-  // Add redirects for potential legacy routes
-  {
-    path: "/view-trainee/:id",
-    element: <ProtectedRoute><ViewTrainee /></ProtectedRoute>,
-  },
-  {
-    path: "/edit-trainee/:id",
-    element: <ProtectedRoute><EditTrainee /></ProtectedRoute>,
-  },
-  {
-    path: "/view-staff/:id",
-    element: <ProtectedRoute><ViewStaff /></ProtectedRoute>,
-  },
-  {
-    path: "/edit-staff/:id",
-    element: <ProtectedRoute><EditStaff /></ProtectedRoute>,
   },
   {
     path: "*",
