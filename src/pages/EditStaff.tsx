@@ -32,7 +32,13 @@ const EditStaff = () => {
         
         if (error) throw error;
         
-        setStaff(data);
+        // Ensure photo_url is properly handled
+        const staffWithPhotoUrl = {
+          ...data,
+          photo_url: data.photo_url || ''
+        };
+        
+        setStaff(staffWithPhotoUrl);
       } catch (error) {
         console.error("Error fetching staff:", error);
         toast.error(isHindi ? "स्टाफ विवरण लोड नहीं हो सकते" : "Failed to load staff details");
@@ -50,7 +56,14 @@ const EditStaff = () => {
 
     try {
       setIsSubmitting(true);
-      const { error } = await updateStaff(id, data);
+      
+      // Handle photo_url properly
+      const formData = {
+        ...data,
+        photo_url: data.photo_url || null
+      };
+      
+      const { error } = await updateStaff(id, formData);
       
       if (error) throw error;
       

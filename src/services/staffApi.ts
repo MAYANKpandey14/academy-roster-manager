@@ -132,7 +132,7 @@ export async function updateStaff(id: string, staffData: StaffFormValues): Promi
       toli_no: staffData.toli_no,
       class_no: staffData.class_no,
       class_subject: staffData.class_subject,
-      photo_url: staffData.photo_url || null // Ensure photo_url is null if undefined
+      photo_url: staffData.photo_url || null // Ensure photo_url is null if undefined or empty
     };
     
     console.log('Updating staff with data:', updateData);
