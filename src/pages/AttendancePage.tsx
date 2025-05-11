@@ -6,7 +6,7 @@ import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PersonSearch, PersonData } from "@/components/attendance/PersonSearch";
 import { PersonDetails } from "@/components/attendance/PersonDetails";
-import { AttendanceTabs } from "@/components/attendance/AttendanceTabs";
+import { AttendanceHistory } from "@/components/attendance/AttendanceHistory";
 import { AttendanceForm } from "@/components/attendance/AttendanceForm";
 
 export default function AttendancePage() {
@@ -60,7 +60,7 @@ export default function AttendancePage() {
                 </TabsList>
                 
                 <TabsContent value="view" className="pt-4 animate-fade-in">
-                  <AttendanceTabs 
+                  <AttendanceHistory 
                     personId={person.id} 
                     personType={personType} 
                     personData={person}

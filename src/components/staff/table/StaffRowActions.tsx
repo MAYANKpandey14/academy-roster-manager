@@ -44,13 +44,13 @@ export function StaffRowActions({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => navigate(`/view-staff/${staff.id}`)}>
+        <DropdownMenuItem onClick={() => navigate(`/staff/${staff.id}`)}>
           <Eye className="mr-2 h-4 w-4" />
           <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
             {isHindi ? "देखें" : "View"}
           </span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate(`/edit-staff/${staff.id}`)}>
+        <DropdownMenuItem onClick={() => navigate(`/staff/${staff.id}/edit`)}>
           <Edit className="mr-2 h-4 w-4" />
           <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
             {isHindi ? "संपादित करें" : "Edit"}
