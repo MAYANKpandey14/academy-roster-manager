@@ -34,12 +34,18 @@ export function ApprovalActions({
     
     try {
       // Determine which table to update
-      let tableName = '';
-      if (recordType === 'absence') {
-        tableName = personType === 'trainee' ? 'trainee_attendance' : 'staff_attendance';
-      } else {
-        tableName = personType === 'trainee' ? 'trainee_leave' : 'staff_leave';
-      }
+      const tableMap = {
+        trainee: {
+          absence: 'trainee_attendance',
+          leave: 'trainee_leave'
+        },
+        staff: {
+          absence: 'staff_attendance',
+          leave: 'staff_leave'
+        }
+      } as const;
+      
+      const tableName = tableMap[personType][recordType];
       
       // Field to update depends on record type
       const updateField = recordType === 'leave' ? 'status' : 'approval_status';
