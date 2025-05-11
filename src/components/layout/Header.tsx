@@ -91,7 +91,7 @@ export function Header() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/trainees")}
                 className="animate-slide-in"
               >
                 <Home className="h-4 w-4 mr-1" />
