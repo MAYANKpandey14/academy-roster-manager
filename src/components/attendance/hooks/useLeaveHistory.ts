@@ -18,6 +18,7 @@ export interface LeaveRecord {
   end_date: string;
   reason: string;
   status: string;
+  leave_type?: string;
 }
 
 export type HistoryRecord = AbsenceRecord | LeaveRecord;
@@ -28,6 +29,13 @@ export const useAbsences = (personId?: string) => {
     enabled: !!personId,
     queryFn: async () => {
       if (!personId) return [];
+
+      // Get current session for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        throw new Error("No active session found");
+      }
       
       // Fetch all absences without limit
       const { data, error } = await supabase
@@ -60,6 +68,13 @@ export const useLeaves = (personId?: string) => {
     queryFn: async () => {
       if (!personId) return [];
       
+      // Get current session for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        throw new Error("No active session found");
+      }
+      
       // Fetch all leaves without limit
       const { data, error } = await supabase
         .from('trainee_leave')
@@ -79,7 +94,8 @@ export const useLeaves = (personId?: string) => {
         start_date: record.start_date,
         end_date: record.end_date,
         reason: record.reason,
-        status: record.status
+        status: record.status,
+        leave_type: record.leave_type
       }));
     }
   });

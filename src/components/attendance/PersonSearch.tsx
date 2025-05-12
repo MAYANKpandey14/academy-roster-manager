@@ -47,6 +47,17 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
     setIsSearching(true);
 
     try {
+      // Get the current session to include auth token
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        toast.error(isHindi
+          ? "कृपया पहले लॉगिन करें"
+          : "Please login first");
+        setIsSearching(false);
+        return;
+      }
+
       const tableName = personType === 'trainee' ? 'trainees' : 'staff';
 
       // Define specific columns to select based on person type
@@ -64,17 +75,23 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         .single();
 
       if (error) {
-        throw error;
+        console.error("Error searching person:", error);
+        toast.error(isHindi
+          ? "व्यक्ति खोजने में त्रुटि"
+          : "Error searching for person");
+        setIsSearching(false);
+        return;
       }
 
       if (!data) {
         toast.error(isHindi
           ? "कोई व्यक्ति नहीं मिला"
           : "No person found");
+        setIsSearching(false);
         return;
       }
 
-      // Ensure data is properly typed
+      // Ensure data is properly typed as PersonData
       const personData: PersonData = {
         id: data.id as string,
         pno: data.pno as string,
@@ -83,9 +100,9 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
       };
 
       // Add type-specific fields
-      if (personType === 'trainee' && 'chest_no' in data) {
+      if (personType === 'trainee' && data.chest_no) {
         personData.chest_no = data.chest_no as string;
-      } else if (personType === 'staff' && 'rank' in data) {
+      } else if (personType === 'staff' && data.rank) {
         personData.rank = data.rank as string;
       }
 

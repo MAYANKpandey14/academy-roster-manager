@@ -50,16 +50,16 @@ export function LeaveHistoryTableContent({ absences, leaves }: LeaveHistoryTable
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className={isHindi ? 'font-hindi' : ''}>
+              <TableHead className={isHindi ? "font-hindi" : ""}>
                 {isHindi ? 'तिथि' : 'Date'}
               </TableHead>
-              <TableHead className={isHindi ? 'font-hindi' : ''}>
+              <TableHead className={isHindi ? "font-hindi" : ""}>
                 {isHindi ? 'प्रकार' : 'Type'}
               </TableHead>
-              <TableHead className={isHindi ? 'font-hindi' : ''}>
+              <TableHead className={isHindi ? "font-hindi" : ""}>
                 {isHindi ? 'कारण' : 'Reason'}
               </TableHead>
-              <TableHead className={isHindi ? 'font-hindi' : ''}>
+              <TableHead className={isHindi ? "font-hindi" : ""}>
                 {isHindi ? 'स्थिति' : 'Status'}
               </TableHead>
             </TableRow>

@@ -7,6 +7,5 @@ interface TraineeRowActionsProps {
 }
 
 export function TraineeRowActions({ trainee }: TraineeRowActionsProps) {
-  // Just pass through to TraineeActions component
   return <TraineeActions trainee={trainee} />;
 }

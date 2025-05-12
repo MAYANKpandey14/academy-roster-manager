@@ -8,7 +8,7 @@ export interface AttendanceRecord {
   recordId: string; 
   recordType: 'absence' | 'leave'; 
   date: string;
-  type: 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination';
+  type: string;
   reason?: string;
   leave_type?: string;
   approvalStatus: 'approved' | 'pending' | 'rejected';
@@ -35,6 +35,13 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
       const leaveIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
 
       try {
+        // Get current session for authentication
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session?.access_token) {
+          throw new Error("No active session found");
+        }
+
         // Fetch absence data
         const absenceResponse = await supabase
           .from(absenceTable)
@@ -60,14 +67,14 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         // Format absences
         const formattedAbsences: AttendanceRecord[] = absences.map((item) => {
           const specialStatuses = ['suspension', 'resignation', 'termination'];
-          const isSpecialStatus = specialStatuses.includes(item.status.toLowerCase());
+          const isSpecialStatus = specialStatuses.includes(String(item.status).toLowerCase());
           
           const type = isSpecialStatus 
-            ? (item.status.toLowerCase() as 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination') 
+            ? String(item.status).toLowerCase()
             : 'absent';
           
           const reason = item.status;
-          const absenceType = isSpecialStatus ? item.status.toLowerCase() : 'absent';
+          const absenceType = isSpecialStatus ? String(item.status).toLowerCase() : 'absent';
           
           const approvalStatus = item.approval_status?.toLowerCase() || 
             (requiresApproval(absenceType) ? 'pending' : 'approved');
