@@ -1,99 +1,77 @@
 
 import { useLanguage } from "@/contexts/LanguageContext";
-import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 import { AbsenceRecord, LeaveRecord } from "../hooks/useAttendanceHooks";
-import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow 
-} from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface LeaveHistoryTableContentProps {
   absences: AbsenceRecord[];
   leaves: LeaveRecord[];
 }
 
-export function LeaveHistoryTableContent({
-  absences,
-  leaves,
-}: LeaveHistoryTableContentProps) {
+export function LeaveHistoryTableContent({ absences, leaves }: LeaveHistoryTableContentProps) {
   const { isHindi } = useLanguage();
 
-  // Combine absence and leave data, then sort by date
-  const combinedHistory = [
-    ...absences.map((absence) => ({
-      type: "absence" as const,
-      date: absence.date,
-      reason: absence.reason,
-      status: "Absence", // Display name
-    })),
-    ...leaves.map((leave) => ({
-      type: "leave" as const,
-      // Use the correct property names (startDate and endDate)
-      date: `${leave.startDate} - ${leave.endDate}`,
-      reason: leave.reason,
-      status: "Leave", // Display name
-    })),
-  ].sort((a, b) => {
-    // Extract the first date in case of ranges
-    const dateA = a.date.split(" - ")[0];
-    const dateB = b.date.split(" - ")[0];
-    return new Date(dateB).getTime() - new Date(dateA).getTime();
-  });
-
-  // Format date to a readable format
-  const formatDate = (dateString: string) => {
-    try {
-      if (dateString.includes(" - ")) {
-        // Handle date range format
-        const [startDate, endDate] = dateString.split(" - ");
-        return `${format(new Date(startDate), "PP")} - ${format(
-          new Date(endDate),
-          "PP"
-        )}`;
-      }
-      return format(new Date(dateString), "PP");
-    } catch (error) {
-      return dateString;
-    }
-  };
-
   return (
-    <div className="border rounded-md">
-      <ScrollArea className="h-[350px]">
-        <Table>
-          <TableHeader className="sticky top-0 bg-white z-10">
-            <TableRow>
-              <TableHead className={isHindi ? "font-hindi" : ""}>
-                {isHindi ? "दिनांक" : "Date"}
-              </TableHead>
-              <TableHead className={isHindi ? "font-hindi" : ""}>
-                {isHindi ? "प्रकार" : "Type"}
-              </TableHead>
-              <TableHead className={isHindi ? "font-hindi" : ""}>
-                {isHindi ? "कारण" : "Reason"}
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {combinedHistory.map((record, index) => (
-              <TableRow key={index}>
-                <TableCell className={isHindi ? "font-hindi" : ""}>
-                  {formatDate(record.date)}
-                </TableCell>
-                <TableCell>{record.status}</TableCell>
-                <TableCell className={isHindi ? "font-hindi" : ""}>
-                  {record.reason}
-                </TableCell>
-              </TableRow>
+    <div className="rounded-md border">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50">
+            <tr>
+              <th className="px-4 py-3 text-left font-medium">
+                <span className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "दिनांक" : "Date"}
+                </span>
+              </th>
+              <th className="px-4 py-3 text-left font-medium">
+                <span className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "स्थिति" : "Status"}
+                </span>
+              </th>
+              <th className="px-4 py-3 text-left font-medium">
+                <span className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "कारण/विवरण" : "Reason/Details"}
+                </span>
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {leaves.map((leave) => (
+              <tr key={`leave-${leave.id}`} className="hover:bg-muted/50 transition-colors">
+                <td className="px-4 py-3">
+                  {leave.startDate === leave.endDate 
+                    ? leave.startDate 
+                    : `${leave.startDate} - ${leave.endDate}`}
+                </td>
+                <td className="px-4 py-3">
+                  <Badge variant={leave.status === 'approved' ? 'success' : leave.status === 'rejected' ? 'destructive' : 'outline'}>
+                    {isHindi 
+                      ? leave.status === 'approved' ? 'स्वीकृत' 
+                        : leave.status === 'rejected' ? 'अस्वीकृत' : 'लंबित'
+                      : leave.status === 'approved' ? 'Approved' 
+                        : leave.status === 'rejected' ? 'Rejected' : 'Pending'}
+                  </Badge>
+                  <span className="ml-2">
+                    {isHindi ? 'अवकाश' : 'Leave'}
+                    {leave.leaveType && ` (${leave.leaveType})`}
+                  </span>
+                </td>
+                <td className="px-4 py-3">{leave.reason}</td>
+              </tr>
             ))}
-          </TableBody>
-        </Table>
-      </ScrollArea>
+            {absences.map((absence) => (
+              <tr key={`absence-${absence.id}`} className="hover:bg-muted/50 transition-colors">
+                <td className="px-4 py-3">{absence.date}</td>
+                <td className="px-4 py-3">
+                  <Badge variant="destructive">
+                    {isHindi ? 'अनुपस्थित' : 'Absent'}
+                  </Badge>
+                </td>
+                <td className="px-4 py-3">{absence.reason}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

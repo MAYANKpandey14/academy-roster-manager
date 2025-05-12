@@ -33,30 +33,26 @@ async function fetchAttendance(personId?: string, personType: "staff" | "trainee
 
   try {
     // Fetch absence data with limit and pagination for better performance
-    const { data: absenceData, error: absenceError } = await supabase
+    const absenceResult = await supabase
       .from(absenceTable)
       .select('*')
       .eq(absenceIdField, personId)
       .order('date', { ascending: false })
-      .limit(50); // Limit results for better performance
+      .limit(50);
     
-    if (absenceError) throw absenceError;
-    
-    // Use a simpler approach to handle the data
-    const absences = absenceData || [];
+    if (absenceResult.error) throw absenceResult.error;
+    const absences = absenceResult.data || [];
     
     // Fetch leave data with limit and pagination for better performance
-    const { data: leaveData, error: leaveError } = await supabase
+    const leaveResult = await supabase
       .from(leaveTable)
       .select('*')
       .eq(leaveIdField, personId)
       .order('start_date', { ascending: false })
-      .limit(50); // Limit results for better performance
+      .limit(50);
 
-    if (leaveError) throw leaveError;
-    
-    // Use a simpler approach to handle the data
-    const leaves = leaveData || [];
+    if (leaveResult.error) throw leaveResult.error;
+    const leaves = leaveResult.data || [];
 
     // Format absences - detect special status types
     const formattedAbsences: AttendanceRecord[] = absences.map((item: any) => {

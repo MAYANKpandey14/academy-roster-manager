@@ -57,7 +57,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         columns += ', rank';
       }
 
-      // Use .maybeSingle() instead of .single() to handle the case when no data is found
+      // Use .maybeSingle() which returns null when no data is found
       const { data, error } = await supabase
         .from(tableName)
         .select(columns)
@@ -76,7 +76,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
 
-      // Create personData object with proper type checking
+      // Safely create personData object with type checking
       const personData: PersonData = {
         id: data.id as string,
         pno: data.pno as string,
@@ -85,9 +85,9 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
       };
 
       // Add type-specific fields with proper type checking
-      if (personType === 'trainee' && 'chest_no' in data) {
+      if (personType === 'trainee' && data.chest_no) {
         personData.chest_no = data.chest_no as string;
-      } else if (personType === 'staff' && 'rank' in data) {
+      } else if (personType === 'staff' && data.rank) {
         personData.rank = data.rank as string;
       }
 
