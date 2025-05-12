@@ -1,4 +1,4 @@
-
+// useFetchAttendance.ts - Improved and debugged version
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -13,6 +13,25 @@ export interface AttendanceRecord {
   leave_type?: string;
   approvalStatus: 'approved' | 'pending' | 'rejected';
   absenceType?: string; // To track the original absence type
+}
+
+// Define interfaces for database record types to improve type safety
+interface AbsenceRecord {
+  id: string;
+  date: string;
+  status: string;
+  approval_status?: string;
+  [key: string]: any; // For other potential fields
+}
+
+interface LeaveRecord {
+  id: string;
+  start_date: string;
+  end_date: string;
+  reason?: string;
+  leave_type?: string;
+  status?: string;
+  [key: string]: any; // For other potential fields
 }
 
 // Helper to determine if a status requires approval
@@ -41,7 +60,7 @@ async function fetchAttendance(personId?: string, personType: "staff" | "trainee
       .limit(50);
     
     if (absenceResult.error) throw absenceResult.error;
-    const absences = absenceResult.data || [];
+    const absences = absenceResult.data as AbsenceRecord[] || [];
     
     // Fetch leave data with limit and pagination for better performance
     const leaveResult = await supabase
@@ -52,72 +71,88 @@ async function fetchAttendance(personId?: string, personType: "staff" | "trainee
       .limit(50);
 
     if (leaveResult.error) throw leaveResult.error;
-    const leaves = leaveResult.data || [];
+    const leaves = leaveResult.data as LeaveRecord[] || [];
 
-    // Format absences - detect special status types
-    const formattedAbsences: AttendanceRecord[] = absences.map((item) => {
+    // Format absences with safer type handling
+    const formattedAbsences: AttendanceRecord[] = absences.map((item: AbsenceRecord) => {
       // Check if the status is one of our special statuses
       const specialStatuses = ['suspension', 'resignation', 'termination'];
-      const isSpecialStatus = specialStatuses.includes(item.status.toLowerCase());
+      const status = item.status || '';
+      const isSpecialStatus = specialStatuses.includes(status.toLowerCase());
       
+      // Determine the record type based on status
       const type = isSpecialStatus 
-        ? (item.status.toLowerCase() as 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination') 
+        ? (status.toLowerCase() as 'suspension' | 'resignation' | 'termination')
         : 'absent';
-        
-      // Always use status as the reason
-      const reason = item.status;
-        
-      // Apply the new approval logic
-      // Check if this status type should be auto-approved
-      const absenceType = isSpecialStatus ? item.status.toLowerCase() : 'absent';
       
-      // Use the database approval_status value, defaulting to auto-approval logic if not set
-      const approvalStatus = item.approval_status?.toLowerCase() as 'approved' | 'pending' | 'rejected' 
-        || (requiresApproval(absenceType) ? 'pending' : 'approved');
+      // Apply approval logic with strict typing
+      const absenceType = isSpecialStatus ? status.toLowerCase() : 'absent';
+      
+      // Determine approval status with safer defaults
+      let approvalStatus: 'approved' | 'pending' | 'rejected' = 'pending';
+      
+      if (item.approval_status) {
+        const lowerStatus = item.approval_status.toLowerCase();
+        if (lowerStatus === 'approved') approvalStatus = 'approved';
+        else if (lowerStatus === 'rejected') approvalStatus = 'rejected';
+      } else if (!requiresApproval(absenceType)) {
+        approvalStatus = 'approved';
+      }
 
       return {
         id: `absence-${item.id}`,
         recordId: item.id,
-        recordType: 'absence',
+        recordType: 'absence' as const,
         date: item.date,
-        type,
-        reason,
+        type: type as AttendanceRecord['type'],
+        reason: status,
         approvalStatus,
         absenceType
       };
     });
 
-    // Format leaves
-    const formattedLeaves: AttendanceRecord[] = leaves.map((item) => {
-      // Format date range for leaves
-      const dateDisplay = item.start_date === item.end_date 
-        ? item.start_date 
-        : `${item.start_date} - ${item.end_date}`;
-        
-      // Map leave status to our approval status
-      const approvalStatus = (item.status === 'approved' || item.status === 'rejected')
-        ? item.status
-        : 'pending';
+    // Format leaves with safer type handling
+    const formattedLeaves: AttendanceRecord[] = leaves.map((item: LeaveRecord) => {
+      // Format date range for leaves safely
+      const startDate = item.start_date || '';
+      const endDate = item.end_date || '';
+      const dateDisplay = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
+      
+      // Determine approval status with safer handling
+      let approvalStatus: 'approved' | 'pending' | 'rejected' = 'pending';
+      
+      if (item.status) {
+        const lowerStatus = item.status.toLowerCase();
+        if (lowerStatus === 'approved') approvalStatus = 'approved';
+        else if (lowerStatus === 'rejected') approvalStatus = 'rejected';
+      }
 
       return {
         id: `leave-${item.id}`,
         recordId: item.id,
-        recordType: 'leave',
+        recordType: 'leave' as const,
         date: dateDisplay,
         type: 'on_leave',
         reason: item.reason || '',
-        leave_type: item.leave_type,
-        approvalStatus: approvalStatus as 'approved' | 'pending' | 'rejected',
-        absenceType: 'on_leave' // All leaves are of type on_leave
+        leave_type: item.leave_type || '',
+        approvalStatus,
+        absenceType: 'on_leave'
       };
     });
 
-    // Combine and sort by date (most recent first)
+    // Combine and sort by date with safer handling
     return [...formattedAbsences, ...formattedLeaves].sort((a, b) => {
-      // Extract the first date in case of range
-      const dateA = a.date.split(' - ')[0];
-      const dateB = b.date.split(' - ')[0];
-      return new Date(dateB).getTime() - new Date(dateA).getTime();
+      // Extract the first date in case of range, with fallback
+      const dateA = (a.date || '').split(' - ')[0] || new Date(0).toISOString();
+      const dateB = (b.date || '').split(' - ')[0] || new Date(0).toISOString();
+      
+      // Handle potential invalid dates
+      try {
+        return new Date(dateB).getTime() - new Date(dateA).getTime();
+      } catch (e) {
+        console.error("Error comparing dates:", e);
+        return 0; // Keep original order if dates can't be compared
+      }
     });
   } catch (error) {
     console.error("Error fetching attendance records:", error);
