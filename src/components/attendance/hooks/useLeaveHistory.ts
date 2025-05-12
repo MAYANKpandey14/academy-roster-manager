@@ -33,7 +33,7 @@ export const useAbsences = (personId?: string) => {
       const { data, error } = await supabase
         .from('trainee_attendance')
         .select('*')
-        .eq('trainee_id', personId)
+        .eq('trainee_id', personId as string)
         .order('date', { ascending: false });
       
       if (error) {
@@ -41,13 +41,13 @@ export const useAbsences = (personId?: string) => {
         throw error;
       }
       
-      // Map the database records to our expected format
-      return (data || []).map(record => ({
+      // Map the database records to our expected format using proper type assertions
+      return (data || []).map((record: any) => ({
         id: record.id,
         type: 'absence' as const,
         date: record.date,
         status: record.status,
-        reason: record.status // Using the status field as the reason field since that's where the reason is stored
+        reason: record.reason || record.status // Using the status field as the reason field if reason is not provided
       }));
     }
   });
@@ -64,7 +64,7 @@ export const useLeaves = (personId?: string) => {
       const { data, error } = await supabase
         .from('trainee_leave')
         .select('*')
-        .eq('trainee_id', personId)
+        .eq('trainee_id', personId as string)
         .order('start_date', { ascending: false });
       
       if (error) {
@@ -72,8 +72,8 @@ export const useLeaves = (personId?: string) => {
         throw error;
       }
       
-      // Map the database records to our expected format
-      return (data || []).map(record => ({
+      // Map the database records to our expected format using type assertions
+      return (data || []).map((record: any) => ({
         id: record.id,
         type: 'leave' as const,
         start_date: record.start_date,

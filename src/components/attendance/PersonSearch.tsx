@@ -53,7 +53,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
       const { data, error } = await supabase
         .from(tableName)
         .select(columns)
-        .filter('pno', 'eq', pno)
+        .eq('pno', pno)
         .single();
 
       if (error) {
@@ -68,12 +68,12 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
 
-      // Map the data directly to our PersonData interface
+      // Use proper type assertion to resolve property access issues
       const personData: PersonData = {
-        id: data.id,
-        pno: data.pno,
-        name: data.name,
-        mobile_number: data.mobile_number
+        id: data.id as string,
+        pno: data.pno as string,
+        name: data.name as string,
+        mobile_number: data.mobile_number as string
       };
 
       // Add type-specific fields
