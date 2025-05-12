@@ -4,12 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
 export interface AttendanceRecord {
-  id: string;
+  id?: string;
   date: string;
   status?: string;
   approval_status: string;
   type: 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination';
-  reason: string;
+  reason?: string;
   absence_type?: string;
   duration?: string;
 }
@@ -22,14 +22,14 @@ type Attendance = {
   }
 };
 
-type LeaveRecord = {
+interface LeaveRecord {
   start_date: string;
   end_date: string;
   status: string;
   reason: string;
   leave_type?: string;
   id: string;
-};
+}
 
 export const useFetchAttendance = (userId?: string, personType: 'staff' | 'trainee' = 'trainee', startDate?: string, endDate?: string) => {
   const [attendanceData, setAttendanceData] = useState<Attendance>({});
@@ -68,7 +68,8 @@ export const useFetchAttendance = (userId?: string, personType: 'staff' | 'train
           formattedAttendance[dateString] = {
             status: record.status,
             approval_status: record.approval_status,
-            reason: record.reason || ''
+            // Add an empty reason if it doesn't exist
+            reason: (record as any).reason || ''
           };
         });
         

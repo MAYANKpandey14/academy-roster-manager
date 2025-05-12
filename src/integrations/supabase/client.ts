@@ -6,7 +6,7 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://zjgphamebgrclivvkhmw.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZ3BoYW1lYmdyY2xpdnZraG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU2OTM2NDcsImV4cCI6MjA2MTI2OTY0N30.1SmOoYa7R4iybW0nCIuc-FrbYML-EP9yC2ykJ6kpUTo";
 
-// Create the Supabase client with explicit auth configuration
+// Create the Supabase client with explicit auth configuration and error handling
 export const supabase = createClient<Database>(
   SUPABASE_URL, 
   SUPABASE_PUBLISHABLE_KEY, 
@@ -15,7 +15,58 @@ export const supabase = createClient<Database>(
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
-      storage: localStorage
+      storage: localStorage,
+      // Add event listeners for auth events
+      flowType: 'implicit',
+      debug: import.meta.env.DEV,
+      // Add more resilient error handling 
+      onError: (error) => {
+        console.error('Supabase Auth Error:', error);
+      },
+    },
+    global: {
+      // Add proper error handling for fetch operations
+      fetch: async (url, options = {}) => {
+        try {
+          const response = await fetch(url, options);
+          return response;
+        } catch (error) {
+          console.error('Supabase Global Fetch Error:', error);
+          throw error;
+        }
+      }
+    },
+    realtime: {
+      params: {
+        eventsPerSecond: 10
+      }
     }
   }
 );
+
+// Add auth state change listener for debugging
+if (import.meta.env.DEV) {
+  supabase.auth.onAuthStateChange((event, session) => {
+    console.log(`Supabase Auth Event: ${event}`, { session });
+  });
+}
+
+// Add helper for handling auth errors specifically
+export const cleanupAuthState = () => {
+  // Remove standard auth tokens
+  localStorage.removeItem('supabase.auth.token');
+  
+  // Remove all Supabase auth keys from localStorage
+  Object.keys(localStorage).forEach((key) => {
+    if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+      localStorage.removeItem(key);
+    }
+  });
+  
+  // Remove from sessionStorage if in use
+  Object.keys(sessionStorage || {}).forEach((key) => {
+    if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+      sessionStorage.removeItem(key);
+    }
+  });
+};

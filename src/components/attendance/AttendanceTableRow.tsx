@@ -42,6 +42,19 @@ export const AttendanceTableRow = memo(function AttendanceTableRow({
     }
   };
 
+  // Ensure approval_status is one of the valid types
+  const getValidApprovalStatus = (): "approved" | "pending" | "rejected" => {
+    const status = record.approval_status.toLowerCase();
+    if (status === "approved") return "approved";
+    if (status === "rejected") return "rejected";
+    return "pending"; // Default to pending for any other values
+  };
+
+  // Get a valid record type
+  const getValidRecordType = (): "leave" | "absence" => {
+    return record.type === "leave" ? "leave" : "absence";
+  };
+
   return (
     <TableRow className="animate-fade-in transition-colors duration-200 hover:bg-gray-50">
       <TableCell className={isHindi ? "font-hindi" : ""}>
@@ -57,15 +70,15 @@ export const AttendanceTableRow = memo(function AttendanceTableRow({
       </TableCell>
       
       <TableCell>
-        <ApprovalStatus status={record.approval_status as "approved" | "pending" | "rejected"} />
+        <ApprovalStatus status={getValidApprovalStatus()} />
       </TableCell>
       
       <TableCell>
         <ApprovalActions
           recordId={record.id || ""}
-          recordType={record.type as "leave" | "absence"}
+          recordType={getValidRecordType()}
           personType={personType}
-          currentStatus={record.approval_status as "approved" | "pending" | "rejected"}
+          currentStatus={getValidApprovalStatus()}
           absenceType={record.absence_type || ""}
         />
       </TableCell>
