@@ -1,4 +1,4 @@
-
+// PersonSearch.tsx - Improved and debugged version
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Label } from "@/components/ui/label";
@@ -76,12 +76,32 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
 
-      // Create a properly typed person data object
+      // Type guard to ensure data has the expected properties
+      const hasRequiredFields = (
+        obj: any
+      ): obj is { id: string; pno: string; name: string; mobile_number: string } => {
+        return (
+          typeof obj.id === 'string' &&
+          typeof obj.pno === 'string' &&
+          typeof obj.name === 'string' &&
+          typeof obj.mobile_number === 'string'
+        );
+      };
+
+      // Check if data has the required fields
+      if (!hasRequiredFields(data)) {
+        toast.error(isHindi
+          ? "प्राप्त डेटा अमान्य है"
+          : "Retrieved data is invalid");
+        return;
+      }
+
+      // Now TypeScript knows data has the required properties
       const personData: PersonData = {
-        id: data.id as string,
-        pno: data.pno as string,
-        name: data.name as string,
-        mobile_number: data.mobile_number as string
+        id: data.id,
+        pno: data.pno,
+        name: data.name,
+        mobile_number: data.mobile_number
       };
 
       // Add type-specific fields
