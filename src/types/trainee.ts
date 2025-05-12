@@ -1,18 +1,6 @@
 
 export type BloodGroup = "A+" | "A-" | "B+" | "B-" | "O+" | "O-" | "AB+" | "AB-";
-export type TraineeRank = 
-  | "R/CONST" 
-  | "CONST" 
-  | "CONST/PTI" 
-  | "HC/CP" 
-  | "HC/AP" 
-  | "HC-ITI" 
-  | "HC-PTI" 
-  | "SI/AP" 
-  | "SI/CP" 
-  | "RI" 
-  | "RSI" 
-  | "Inspector";
+export type TraineeRank = "R/CONST" | "CONST" | "CONST/PTI" | "HC/CP" | "HC/AP" | "HC-ITI" | "HC-PTI" | "SI/AP" | "SI/CP" | "RI" | "RSI" | "Inspector";
 
 export interface Trainee {
   id: string;

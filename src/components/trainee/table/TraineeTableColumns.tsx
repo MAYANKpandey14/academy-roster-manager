@@ -1,10 +1,11 @@
+
 import { ColumnDef } from "@tanstack/react-table";
 import { Trainee } from "@/types/trainee";
 import { TraineeRowActions } from "./TraineeRowActions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export function getTraineeTableColumns(isHindi: boolean, onDeleteSuccess?: () => void): ColumnDef<Trainee>[] {
+export function getTraineeTableColumns(isHindi: boolean): ColumnDef<Trainee>[] {
   return [
     {
       id: "select",
@@ -12,8 +13,7 @@ export function getTraineeTableColumns(isHindi: boolean, onDeleteSuccess?: () =>
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate") ||
-            false
+            (table.getIsSomePageRowsSelected() && true)
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
@@ -74,7 +74,7 @@ export function getTraineeTableColumns(isHindi: boolean, onDeleteSuccess?: () =>
     {
       id: "actions",
       cell: ({ row }) => {
-        return <TraineeRowActions trainee={row.original} onDeleteSuccess={onDeleteSuccess} />;
+        return <TraineeRowActions trainee={row.original} />;
       },
     },
   ];

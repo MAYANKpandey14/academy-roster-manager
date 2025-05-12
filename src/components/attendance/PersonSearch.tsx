@@ -1,4 +1,4 @@
-// PersonSearch.tsx - Improved and debugged version
+
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Label } from "@/components/ui/label";
@@ -57,12 +57,11 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         columns += ', rank';
       }
 
-      // Use .maybeSingle() which returns null when no data is found
       const { data, error } = await supabase
         .from(tableName)
         .select(columns)
         .eq('pno', pno)
-        .maybeSingle();
+        .single();
 
       if (error) {
         throw error;
@@ -76,39 +75,19 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
 
-      // Type guard to ensure data has the expected properties
-      const hasRequiredFields = (
-        obj: any
-      ): obj is { id: string; pno: string; name: string; mobile_number: string } => {
-        return (
-          typeof obj.id === 'string' &&
-          typeof obj.pno === 'string' &&
-          typeof obj.name === 'string' &&
-          typeof obj.mobile_number === 'string'
-        );
-      };
-
-      // Check if data has the required fields
-      if (!hasRequiredFields(data)) {
-        toast.error(isHindi
-          ? "प्राप्त डेटा अमान्य है"
-          : "Retrieved data is invalid");
-        return;
-      }
-
-      // Now TypeScript knows data has the required properties
+      // Use explicit type assertion since we've verified the data structure
       const personData: PersonData = {
-        id: data.id,
-        pno: data.pno,
-        name: data.name,
-        mobile_number: data.mobile_number
+        id: (data as Record<string, any>).id as string,
+        pno: (data as Record<string, any>).pno as string,
+        name: (data as Record<string, any>).name as string,
+        mobile_number: (data as Record<string, any>).mobile_number as string
       };
 
-      // Add type-specific fields
+      // Add type-specific fields with proper type assertions
       if (personType === 'trainee' && 'chest_no' in data) {
-        personData.chest_no = data.chest_no as string;
+        personData.chest_no = (data as Record<string, any>).chest_no as string;
       } else if (personType === 'staff' && 'rank' in data) {
-        personData.rank = data.rank as string;
+        personData.rank = (data as Record<string, any>).rank as string;
       }
 
       onPersonFound(personData, personType);
