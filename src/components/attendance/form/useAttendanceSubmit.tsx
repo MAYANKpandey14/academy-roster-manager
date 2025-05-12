@@ -3,11 +3,12 @@ import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
+import { useAttendanceService } from "@/hooks/useAttendanceService";
+import { PersonType } from "@/types/attendance";
 
 interface UseAttendanceSubmitProps {
-  personType: 'trainee' | 'staff';
+  personType: PersonType;
   personId: string;
   onSuccess: () => void;
 }
@@ -38,86 +39,47 @@ export type AttendanceFormValues = z.infer<typeof attendanceFormSchema>;
 
 export function useAttendanceSubmit({ personType, personId, onSuccess }: UseAttendanceSubmitProps) {
   const { isHindi } = useLanguage();
-  const queryClient = useQueryClient();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { 
+    isLoading: isSubmitting,
+    submitAttendance,
+    submitLeave
+  } = useAttendanceService({ onSuccess });
   
   const handleSubmit = async (values: AttendanceFormValues) => {
-    setIsSubmitting(true);
+    const { status, startDate, endDate, reason, leaveType } = values;
     
     try {
-      // Get the current session to include auth token
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session?.access_token) {
-        console.error("No active session found for attendance submission");
-        toast.error(isHindi 
-          ? "सत्र समाप्त हो गया है। कृपया पुनः लॉगिन करें" 
-          : "Session expired. Please log in again");
-        setIsSubmitting(false);
-        return;
-      }
-      
-      // Determine if auto-approval applies based on status
-      const requiresApproval = ['on_leave', 'resignation'].includes(values.status);
-      console.log(`Status: ${values.status}, Requires Approval: ${requiresApproval}`);
-      
-      // Prepare the request data
-      const requestData = {
-        ...(personType === 'trainee' ? { traineeId: personId } : { staffId: personId }),
-        status: values.status,
-        date: values.startDate,
-        endDate: values.endDate || values.startDate,
-        reason: values.reason,
-        leaveType: values.leaveType
-      };
-      
-      // Call the appropriate edge function based on person type
-      const functionName = personType === 'trainee' ? 'trainee-attendance-add' : 'staff-attendance-add';
-      
-      console.log(`Submitting ${personType} attendance/leave data:`, requestData);
-      
-      const { data, error } = await supabase.functions.invoke(functionName, {
-        body: requestData,
-        headers: {
-          Authorization: `Bearer ${session.access_token}`
-        }
-      });
-      
-      if (error) {
-        console.error(`Error from ${functionName} function:`, error);
-        throw error;
-      }
-      
-      console.log(`${personType} attendance/leave record added:`, data);
-      
-      // Show different messages based on whether the request requires approval
-      if (requiresApproval) {
-        toast.success(isHindi 
-          ? "अनुरोध सफलतापूर्वक जमा किया गया और अनुमोदन के लिए लंबित है" 
-          : "Request submitted successfully and pending approval");
-      } else {
-        toast.success(isHindi 
-          ? "रिकॉर्ड सफलतापूर्वक जोड़ा गया और स्वचालित रूप से अनुमोदित किया गया" 
-          : "Record added successfully and automatically approved");
-      }
+      // Determine if we need to record leave or absence
+      if (status === 'on_leave') {
+        // For leave, we need both start and end date
+        const result = await submitLeave(
+          personId,
+          personType,
+          startDate,
+          endDate || startDate, // Use start date as end date if not provided
+          reason,
+          leaveType
+        );
         
-      // Invalidate all relevant queries to refresh the data
-      queryClient.invalidateQueries({ 
-        predicate: (query) => {
-          const key = Array.isArray(query.queryKey) ? query.queryKey[0] : null;
-          return ['absences', 'leaves', 'attendance'].includes(String(key));
-        }
-      });
-      
-      onSuccess();
-      
+        return result;
+      } else {
+        // For other absences, we only need the start date
+        const result = await submitAttendance(
+          personId,
+          personType,
+          startDate,
+          status,
+          reason
+        );
+        
+        return result;
+      }
     } catch (error) {
-      console.error("Error submitting record:", error);
+      console.error("Error in attendance submission:", error);
       toast.error(isHindi 
-        ? "रिकॉर्ड जोड़ने में त्रुटि" 
+        ? "रिकॉर्ड जोड़ने में त्रुटि"
         : "Error adding record");
-    } finally {
-      setIsSubmitting(false);
+      return false;
     }
   };
 

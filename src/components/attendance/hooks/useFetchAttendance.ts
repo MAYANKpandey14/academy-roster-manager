@@ -2,37 +2,25 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { 
+  AttendanceRecord, 
+  PersonType, 
+  getAttendanceMapping, 
+  getLeaveMapping, 
+  LeaveRecord 
+} from "@/types/attendance";
 
-export interface AttendanceRecord {
-  id?: string;
-  date: string;
-  status?: string;
-  approval_status: string;
-  type: 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination';
-  reason?: string;
-  absence_type?: string;
-  duration?: string;
-}
-
-type Attendance = {
-  [date: string]: {
+export const useFetchAttendance = (
+  userId?: string, 
+  personType: PersonType = 'trainee', 
+  startDate?: string, 
+  endDate?: string
+) => {
+  const [attendanceData, setAttendanceData] = useState<Record<string, {
     status: string;
     approval_status: string;
     reason?: string;
-  }
-};
-
-interface LeaveRecord {
-  start_date: string;
-  end_date: string;
-  status: string;
-  reason: string;
-  leave_type?: string;
-  id: string;
-}
-
-export const useFetchAttendance = (userId?: string, personType: 'staff' | 'trainee' = 'trainee', startDate?: string, endDate?: string) => {
-  const [attendanceData, setAttendanceData] = useState<Attendance>({});
+  }>>({});
   const [leaveData, setLeaveData] = useState<LeaveRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,11 +34,13 @@ export const useFetchAttendance = (userId?: string, personType: 'staff' | 'train
       setError(null);
       
       try {
-        // Determine which table to query based on the personType flag
-        const tableName = personType === 'trainee' ? 'trainee_attendance' : 'staff_attendance';
-        const idColumn = personType === 'trainee' ? 'trainee_id' : 'staff_id';
+        // Use the mapping helpers to determine table names and id columns
+        const { tableName, idField } = getAttendanceMapping(personType);
         
-        let query = supabase.from(tableName).select('*').eq(idColumn, userId);
+        let query = supabase.from(tableName).select('*');
+        
+        // Type assertion to help TypeScript understand our dynamic querying
+        query = query.eq(idField, userId) as any;
         
         if (startDate && endDate) {
           query = query.gte('date', startDate).lte('date', endDate);
@@ -61,7 +51,11 @@ export const useFetchAttendance = (userId?: string, personType: 'staff' | 'train
         if (attendanceError) throw attendanceError;
         
         // Format attendance data
-        const formattedAttendance: Attendance = {};
+        const formattedAttendance: Record<string, {
+          status: string;
+          approval_status: string;
+          reason: string;
+        }> = {};
         
         attendanceRecords?.forEach(record => {
           const dateString = format(new Date(record.date), 'yyyy-MM-dd');
@@ -69,17 +63,19 @@ export const useFetchAttendance = (userId?: string, personType: 'staff' | 'train
             status: record.status,
             approval_status: record.approval_status,
             // Add an empty reason if it doesn't exist
-            reason: (record as any).reason || ''
+            reason: record.reason || ''
           };
         });
         
         setAttendanceData(formattedAttendance);
         
-        // Now fetch leave data
-        const leaveTable = personType === 'trainee' ? 'trainee_leave' : 'staff_leave';
-        const leaveIdColumn = personType === 'trainee' ? 'trainee_id' : 'staff_id';
+        // Now fetch leave data using the mapping helpers
+        const leaveMapping = getLeaveMapping(personType);
         
-        let leaveQuery = supabase.from(leaveTable).select('*').eq(leaveIdColumn, userId);
+        let leaveQuery = supabase.from(leaveMapping.tableName).select('*');
+        
+        // Type assertion to help TypeScript understand our dynamic querying
+        leaveQuery = leaveQuery.eq(leaveMapping.idField, userId) as any;
         
         if (startDate && endDate) {
           // Filter leaves that overlap with the date range
@@ -90,15 +86,26 @@ export const useFetchAttendance = (userId?: string, personType: 'staff' | 'train
         
         if (leaveError) throw leaveError;
         
-        setLeaveData(leaveRecords || []);
+        // Transform leave records to our expected format
+        const typedLeaveRecords: LeaveRecord[] = leaveRecords?.map(record => ({
+          id: record.id,
+          type: 'leave',
+          start_date: record.start_date,
+          end_date: record.end_date,
+          reason: record.reason,
+          status: record.status,
+          leave_type: record.leave_type
+        })) || [];
+        
+        setLeaveData(typedLeaveRecords);
         
         // Process and combine all records
-        const allRecords = processAttendanceData(formattedAttendance, leaveRecords || []);
+        const allRecords = processAttendanceData(formattedAttendance, typedLeaveRecords);
         setRecords(allRecords);
         
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error fetching attendance:', err);
-        setError('Failed to load attendance data');
+        setError(err?.message || 'Failed to load attendance data');
       } finally {
         setIsLoading(false);
       }
@@ -108,7 +115,10 @@ export const useFetchAttendance = (userId?: string, personType: 'staff' | 'train
   }, [userId, personType, startDate, endDate]);
 
   // Process attendance records to highlight absences and leaves
-  const processAttendanceData = (attendanceData: Attendance, leaveData: LeaveRecord[]): AttendanceRecord[] => {
+  const processAttendanceData = (
+    attendanceData: Record<string, { status: string; approval_status: string; reason?: string }>, 
+    leaveData: LeaveRecord[]
+  ): AttendanceRecord[] => {
     const records: AttendanceRecord[] = [];
     
     // Process absences from attendance data
@@ -119,14 +129,14 @@ export const useFetchAttendance = (userId?: string, personType: 'staff' | 'train
         const isSpecialStatus = specialStatuses.includes(data.status.toLowerCase());
         
         const type = isSpecialStatus 
-          ? (data.status.toLowerCase() as 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination') 
+          ? data.status.toLowerCase() as AttendanceRecord['type'] 
           : 'absent';
           
         records.push({
           id: `attendance-${date}`,
           date,
           status: data.status,
-          approval_status: data.approval_status,
+          approval_status: data.approval_status as 'approved' | 'pending' | 'rejected',
           type,
           reason: data.reason || data.status
         });

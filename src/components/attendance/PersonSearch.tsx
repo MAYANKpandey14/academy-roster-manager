@@ -14,24 +14,16 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Search } from "lucide-react";
-
-export interface PersonData {
-  id: string;
-  pno: string;
-  name: string;
-  rank?: string;
-  chest_no?: string;
-  mobile_number: string;
-}
+import { PersonData, PersonType, getPersonTableName } from "@/types/attendance";
 
 interface PersonSearchProps {
-  onPersonFound: (person: PersonData, type: 'trainee' | 'staff') => void;
+  onPersonFound: (person: PersonData, type: PersonType) => void;
 }
 
 export function PersonSearch({ onPersonFound }: PersonSearchProps) {
   const { isHindi } = useLanguage();
   const [pno, setPno] = useState("");
-  const [personType, setPersonType] = useState<'trainee' | 'staff'>('trainee');
+  const [personType, setPersonType] = useState<PersonType>('trainee');
   const [isSearching, setIsSearching] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -47,7 +39,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
     setIsSearching(true);
 
     try {
-      const tableName = personType === 'trainee' ? 'trainees' : 'staff';
+      const tableName = getPersonTableName(personType);
 
       // Define specific columns to select based on person type
       let columns = 'id, pno, name, mobile_number';
@@ -57,10 +49,11 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         columns += ', rank';
       }
 
+      // Use text_filter for proper type handling
       const { data, error } = await supabase
         .from(tableName)
         .select(columns)
-        .eq('pno', pno)
+        .filter('pno', 'eq', pno)
         .single();
 
       if (error) {
@@ -75,19 +68,19 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
 
-      // Use explicit type assertion since we've verified the data structure
+      // Map the data directly to our PersonData interface
       const personData: PersonData = {
-        id: (data as Record<string, any>).id as string,
-        pno: (data as Record<string, any>).pno as string,
-        name: (data as Record<string, any>).name as string,
-        mobile_number: (data as Record<string, any>).mobile_number as string
+        id: data.id,
+        pno: data.pno,
+        name: data.name,
+        mobile_number: data.mobile_number
       };
 
-      // Add type-specific fields with proper type assertions
+      // Add type-specific fields
       if (personType === 'trainee' && 'chest_no' in data) {
-        personData.chest_no = (data as Record<string, any>).chest_no as string;
+        personData.chest_no = data.chest_no as string;
       } else if (personType === 'staff' && 'rank' in data) {
-        personData.rank = (data as Record<string, any>).rank as string;
+        personData.rank = data.rank as any;
       }
 
       onPersonFound(personData, personType);
@@ -111,7 +104,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
           </Label>
           <Select
             value={personType}
-            onValueChange={(value: 'trainee' | 'staff') => setPersonType(value)}
+            onValueChange={(value: PersonType) => setPersonType(value)}
           >
             <SelectTrigger id="personType" className="transition-all duration-200">
               <SelectValue placeholder={isHindi ? "प्रकार चुनें" : "Select type"} />

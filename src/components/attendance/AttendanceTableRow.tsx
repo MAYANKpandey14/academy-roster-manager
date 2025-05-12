@@ -5,12 +5,12 @@ import { ApprovalStatus } from "./ApprovalStatus";
 import { ApprovalActions } from "./ApprovalActions";
 import { format } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { AttendanceRecord } from "./hooks/useFetchAttendance";
+import { AttendanceRecord, PersonType } from "@/types/attendance";
 import { memo } from "react";
 
 interface AttendanceTableRowProps {
   record: AttendanceRecord;
-  personType: 'staff' | 'trainee';
+  personType: PersonType;
 }
 
 // Using memo to prevent unnecessary re-renders

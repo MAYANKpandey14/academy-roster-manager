@@ -1,14 +1,14 @@
 
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AttendanceTable } from "./AttendanceTable";
+import { AttendanceHistory } from "./AttendanceHistory";
 import { LeaveHistoryTable } from "./components/LeaveHistoryTable";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PersonData } from "./PersonSearch";
+import { PersonData, PersonType } from "@/types/attendance";
 
 interface AttendanceTabsProps {
   personId: string;
-  personType: "staff" | "trainee";
+  personType: PersonType;
   pno?: string; 
   personData?: PersonData;
 }
@@ -34,7 +34,7 @@ export const AttendanceTabs = ({ personId, personType, personData }: AttendanceT
       </TabsList>
       
       <TabsContent value="attendance" className="mt-4">
-        <AttendanceTable 
+        <AttendanceHistory 
           key={`attendance-${personId}`}
           personId={personId} 
           personType={personType}
