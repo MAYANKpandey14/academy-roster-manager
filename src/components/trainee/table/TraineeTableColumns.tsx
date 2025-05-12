@@ -5,7 +5,7 @@ import { TraineeRowActions } from "./TraineeRowActions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export function getTraineeTableColumns(isHindi: boolean): ColumnDef<Trainee>[] {
+export function getTraineeTableColumns(isHindi: boolean, onDeleteSuccess?: () => void): ColumnDef<Trainee>[] {
   return [
     {
       id: "select",
@@ -13,7 +13,7 @@ export function getTraineeTableColumns(isHindi: boolean): ColumnDef<Trainee>[] {
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && true)
+            (table.getIsSomePageRowsSelected() && "indeterminate")
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
@@ -74,7 +74,7 @@ export function getTraineeTableColumns(isHindi: boolean): ColumnDef<Trainee>[] {
     {
       id: "actions",
       cell: ({ row }) => {
-        return <TraineeRowActions trainee={row.original} />;
+        return <TraineeRowActions trainee={row.original} onDeleteSuccess={onDeleteSuccess} />;
       },
     },
   ];

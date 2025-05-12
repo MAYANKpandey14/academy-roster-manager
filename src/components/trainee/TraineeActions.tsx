@@ -3,7 +3,6 @@ import {
   MoreHorizontal, 
   Edit,
   Eye,
-  Download,
   Printer,
   FileSpreadsheet
 } from "lucide-react";
@@ -27,8 +26,6 @@ export function TraineeActions({ trainee }: TraineeActionsProps) {
   const navigate = useNavigate();
   const { isHindi } = useLanguage();
   const { handlePrint, handleExcelExport } = useTraineePrintService(trainee);
-  
-  console.log("Trainee ID in actions:", trainee.id);
   
   return (
     <DropdownMenu>

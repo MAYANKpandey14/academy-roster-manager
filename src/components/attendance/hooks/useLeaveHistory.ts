@@ -1,86 +1,131 @@
 
-import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-
-// Define types for the records
-export interface AbsenceRecord {
-  id: string;
-  type: 'absence';
-  date: string;
-  status: string;
-  reason: string; 
-}
+import { useQuery } from "@tanstack/react-query";
 
 export interface LeaveRecord {
   id: string;
-  type: 'leave';
-  start_date: string;
-  end_date: string;
+  startDate: string;
+  endDate: string;
+  leaveType?: string;
   reason: string;
   status: string;
+  createdAt: string;
 }
 
-export type HistoryRecord = AbsenceRecord | LeaveRecord;
+interface LeaveHistoryParams {
+  personId?: string;
+  personType: "trainee" | "staff";
+}
 
-export const useAbsences = (personId?: string) => {
-  return useQuery<AbsenceRecord[], Error>({
-    queryKey: ['absences', personId],
-    enabled: !!personId,
-    queryFn: async () => {
-      if (!personId) return [];
-      
-      // Fetch all absences without limit
-      const { data, error } = await supabase
-        .from('trainee_attendance')
-        .select('*')
-        .eq('trainee_id', personId)
-        .order('date', { ascending: false });
-      
-      if (error) {
-        console.error("Error fetching absences:", error);
-        throw error;
-      }
-      
-      // Map the database records to our expected format
-      return (data || []).map(record => ({
-        id: record.id,
-        type: 'absence' as const,
-        date: record.date,
-        status: record.status,
-        reason: record.status // Using the status field as the reason field since that's where the reason is stored
-      }));
-    }
-  });
-};
+export const useLeaveHistory = ({ personId, personType }: LeaveHistoryParams) => {
+  // Function to fetch attendance records
+  const fetchAttendanceRecords = async (): Promise<LeaveRecord[]> => {
+    if (!personId) return [];
 
-export const useLeaves = (personId?: string) => {
-  return useQuery<LeaveRecord[], Error>({
-    queryKey: ['leaves', personId],
-    enabled: !!personId,
-    queryFn: async () => {
-      if (!personId) return [];
+    try {
+      // Get appropriate tables based on person type
+      const absenceTable = personType === "trainee" ? "trainee_attendance" : "staff_attendance";
+      const absenceIdField = personType === "trainee" ? "trainee_id" : "staff_id";
+
+      // Fetch absence data
+      const { data: absenceData, error: absenceError } = await supabase
+        .from(absenceTable)
+        .select("*")
+        .eq(absenceIdField, personId as string) // Use type assertion
+        .neq("status", "present")
+        .order("date", { ascending: false })
+        .limit(30);
+
+      if (absenceError) throw absenceError;
       
-      // Fetch all leaves without limit
-      const { data, error } = await supabase
-        .from('trainee_leave')
-        .select('*')
-        .eq('trainee_id', personId)
-        .order('start_date', { ascending: false });
-      
-      if (error) {
-        console.error("Error fetching leaves:", error);
-        throw error;
-      }
-      
-      // Map the database records to our expected format
-      return (data || []).map(record => ({
-        id: record.id,
-        type: 'leave' as const,
-        start_date: record.start_date,
-        end_date: record.end_date,
-        reason: record.reason,
-        status: record.status
+      const absenceRecords = (absenceData || []).map(absence => ({
+        id: absence.id,
+        startDate: absence.date,
+        endDate: absence.date,
+        reason: absence.status || "Absent",
+        status: absence.approval_status || "approved",
+        createdAt: absence.created_at || new Date().toISOString(),
+        leaveType: "Absence"
       }));
+      
+      return absenceRecords;
+    } catch (error) {
+      console.error("Error fetching attendance records:", error);
+      throw error;
     }
+  };
+
+  // Function to fetch leave records
+  const fetchLeaveRecords = async (): Promise<LeaveRecord[]> => {
+    if (!personId) return [];
+
+    try {
+      // Get appropriate table based on person type
+      const leaveTable = personType === "trainee" ? "trainee_leave" : "staff_leave";
+      const leaveIdField = personType === "trainee" ? "trainee_id" : "staff_id";
+
+      // Fetch leave data
+      const { data: leaveData, error: leaveError } = await supabase
+        .from(leaveTable)
+        .select("*")
+        .eq(leaveIdField, personId as string) // Use type assertion
+        .order("created_at", { ascending: false })
+        .limit(30);
+
+      if (leaveError) throw leaveError;
+      
+      const leaveRecords = (leaveData || []).map(leave => ({
+        id: leave.id,
+        startDate: leave.start_date,
+        endDate: leave.end_date,
+        leaveType: leave.leave_type || undefined,
+        reason: leave.reason,
+        status: leave.status,
+        createdAt: leave.created_at || new Date().toISOString()
+      }));
+      
+      return leaveRecords;
+    } catch (error) {
+      console.error("Error fetching leave records:", error);
+      throw error;
+    }
+  };
+
+  // Use React Query for absences
+  const absenceQuery = useQuery({
+    queryKey: ["absence-history", personId, personType],
+    queryFn: fetchAttendanceRecords,
+    enabled: !!personId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
+
+  // Use React Query for leaves
+  const leaveQuery = useQuery({
+    queryKey: ["leave-history", personId, personType],
+    queryFn: fetchLeaveRecords,
+    enabled: !!personId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  // Combine data from both queries
+  const data = [
+    ...(leaveQuery.data || []),
+    ...(absenceQuery.data || [])
+  ];
+  
+  // Sort combined data by startDate, most recent first
+  const sortedData = [...data].sort((a, b) => 
+    new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+  );
+
+  return {
+    data: sortedData,
+    isLoading: absenceQuery.isLoading || leaveQuery.isLoading,
+    isError: absenceQuery.isError || leaveQuery.isError,
+    error: absenceQuery.error || leaveQuery.error,
+    refetch: () => {
+      absenceQuery.refetch();
+      leaveQuery.refetch();
+    }
+  };
 };

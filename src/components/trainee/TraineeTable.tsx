@@ -4,7 +4,6 @@ import { ColumnFiltersState } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import { Trainee } from "@/types/trainee";
 import { TraineeTableActions } from "./table/TraineeTableActions";
-import { getTraineeTableColumns } from "./table/TraineeTableColumns";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { 
   Select,
@@ -14,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { SortAsc } from "lucide-react";
+import { getTraineeTableColumns } from "./table/TraineeTableColumns";
 
 interface TraineeTableProps {
   trainees: Trainee[];
@@ -30,11 +29,8 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
   const [sortedTrainees, setSortedTrainees] = useState<Trainee[]>(trainees);
   const [sortBy, setSortBy] = useState<string>("none");
   
-  // Get table columns using getTraineeTableColumns function
-  const columns = getTraineeTableColumns(isHindi);
-  
+  // Update selected count when rowSelection changes
   useEffect(() => {
-    // Update selected count when rowSelection changes
     setSelectedCount(Object.keys(rowSelection).length);
   }, [rowSelection]);
 
@@ -62,6 +58,16 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
     const selectedIndices = Object.keys(rowSelection).map(Number);
     return selectedIndices.map(index => sortedTrainees[index]);
   }
+
+  // Handle delete success by calling onRefresh
+  const handleDeleteSuccess = () => {
+    if (onRefresh) {
+      onRefresh();
+    }
+  };
+
+  // Get table columns and pass the delete success handler
+  const columns = getTraineeTableColumns(isHindi, handleDeleteSuccess);
 
   return (
     <div className="space-y-4 animate-fade-in">
