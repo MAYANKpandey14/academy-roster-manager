@@ -67,7 +67,6 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         throw error;
       }
 
-      // Validate that data is not null before proceeding
       if (!data) {
         toast.error(isHindi
           ? "कोई व्यक्ति नहीं मिला"
@@ -75,19 +74,19 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
 
-      // Use explicit type assertion since we've verified the data structure
+      // Ensure data is properly typed
       const personData: PersonData = {
-        id: (data as Record<string, any>).id as string,
-        pno: (data as Record<string, any>).pno as string,
-        name: (data as Record<string, any>).name as string,
-        mobile_number: (data as Record<string, any>).mobile_number as string
+        id: data.id as string,
+        pno: data.pno as string,
+        name: data.name as string,
+        mobile_number: data.mobile_number as string
       };
 
-      // Add type-specific fields with proper type assertions
+      // Add type-specific fields
       if (personType === 'trainee' && 'chest_no' in data) {
-        personData.chest_no = (data as Record<string, any>).chest_no as string;
+        personData.chest_no = data.chest_no as string;
       } else if (personType === 'staff' && 'rank' in data) {
-        personData.rank = (data as Record<string, any>).rank as string;
+        personData.rank = data.rank as string;
       }
 
       onPersonFound(personData, personType);

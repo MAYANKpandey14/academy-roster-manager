@@ -12,7 +12,7 @@ port = 54322
 [studio]
 port = 54323
 
-# Additional Edge Functions
+# Core Edge Functions
 [[functions]]
 name = "add-trainee"
 verify_jwt = true
@@ -25,6 +25,7 @@ verify_jwt = true
 name = "get-trainees"
 verify_jwt = true
 
+# Attendance Edge Functions
 [[functions]]
 name = "attendance-manage"
 verify_jwt = true
@@ -45,6 +46,11 @@ verify_jwt = true
 name = "trainee-attendance-view"
 verify_jwt = true
 
+# Registration functions
 [[functions]]
 name = "trainee-register"
+verify_jwt = false
+
+[[functions]]
+name = "staff-register" 
 verify_jwt = false

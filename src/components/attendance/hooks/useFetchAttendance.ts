@@ -5,14 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 // Define a simpler interface for attendance records
 export interface AttendanceRecord {
   id: string;
-  recordId: string; // Original database record ID
-  recordType: 'absence' | 'leave'; // To identify record type for approval actions
+  recordId: string; 
+  recordType: 'absence' | 'leave'; 
   date: string;
   type: 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination';
   reason?: string;
   leave_type?: string;
   approvalStatus: 'approved' | 'pending' | 'rejected';
-  absenceType?: string; // To track the original absence type
+  absenceType?: string;
 }
 
 // Helper to determine if a status requires approval
@@ -35,52 +35,42 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
       const leaveIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
 
       try {
-        // Fetch absence data with limit and pagination for better performance
-        const { data: absenceData, error: absenceError } = await supabase
+        // Fetch absence data
+        const absenceResponse = await supabase
           .from(absenceTable)
           .select('*')
           .eq(absenceIdField, personId)
           .order('date', { ascending: false })
-          .limit(50); // Limit results for better performance
+          .limit(50);
         
-        if (absenceError) throw absenceError;
+        if (absenceResponse.error) throw absenceResponse.error;
+        const absences = absenceResponse.data || [];
         
-        // Use a simpler approach to handle the data
-        const absences = absenceData || [];
-        
-        // Fetch leave data with limit and pagination for better performance
-        const { data: leaveData, error: leaveError } = await supabase
+        // Fetch leave data
+        const leaveResponse = await supabase
           .from(leaveTable)
           .select('*')
           .eq(leaveIdField, personId)
           .order('start_date', { ascending: false })
-          .limit(50); // Limit results for better performance
+          .limit(50);
 
-        if (leaveError) throw leaveError;
-        
-        // Use a simpler approach to handle the data
-        const leaves = leaveData || [];
+        if (leaveResponse.error) throw leaveResponse.error;
+        const leaves = leaveResponse.data || [];
 
-        // Format absences - detect special status types
-        const formattedAbsences: AttendanceRecord[] = absences.map((item: any) => {
-          // Check if the status is one of our special statuses
+        // Format absences
+        const formattedAbsences: AttendanceRecord[] = absences.map((item) => {
           const specialStatuses = ['suspension', 'resignation', 'termination'];
           const isSpecialStatus = specialStatuses.includes(item.status.toLowerCase());
           
           const type = isSpecialStatus 
             ? (item.status.toLowerCase() as 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination') 
             : 'absent';
-            
-          // Always use status as the reason
+          
           const reason = item.status;
-            
-          // Apply the new approval logic
-          // Check if this status type should be auto-approved
           const absenceType = isSpecialStatus ? item.status.toLowerCase() : 'absent';
           
-          // Use the database approval_status value, defaulting to auto-approval logic if not set
-          const approvalStatus = item.approval_status?.toLowerCase() as 'approved' | 'pending' | 'rejected' 
-            || (requiresApproval(absenceType) ? 'pending' : 'approved');
+          const approvalStatus = item.approval_status?.toLowerCase() || 
+            (requiresApproval(absenceType) ? 'pending' : 'approved');
 
           return {
             id: `absence-${item.id}`,
@@ -89,19 +79,17 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
             date: item.date,
             type,
             reason,
-            approvalStatus,
+            approvalStatus: approvalStatus as 'approved' | 'pending' | 'rejected',
             absenceType
           };
         });
 
         // Format leaves
-        const formattedLeaves: AttendanceRecord[] = leaves.map((item: any) => {
-          // Format date range for leaves
+        const formattedLeaves: AttendanceRecord[] = leaves.map((item) => {
           const dateDisplay = item.start_date === item.end_date 
             ? item.start_date 
             : `${item.start_date} - ${item.end_date}`;
             
-          // Map leave status to our approval status
           const approvalStatus = (item.status === 'approved' || item.status === 'rejected')
             ? item.status
             : 'pending';
@@ -115,13 +103,12 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
             reason: item.reason || '',
             leave_type: item.leave_type,
             approvalStatus: approvalStatus as 'approved' | 'pending' | 'rejected',
-            absenceType: 'on_leave' // All leaves are of type on_leave
+            absenceType: 'on_leave'
           };
         });
 
         // Combine and sort by date (most recent first)
         return [...formattedAbsences, ...formattedLeaves].sort((a, b) => {
-          // Extract the first date in case of range
           const dateA = a.date.split(' - ')[0];
           const dateB = b.date.split(' - ')[0];
           return new Date(dateB).getTime() - new Date(dateA).getTime();
@@ -131,8 +118,8 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         throw error;
       }
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes cache
-    gcTime: 10 * 60 * 1000,   // 10 minutes (replacing the outdated cacheTime)
-    refetchOnWindowFocus: false // Reduce unnecessary refetches
+    staleTime: 5 * 60 * 1000, 
+    gcTime: 10 * 60 * 1000,   
+    refetchOnWindowFocus: false
   });
 };
