@@ -8,17 +8,18 @@ import { PersonSearch, PersonData } from "@/components/attendance/PersonSearch";
 import { PersonDetails } from "@/components/attendance/PersonDetails";
 import { AttendanceHistory } from "@/components/attendance/AttendanceHistory";
 import { AttendanceForm } from "@/components/attendance/AttendanceForm";
+import { PersonType } from "@/types/attendance";
 
 export default function AttendancePage() {
   const { isHindi } = useLanguage();
   const [person, setPerson] = useState<PersonData | null>(null);
-  const [personType, setPersonType] = useState<'trainee' | 'staff'>('trainee');
+  const [personType, setPersonType] = useState<PersonType>('trainee');
   const [activeTab, setActiveTab] = useState<'view' | 'add'>('view');
   
   // Apply language-specific classes to inputs
   useLanguageInputs();
 
-  const handlePersonFound = (foundPerson: PersonData, type: 'trainee' | 'staff') => {
+  const handlePersonFound = (foundPerson: PersonData, type: PersonType) => {
     setPerson(foundPerson);
     setPersonType(type);
   };

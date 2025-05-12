@@ -12,7 +12,9 @@ export type StaffRank =
   | 'DCP' 
   | 'CP'
   // Additional ranks being used in the app 
+  | 'R/CONST'
   | 'R/ CONST'
+  | 'CONST/PTI'
   | 'CONST/ PTI'
   | 'HC/CP'
   | 'HC/AP'

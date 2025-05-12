@@ -1,4 +1,3 @@
-
 import { BloodGroup, TraineeRank } from "./trainee";
 import { StaffRank } from "./staff";
 
@@ -15,11 +14,11 @@ export interface BaseAttendanceRecord {
   reason?: string;
   absence_type?: string;
   duration?: string;
+  status: string; // Keep for backwards compatibility
 }
 
 export interface AttendanceRecord extends BaseAttendanceRecord {
-  // Add status field to resolve TS2353 error
-  status: string;
+  // Existing structure preserved for backward compatibility
 }
 
 // Person data shared structure
@@ -27,7 +26,7 @@ export interface PersonData {
   id: string;
   pno: string;
   name: string;
-  rank?: StaffRank;
+  rank?: StaffRank | string;
   chest_no?: string;
   mobile_number: string;
 }

@@ -1,61 +1,51 @@
 
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { AttendanceRequest, AttendanceService } from "@/services/attendanceService";
-import { ApprovalStatus, AttendanceStatus, PersonType } from "@/types/attendance";
+import { useAttendanceSubmission } from "./useAttendanceSubmission";
+import { PersonType } from "@/types/attendance";
+import { AttendancePersonType } from "@/types/attendance-records";
 
-interface UseAttendanceServiceOptions {
+interface UseAttendanceServiceProps {
   onSuccess?: () => void;
 }
 
-export function useAttendanceService(options?: UseAttendanceServiceOptions) {
+export function useAttendanceService({ onSuccess }: UseAttendanceServiceProps = {}) {
   const [isLoading, setIsLoading] = useState(false);
-  const queryClient = useQueryClient();
-  const { isHindi } = useLanguage();
-  const { onSuccess } = options || {};
-
-  // Submit attendance or absence
+  
+  // Submit attendance record (absence)
   const submitAttendance = async (
-    personId: string, 
+    personId: string,
     personType: PersonType,
     date: string,
-    status: AttendanceStatus,
+    status: string,
     reason: string
   ) => {
-    setIsLoading(true);
-    
     try {
-      await AttendanceService.submitAttendance({
+      setIsLoading(true);
+      
+      // Convert PersonType to AttendancePersonType
+      const mappedPersonType: AttendancePersonType = personType;
+      
+      // Create a submission hook instance
+      const { handleSubmit } = useAttendanceSubmission({
+        personType: mappedPersonType,
         personId,
-        personType,
-        date,
-        status,
-        reason
+        onSuccess
       });
       
-      toast.success(isHindi 
-        ? "उपस्थिति रिकॉर्ड सफलतापूर्वक जोड़ा गया"
-        : "Attendance record added successfully");
-        
-      // Invalidate relevant queries
-      invalidateQueries();
+      // Submit the record
+      const result = await handleSubmit({
+        status,
+        startDate: date,
+        reason,
+      });
       
-      if (onSuccess) onSuccess();
-      return true;
-    } catch (error) {
-      console.error("Error submitting attendance:", error);
-      toast.error(isHindi 
-        ? "उपस्थिति रिकॉर्ड जोड़ने में त्रुटि"
-        : "Error adding attendance record");
-      return false;
+      return result;
     } finally {
       setIsLoading(false);
     }
   };
   
-  // Submit leave request
+  // Submit leave record
   const submitLeave = async (
     personId: string,
     personType: PersonType,
@@ -64,99 +54,37 @@ export function useAttendanceService(options?: UseAttendanceServiceOptions) {
     reason: string,
     leaveType?: string
   ) => {
-    setIsLoading(true);
-    
     try {
-      await AttendanceService.submitLeave({
+      setIsLoading(true);
+      
+      // Convert PersonType to AttendancePersonType
+      const mappedPersonType: AttendancePersonType = personType;
+      
+      // Create a submission hook instance
+      const { handleSubmit } = useAttendanceSubmission({
+        personType: mappedPersonType,
         personId,
-        personType,
-        date: startDate,
+        onSuccess
+      });
+      
+      // Submit the leave request
+      const result = await handleSubmit({
+        status: 'on_leave',
+        startDate,
         endDate,
         reason,
         leaveType
       });
       
-      toast.success(isHindi 
-        ? "छुट्टी अनुरोध सफलतापूर्वक जमा किया गया"
-        : "Leave request submitted successfully");
-        
-      // Invalidate relevant queries
-      invalidateQueries();
-      
-      if (onSuccess) onSuccess();
-      return true;
-    } catch (error) {
-      console.error("Error submitting leave request:", error);
-      toast.error(isHindi 
-        ? "छुट्टी अनुरोध जमा करने में त्रुटि"
-        : "Error submitting leave request");
-      return false;
+      return result;
     } finally {
       setIsLoading(false);
     }
-  };
-  
-  // Update approval status
-  const updateApprovalStatus = async (
-    recordId: string,
-    recordType: 'absence' | 'leave',
-    personType: PersonType,
-    approvalStatus: ApprovalStatus
-  ) => {
-    setIsLoading(true);
-    
-    try {
-      await AttendanceService.updateApprovalStatus({
-        recordId,
-        recordType,
-        personType,
-        approvalStatus
-      });
-      
-      toast.success(isHindi 
-        ? approvalStatus === 'approved' 
-          ? "अनुरोध स्वीकृत किया गया"
-          : "अनुरोध अस्वीकृत किया गया"
-        : approvalStatus === 'approved'
-          ? "Request approved successfully"
-          : "Request rejected successfully");
-          
-      // Invalidate relevant queries
-      invalidateQueries();
-      
-      if (onSuccess) onSuccess();
-      return true;
-    } catch (error) {
-      console.error("Error updating approval status:", error);
-      toast.error(isHindi 
-        ? "अनुरोध स्थिति अपडेट करने में त्रुटि"
-        : "Error updating request status");
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  // Helper to invalidate all relevant queries
-  const invalidateQueries = () => {
-    queryClient.invalidateQueries({ 
-      predicate: (query) => {
-        const key = Array.isArray(query.queryKey) ? query.queryKey[0] : null;
-        return [
-          'attendance', 
-          'absences', 
-          'leaves', 
-          'staff_attendance', 
-          'trainee_attendance'
-        ].includes(String(key));
-      }
-    });
   };
   
   return {
     isLoading,
     submitAttendance,
-    submitLeave,
-    updateApprovalStatus
+    submitLeave
   };
 }
