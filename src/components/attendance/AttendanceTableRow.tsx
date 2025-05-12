@@ -5,12 +5,12 @@ import { ApprovalStatus } from "./ApprovalStatus";
 import { ApprovalActions } from "./ApprovalActions";
 import { format } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { AttendanceRecord, PersonType } from "@/types/attendance";
+import { AttendanceRecord } from "./hooks/useFetchAttendance";
 import { memo } from "react";
 
 interface AttendanceTableRowProps {
   record: AttendanceRecord;
-  personType: PersonType;
+  personType: 'staff' | 'trainee';
 }
 
 // Using memo to prevent unnecessary re-renders
@@ -42,19 +42,6 @@ export const AttendanceTableRow = memo(function AttendanceTableRow({
     }
   };
 
-  // Ensure approval_status is one of the valid types
-  const getValidApprovalStatus = (): "approved" | "pending" | "rejected" => {
-    const status = record.approval_status.toLowerCase();
-    if (status === "approved") return "approved";
-    if (status === "rejected") return "rejected";
-    return "pending"; // Default to pending for any other values
-  };
-
-  // Get a valid record type
-  const getValidRecordType = (): "leave" | "absence" => {
-    return record.type === "leave" ? "leave" : "absence";
-  };
-
   return (
     <TableRow className="animate-fade-in transition-colors duration-200 hover:bg-gray-50">
       <TableCell className={isHindi ? "font-hindi" : ""}>
@@ -70,16 +57,16 @@ export const AttendanceTableRow = memo(function AttendanceTableRow({
       </TableCell>
       
       <TableCell>
-        <ApprovalStatus status={getValidApprovalStatus()} />
+        <ApprovalStatus status={record.approvalStatus} />
       </TableCell>
       
       <TableCell>
         <ApprovalActions
-          recordId={record.id || ""}
-          recordType={getValidRecordType()}
+          recordId={record.recordId}
+          recordType={record.recordType}
           personType={personType}
-          currentStatus={getValidApprovalStatus()}
-          absenceType={record.absence_type || ""}
+          currentStatus={record.approvalStatus}
+          absenceType={record.absenceType}
         />
       </TableCell>
     </TableRow>

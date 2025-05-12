@@ -1,34 +1,50 @@
 
-# Update this file when creating, renaming or removing functions
-
 project_id = "zjgphamebgrclivvkhmw"
 
-[functions.trainee-register]
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage"]
+
+[db]
+port = 54322
+
+[studio]
+port = 54323
+
+# Additional Edge Functions
+[[functions]]
+name = "add-trainee"
 verify_jwt = true
 
-[functions.trainee-attendance-add]
+[[functions]]
+name = "update-trainee"
 verify_jwt = true
 
-[functions.trainee-attendance-view]
+[[functions]]
+name = "get-trainees"
 verify_jwt = true
 
-[functions.staff-attendance-add]
+[[functions]]
+name = "attendance-manage"
 verify_jwt = true
 
-[functions.staff-attendance-view]
+[[functions]]
+name = "staff-attendance-add"
 verify_jwt = true
 
-[functions.add-trainee]
+[[functions]]
+name = "staff-attendance-view"
 verify_jwt = true
 
-[functions.update-trainee]
+[[functions]]
+name = "trainee-attendance-add"
 verify_jwt = true
 
-[functions.get-trainees]
+[[functions]]
+name = "trainee-attendance-view"
 verify_jwt = true
 
-[functions.staff-register]
-verify_jwt = true
-
-[functions.attendance-service]
-verify_jwt = true
+[[functions]]
+name = "trainee-register"
+verify_jwt = false

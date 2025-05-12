@@ -15,11 +15,11 @@ export function useLeaveSubmit({ type, onSuccess }: UseLeaveSubmitParams) {
   
   const handleSubmit = async (data: LeaveFormValues) => {
     try {
-      // First, find the trainee/staff with type assertion for pno
+      // First, find the trainee/staff
       const { data: person, error: findError } = await supabase
         .from(type === 'trainee' ? 'trainees' : 'staff')
         .select('id')
-        .eq('pno', data.pno.toString() as any)
+        .eq('pno', data.pno)
         .single();
 
       if (findError || !person) {
@@ -31,36 +31,35 @@ export function useLeaveSubmit({ type, onSuccess }: UseLeaveSubmitParams) {
 
       const startDate = data.start_date;
       const endDate = data.end_date;
-      const personId = (person as any).id;
 
-      // Insert leave record based on type with proper type handling
+      // Insert leave record based on type
       if (type === 'trainee') {
         const { error: leaveError } = await supabase
           .from('trainee_leave')
           .insert({
-            trainee_id: personId,
+            trainee_id: person.id,
             start_date: startDate,
             end_date: endDate,
             reason: data.reason,
             status: 'pending'
-          } as any);
+          });
 
         if (leaveError) throw leaveError;
       } else {
         const { error: leaveError } = await supabase
           .from('staff_leave')
           .insert({
-            staff_id: personId,
+            staff_id: person.id,
             start_date: startDate,
             end_date: endDate,
             reason: data.reason,
             status: 'pending'
-          } as any);
+          });
 
         if (leaveError) throw leaveError;
       }
 
-      // Create attendance records for each day of leave with proper type handling
+      // Create attendance records for each day of leave
       const start = new Date(data.start_date);
       const end = new Date(data.end_date);
       
@@ -71,18 +70,18 @@ export function useLeaveSubmit({ type, onSuccess }: UseLeaveSubmitParams) {
           await supabase
             .from('trainee_attendance')
             .upsert({
-              trainee_id: personId,
+              trainee_id: person.id,
               date: formattedDate,
               status: 'on_leave'
-            } as any);
+            });
         } else {
           await supabase
             .from('staff_attendance')
             .upsert({
-              staff_id: personId,
+              staff_id: person.id,
               date: formattedDate,
               status: 'on_leave'
-            } as any);
+            });
         }
       }
 

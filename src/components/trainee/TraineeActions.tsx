@@ -3,9 +3,9 @@ import {
   MoreHorizontal, 
   Edit,
   Eye,
+  Download,
   Printer,
-  FileSpreadsheet,
-  Trash2
+  FileSpreadsheet
 } from "lucide-react";
 import { Trainee } from "@/types/trainee";
 import { Button } from "@/components/ui/button";
@@ -18,188 +18,52 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTraineePrintService } from "@/components/trainee/view/TraineePrintService";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useState, useCallback, useRef, useEffect } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from "@/components/ui/alert-dialog";
-import { toast } from "sonner";
-import { deleteTrainee } from "@/services/traineeApi";
 
 interface TraineeActionsProps {
   trainee: Trainee;
-  onRefresh?: () => void;
 }
 
-export function TraineeActions({ trainee, onRefresh }: TraineeActionsProps) {
+export function TraineeActions({ trainee }: TraineeActionsProps) {
   const navigate = useNavigate();
   const { isHindi } = useLanguage();
   const { handlePrint, handleExcelExport } = useTraineePrintService(trainee);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const unmountedRef = useRef(false);
   
-  // Cleanup effect
-  useEffect(() => {
-    return () => {
-      unmountedRef.current = true;
-    };
-  }, []);
+  console.log("Trainee ID in actions:", trainee.id);
   
-  // Handle dropdown click safely with cleanup
-  const handleDropdownItemClick = useCallback((action: () => void) => {
-    // Close dropdown first to prevent UI issues
-    return () => {
-      try {
-        action();
-      } catch (error) {
-        console.error("Error in dropdown action:", error);
-        toast.error(isHindi ? "कार्रवाई प्रक्रिया में त्रुटि" : "Error processing action");
-      }
-    };
-  }, [isHindi]);
-  
-  // Safe state update function
-  const safeSetState = useCallback(<T,>(setter: React.Dispatch<React.SetStateAction<T>>) => {
-    return (value: React.SetStateAction<T>) => {
-      if (!unmountedRef.current) {
-        setter(value);
-      }
-    };
-  }, []);
-  
-  const handleDelete = useCallback(async () => {
-    if (isDeleting) return; // Prevent multiple clicks
-    
-    safeSetState(setIsDeleting)(true);
-    
-    try {
-      const { error } = await deleteTrainee(trainee.id);
-      
-      if (error) {
-        throw error;
-      }
-      
-      toast.success(isHindi ? "प्रशिक्षु सफलतापूर्वक हटा दिया गया" : "Trainee deleted successfully");
-      
-      // Close dialog before refresh to prevent UI freeze
-      safeSetState(setIsDeleteDialogOpen)(false);
-      
-      // Delay refresh for proper UI handling
-      if (onRefresh && !unmountedRef.current) {
-        // Wrap refresh in a promise and defer execution
-        await new Promise(resolve => {
-          setTimeout(() => {
-            if (!unmountedRef.current) {
-              onRefresh();
-            }
-            resolve(true);
-          }, 100);
-        });
-      }
-    } catch (error) {
-      console.error("Error deleting trainee:", error);
-      toast.error(isHindi ? "प्रशिक्षु हटाने में विफल" : "Failed to delete trainee");
-    } finally {
-      if (!unmountedRef.current) {
-        safeSetState(setIsDeleting)(false);
-        // Ensure dialog is closed in case of an error
-        safeSetState(setIsDeleteDialogOpen)(false);
-      }
-    }
-  }, [trainee.id, isHindi, onRefresh, isDeleting, safeSetState]);
-  
-  // Controlled close handler
-  const handleOpenChange = useCallback((open: boolean) => {
-    if (!isDeleting) {
-      safeSetState(setIsDeleteDialogOpen)(open);
-    }
-  }, [isDeleting, safeSetState]);
-
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={handleDropdownItemClick(() => navigate(`/trainees/${trainee.id}`))}>
-            <Eye className="mr-2 h-4 w-4" />
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "देखें" : "View"}
-            </span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDropdownItemClick(() => navigate(`/trainees/${trainee.id}/edit`))}>
-            <Edit className="mr-2 h-4 w-4" />
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "संपादित करें" : "Edit"}
-            </span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDropdownItemClick(handlePrint)}>
-            <Printer className="mr-2 h-4 w-4" />
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "प्रिंट करें" : "Print"}
-            </span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDropdownItemClick(handleExcelExport)}>
-            <FileSpreadsheet className="mr-2 h-4 w-4" /> 
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "एक्सेल" : "Excel"}
-            </span>
-          </DropdownMenuItem>
-          <DropdownMenuItem 
-            onClick={handleDropdownItemClick(() => safeSetState(setIsDeleteDialogOpen)(true))}
-            className="text-red-500 focus:text-red-500"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "हटाएं" : "Delete"}
-            </span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={handleOpenChange}>
-        <AlertDialogContent className="z-50">
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {isHindi ? "क्या आप इस प्रशिक्षु को हटाना चाहते हैं?" : "Are you sure you want to delete this trainee?"}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {isHindi 
-                ? "यह क्रिया स्थायी है और इसे वापस नहीं किया जा सकता है। यह सभी संबंधित डेटा भी हटा देगा।"
-                : "This action is permanent and cannot be undone. This will also remove all associated data."}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>
-              {isHindi ? "रद्द करें" : "Cancel"}
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={(e) => {
-                e.preventDefault();
-                handleDelete();
-              }} 
-              className="bg-red-500 hover:bg-red-600"
-              disabled={isDeleting}
-            >
-              {isDeleting ? 
-                (isHindi ? "हटा रहा है..." : "Deleting...") : 
-                (isHindi ? "हटाएं" : "Delete")
-              }
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Open menu</span>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => navigate(`/trainees/${trainee.id}`)}>
+          <Eye className="mr-2 h-4 w-4" />
+          <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+            {isHindi ? "देखें" : "View"}
+          </span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate(`/trainees/${trainee.id}/edit`)}>
+          <Edit className="mr-2 h-4 w-4" />
+          <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+            {isHindi ? "संपादित करें" : "Edit"}
+          </span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handlePrint}>
+          <Printer className="mr-2 h-4 w-4" />
+          <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+            {isHindi ? "प्रिंट करें" : "Print"}
+          </span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleExcelExport}>
+          <FileSpreadsheet className="mr-2 h-4 w-4" /> 
+          <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+            {isHindi ? "एक्सेल" : "Excel"}
+          </span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

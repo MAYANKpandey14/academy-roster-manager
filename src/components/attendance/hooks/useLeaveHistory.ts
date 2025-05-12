@@ -29,11 +29,11 @@ export const useAbsences = (personId?: string) => {
     queryFn: async () => {
       if (!personId) return [];
       
-      // Fix type handling for Supabase query with type assertion
+      // Fetch all absences without limit
       const { data, error } = await supabase
         .from('trainee_attendance')
         .select('*')
-        .eq('trainee_id', personId as any)
+        .eq('trainee_id', personId)
         .order('date', { ascending: false });
       
       if (error) {
@@ -41,13 +41,13 @@ export const useAbsences = (personId?: string) => {
         throw error;
       }
       
-      // Properly type-check and transform the data
-      return (data || []).map((record: any) => ({
-        id: record.id || `absence-${record.date}`,
+      // Map the database records to our expected format
+      return (data || []).map(record => ({
+        id: record.id,
         type: 'absence' as const,
         date: record.date,
-        status: record.status || 'absent',
-        reason: record.reason || record.status || 'Absent'
+        status: record.status,
+        reason: record.status // Using the status field as the reason field since that's where the reason is stored
       }));
     }
   });
@@ -60,11 +60,11 @@ export const useLeaves = (personId?: string) => {
     queryFn: async () => {
       if (!personId) return [];
       
-      // Fix type handling for Supabase query with type assertion
+      // Fetch all leaves without limit
       const { data, error } = await supabase
         .from('trainee_leave')
         .select('*')
-        .eq('trainee_id', personId as any)
+        .eq('trainee_id', personId)
         .order('start_date', { ascending: false });
       
       if (error) {
@@ -72,14 +72,14 @@ export const useLeaves = (personId?: string) => {
         throw error;
       }
       
-      // Properly type-check and transform the data
-      return (data || []).map((record: any) => ({
-        id: record.id || `leave-${record.start_date}`,
+      // Map the database records to our expected format
+      return (data || []).map(record => ({
+        id: record.id,
         type: 'leave' as const,
         start_date: record.start_date,
         end_date: record.end_date,
-        reason: record.reason || 'Leave',
-        status: record.status || 'pending'
+        reason: record.reason,
+        status: record.status
       }));
     }
   });

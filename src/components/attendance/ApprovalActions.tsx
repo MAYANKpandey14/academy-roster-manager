@@ -1,17 +1,18 @@
 
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ApprovalStatus, PersonType } from "@/types/attendance";
-import { useAttendanceService } from "@/hooks/useAttendanceService";
 
 interface ApprovalActionsProps {
   recordId: string;
   recordType: 'absence' | 'leave';
-  personType: PersonType;
-  currentStatus: ApprovalStatus;
-  absenceType?: string;
+  personType: 'staff' | 'trainee';
+  currentStatus: 'approved' | 'pending' | 'rejected';
+  absenceType?: string; // To know the type of absence
 }
 
 export function ApprovalActions({ 
@@ -21,11 +22,9 @@ export function ApprovalActions({
   currentStatus,
   absenceType
 }: ApprovalActionsProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
   const { isHindi } = useLanguage();
-  const { 
-    isLoading,
-    updateApprovalStatus 
-  } = useAttendanceService();
   
   // Skip showing actions if already approved/rejected
   if (currentStatus !== 'pending') {
@@ -41,8 +40,57 @@ export function ApprovalActions({
   }
   
   const handleApprovalAction = async (action: 'approve' | 'reject') => {
-    const approvalStatus: ApprovalStatus = action === 'approve' ? 'approved' : 'rejected';
-    await updateApprovalStatus(recordId, recordType, personType, approvalStatus);
+    setIsLoading(true);
+    
+    try {
+      // Determine which table to update
+      const tableMap = {
+        trainee: {
+          absence: 'trainee_attendance',
+          leave: 'trainee_leave'
+        },
+        staff: {
+          absence: 'staff_attendance',
+          leave: 'staff_leave'
+        }
+      } as const;
+      
+      const tableName = tableMap[personType][recordType];
+      
+      // Field to update depends on record type
+      const updateField = recordType === 'leave' ? 'status' : 'approval_status';
+      const updateValue = action === 'approve' ? 'approved' : 'rejected';
+      
+      // Update the record
+      const { error } = await supabase
+        .from(tableName)
+        .update({ [updateField]: updateValue })
+        .eq('id', recordId);
+      
+      if (error) throw error;
+      
+      // Show success message
+      toast.success(
+        isHindi
+          ? (action === 'approve' ? 'अनुरोध स्वीकृत' : 'अनुरोध अस्वीकृत')
+          : (action === 'approve' ? 'Request approved' : 'Request rejected')
+      );
+      
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['attendance'] });
+      queryClient.invalidateQueries({ queryKey: ['absences'] });
+      queryClient.invalidateQueries({ queryKey: ['leaves'] });
+      
+    } catch (error) {
+      console.error('Error updating approval status:', error);
+      toast.error(
+        isHindi
+          ? 'स्थिति अपडेट करने में त्रुटि'
+          : 'Error updating status'
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   return (

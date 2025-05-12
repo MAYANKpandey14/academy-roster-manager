@@ -4,9 +4,8 @@ import { TraineeActions } from "../TraineeActions";
 
 interface TraineeRowActionsProps {
   trainee: Trainee;
-  onRefresh?: () => void;
 }
 
-export function TraineeRowActions({ trainee, onRefresh }: TraineeRowActionsProps) {
-  return <TraineeActions trainee={trainee} onRefresh={onRefresh} />;
+export function TraineeRowActions({ trainee }: TraineeRowActionsProps) {
+  return <TraineeActions trainee={trainee} />;
 }

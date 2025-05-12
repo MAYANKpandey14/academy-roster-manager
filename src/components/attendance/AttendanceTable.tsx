@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
-import { useFetchAttendance } from "./hooks/useFetchAttendance";
+import { useFetchAttendance, AttendanceRecord } from "./hooks/useFetchAttendance";
 import { AttendanceTableRow } from "./AttendanceTableRow";
 import { PersonData } from "./PersonSearch";
 import { handlePrint } from "@/utils/export/printUtils";
@@ -24,7 +24,7 @@ interface AttendanceTableProps {
 
 export const AttendanceTable = ({ personId, personType, personData }: AttendanceTableProps) => {
   const { isHindi } = useLanguage();
-  const { data: attendanceRecords, isLoading, error } = useFetchAttendance(personId, personType);
+  const { data: attendanceRecords, isLoading } = useFetchAttendance(personId, personType);
 
   const handlePrintClick = () => {
     const printContent = document.getElementById('attendance-table')?.outerHTML;
@@ -68,15 +68,6 @@ export const AttendanceTable = ({ personId, personType, personData }: Attendance
     handlePrint(content);
   };
 
-  // Handle error display
-  if (error) {
-    return (
-      <div className="bg-red-50 border border-red-300 p-4 rounded-md text-red-800">
-        <p>{isHindi ? "डेटा लोड करने में त्रुटि:" : "Error loading data:"} {error}</p>
-      </div>
-    );
-  }
-
   return (
     <div className="animate-fade-in">
       <div className="mb-4 flex justify-between items-center">
@@ -109,15 +100,12 @@ export const AttendanceTable = ({ personId, personType, personData }: Attendance
                 <TableHead className={isHindi ? 'font-mangal' : ''}>
                   {isHindi ? "स्थिति" : "Status"}
                 </TableHead>
-                <TableHead className={isHindi ? 'font-mangal' : ''}>
-                  {isHindi ? "कार्रवाई" : "Action"}
-                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
+                  <TableCell colSpan={4} className="text-center py-8">
                     <span className={isHindi ? 'font-mangal' : ''}>
                       {isHindi ? "लोड हो रहा है..." : "Loading..."}
                     </span>
@@ -126,14 +114,14 @@ export const AttendanceTable = ({ personId, personType, personData }: Attendance
               ) : attendanceRecords && attendanceRecords.length > 0 ? (
                 attendanceRecords.map((record) => (
                   <AttendanceTableRow 
-                    key={record.id || `record-${record.date}`} 
+                    key={record.id} 
                     record={record} 
                     personType={personType} 
                   />  
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
+                  <TableCell colSpan={4} className="text-center py-8">
                     <span className={isHindi ? 'font-mangal' : ''}>
                       {isHindi ? "कोई डेटा उपलब्ध नहीं है" : "No data available"}
                     </span>

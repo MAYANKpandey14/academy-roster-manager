@@ -1,10 +1,9 @@
 
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Printer, FileSpreadsheet } from "lucide-react";
 import { handlePrint } from "@/utils/export/printUtils";
 import { exportToExcel } from "@/utils/export/excelUtils";
-import { useFetchAttendance } from "./hooks/useFetchAttendance";
+import { useFetchAttendance, AttendanceRecord } from "./hooks/useFetchAttendance";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Table,
@@ -17,67 +16,19 @@ import {
 import { AttendanceTableRow } from "./AttendanceTableRow";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PersonData, PersonType } from "@/types/attendance";
-import { AttendanceFilters as FiltersType, AttendanceFilters } from "./AttendanceFilters";
-import { format } from "date-fns";
+import { PersonData } from "./PersonSearch";
+import { useState } from "react";
 
 interface AttendanceHistoryProps {
   personId: string;
-  personType: PersonType;
+  personType: "staff" | "trainee";
   personData?: PersonData;
 }
 
 export const AttendanceHistory = ({ personId, personType, personData }: AttendanceHistoryProps) => {
   const { isHindi } = useLanguage();
-  const [filters, setFilters] = useState<FiltersType>({});
-  const [filteredRecords, setFilteredRecords] = useState<any[]>([]);
+  const { data: attendanceRecords, isLoading } = useFetchAttendance(personId, personType);
   const [isExporting, setIsExporting] = useState(false);
-
-  // Convert dates to string format for the API
-  const startDateStr = filters.startDate 
-    ? format(filters.startDate, 'yyyy-MM-dd')
-    : undefined;
-    
-  const endDateStr = filters.endDate
-    ? format(filters.endDate, 'yyyy-MM-dd') 
-    : undefined;
-
-  // Fetch attendance with filters
-  const { 
-    data: attendanceRecords, 
-    isLoading,
-    error
-  } = useFetchAttendance(personId, personType, startDateStr, endDateStr);
-
-  // Apply client-side filters for status and approval status
-  useEffect(() => {
-    if (!attendanceRecords) {
-      setFilteredRecords([]);
-      return;
-    }
-    
-    let filtered = [...attendanceRecords];
-    
-    // Filter by status
-    if (filters.status) {
-      filtered = filtered.filter(record => 
-        record.type === filters.status
-      );
-    }
-    
-    // Filter by approval status
-    if (filters.approvalStatus) {
-      filtered = filtered.filter(record => 
-        record.approval_status === filters.approvalStatus
-      );
-    }
-    
-    setFilteredRecords(filtered);
-  }, [attendanceRecords, filters.status, filters.approvalStatus]);
-
-  const handleFilterChange = (newFilters: FiltersType) => {
-    setFilters(newFilters);
-  };
 
   const handlePrintClick = () => {
     const printContent = document.getElementById('attendance-table')?.outerHTML;
@@ -106,12 +57,6 @@ export const AttendanceHistory = ({ personId, personType, personData }: Attendan
             ` : `
               <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'छाती संख्या: ' : 'Chest No: '} ${personData?.chest_no || '-'}</h3>
             `}
-            ${filters.startDate ? `
-              <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'फ़िल्टर: ' : 'Filter: '} 
-                ${format(filters.startDate, 'dd/MM/yyyy')}
-                ${filters.endDate ? ' - ' + format(filters.endDate, 'dd/MM/yyyy') : ''}
-              </h3>
-            ` : ''}
           </div>
           ${printContent}
         </body>
@@ -122,7 +67,7 @@ export const AttendanceHistory = ({ personId, personType, personData }: Attendan
   };
 
   const handleExcelExport = async () => {
-    if (!filteredRecords || filteredRecords.length === 0) {
+    if (!attendanceRecords || attendanceRecords.length === 0) {
       toast.error(isHindi ? "निर्यात के लिए कोई डेटा नहीं है" : "No data to export");
       return;
     }
@@ -130,12 +75,12 @@ export const AttendanceHistory = ({ personId, personType, personData }: Attendan
     setIsExporting(true);
     
     try {
-      const exportData = filteredRecords.map((record, index) => ({
+      const exportData = attendanceRecords.map((record, index) => ({
         id: index + 1,
         date: record.date,
         type: record.type,
         reason: record.reason || '-',
-        status: record.approval_status
+        status: record.approvalStatus
       }));
 
       const columns = [
@@ -171,26 +116,22 @@ export const AttendanceHistory = ({ personId, personType, personData }: Attendan
         </h3>
         
         <div className="flex gap-2">
-          {/* Add filters component */}
-          <AttendanceFilters onFilterChange={handleFilterChange} />
-          
           <Button 
             variant="outline" 
             size="sm" 
             onClick={handleExcelExport} 
-            disabled={isLoading || !filteredRecords || filteredRecords.length === 0 || isExporting}
+            disabled={isLoading || !attendanceRecords || attendanceRecords.length === 0 || isExporting}
           >
             <FileSpreadsheet className="h-4 w-4 mr-2" />
             <span className={isHindi ? 'font-mangal' : ''}>
               {isHindi ? (isExporting ? "निर्यात हो रहा है..." : "एक्सेल") : (isExporting ? "Exporting..." : "Excel")}
             </span>
           </Button>
-          
           <Button 
             variant="outline" 
             size="sm" 
             onClick={handlePrintClick} 
-            disabled={isLoading || !filteredRecords || filteredRecords.length === 0}
+            disabled={isLoading || !attendanceRecords || attendanceRecords.length === 0}
           >
             <Printer className="h-4 w-4 mr-2" />
             <span className={isHindi ? 'font-mangal' : ''}>
@@ -231,18 +172,10 @@ export const AttendanceHistory = ({ personId, personType, personData }: Attendan
                     </span>
                   </TableCell>
                 </TableRow>
-              ) : error ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-red-500">
-                    <span className={isHindi ? 'font-mangal' : ''}>
-                      {isHindi ? "डेटा लोड करने में त्रुटि" : "Error loading data"}
-                    </span>
-                  </TableCell>
-                </TableRow>
-              ) : filteredRecords && filteredRecords.length > 0 ? (
-                filteredRecords.map((record) => (
+              ) : attendanceRecords && attendanceRecords.length > 0 ? (
+                attendanceRecords.map((record) => (
                   <AttendanceTableRow 
-                    key={record.id || `record-${record.date}`} 
+                    key={record.id} 
                     record={record} 
                     personType={personType} 
                   />  
