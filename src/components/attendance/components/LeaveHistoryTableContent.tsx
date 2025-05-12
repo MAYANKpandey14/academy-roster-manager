@@ -1,7 +1,7 @@
 
 import { useLanguage } from "@/contexts/LanguageContext";
-import { AbsenceRecord, LeaveRecord } from "../hooks/useLeaveHistory";
 import { format } from "date-fns";
+import { AbsenceRecord, LeaveRecord } from "../hooks/useLeaveHistory";
 import { 
   Table,
   TableBody,
@@ -33,7 +33,8 @@ export function LeaveHistoryTableContent({
     })),
     ...leaves.map((leave) => ({
       type: "leave" as const,
-      date: `${leave.start_date} - ${leave.end_date}`,
+      // Use the correct property names (startDate and endDate)
+      date: `${leave.startDate} - ${leave.endDate}`,
       reason: leave.reason,
       status: "Leave", // Display name
     })),

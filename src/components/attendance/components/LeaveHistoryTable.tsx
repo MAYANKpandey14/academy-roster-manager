@@ -1,6 +1,6 @@
 
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useAbsences, useLeaves } from "../hooks/useLeaveHistory";
+import { useAbsences, useLeaves } from "../hooks/useAttendanceHooks";
 import { LeaveHistoryTableContent } from "./LeaveHistoryTableContent";
 
 interface LeaveHistoryTableProps {
@@ -10,8 +10,8 @@ interface LeaveHistoryTableProps {
 
 export function LeaveHistoryTable({ personId, personType }: LeaveHistoryTableProps) {
   const { isHindi } = useLanguage();
-  const { data: absences, isLoading: isLoadingAbsences } = useAbsences(personId);
-  const { data: leaves, isLoading: isLoadingLeaves } = useLeaves(personId);
+  const { data: absences, isLoading: isLoadingAbsences } = useAbsences(personId, personType);
+  const { data: leaves, isLoading: isLoadingLeaves } = useLeaves(personId, personType);
 
   const isLoading = isLoadingAbsences || isLoadingLeaves;
   const hasData = (absences && absences.length > 0) || (leaves && leaves.length > 0);
