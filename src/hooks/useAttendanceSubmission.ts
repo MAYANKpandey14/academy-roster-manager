@@ -2,7 +2,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   AttendancePersonType 
-} from "@/types/attendance-records";
+} from "@/services/attendance/types";
 import { 
   submitAbsenceRecord, 
   submitLeaveRecord 

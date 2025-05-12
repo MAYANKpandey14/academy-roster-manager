@@ -1,7 +1,7 @@
 
 import { useAttendanceRecords } from "@/hooks/useAttendanceRecords";
 import { PersonType } from "@/types/attendance";
-import { AttendancePersonType } from "@/types/attendance-records";
+import { AttendancePersonType } from "@/services/attendance/types";
 
 /**
  * Legacy hook for backwards compatibility

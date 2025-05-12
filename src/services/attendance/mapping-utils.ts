@@ -5,7 +5,7 @@ import {
   AttendanceType, 
   DatabaseAbsence, 
   DatabaseLeave 
-} from "@/types/attendance-records";
+} from "./types";
 import { ApprovalStatus } from "@/types/attendance";
 import { format } from "date-fns";
 
@@ -48,6 +48,8 @@ export const mapAbsenceToAttendanceRecord = (absence: DatabaseAbsence): Attendan
     reason: absence.reason || absence.status,
     approvalStatus,
     absenceType,
+    status: absence.status,
+    approval_status: approvalStatus
   };
 };
 
@@ -90,7 +92,9 @@ export const mapLeaveToAttendanceRecord = (leave: DatabaseLeave): AttendanceReco
     leave_type: leave.leave_type,
     approvalStatus,
     absenceType: 'on_leave',
-    duration
+    duration,
+    status: 'on_leave',
+    approval_status: approvalStatus
   };
 };
 

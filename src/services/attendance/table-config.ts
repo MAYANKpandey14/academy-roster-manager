@@ -1,5 +1,5 @@
 
-import { AttendancePersonType, TableConfig } from "@/types/attendance-records";
+import { AttendancePersonType, TableConfig } from "./types";
 
 /**
  * Get the appropriate table names and ID fields based on person type

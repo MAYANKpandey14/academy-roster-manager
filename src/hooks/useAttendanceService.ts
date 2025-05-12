@@ -2,7 +2,8 @@
 import { useState } from "react";
 import { useAttendanceSubmission } from "./useAttendanceSubmission";
 import { PersonType } from "@/types/attendance";
-import { AttendancePersonType } from "@/types/attendance-records";
+import { AttendancePersonType } from "@/services/attendance/types";
+import { updateApprovalStatus } from "@/services/attendance/attendance-service";
 
 interface UseAttendanceServiceProps {
   onSuccess?: () => void;
@@ -81,10 +82,43 @@ export function useAttendanceService({ onSuccess }: UseAttendanceServiceProps = 
       setIsLoading(false);
     }
   };
+
+  // Update approval status
+  const handleUpdateApprovalStatus = async (
+    recordId: string,
+    recordType: 'absence' | 'leave',
+    personType: PersonType,
+    approvalStatus: 'approved' | 'pending' | 'rejected'
+  ) => {
+    try {
+      setIsLoading(true);
+      // Convert PersonType to AttendancePersonType
+      const mappedPersonType: AttendancePersonType = personType;
+      
+      const result = await updateApprovalStatus(
+        recordId,
+        recordType,
+        mappedPersonType,
+        approvalStatus
+      );
+      
+      if (result.success && onSuccess) {
+        onSuccess();
+      }
+      
+      return result.success;
+    } catch (error) {
+      console.error("Error updating approval status:", error);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   return {
     isLoading,
     submitAttendance,
-    submitLeave
+    submitLeave,
+    updateApprovalStatus: handleUpdateApprovalStatus
   };
 }

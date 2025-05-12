@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { 
   AttendanceFetchParams, 
   AttendanceRecord 
-} from "@/types/attendance-records";
+} from "@/services/attendance/types";
 import { fetchAttendanceRecords } from "@/services/attendance/attendance-service";
 
 /**
