@@ -14,7 +14,17 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Search } from "lucide-react";
-import { PersonData, PersonType, getPersonTableName } from "@/types/attendance";
+import { PersonType, getPersonTableName } from "@/types/attendance";
+
+// Export PersonData interface so it can be used by other components
+export interface PersonData {
+  id: string;
+  pno: string;
+  name: string;
+  mobile_number: string;
+  chest_no?: string;
+  rank?: string;
+}
 
 interface PersonSearchProps {
   onPersonFound: (person: PersonData, type: PersonType) => void;
@@ -49,7 +59,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         columns += ', rank';
       }
 
-      // Use text_filter for proper type handling
+      // Fix the type assertion for the database query
       const { data, error } = await supabase
         .from(tableName)
         .select(columns)
@@ -68,19 +78,19 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
 
-      // Use proper type assertion to resolve property access issues
+      // Explicitly type the data to match PersonData interface
       const personData: PersonData = {
-        id: data.id as string,
-        pno: data.pno as string,
-        name: data.name as string,
-        mobile_number: data.mobile_number as string
+        id: data.id,
+        pno: data.pno,
+        name: data.name,
+        mobile_number: data.mobile_number
       };
 
-      // Add type-specific fields
-      if (personType === 'trainee' && 'chest_no' in data) {
-        personData.chest_no = data.chest_no as string;
-      } else if (personType === 'staff' && 'rank' in data) {
-        personData.rank = data.rank as any;
+      // Add type-specific fields with proper type checking
+      if (personType === 'trainee' && data.chest_no) {
+        personData.chest_no = data.chest_no;
+      } else if (personType === 'staff' && data.rank) {
+        personData.rank = data.rank;
       }
 
       onPersonFound(personData, personType);

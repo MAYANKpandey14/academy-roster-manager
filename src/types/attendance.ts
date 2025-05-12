@@ -18,8 +18,8 @@ export interface BaseAttendanceRecord {
 }
 
 export interface AttendanceRecord extends BaseAttendanceRecord {
-  // Additional fields can be added here
-  status?: string; // Adding this field to resolve TS2353 error
+  // Add status field to resolve TS2353 error
+  status?: string;
 }
 
 // Person data shared structure

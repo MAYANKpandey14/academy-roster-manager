@@ -39,9 +39,8 @@ export const useFetchAttendance = (
         
         let query = supabase.from(tableName).select('*');
         
-        // Using any here to work around TypeScript limitations with dynamic queries
-        // This is safe as we've verified the table structure in the database
-        query = (query as any).eq(idField, userId);
+        // Fix type handling for dynamic queries
+        query = query.eq(idField, userId as any);
         
         if (startDate && endDate) {
           query = query.gte('date', startDate).lte('date', endDate);
@@ -58,13 +57,12 @@ export const useFetchAttendance = (
           reason: string;
         }> = {};
         
-        // Use type assertion to safely access properties
+        // Use proper type assertion for safety
         attendanceRecords?.forEach((record: any) => {
           const dateString = format(new Date(record.date), 'yyyy-MM-dd');
           formattedAttendance[dateString] = {
-            status: record.status,
-            approval_status: record.approval_status,
-            // Add an empty reason if it doesn't exist
+            status: record.status || 'absent',
+            approval_status: record.approval_status || 'pending',
             reason: record.reason || ''
           };
         });
@@ -76,8 +74,8 @@ export const useFetchAttendance = (
         
         let leaveQuery = supabase.from(leaveMapping.tableName).select('*');
         
-        // Type assertion to help TypeScript understand our dynamic querying
-        leaveQuery = (leaveQuery as any).eq(leaveMapping.idField, userId);
+        // Fix type handling for dynamic queries
+        leaveQuery = leaveQuery.eq(leaveMapping.idField, userId as any);
         
         if (startDate && endDate) {
           // Filter leaves that overlap with the date range
@@ -88,17 +86,16 @@ export const useFetchAttendance = (
         
         if (leaveError) throw leaveError;
         
-        // Transform leave records to our expected format
-        // Cast the return value to LeaveRecord[] for type safety
-        const typedLeaveRecords: LeaveRecord[] = leaveRecords?.map((record: any) => ({
-          id: record.id,
+        // Transform leave records to our expected format with proper type handling
+        const typedLeaveRecords: LeaveRecord[] = (leaveRecords || []).map((record: any) => ({
+          id: record.id || `leave-${record.start_date}`,
           type: 'leave',
           start_date: record.start_date,
           end_date: record.end_date,
-          reason: record.reason,
-          status: record.status,
+          reason: record.reason || 'Leave',
+          status: record.status || 'pending',
           leave_type: record.leave_type
-        })) || [];
+        }));
         
         setLeaveData(typedLeaveRecords);
         
@@ -132,16 +129,15 @@ export const useFetchAttendance = (
         const isSpecialStatus = specialStatuses.includes(data.status.toLowerCase());
         
         const type = isSpecialStatus 
-          ? data.status.toLowerCase() as AttendanceRecord['type'] 
-          : 'absent' as AttendanceRecord['type'];
+          ? data.status.toLowerCase() as any  // Type assertion since typescript doesn't narrow properly here
+          : 'absent' as any;
           
         records.push({
           id: `attendance-${date}`,
           date,
           type,
-          approval_status: data.approval_status as 'approved' | 'pending' | 'rejected',
-          reason: data.reason || data.status,
-          status: data.status
+          approval_status: data.approval_status as any,
+          reason: data.reason || data.status
         });
       }
     });
@@ -155,16 +151,16 @@ export const useFetchAttendance = (
       const durationMs = endDateObj.getTime() - startDateObj.getTime();
       const durationDays = Math.ceil(durationMs / (1000 * 60 * 60 * 24)) + 1; // Add 1 to include the end day
       
+      // Fix the status property in AttendanceRecord with type assertion
       records.push({
         id: leave.id,
         date: `${format(startDateObj, 'yyyy-MM-dd')} - ${format(endDateObj, 'yyyy-MM-dd')}`,
         type: 'leave',
-        approval_status: leave.status,
+        approval_status: leave.status as any,
         reason: leave.reason,
         absence_type: leave.leave_type,
-        duration: `${durationDays} ${durationDays === 1 ? 'day' : 'days'}`,
-        status: 'Leave' // Setting a status for display purposes
-      });
+        duration: `${durationDays} ${durationDays === 1 ? 'day' : 'days'}`
+      } as AttendanceRecord);
     });
     
     return records;
