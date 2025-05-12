@@ -1,7 +1,7 @@
 
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format } from "date-fns";
-import { AbsenceRecord, LeaveRecord } from "../hooks/useLeaveHistory";
+import { AbsenceRecord, LeaveRecord } from "../hooks/useAttendanceHooks";
 import { 
   Table,
   TableBody,

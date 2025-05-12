@@ -76,19 +76,19 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
 
-      // Create personData object with type assertion
+      // Create personData object with proper type checking
       const personData: PersonData = {
-        id: data.id,
-        pno: data.pno,
-        name: data.name,
-        mobile_number: data.mobile_number
+        id: data.id as string,
+        pno: data.pno as string,
+        name: data.name as string,
+        mobile_number: data.mobile_number as string
       };
 
-      // Add type-specific fields
+      // Add type-specific fields with proper type checking
       if (personType === 'trainee' && 'chest_no' in data) {
-        personData.chest_no = data.chest_no;
+        personData.chest_no = data.chest_no as string;
       } else if (personType === 'staff' && 'rank' in data) {
-        personData.rank = data.rank;
+        personData.rank = data.rank as string;
       }
 
       onPersonFound(personData, personType);

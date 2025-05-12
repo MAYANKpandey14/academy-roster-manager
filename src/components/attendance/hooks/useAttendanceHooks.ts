@@ -1,7 +1,23 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { AbsenceRecord, LeaveRecord } from "./useLeaveHistory";
+
+// Define the types needed for attendance records
+export interface AbsenceRecord {
+  id: string;
+  date: string;
+  reason: string;
+}
+
+export interface LeaveRecord {
+  id: string;
+  startDate: string;
+  endDate: string;
+  leaveType?: string;
+  reason: string;
+  status: string;
+  createdAt: string;
+}
 
 // Function to fetch attendance records
 export const fetchAttendanceRecords = async (
