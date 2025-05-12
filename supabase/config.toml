@@ -48,3 +48,7 @@ verify_jwt = true
 [[functions]]
 name = "trainee-register"
 verify_jwt = false
+
+[[functions]]
+name = "staff-register"
+verify_jwt = false

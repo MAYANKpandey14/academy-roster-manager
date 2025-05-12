@@ -55,7 +55,7 @@ async function fetchAttendance(personId?: string, personType: "staff" | "trainee
     const leaves = leaveResult.data || [];
 
     // Format absences - detect special status types
-    const formattedAbsences: AttendanceRecord[] = absences.map((item: any) => {
+    const formattedAbsences: AttendanceRecord[] = absences.map((item) => {
       // Check if the status is one of our special statuses
       const specialStatuses = ['suspension', 'resignation', 'termination'];
       const isSpecialStatus = specialStatuses.includes(item.status.toLowerCase());
@@ -88,7 +88,7 @@ async function fetchAttendance(personId?: string, personType: "staff" | "trainee
     });
 
     // Format leaves
-    const formattedLeaves: AttendanceRecord[] = leaves.map((item: any) => {
+    const formattedLeaves: AttendanceRecord[] = leaves.map((item) => {
       // Format date range for leaves
       const dateDisplay = item.start_date === item.end_date 
         ? item.start_date 

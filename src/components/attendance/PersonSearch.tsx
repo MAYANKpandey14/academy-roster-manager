@@ -76,7 +76,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
 
-      // Safely create personData object with type checking
+      // Create a properly typed person data object
       const personData: PersonData = {
         id: data.id as string,
         pno: data.pno as string,
@@ -84,10 +84,10 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         mobile_number: data.mobile_number as string
       };
 
-      // Add type-specific fields with proper type checking
-      if (personType === 'trainee' && data.chest_no) {
+      // Add type-specific fields
+      if (personType === 'trainee' && 'chest_no' in data) {
         personData.chest_no = data.chest_no as string;
-      } else if (personType === 'staff' && data.rank) {
+      } else if (personType === 'staff' && 'rank' in data) {
         personData.rank = data.rank as string;
       }
 

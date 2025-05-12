@@ -11,6 +11,13 @@ interface LeaveHistoryTableContentProps {
 export function LeaveHistoryTableContent({ absences, leaves }: LeaveHistoryTableContentProps) {
   const { isHindi } = useLanguage();
 
+  // Helper function to determine badge variant based on status
+  const getBadgeVariant = (status: string): "default" | "destructive" | "outline" | "secondary" => {
+    if (status === 'approved') return "secondary";
+    if (status === 'rejected') return "destructive";
+    return "outline";
+  };
+
   return (
     <div className="rounded-md border">
       <div className="overflow-x-auto">
@@ -43,7 +50,7 @@ export function LeaveHistoryTableContent({ absences, leaves }: LeaveHistoryTable
                     : `${leave.startDate} - ${leave.endDate}`}
                 </td>
                 <td className="px-4 py-3">
-                  <Badge variant={leave.status === 'approved' ? 'success' : leave.status === 'rejected' ? 'destructive' : 'outline'}>
+                  <Badge variant={getBadgeVariant(leave.status)}>
                     {isHindi 
                       ? leave.status === 'approved' ? 'स्वीकृत' 
                         : leave.status === 'rejected' ? 'अस्वीकृत' : 'लंबित'
