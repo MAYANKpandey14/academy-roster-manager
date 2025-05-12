@@ -20,7 +20,6 @@ import Welcome from "@/pages/Welcome";
 import TraineeRegister from "@/pages/TraineeRegister";
 import StaffRegister from "@/pages/StaffRegister";
 
-// Create routes
 const router = createBrowserRouter([
   {
     path: "/",

@@ -47,17 +47,6 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
     setIsSearching(true);
 
     try {
-      // Get the current session to include auth token
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (!session?.access_token) {
-        toast.error(isHindi
-          ? "कृपया पहले लॉगिन करें"
-          : "Please login first");
-        setIsSearching(false);
-        return;
-      }
-
       const tableName = personType === 'trainee' ? 'trainees' : 'staff';
 
       // Define specific columns to select based on person type
@@ -75,35 +64,30 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         .single();
 
       if (error) {
-        console.error("Error searching person:", error);
-        toast.error(isHindi
-          ? "व्यक्ति खोजने में त्रुटि"
-          : "Error searching for person");
-        setIsSearching(false);
-        return;
+        throw error;
       }
 
+      // Validate that data is not null before proceeding
       if (!data) {
         toast.error(isHindi
           ? "कोई व्यक्ति नहीं मिला"
           : "No person found");
-        setIsSearching(false);
         return;
       }
 
-      // Ensure data is properly typed as PersonData
+      // Use explicit type assertion since we've verified the data structure
       const personData: PersonData = {
-        id: data.id as string,
-        pno: data.pno as string,
-        name: data.name as string,
-        mobile_number: data.mobile_number as string
+        id: (data as Record<string, any>).id as string,
+        pno: (data as Record<string, any>).pno as string,
+        name: (data as Record<string, any>).name as string,
+        mobile_number: (data as Record<string, any>).mobile_number as string
       };
 
-      // Add type-specific fields
-      if (personType === 'trainee' && data.chest_no) {
-        personData.chest_no = data.chest_no as string;
-      } else if (personType === 'staff' && data.rank) {
-        personData.rank = data.rank as string;
+      // Add type-specific fields with proper type assertions
+      if (personType === 'trainee' && 'chest_no' in data) {
+        personData.chest_no = (data as Record<string, any>).chest_no as string;
+      } else if (personType === 'staff' && 'rank' in data) {
+        personData.rank = (data as Record<string, any>).rank as string;
       }
 
       onPersonFound(personData, personType);

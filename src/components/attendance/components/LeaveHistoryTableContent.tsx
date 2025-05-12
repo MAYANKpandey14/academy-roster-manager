@@ -1,115 +1,98 @@
 
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AbsenceRecord, LeaveRecord } from "../hooks/useLeaveHistory";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { format } from "date-fns";
 import { 
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow 
 } from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface LeaveHistoryTableContentProps {
   absences: AbsenceRecord[];
   leaves: LeaveRecord[];
 }
 
-export function LeaveHistoryTableContent({ absences, leaves }: LeaveHistoryTableContentProps) {
+export function LeaveHistoryTableContent({
+  absences,
+  leaves,
+}: LeaveHistoryTableContentProps) {
   const { isHindi } = useLanguage();
-  
-  // Helper function to render badges
-  const renderStatusBadge = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'approved':
-        return (
-          <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
-            <span className={isHindi ? 'font-hindi' : ''}>{isHindi ? 'स्वीकृत' : 'Approved'}</span>
-          </Badge>
-        );
-      case 'rejected':
-        return (
-          <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
-            <span className={isHindi ? 'font-hindi' : ''}>{isHindi ? 'अस्वीकृत' : 'Rejected'}</span>
-          </Badge>
-        );
-      default:
-        return (
-          <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200">
-            <span className={isHindi ? 'font-hindi' : ''}>{isHindi ? 'लंबित' : 'Pending'}</span>
-          </Badge>
-        );
+
+  // Combine absence and leave data, then sort by date
+  const combinedHistory = [
+    ...absences.map((absence) => ({
+      type: "absence" as const,
+      date: absence.date,
+      reason: absence.reason,
+      status: "Absence", // Display name
+    })),
+    ...leaves.map((leave) => ({
+      type: "leave" as const,
+      date: `${leave.start_date} - ${leave.end_date}`,
+      reason: leave.reason,
+      status: "Leave", // Display name
+    })),
+  ].sort((a, b) => {
+    // Extract the first date in case of ranges
+    const dateA = a.date.split(" - ")[0];
+    const dateB = b.date.split(" - ")[0];
+    return new Date(dateB).getTime() - new Date(dateA).getTime();
+  });
+
+  // Format date to a readable format
+  const formatDate = (dateString: string) => {
+    try {
+      if (dateString.includes(" - ")) {
+        // Handle date range format
+        const [startDate, endDate] = dateString.split(" - ");
+        return `${format(new Date(startDate), "PP")} - ${format(
+          new Date(endDate),
+          "PP"
+        )}`;
+      }
+      return format(new Date(dateString), "PP");
+    } catch (error) {
+      return dateString;
     }
   };
-  
+
   return (
-    <Card>
-      <CardContent className="p-0">
+    <div className="border rounded-md">
+      <ScrollArea className="h-[350px]">
         <Table>
-          <TableHeader>
+          <TableHeader className="sticky top-0 bg-white z-10">
             <TableRow>
               <TableHead className={isHindi ? "font-hindi" : ""}>
-                {isHindi ? 'तिथि' : 'Date'}
+                {isHindi ? "दिनांक" : "Date"}
               </TableHead>
               <TableHead className={isHindi ? "font-hindi" : ""}>
-                {isHindi ? 'प्रकार' : 'Type'}
+                {isHindi ? "प्रकार" : "Type"}
               </TableHead>
               <TableHead className={isHindi ? "font-hindi" : ""}>
-                {isHindi ? 'कारण' : 'Reason'}
-              </TableHead>
-              <TableHead className={isHindi ? "font-hindi" : ""}>
-                {isHindi ? 'स्थिति' : 'Status'}
+                {isHindi ? "कारण" : "Reason"}
               </TableHead>
             </TableRow>
           </TableHeader>
-          
           <TableBody>
-            {/* Render absences */}
-            {absences.map((absence) => (
-              <TableRow key={absence.id}>
-                <TableCell>{absence.date}</TableCell>
-                <TableCell>
-                  <span className={isHindi ? 'font-hindi' : ''}>
-                    {isHindi ? 'अनुपस्थिति' : 'Absence'}
-                  </span>
+            {combinedHistory.map((record, index) => (
+              <TableRow key={index}>
+                <TableCell className={isHindi ? "font-hindi" : ""}>
+                  {formatDate(record.date)}
                 </TableCell>
-                <TableCell>{absence.reason || '-'}</TableCell>
-                <TableCell>{renderStatusBadge(absence.status)}</TableCell>
+                <TableCell>{record.status}</TableCell>
+                <TableCell className={isHindi ? "font-hindi" : ""}>
+                  {record.reason}
+                </TableCell>
               </TableRow>
             ))}
-            
-            {/* Render leaves */}
-            {leaves.map((leave) => (
-              <TableRow key={leave.id}>
-                <TableCell>
-                  {leave.start_date === leave.end_date
-                    ? leave.start_date
-                    : `${leave.start_date} - ${leave.end_date}`}
-                </TableCell>
-                <TableCell>
-                  <span className={isHindi ? 'font-hindi' : ''}>
-                    {isHindi ? leave.leave_type || 'छुट्टी' : leave.leave_type || 'Leave'}
-                  </span>
-                </TableCell>
-                <TableCell>{leave.reason || '-'}</TableCell>
-                <TableCell>{renderStatusBadge(leave.status)}</TableCell>
-              </TableRow>
-            ))}
-            
-            {!absences.length && !leaves.length && (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center py-8">
-                  <span className={isHindi ? 'font-hindi' : ''}>
-                    {isHindi ? 'कोई छुट्टी का रिकॉर्ड नहीं है' : 'No leave history found'}
-                  </span>
-                </TableCell>
-              </TableRow>
-            )}
           </TableBody>
         </Table>
-      </CardContent>
-    </Card>
+      </ScrollArea>
+    </div>
   );
 }

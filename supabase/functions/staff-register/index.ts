@@ -1,156 +1,146 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.21.0";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.21.0';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+  "Content-Type": "application/json; charset=utf-8",
 };
 
 serve(async (req) => {
   // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    // Create Supabase client
+    // Create a Supabase client with service role key to bypass RLS for admin operations
     const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
-    );
-    
-    // Parse the request body
-    if (!req.body) {
-      return new Response(
-        JSON.stringify({ error: "Request body is missing" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
-    
-    const { 
-      pno, 
-      name, 
-      father_name, 
-      current_posting_district, 
-      mobile_number, 
-      date_of_birth, 
-      date_of_joining, 
-      blood_group, 
-      education, 
-      nominee, 
-      home_address, 
-      rank,
-      ...optionalFields 
-    } = await req.json();
-
-    // Validate required fields
-    const requiredFields = {
-      pno, 
-      name, 
-      father_name, 
-      current_posting_district, 
-      mobile_number, 
-      date_of_birth, 
-      date_of_joining, 
-      blood_group, 
-      education, 
-      nominee, 
-      home_address
-    };
-
-    for (const [field, value] of Object.entries(requiredFields)) {
-      if (!value) {
-        return new Response(
-          JSON.stringify({ error: `Missing required field: ${field}` }),
-          {
-            status: 400,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      {
+        global: {
+          headers: {
+            "Content-Type": "application/json; charset=utf-8"
           }
-        );
+        },
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
       }
-    }
+    );
 
-    // Check if PNO already exists in the database
-    const { data: existingStaff, error: checkError } = await supabaseClient
-      .from("staff")
-      .select("id")
-      .eq("pno", pno)
-      .maybeSingle();
-
-    if (checkError) {
-      console.error("Error checking for existing staff:", checkError);
+    // Get the request body
+    let formData = null;
+    
+    try {
+      formData = await req.json();
+      console.log("Received staff registration data:", JSON.stringify(formData));
+    } catch (error) {
+      console.error("Failed to parse JSON body:", error);
       return new Response(
-        JSON.stringify({ error: "Failed to check for existing PNO" }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    // If PNO already exists, return an error
-    if (existingStaff) {
-      return new Response(
-        JSON.stringify({ error: "PNO already exists. Each PNO must be unique." }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        JSON.stringify({ error: "Invalid JSON body", code: 400 }),
+        { status: 400, headers: corsHeaders }
       );
     }
     
-    // Proceed with registration if PNO is unique
-    const { data, error } = await supabaseClient.from("staff").insert({
-      pno,
-      name,
-      father_name,
-      current_posting_district,
-      mobile_number,
-      date_of_birth,
-      date_of_joining,
-      blood_group,
-      education,
-      nominee,
-      home_address,
-      rank: rank || "CONST", // Default rank if not provided
-      ...optionalFields,
-    }).select().single();
+    if (!formData) {
+      return new Response(
+        JSON.stringify({ error: "No form data provided", code: 400 }),
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
+    // Check for required fields
+    const requiredFields = ['pno', 'name', 'father_name', 'rank', 'current_posting_district', 
+                            'mobile_number', 'education', 'date_of_birth', 'date_of_joining', 
+                            'blood_group', 'nominee', 'home_address'];
+    const missingFields = requiredFields.filter(field => !formData[field]);
+    
+    if (missingFields.length > 0) {
+      return new Response(
+        JSON.stringify({ 
+          error: `Missing required fields: ${missingFields.join(', ')}`, 
+          code: 400 
+        }),
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
+    // Check if staff with this PNO already exists
+    const { data: existingStaff, error: queryError } = await supabaseClient
+      .from('staff')
+      .select('id')
+      .eq('pno', formData.pno)
+      .limit(1);
+
+    if (queryError) {
+      console.error("Database query error:", queryError);
+      throw queryError;
+    }
+
+    if (existingStaff && existingStaff.length > 0) {
+      return new Response(
+        JSON.stringify({ 
+          error: "A staff member with this PNO already exists", 
+          code: 409 
+        }),
+        { status: 409, headers: corsHeaders }
+      );
+    }
+
+    // Create staff record with all the data provided
+    const staffData = {
+      pno: formData.pno,
+      name: formData.name,
+      father_name: formData.father_name,
+      rank: formData.rank,
+      current_posting_district: formData.current_posting_district,
+      mobile_number: formData.mobile_number,
+      education: formData.education,
+      date_of_birth: formData.date_of_birth,
+      date_of_joining: formData.date_of_joining,
+      blood_group: formData.blood_group,
+      nominee: formData.nominee,
+      home_address: formData.home_address,
+      toli_no: formData.toli_no || null,
+      class_no: formData.class_no || null,
+      class_subject: formData.class_subject || null,
+      photo_url: formData.photo_url || null
+    };
+    
+    console.log("Inserting staff data:", staffData);
+    
+    // Insert the new staff record
+    const { data, error } = await supabaseClient
+      .from('staff')
+      .insert([staffData])
+      .select()
+      .single();
 
     if (error) {
-      console.error("Error registering staff:", error);
-      return new Response(
-        JSON.stringify({ error: "Failed to register staff" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
+      console.error("Database error:", error);
+      throw error;
     }
+    
+    console.log("Staff registered successfully:", data);
 
-    // Return success response
     return new Response(
       JSON.stringify({ 
-        message: "Staff registered successfully", 
-        staff: data 
+        success: true, 
+        message: "Registration successful", 
+        data 
       }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      { headers: corsHeaders }
     );
-
   } catch (error) {
-    console.error("Error in staff registration:", error);
+    console.error("Error in staff-register function:", error);
     return new Response(
-      JSON.stringify({ error: "Server error during registration" }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      JSON.stringify({ error: error.message || "An unknown error occurred", code: 500 }),
+      { status: 500, headers: corsHeaders }
     );
   }
 });
