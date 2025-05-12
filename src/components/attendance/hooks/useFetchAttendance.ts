@@ -1,15 +1,16 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { format, parse } from "date-fns";
-import { convertToDateString } from "@/utils/export";
+import { format } from "date-fns";
 
 export interface AttendanceRecord {
+  id: string;
   date: string;
-  status: string;
+  status?: string;
   approval_status: string;
   type: 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination';
   reason: string;
+  absence_type?: string;
   duration?: string;
 }
 
@@ -27,13 +28,15 @@ type LeaveRecord = {
   status: string;
   reason: string;
   leave_type?: string;
+  id: string;
 };
 
-export const useFetchAttendance = (userId?: string, isTrainee = false, startDate?: string, endDate?: string) => {
+export const useFetchAttendance = (userId?: string, personType: 'staff' | 'trainee' = 'trainee', startDate?: string, endDate?: string) => {
   const [attendanceData, setAttendanceData] = useState<Attendance>({});
   const [leaveData, setLeaveData] = useState<LeaveRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [records, setRecords] = useState<AttendanceRecord[]>([]);
 
   useEffect(() => {
     if (!userId) return;
@@ -43,9 +46,9 @@ export const useFetchAttendance = (userId?: string, isTrainee = false, startDate
       setError(null);
       
       try {
-        // Determine which table to query based on the isTrainee flag
-        const tableName = isTrainee ? 'trainee_attendance' : 'staff_attendance';
-        const idColumn = isTrainee ? 'trainee_id' : 'staff_id';
+        // Determine which table to query based on the personType flag
+        const tableName = personType === 'trainee' ? 'trainee_attendance' : 'staff_attendance';
+        const idColumn = personType === 'trainee' ? 'trainee_id' : 'staff_id';
         
         let query = supabase.from(tableName).select('*').eq(idColumn, userId);
         
@@ -72,8 +75,8 @@ export const useFetchAttendance = (userId?: string, isTrainee = false, startDate
         setAttendanceData(formattedAttendance);
         
         // Now fetch leave data
-        const leaveTable = isTrainee ? 'trainee_leave' : 'staff_leave';
-        const leaveIdColumn = isTrainee ? 'trainee_id' : 'staff_id';
+        const leaveTable = personType === 'trainee' ? 'trainee_leave' : 'staff_leave';
+        const leaveIdColumn = personType === 'trainee' ? 'trainee_id' : 'staff_id';
         
         let leaveQuery = supabase.from(leaveTable).select('*').eq(leaveIdColumn, userId);
         
@@ -88,6 +91,10 @@ export const useFetchAttendance = (userId?: string, isTrainee = false, startDate
         
         setLeaveData(leaveRecords || []);
         
+        // Process and combine all records
+        const allRecords = processAttendanceData(formattedAttendance, leaveRecords || []);
+        setRecords(allRecords);
+        
       } catch (err) {
         console.error('Error fetching attendance:', err);
         setError('Failed to load attendance data');
@@ -97,10 +104,10 @@ export const useFetchAttendance = (userId?: string, isTrainee = false, startDate
     };
     
     fetchAttendance();
-  }, [userId, isTrainee, startDate, endDate]);
+  }, [userId, personType, startDate, endDate]);
 
   // Process attendance records to highlight absences and leaves
-  const getAttendanceRecords = (): AttendanceRecord[] => {
+  const processAttendanceData = (attendanceData: Attendance, leaveData: LeaveRecord[]): AttendanceRecord[] => {
     const records: AttendanceRecord[] = [];
     
     // Process absences from attendance data
@@ -114,8 +121,8 @@ export const useFetchAttendance = (userId?: string, isTrainee = false, startDate
           ? (data.status.toLowerCase() as 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination') 
           : 'absent';
           
-        // Always use status as the reason
         records.push({
+          id: `attendance-${date}`,
           date,
           status: data.status,
           approval_status: data.approval_status,
@@ -125,13 +132,7 @@ export const useFetchAttendance = (userId?: string, isTrainee = false, startDate
       }
     });
     
-    return records;
-  };
-  
-  // Process leave records
-  const getLeaveRecords = (): AttendanceRecord[] => {
-    const records: AttendanceRecord[] = [];
-    
+    // Process leave records
     leaveData.forEach(leave => {
       const startDateObj = new Date(leave.start_date);
       const endDateObj = new Date(leave.end_date);
@@ -141,25 +142,18 @@ export const useFetchAttendance = (userId?: string, isTrainee = false, startDate
       const durationDays = Math.ceil(durationMs / (1000 * 60 * 60 * 24)) + 1; // Add 1 to include the end day
       
       records.push({
-        date: format(startDateObj, 'yyyy-MM-dd'),
+        id: leave.id,
+        date: `${format(startDateObj, 'yyyy-MM-dd')} - ${format(endDateObj, 'yyyy-MM-dd')}`,
         status: 'Leave',
         approval_status: leave.status,
         type: 'leave',
         reason: leave.reason,
+        absence_type: leave.leave_type,
         duration: `${durationDays} ${durationDays === 1 ? 'day' : 'days'}`
       });
     });
     
     return records;
-  };
-  
-  // Convert to strings for easier display
-  const getFormattedAbsences = (): AttendanceRecord[] => {
-    return getAttendanceRecords();
-  };
-
-  const getFormattedLeaves = (): AttendanceRecord[] => {
-    return getLeaveRecords();
   };
 
   return {
@@ -167,7 +161,6 @@ export const useFetchAttendance = (userId?: string, isTrainee = false, startDate
     leaveData,
     isLoading,
     error,
-    getFormattedAbsences,
-    getFormattedLeaves
+    data: records
   };
 };

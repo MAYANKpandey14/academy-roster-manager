@@ -14,7 +14,7 @@ export function getTraineeTableColumns(isHindi: boolean, onRefresh?: () => void)
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
+            (table.getIsSomePageRowsSelected() ? "indeterminate" : false)
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
@@ -34,7 +34,7 @@ export function getTraineeTableColumns(isHindi: boolean, onRefresh?: () => void)
       accessorKey: "toli_no",
       header: isHindi ? "टोली संख्या" : "Toli No",
       cell: ({ row }) => {
-        const toliNo = row.getValue("toli_no");
+        const toliNo = row.getValue("toli_no") as string;
         return (
           <div className="font-medium">{toliNo || "-"}</div>
         );
@@ -45,47 +45,50 @@ export function getTraineeTableColumns(isHindi: boolean, onRefresh?: () => void)
       header: isHindi ? "चेस्ट नंबर" : "Chest No",
       cell: ({ row }) => {
         return (
-          <div className="font-medium">{row.getValue("chest_no")}</div>
+          <div className="font-medium">{row.getValue("chest_no") as string}</div>
         );
       },
     },
     {
       accessorKey: "pno",
       header: isHindi ? "पीएनओ" : "PNO",
-      cell: ({ row }) => <div className="font-medium">{row.getValue("pno")}</div>,
+      cell: ({ row }) => <div className="font-medium">{row.getValue("pno") as string}</div>,
     },
     {
       accessorKey: "name",
       header: isHindi ? "नाम" : "Name",
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("name")}</div>
+        <div className="capitalize">{row.getValue("name") as string}</div>
       ),
     },
     {
       accessorKey: "father_name",
       header: isHindi ? "पिता का नाम" : "Father's Name",
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("father_name")}</div>
+        <div className="capitalize">{row.getValue("father_name") as string}</div>
       ),
     },
     {
       accessorKey: "rank",
       header: isHindi ? "रैंक" : "Rank",
-      cell: ({ row }) => (
-        <div>
-          {row.getValue("rank") ? (
-            <Badge variant="outline">{row.getValue("rank")}</Badge>
-          ) : (
-            "CONST"
-          )}
-        </div>
-      ),
+      cell: ({ row }) => {
+        const rank = row.getValue("rank") as string;
+        return (
+          <div>
+            {rank ? (
+              <Badge variant="outline">{rank}</Badge>
+            ) : (
+              "CONST"
+            )}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "current_posting_district",
       header: isHindi ? "वर्तमान पोस्टिंग जिला" : "Current Posting",
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("current_posting_district")}</div>
+        <div className="capitalize">{row.getValue("current_posting_district") as string}</div>
       ),
     },
     {

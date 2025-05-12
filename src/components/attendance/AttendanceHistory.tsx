@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Printer, FileSpreadsheet } from "lucide-react";
 import { handlePrint } from "@/utils/export/printUtils";
 import { exportToExcel } from "@/utils/export/excelUtils";
-import { useFetchAttendance, AttendanceRecord } from "./hooks/useFetchAttendance";
+import { useFetchAttendance } from "./hooks/useFetchAttendance";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Table,
@@ -80,7 +80,7 @@ export const AttendanceHistory = ({ personId, personType, personData }: Attendan
         date: record.date,
         type: record.type,
         reason: record.reason || '-',
-        status: record.approvalStatus
+        status: record.approval_status
       }));
 
       const columns = [
