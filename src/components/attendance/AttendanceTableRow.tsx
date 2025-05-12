@@ -57,16 +57,16 @@ export const AttendanceTableRow = memo(function AttendanceTableRow({
       </TableCell>
       
       <TableCell>
-        <ApprovalStatus status={record.approvalStatus} />
+        <ApprovalStatus status={record.approval_status} />
       </TableCell>
       
       <TableCell>
         <ApprovalActions
-          recordId={record.recordId}
-          recordType={record.recordType}
+          recordId={record.id}
+          recordType={record.type}
           personType={personType}
-          currentStatus={record.approvalStatus}
-          absenceType={record.absenceType}
+          currentStatus={record.approval_status}
+          absenceType={record.absence_type}
         />
       </TableCell>
     </TableRow>

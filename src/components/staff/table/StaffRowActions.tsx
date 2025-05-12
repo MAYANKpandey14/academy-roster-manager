@@ -62,7 +62,11 @@ export function StaffRowActions({
       toast.success(isHindi ? "स्टाफ सदस्य सफलतापूर्वक हटा दिया गया" : "Staff member deleted successfully");
       
       if (onRefresh) {
-        onRefresh();
+        // Using setTimeout to defer refresh operation to next event loop cycle
+        // This helps prevent potential race conditions with token refresh
+        setTimeout(() => {
+          onRefresh();
+        }, 0);
       }
     } catch (error) {
       console.error("Error deleting staff:", error);

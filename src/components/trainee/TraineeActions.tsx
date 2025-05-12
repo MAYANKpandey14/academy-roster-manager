@@ -54,7 +54,11 @@ export function TraineeActions({ trainee, onRefresh }: TraineeActionsProps) {
       toast.success(isHindi ? "प्रशिक्षु सफलतापूर्वक हटा दिया गया" : "Trainee deleted successfully");
       
       if (onRefresh) {
-        onRefresh();
+        // Using setTimeout to defer refresh operation to next event loop cycle
+        // This helps prevent potential race conditions with token refresh
+        setTimeout(() => {
+          onRefresh();
+        }, 0);
       }
     } catch (error) {
       console.error("Error deleting trainee:", error);
