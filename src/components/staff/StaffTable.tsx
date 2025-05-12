@@ -24,7 +24,6 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
     rowSelection,
     setRowSelection,
     selectedCount,
-    // handleDelete,
     getSelectedStaff
   } = useStaffTable(staff, onRefresh);
 
@@ -74,7 +73,8 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
     handlePrintAction,
     handleDownloadAction,
     null, // Pass null instead of handleDelete to remove delete functionality
-    handleExcelExport
+    handleExcelExport,
+    onRefresh
   );
 
   return (

@@ -14,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { SortAsc } from "lucide-react";
 
 interface TraineeTableProps {
   trainees: Trainee[];
@@ -31,7 +30,7 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
   const [sortBy, setSortBy] = useState<string>("none");
   
   // Get table columns using getTraineeTableColumns function
-  const columns = getTraineeTableColumns(isHindi);
+  const columns = getTraineeTableColumns(isHindi, onRefresh);
   
   useEffect(() => {
     // Update selected count when rowSelection changes

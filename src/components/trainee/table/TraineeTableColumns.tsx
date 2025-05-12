@@ -1,11 +1,12 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Trainee } from "@/types/trainee";
-import { TraineeRowActions } from "./TraineeRowActions";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { TraineeRowActions } from "./TraineeRowActions";
+import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 
-export function getTraineeTableColumns(isHindi: boolean): ColumnDef<Trainee>[] {
+export function getTraineeTableColumns(isHindi: boolean, onRefresh?: () => void): ColumnDef<Trainee>[] {
   return [
     {
       id: "select",
@@ -13,11 +14,10 @@ export function getTraineeTableColumns(isHindi: boolean): ColumnDef<Trainee>[] {
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && true)
+            (table.getIsSomePageRowsSelected() && "indeterminate")
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
-          className="translate-y-[2px]"
         />
       ),
       cell: ({ row }) => (
@@ -25,24 +25,27 @@ export function getTraineeTableColumns(isHindi: boolean): ColumnDef<Trainee>[] {
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
-          className="translate-y-[2px]"
         />
       ),
       enableSorting: false,
       enableHiding: false,
     },
     {
-      accessorKey: "photo_url",
-      header: isHindi ? "फोटो" : "Photo",
+      accessorKey: "toli_no",
+      header: isHindi ? "टोली संख्या" : "Toli No",
       cell: ({ row }) => {
-        const trainee = row.original;
-        const firstLetter = trainee.name.charAt(0).toUpperCase();
-        
+        const toliNo = row.getValue("toli_no");
         return (
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={trainee.photo_url} alt={trainee.name} />
-            <AvatarFallback>{firstLetter}</AvatarFallback>
-          </Avatar>
+          <div className="font-medium">{toliNo || "-"}</div>
+        );
+      },
+    },
+    {
+      accessorKey: "chest_no",
+      header: isHindi ? "चेस्ट नंबर" : "Chest No",
+      cell: ({ row }) => {
+        return (
+          <div className="font-medium">{row.getValue("chest_no")}</div>
         );
       },
     },
@@ -52,29 +55,59 @@ export function getTraineeTableColumns(isHindi: boolean): ColumnDef<Trainee>[] {
       cell: ({ row }) => <div className="font-medium">{row.getValue("pno")}</div>,
     },
     {
-      accessorKey: "chest_no",
-      header: isHindi ? "चेस्ट नंबर" : "Chest No",
-      cell: ({ row }) => <div>{row.getValue("chest_no")}</div>,
-    },
-    {
       accessorKey: "name",
       header: isHindi ? "नाम" : "Name",
-      cell: ({ row }) => <div>{row.getValue("name")}</div>,
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("name")}</div>
+      ),
+    },
+    {
+      accessorKey: "father_name",
+      header: isHindi ? "पिता का नाम" : "Father's Name",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("father_name")}</div>
+      ),
+    },
+    {
+      accessorKey: "rank",
+      header: isHindi ? "रैंक" : "Rank",
+      cell: ({ row }) => (
+        <div>
+          {row.getValue("rank") ? (
+            <Badge variant="outline">{row.getValue("rank")}</Badge>
+          ) : (
+            "CONST"
+          )}
+        </div>
+      ),
     },
     {
       accessorKey: "current_posting_district",
-      header: isHindi ? "वर्तमान पोस्टिंग जिला" : "Current Posting District",
-      cell: ({ row }) => <div>{row.getValue("current_posting_district")}</div>,
+      header: isHindi ? "वर्तमान पोस्टिंग जिला" : "Current Posting",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("current_posting_district")}</div>
+      ),
     },
     {
-      accessorKey: "mobile_number",
-      header: isHindi ? "मोबाइल नंबर" : "Mobile Number",
-      cell: ({ row }) => <div>{row.getValue("mobile_number")}</div>,
+      accessorKey: "arrival_date",
+      header: isHindi ? "आगमन तिथि" : "Arrival Date",
+      cell: ({ row }) => {
+        const date = row.getValue("arrival_date") as string;
+        return format(new Date(date), "dd/MM/yyyy");
+      },
+    },
+    {
+      accessorKey: "departure_date",
+      header: isHindi ? "प्रस्थान तिथि" : "Departure Date",
+      cell: ({ row }) => {
+        const date = row.getValue("departure_date") as string;
+        return format(new Date(date), "dd/MM/yyyy");
+      },
     },
     {
       id: "actions",
       cell: ({ row }) => {
-        return <TraineeRowActions trainee={row.original} />;
+        return <TraineeRowActions trainee={row.original} onRefresh={onRefresh} />;
       },
     },
   ];

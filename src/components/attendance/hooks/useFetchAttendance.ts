@@ -1,138 +1,173 @@
 
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { format, parse } from "date-fns";
+import { convertToDateString } from "@/utils/export";
 
-// Define a simpler interface for attendance records
 export interface AttendanceRecord {
-  id: string;
-  recordId: string; // Original database record ID
-  recordType: 'absence' | 'leave'; // To identify record type for approval actions
   date: string;
+  status: string;
+  approval_status: string;
   type: 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination';
-  reason?: string;
+  reason: string;
+  duration?: string;
+}
+
+type Attendance = {
+  [date: string]: {
+    status: string;
+    approval_status: string;
+    reason?: string;
+  }
+};
+
+type LeaveRecord = {
+  start_date: string;
+  end_date: string;
+  status: string;
+  reason: string;
   leave_type?: string;
-  approvalStatus: 'approved' | 'pending' | 'rejected';
-  absenceType?: string; // To track the original absence type
-}
+};
 
-// Helper to determine if a status requires approval
-function requiresApproval(status: string): boolean {
-  return ['on_leave', 'resignation'].includes(status);
-}
+export const useFetchAttendance = (userId?: string, isTrainee = false, startDate?: string, endDate?: string) => {
+  const [attendanceData, setAttendanceData] = useState<Attendance>({});
+  const [leaveData, setLeaveData] = useState<LeaveRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-export const useFetchAttendance = (personId?: string, personType: "staff" | "trainee" = "trainee") => {
-  return useQuery({
-    queryKey: ['attendance', personId, personType],
-    enabled: !!personId,
-    queryFn: async () => {
-      if (!personId) return [];
+  useEffect(() => {
+    if (!userId) return;
+
+    const fetchAttendance = async () => {
+      setIsLoading(true);
+      setError(null);
       
-      // Get table names based on person type
-      const absenceTable = personType === 'trainee' ? 'trainee_attendance' : 'staff_attendance';
-      const absenceIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
-      
-      const leaveTable = personType === 'trainee' ? 'trainee_leave' : 'staff_leave';
-      const leaveIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
-
       try {
-        // Fetch absence data with limit and pagination for better performance
-        const { data: absenceData, error: absenceError } = await supabase
-          .from(absenceTable)
-          .select('*')
-          .eq(absenceIdField, personId)
-          .order('date', { ascending: false })
-          .limit(50); // Limit results for better performance
+        // Determine which table to query based on the isTrainee flag
+        const tableName = isTrainee ? 'trainee_attendance' : 'staff_attendance';
+        const idColumn = isTrainee ? 'trainee_id' : 'staff_id';
         
-        if (absenceError) throw absenceError;
+        let query = supabase.from(tableName).select('*').eq(idColumn, userId);
         
-        // Use a simpler approach to handle the data
-        const absences = absenceData || [];
+        if (startDate && endDate) {
+          query = query.gte('date', startDate).lte('date', endDate);
+        }
         
-        // Fetch leave data with limit and pagination for better performance
-        const { data: leaveData, error: leaveError } = await supabase
-          .from(leaveTable)
-          .select('*')
-          .eq(leaveIdField, personId)
-          .order('start_date', { ascending: false })
-          .limit(50); // Limit results for better performance
-
+        const { data: attendanceRecords, error: attendanceError } = await query;
+        
+        if (attendanceError) throw attendanceError;
+        
+        // Format attendance data
+        const formattedAttendance: Attendance = {};
+        
+        attendanceRecords?.forEach(record => {
+          const dateString = format(new Date(record.date), 'yyyy-MM-dd');
+          formattedAttendance[dateString] = {
+            status: record.status,
+            approval_status: record.approval_status,
+            reason: record.reason || ''
+          };
+        });
+        
+        setAttendanceData(formattedAttendance);
+        
+        // Now fetch leave data
+        const leaveTable = isTrainee ? 'trainee_leave' : 'staff_leave';
+        const leaveIdColumn = isTrainee ? 'trainee_id' : 'staff_id';
+        
+        let leaveQuery = supabase.from(leaveTable).select('*').eq(leaveIdColumn, userId);
+        
+        if (startDate && endDate) {
+          // Filter leaves that overlap with the date range
+          leaveQuery = leaveQuery.or(`start_date.lte.${endDate},end_date.gte.${startDate}`);
+        }
+        
+        const { data: leaveRecords, error: leaveError } = await leaveQuery;
+        
         if (leaveError) throw leaveError;
         
-        // Use a simpler approach to handle the data
-        const leaves = leaveData || [];
-
-        // Format absences - detect special status types
-        const formattedAbsences: AttendanceRecord[] = absences.map((item: any) => {
-          // Check if the status is one of our special statuses
-          const specialStatuses = ['suspension', 'resignation', 'termination'];
-          const isSpecialStatus = specialStatuses.includes(item.status.toLowerCase());
-          
-          const type = isSpecialStatus 
-            ? (item.status.toLowerCase() as 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination') 
-            : 'absent';
-            
-          // Always use status as the reason
-          const reason = item.status;
-            
-          // Apply the new approval logic
-          // Check if this status type should be auto-approved
-          const absenceType = isSpecialStatus ? item.status.toLowerCase() : 'absent';
-          
-          // Use the database approval_status value, defaulting to auto-approval logic if not set
-          const approvalStatus = item.approval_status?.toLowerCase() as 'approved' | 'pending' | 'rejected' 
-            || (requiresApproval(absenceType) ? 'pending' : 'approved');
-
-          return {
-            id: `absence-${item.id}`,
-            recordId: item.id,
-            recordType: 'absence',
-            date: item.date,
-            type,
-            reason,
-            approvalStatus,
-            absenceType
-          };
-        });
-
-        // Format leaves
-        const formattedLeaves: AttendanceRecord[] = leaves.map((item: any) => {
-          // Format date range for leaves
-          const dateDisplay = item.start_date === item.end_date 
-            ? item.start_date 
-            : `${item.start_date} - ${item.end_date}`;
-            
-          // Map leave status to our approval status
-          const approvalStatus = (item.status === 'approved' || item.status === 'rejected')
-            ? item.status
-            : 'pending';
-
-          return {
-            id: `leave-${item.id}`,
-            recordId: item.id,
-            recordType: 'leave',
-            date: dateDisplay,
-            type: 'on_leave',
-            reason: item.reason || '',
-            leave_type: item.leave_type,
-            approvalStatus: approvalStatus as 'approved' | 'pending' | 'rejected',
-            absenceType: 'on_leave' // All leaves are of type on_leave
-          };
-        });
-
-        // Combine and sort by date (most recent first)
-        return [...formattedAbsences, ...formattedLeaves].sort((a, b) => {
-          // Extract the first date in case of range
-          const dateA = a.date.split(' - ')[0];
-          const dateB = b.date.split(' - ')[0];
-          return new Date(dateB).getTime() - new Date(dateA).getTime();
-        });
-      } catch (error) {
-        console.error("Error fetching attendance records:", error);
-        throw error;
+        setLeaveData(leaveRecords || []);
+        
+      } catch (err) {
+        console.error('Error fetching attendance:', err);
+        setError('Failed to load attendance data');
+      } finally {
+        setIsLoading(false);
       }
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes cache
-    gcTime: 10 * 60 * 1000,   // 10 minutes (replacing the outdated cacheTime)
-    refetchOnWindowFocus: false // Reduce unnecessary refetches
-  });
+    };
+    
+    fetchAttendance();
+  }, [userId, isTrainee, startDate, endDate]);
+
+  // Process attendance records to highlight absences and leaves
+  const getAttendanceRecords = (): AttendanceRecord[] => {
+    const records: AttendanceRecord[] = [];
+    
+    // Process absences from attendance data
+    const specialStatuses = ['leave', 'on_leave', 'suspension', 'resignation', 'termination'];
+    
+    Object.entries(attendanceData).forEach(([date, data]) => {
+      if (data.status.toLowerCase() === 'absent' || specialStatuses.includes(data.status.toLowerCase())) {
+        const isSpecialStatus = specialStatuses.includes(data.status.toLowerCase());
+        
+        const type = isSpecialStatus 
+          ? (data.status.toLowerCase() as 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination') 
+          : 'absent';
+          
+        // Always use status as the reason
+        records.push({
+          date,
+          status: data.status,
+          approval_status: data.approval_status,
+          type,
+          reason: data.reason || data.status
+        });
+      }
+    });
+    
+    return records;
+  };
+  
+  // Process leave records
+  const getLeaveRecords = (): AttendanceRecord[] => {
+    const records: AttendanceRecord[] = [];
+    
+    leaveData.forEach(leave => {
+      const startDateObj = new Date(leave.start_date);
+      const endDateObj = new Date(leave.end_date);
+      
+      // Calculate the duration in days
+      const durationMs = endDateObj.getTime() - startDateObj.getTime();
+      const durationDays = Math.ceil(durationMs / (1000 * 60 * 60 * 24)) + 1; // Add 1 to include the end day
+      
+      records.push({
+        date: format(startDateObj, 'yyyy-MM-dd'),
+        status: 'Leave',
+        approval_status: leave.status,
+        type: 'leave',
+        reason: leave.reason,
+        duration: `${durationDays} ${durationDays === 1 ? 'day' : 'days'}`
+      });
+    });
+    
+    return records;
+  };
+  
+  // Convert to strings for easier display
+  const getFormattedAbsences = (): AttendanceRecord[] => {
+    return getAttendanceRecords();
+  };
+
+  const getFormattedLeaves = (): AttendanceRecord[] => {
+    return getLeaveRecords();
+  };
+
+  return {
+    attendanceData,
+    leaveData,
+    isLoading,
+    error,
+    getFormattedAbsences,
+    getFormattedLeaves
+  };
 };
