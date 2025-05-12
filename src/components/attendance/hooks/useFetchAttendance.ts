@@ -8,7 +8,7 @@ export interface AttendanceRecord {
   recordId: string; // Original database record ID
   recordType: 'absence' | 'leave'; // To identify record type for approval actions
   date: string;
-  type: 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination';
+  type: 'absent' | 'present' | 'on_leave' | 'suspension' | 'resignation' | 'termination';
   reason?: string;
   leave_type?: string;
   approvalStatus: 'approved' | 'pending' | 'rejected';
@@ -35,47 +35,42 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
       const leaveIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
 
       try {
-        // Fetch absence data with limit and pagination for better performance
-        const { data: absenceData, error: absenceError } = await supabase
+        // Fetch absence data
+        const absenceResponse = await supabase
           .from(absenceTable)
           .select('*')
           .eq(absenceIdField, personId)
           .order('date', { ascending: false })
-          .limit(50); // Limit results for better performance
+          .limit(50);
         
-        if (absenceError) throw absenceError;
+        if (absenceResponse.error) throw absenceResponse.error;
+        const absences = absenceResponse.data || [];
         
-        // Use a simpler approach to handle the data
-        const absences = absenceData || [];
-        
-        // Fetch leave data with limit and pagination for better performance
-        const { data: leaveData, error: leaveError } = await supabase
+        // Fetch leave data
+        const leaveResponse = await supabase
           .from(leaveTable)
           .select('*')
           .eq(leaveIdField, personId)
           .order('start_date', { ascending: false })
-          .limit(50); // Limit results for better performance
+          .limit(50);
 
-        if (leaveError) throw leaveError;
-        
-        // Use a simpler approach to handle the data
-        const leaves = leaveData || [];
+        if (leaveResponse.error) throw leaveResponse.error;
+        const leaves = leaveResponse.data || [];
 
-        // Format absences - detect special status types
+        // Format absences
         const formattedAbsences: AttendanceRecord[] = absences.map((item: any) => {
           // Check if the status is one of our special statuses
           const specialStatuses = ['suspension', 'resignation', 'termination'];
           const isSpecialStatus = specialStatuses.includes(item.status.toLowerCase());
           
           const type = isSpecialStatus 
-            ? (item.status.toLowerCase() as 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination') 
+            ? (item.status.toLowerCase() as 'absent' | 'present' | 'on_leave' | 'suspension' | 'resignation' | 'termination') 
             : 'absent';
             
           // Always use status as the reason
           const reason = item.status;
             
-          // Apply the new approval logic
-          // Check if this status type should be auto-approved
+          // Apply the approval logic
           const absenceType = isSpecialStatus ? item.status.toLowerCase() : 'absent';
           
           // Use the database approval_status value, defaulting to auto-approval logic if not set

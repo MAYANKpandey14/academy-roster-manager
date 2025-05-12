@@ -61,6 +61,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         .from(tableName)
         .select(columns)
         .eq('pno', pno)
+        .limit(1)
         .single();
 
       if (error) {
@@ -75,19 +76,19 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
 
-      // Use explicit type assertion since we've verified the data structure
+      // Create a properly typed PersonData object
       const personData: PersonData = {
-        id: (data as Record<string, any>).id as string,
-        pno: (data as Record<string, any>).pno as string,
-        name: (data as Record<string, any>).name as string,
-        mobile_number: (data as Record<string, any>).mobile_number as string
+        id: data.id,
+        pno: data.pno,
+        name: data.name,
+        mobile_number: data.mobile_number
       };
 
-      // Add type-specific fields with proper type assertions
-      if (personType === 'trainee' && 'chest_no' in data) {
-        personData.chest_no = (data as Record<string, any>).chest_no as string;
-      } else if (personType === 'staff' && 'rank' in data) {
-        personData.rank = (data as Record<string, any>).rank as string;
+      // Add type-specific fields
+      if (personType === 'trainee' && data.chest_no) {
+        personData.chest_no = data.chest_no;
+      } else if (personType === 'staff' && data.rank) {
+        personData.rank = data.rank;
       }
 
       onPersonFound(personData, personType);
