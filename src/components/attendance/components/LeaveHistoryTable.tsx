@@ -36,10 +36,8 @@ export function LeaveHistoryTable({ personId, personType }: LeaveHistoryTablePro
     );
   }
 
-  return (
-    <LeaveHistoryTableContent 
-      absences={absences || []} 
-      leaves={leaves || []} 
-    />
-  );
+  // Combine absences and leaves into a single records array
+  const records = [...(absences || []), ...(leaves || [])];
+
+  return <LeaveHistoryTableContent records={records} isLoading={isLoading} />;
 }

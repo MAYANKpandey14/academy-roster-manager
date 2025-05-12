@@ -8,7 +8,7 @@ export interface AttendanceRecord {
   recordId: string; // Original database record ID
   recordType: 'absence' | 'leave'; // To identify record type for approval actions
   date: string;
-  type: 'absent' | 'present' | 'on_leave' | 'suspension' | 'resignation' | 'termination';
+  type: string; // Using string instead of union type to avoid recursion
   reason?: string;
   leave_type?: string;
   approvalStatus: 'approved' | 'pending' | 'rejected';
@@ -61,10 +61,10 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         const formattedAbsences: AttendanceRecord[] = absences.map((item: any) => {
           // Check if the status is one of our special statuses
           const specialStatuses = ['suspension', 'resignation', 'termination'];
-          const isSpecialStatus = specialStatuses.includes(item.status.toLowerCase());
+          const isSpecialStatus = specialStatuses.includes(item.status?.toLowerCase());
           
           const type = isSpecialStatus 
-            ? (item.status.toLowerCase() as 'absent' | 'present' | 'on_leave' | 'suspension' | 'resignation' | 'termination') 
+            ? item.status.toLowerCase() 
             : 'absent';
             
           // Always use status as the reason
@@ -74,8 +74,8 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
           const absenceType = isSpecialStatus ? item.status.toLowerCase() : 'absent';
           
           // Use the database approval_status value, defaulting to auto-approval logic if not set
-          const approvalStatus = item.approval_status?.toLowerCase() as 'approved' | 'pending' | 'rejected' 
-            || (requiresApproval(absenceType) ? 'pending' : 'approved');
+          const approvalStatus = item.approval_status?.toLowerCase() || 
+            (requiresApproval(absenceType) ? 'pending' : 'approved');
 
           return {
             id: `absence-${item.id}`,
@@ -109,7 +109,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
             type: 'on_leave',
             reason: item.reason || '',
             leave_type: item.leave_type,
-            approvalStatus: approvalStatus as 'approved' | 'pending' | 'rejected',
+            approvalStatus: approvalStatus,
             absenceType: 'on_leave' // All leaves are of type on_leave
           };
         });

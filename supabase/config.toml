@@ -32,3 +32,15 @@ verify_jwt = false
 [[functions]]
 name = "trainee-register"
 verify_jwt = false
+
+[[functions]]
+name = "staff-attendance-view"
+verify_jwt = false
+
+[[functions]]
+name = "trainee-attendance-view"
+verify_jwt = false
+
+[[functions]]
+name = "attendance-manage"
+verify_jwt = false

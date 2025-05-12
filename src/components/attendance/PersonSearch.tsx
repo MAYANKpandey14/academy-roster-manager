@@ -65,14 +65,10 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         .single();
 
       if (error) {
-        throw error;
-      }
-
-      // Validate that data is not null before proceeding
-      if (!data) {
+        console.error("Error searching person:", error);
         toast.error(isHindi
-          ? "कोई व्यक्ति नहीं मिला"
-          : "No person found");
+          ? "व्यक्ति खोजने में त्रुटि"
+          : "Error searching for person");
         return;
       }
 
