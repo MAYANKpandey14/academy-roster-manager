@@ -19,7 +19,7 @@ export interface BaseAttendanceRecord {
 
 export interface AttendanceRecord extends BaseAttendanceRecord {
   // Add status field to resolve TS2353 error
-  status?: string;
+  status: string;
 }
 
 // Person data shared structure

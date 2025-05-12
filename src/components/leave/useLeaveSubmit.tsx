@@ -15,11 +15,11 @@ export function useLeaveSubmit({ type, onSuccess }: UseLeaveSubmitParams) {
   
   const handleSubmit = async (data: LeaveFormValues) => {
     try {
-      // First, find the trainee/staff
+      // First, find the trainee/staff with type assertion for pno
       const { data: person, error: findError } = await supabase
         .from(type === 'trainee' ? 'trainees' : 'staff')
         .select('id')
-        .eq('pno', data.pno.toString())
+        .eq('pno', data.pno.toString() as any)
         .single();
 
       if (findError || !person) {
@@ -37,24 +37,24 @@ export function useLeaveSubmit({ type, onSuccess }: UseLeaveSubmitParams) {
         const { error: leaveError } = await supabase
           .from('trainee_leave')
           .insert({
-            trainee_id: person.id,
+            trainee_id: (person as any).id,
             start_date: startDate,
             end_date: endDate,
             reason: data.reason,
             status: 'pending'
-          } as any); // Use type assertion as a workaround
+          });
 
         if (leaveError) throw leaveError;
       } else {
         const { error: leaveError } = await supabase
           .from('staff_leave')
           .insert({
-            staff_id: person.id,
+            staff_id: (person as any).id,
             start_date: startDate,
             end_date: endDate,
             reason: data.reason,
             status: 'pending'
-          } as any); // Use type assertion as a workaround
+          });
 
         if (leaveError) throw leaveError;
       }
@@ -70,18 +70,18 @@ export function useLeaveSubmit({ type, onSuccess }: UseLeaveSubmitParams) {
           await supabase
             .from('trainee_attendance')
             .upsert({
-              trainee_id: person.id,
+              trainee_id: (person as any).id,
               date: formattedDate,
               status: 'on_leave'
-            } as any); // Use type assertion as a workaround
+            });
         } else {
           await supabase
             .from('staff_attendance')
             .upsert({
-              staff_id: person.id,
+              staff_id: (person as any).id,
               date: formattedDate,
               status: 'on_leave'
-            } as any); // Use type assertion as a workaround
+            });
         }
       }
 

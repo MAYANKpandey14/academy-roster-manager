@@ -1,6 +1,33 @@
 
-// Define StaffRank and related types
-export type StaffRank = 'CONST' | 'HC' | 'ASI' | 'SI' | 'INSP' | 'DSP' | 'SP' | 'DCP' | 'CP';
+// Define BloodGroup and StaffRank types
+export type BloodGroup = 'A+' | 'A-' | 'B+' | 'B-' | 'O+' | 'O-' | 'AB+' | 'AB-';
+export type StaffRank = 
+  | 'CONST' 
+  | 'HC' 
+  | 'ASI' 
+  | 'SI' 
+  | 'INSP' 
+  | 'DSP' 
+  | 'SP' 
+  | 'DCP' 
+  | 'CP'
+  // Additional ranks being used in the app 
+  | 'R/ CONST'
+  | 'CONST/ PTI'
+  | 'HC/CP'
+  | 'HC/AP'
+  | 'HC-ITI'
+  | 'HC-PTI'
+  | 'SI/AP'
+  | 'SI/CP'
+  | 'RI'
+  | 'RSI'
+  | 'Inspector'
+  | 'FALL'
+  | 'Sweeper'
+  | 'Barber'
+  | 'Washerman'
+  | 'Peon';
 
 // Define Staff interface with required properties
 export interface Staff {

@@ -59,11 +59,11 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         columns += ', rank';
       }
 
-      // Fix the type assertion for the database query
+      // Fix with type assertion to handle the dynamic query
       const { data, error } = await supabase
         .from(tableName)
         .select(columns)
-        .eq('pno', pno)
+        .eq('pno', pno as any)
         .single();
 
       if (error) {
@@ -78,19 +78,19 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
 
-      // Explicitly type the data to match PersonData interface
+      // Use type assertion to handle the dynamic data shape
       const personData: PersonData = {
-        id: data.id,
-        pno: data.pno,
-        name: data.name,
-        mobile_number: data.mobile_number
+        id: (data as any).id,
+        pno: (data as any).pno,
+        name: (data as any).name,
+        mobile_number: (data as any).mobile_number
       };
 
       // Add type-specific fields with proper type checking
-      if (personType === 'trainee' && data.chest_no) {
-        personData.chest_no = data.chest_no;
-      } else if (personType === 'staff' && data.rank) {
-        personData.rank = data.rank;
+      if (personType === 'trainee' && (data as any).chest_no) {
+        personData.chest_no = (data as any).chest_no;
+      } else if (personType === 'staff' && (data as any).rank) {
+        personData.rank = (data as any).rank;
       }
 
       onPersonFound(personData, personType);

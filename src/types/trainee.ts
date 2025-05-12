@@ -1,7 +1,25 @@
 
 // Define BloodGroup and TraineeRank types
 export type BloodGroup = 'A+' | 'A-' | 'B+' | 'B-' | 'O+' | 'O-' | 'AB+' | 'AB-';
-export type TraineeRank = 'CONST' | 'HC' | 'ASI' | 'SI' | 'INSP' | 'DSP';
+export type TraineeRank = 
+  | 'CONST' 
+  | 'HC' 
+  | 'ASI' 
+  | 'SI' 
+  | 'INSP' 
+  | 'DSP'
+  // Additional ranks being used in the app
+  | 'R/CONST'
+  | 'CONST/PTI'
+  | 'HC/CP'
+  | 'HC/AP'
+  | 'HC-ITI'
+  | 'HC-PTI'
+  | 'SI/AP'
+  | 'SI/CP'
+  | 'RI'
+  | 'RSI'
+  | 'Inspector';
 
 // Define Trainee interface with required properties
 export interface Trainee {

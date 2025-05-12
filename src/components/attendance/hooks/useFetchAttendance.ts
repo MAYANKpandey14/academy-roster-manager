@@ -39,7 +39,7 @@ export const useFetchAttendance = (
         
         let query = supabase.from(tableName).select('*');
         
-        // Fix type handling for dynamic queries
+        // Fix type handling for dynamic queries with type assertion
         query = query.eq(idField, userId as any);
         
         if (startDate && endDate) {
@@ -58,7 +58,7 @@ export const useFetchAttendance = (
         }> = {};
         
         // Use proper type assertion for safety
-        attendanceRecords?.forEach((record: any) => {
+        (attendanceRecords || []).forEach((record: any) => {
           const dateString = format(new Date(record.date), 'yyyy-MM-dd');
           formattedAttendance[dateString] = {
             status: record.status || 'absent',
@@ -74,7 +74,7 @@ export const useFetchAttendance = (
         
         let leaveQuery = supabase.from(leaveMapping.tableName).select('*');
         
-        // Fix type handling for dynamic queries
+        // Fix type handling for dynamic queries with type assertion
         leaveQuery = leaveQuery.eq(leaveMapping.idField, userId as any);
         
         if (startDate && endDate) {
@@ -137,8 +137,9 @@ export const useFetchAttendance = (
           date,
           type,
           approval_status: data.approval_status as any,
-          reason: data.reason || data.status
-        });
+          reason: data.reason || data.status,
+          status: data.status // Include status for backward compatibility
+        } as AttendanceRecord);
       }
     });
     
@@ -159,7 +160,8 @@ export const useFetchAttendance = (
         approval_status: leave.status as any,
         reason: leave.reason,
         absence_type: leave.leave_type,
-        duration: `${durationDays} ${durationDays === 1 ? 'day' : 'days'}`
+        duration: `${durationDays} ${durationDays === 1 ? 'day' : 'days'}`,
+        status: leave.status // Include status for backward compatibility
       } as AttendanceRecord);
     });
     

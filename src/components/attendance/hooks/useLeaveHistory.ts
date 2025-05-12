@@ -29,11 +29,11 @@ export const useAbsences = (personId?: string) => {
     queryFn: async () => {
       if (!personId) return [];
       
-      // Fix type handling for Supabase query
+      // Fix type handling for Supabase query with type assertion
       const { data, error } = await supabase
         .from('trainee_attendance')
         .select('*')
-        .eq('trainee_id', personId)
+        .eq('trainee_id', personId as any)
         .order('date', { ascending: false });
       
       if (error) {
@@ -60,11 +60,11 @@ export const useLeaves = (personId?: string) => {
     queryFn: async () => {
       if (!personId) return [];
       
-      // Fix type handling for Supabase query
+      // Fix type handling for Supabase query with type assertion
       const { data, error } = await supabase
         .from('trainee_leave')
         .select('*')
-        .eq('trainee_id', personId)
+        .eq('trainee_id', personId as any)
         .order('start_date', { ascending: false });
       
       if (error) {
