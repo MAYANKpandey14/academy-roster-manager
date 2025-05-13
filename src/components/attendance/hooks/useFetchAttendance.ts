@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -62,12 +63,13 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
           const specialStatuses = ['suspension', 'resignation', 'termination'];
           const isSpecialStatus = specialStatuses.includes(item.status?.toLowerCase());
           
-          // Fix: Use the status as the type, but keep the original reason
-          const type = isSpecialStatus ? item.status.toLowerCase() : 'absent';
-          
-          // Fix: Use the actual reason field, not the status as the reason
-          const reason = item.reason || item.status;
-          
+          const type = isSpecialStatus 
+            ? item.status.toLowerCase() 
+            : 'absent';
+            
+          // Always use status as the reason
+          const reason = item.status;
+            
           // Apply the approval logic
           const absenceType = isSpecialStatus ? item.status.toLowerCase() : 'absent';
           

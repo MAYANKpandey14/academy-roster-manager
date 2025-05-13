@@ -67,7 +67,7 @@ export function useAttendanceSubmit({ personType, personId, onSuccess }: UseAtte
         status: values.status,
         date: values.startDate,
         endDate: values.endDate || values.startDate,
-        reason: values.reason, // Make sure we're passing the actual reason
+        reason: values.reason,
         leaveType: values.leaveType
       };
       

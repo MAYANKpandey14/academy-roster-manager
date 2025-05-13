@@ -106,7 +106,6 @@ serve(async (req) => {
           );
         } else {
           // Absence record handling (includes absent, suspension, resignation, termination)
-          // Important: Pass the reason as is, not the status
           result = await handleAbsenceRequest(
             supabaseClient,
             "staff_attendance",
@@ -114,7 +113,7 @@ serve(async (req) => {
             staffId as string,
             date,
             status,
-            reason, // Pass the actual reason
+            reason,
             approvalStatus
           );
         }
