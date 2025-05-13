@@ -124,7 +124,8 @@ export async function handleAbsenceRequest(
     result = await supabaseClient
       .from(tableName)
       .update({ 
-        status: status === "absent" ? reason : status,
+        status: status, // Store the status as status
+        reason: reason, // Store the reason as reason
         approval_status: approvalStatus
       })
       .eq("id", existingRecord.id)
@@ -136,7 +137,8 @@ export async function handleAbsenceRequest(
       .insert({
         [personIdField]: personId,
         date,
-        status: status === "absent" ? reason : status,
+        status: status, // Store the status as status
+        reason: reason, // Store the reason as reason
         approval_status: approvalStatus
       })
       .select();
