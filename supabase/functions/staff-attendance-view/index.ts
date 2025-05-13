@@ -21,10 +21,23 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
-    // Get attendance by ID or PNO
-    const url = new URL(req.url);
-    const id = url.searchParams.get("id");
-    const pno = url.searchParams.get("pno");
+    // Get request parameters (either from URL or request body)
+    let id, pno;
+    try {
+      const url = new URL(req.url);
+      id = url.searchParams.get("id");
+      pno = url.searchParams.get("pno");
+      
+      // If parameters weren't in URL, check request body
+      if (!id && !pno) {
+        const requestData = await req.json().catch(() => ({}));
+        id = requestData.id;
+        pno = requestData.pno;
+      }
+    } catch (error) {
+      console.error("Error parsing request:", error);
+      // Continue execution - parameters might be in body
+    }
 
     if (!id && !pno) {
       return new Response(
@@ -36,6 +49,7 @@ serve(async (req) => {
       );
     }
 
+    // Query for the person
     let personQuery = supabaseClient
       .from("staff")
       .select("id, pno, name, rank, mobile_number");
@@ -47,11 +61,22 @@ serve(async (req) => {
       personQuery = personQuery.eq("pno", pno);
     }
 
-    const { data: person, error: personError } = await personQuery.single();
+    // Use maybeSingle() to avoid errors when no results are found
+    const { data: person, error: personError } = await personQuery.maybeSingle();
 
-    if (personError || !person) {
+    if (personError) {
       return new Response(
-        JSON.stringify({ error: "Staff not found", details: personError }),
+        JSON.stringify({ error: "Database error", details: personError }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    if (!person) {
+      return new Response(
+        JSON.stringify({ error: "Staff member not found" }),
         {
           status: 404,
           headers: { ...corsHeaders, "Content-Type": "application/json" },

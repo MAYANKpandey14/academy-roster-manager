@@ -27,14 +27,14 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
     queryFn: async () => {
       if (!personId) return [];
       
-      // Get table names based on person type
-      const absenceTable = personType === 'trainee' ? 'trainee_attendance' : 'staff_attendance';
-      const absenceIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
-      
-      const leaveTable = personType === 'trainee' ? 'trainee_leave' : 'staff_leave';
-      const leaveIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
-
       try {
+        // Get table names based on person type
+        const absenceTable = personType === 'trainee' ? 'trainee_attendance' : 'staff_attendance';
+        const absenceIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
+        
+        const leaveTable = personType === 'trainee' ? 'trainee_leave' : 'staff_leave';
+        const leaveIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
+
         // Fetch absence data
         const absenceResponse = await supabase
           .from(absenceTable)
@@ -109,7 +109,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
             type: 'on_leave',
             reason: item.reason || '',
             leave_type: item.leave_type,
-            approvalStatus: approvalStatus,
+            approvalStatus,
             absenceType: 'on_leave' // All leaves are of type on_leave
           };
         });

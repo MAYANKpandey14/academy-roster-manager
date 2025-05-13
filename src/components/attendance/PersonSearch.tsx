@@ -57,18 +57,25 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         columns += ', rank';
       }
 
+      // Use maybeSingle instead of single to avoid errors when no results are found
       const { data, error } = await supabase
         .from(tableName)
         .select(columns)
         .eq('pno', pno)
-        .limit(1)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error searching person:", error);
         toast.error(isHindi
           ? "व्यक्ति खोजने में त्रुटि"
           : "Error searching for person");
+        return;
+      }
+
+      if (!data) {
+        toast.error(isHindi
+          ? "कोई व्यक्ति नहीं मिला"
+          : "No person found with this PNO");
         return;
       }
 
