@@ -1,27 +1,26 @@
 
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Search } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
+// Define a generic error type
+interface GenericError {
+  message: string;
+}
+
+// Interface for person data
 export interface PersonData {
   id: string;
   pno: string;
   name: string;
-  rank?: string;
-  chest_no?: string;
   mobile_number: string;
+  // Trainee-specific fields
+  chest_no?: string;
+  // Staff-specific fields
+  rank?: string;
 }
 
 interface PersonSearchProps {
@@ -30,143 +29,117 @@ interface PersonSearchProps {
 
 export function PersonSearch({ onPersonFound }: PersonSearchProps) {
   const { isHindi } = useLanguage();
-  const [pno, setPno] = useState("");
-  const [personType, setPersonType] = useState<'trainee' | 'staff'>('trainee');
-  const [isSearching, setIsSearching] = useState(false);
-
-  const handleSearch = async (e: React.FormEvent) => {
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  
+  const handleSearch = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    if (!pno) {
-      toast.error(isHindi
-        ? "कृपया पी.एन.ओ./ यूनिक आईडी दर्ज करें"
-        : "Please enter the PNO/ Unique ID");
+    
+    if (!searchQuery.trim()) {
+      toast.error(isHindi ? "कृपया पीएनओ दर्ज करें" : "Please enter a PNO");
       return;
     }
-
-    setIsSearching(true);
-
+    
+    setIsLoading(true);
+    
     try {
-      const tableName = personType === 'trainee' ? 'trainees' : 'staff';
-
-      // Define specific columns to select based on person type
-      let columns = 'id, pno, name, mobile_number';
-      if (personType === 'trainee') {
-        columns += ', chest_no';
-      } else {
-        columns += ', rank';
-      }
-
-      // Use maybeSingle instead of single to avoid errors when no results are found
-      const { data, error } = await supabase
-        .from(tableName)
-        .select(columns)
-        .eq('pno', pno)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Error searching person:", error);
-        toast.error(isHindi
-          ? "व्यक्ति खोजने में त्रुटि"
-          : "Error searching for person");
+      // First, try to search for a trainee
+      const traineeResult = await searchPerson("trainee", searchQuery);
+      
+      if (traineeResult && 'person' in traineeResult) {
+        // Found a trainee
+        const traineeData: PersonData = {
+          id: traineeResult.person.id,
+          pno: traineeResult.person.pno,
+          name: traineeResult.person.name,
+          mobile_number: traineeResult.person.mobile_number,
+          chest_no: traineeResult.person.chest_no
+        };
+        onPersonFound(traineeData, 'trainee');
         return;
       }
-
-      if (!data) {
-        toast.error(isHindi
-          ? "कोई व्यक्ति नहीं मिला"
-          : "No person found with this PNO");
+      
+      // If no trainee found, try to search for staff
+      const staffResult = await searchPerson("staff", searchQuery);
+      
+      if (staffResult && 'person' in staffResult) {
+        // Found staff
+        const staffData: PersonData = {
+          id: staffResult.person.id,
+          pno: staffResult.person.pno,
+          name: staffResult.person.name,
+          mobile_number: staffResult.person.mobile_number,
+          rank: staffResult.person.rank
+        };
+        onPersonFound(staffData, 'staff');
         return;
       }
-
-      // Create a properly typed PersonData object
-      const personData: PersonData = {
-        id: data.id,
-        pno: data.pno,
-        name: data.name,
-        mobile_number: data.mobile_number
-      };
-
-      // Add type-specific fields
-      if (personType === 'trainee' && data.chest_no) {
-        personData.chest_no = data.chest_no;
-      } else if (personType === 'staff' && data.rank) {
-        personData.rank = data.rank;
-      }
-
-      onPersonFound(personData, personType);
-
+      
+      // No person found
+      toast.error(isHindi 
+        ? "कोई व्यक्ति नहीं मिला" 
+        : "No person found"
+      );
+      
     } catch (error) {
       console.error("Error searching person:", error);
-      toast.error(isHindi
-        ? "व्यक्ति खोजने में त्रुटि"
-        : "Error searching for person");
+      toast.error(isHindi 
+        ? "व्यक्ति खोजने में त्रुटि" 
+        : "Error searching person"
+      );
     } finally {
-      setIsSearching(false);
+      setIsLoading(false);
+    }
+  };
+  
+  // Generic function to search for a person (trainee or staff)
+  const searchPerson = async (type: 'trainee' | 'staff', pno: string) => {
+    try {
+      const functionName = `${type}-attendance-view`;
+      const { data, error } = await supabase.functions.invoke(functionName, {
+        body: { pno }
+      });
+      
+      if (error) {
+        console.error(`Error calling ${functionName}:`, error);
+        throw error;
+      }
+      
+      return data;
+    } catch (error) {
+      console.error(`Error searching for ${type}:`, error);
+      throw error;
     }
   };
 
   return (
-    <form onSubmit={handleSearch} className="space-y-4 animate-fade-in">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="personType" className={isHindi ? "font-hindi" : ""}>
-            {isHindi ? "व्यक्ति का प्रकार" : "Person Type"}
-          </Label>
-          <Select
-            value={personType}
-            onValueChange={(value: 'trainee' | 'staff') => setPersonType(value)}
-          >
-            <SelectTrigger id="personType" className="transition-all duration-200">
-              <SelectValue placeholder={isHindi ? "प्रकार चुनें" : "Select type"} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="trainee">
-                <span className={isHindi ? "font-hindi" : ""}>
-                  {isHindi ? "प्रशिक्षु" : "Trainee"}
-                </span>
-              </SelectItem>
-              <SelectItem value="staff">
-                <span className={isHindi ? "font-hindi" : ""}>
-                  {isHindi ? "स्टाफ" : "Staff"}
-                </span>
-              </SelectItem>
-            </SelectContent>
-          </Select>
+    <form onSubmit={handleSearch} className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="md:col-span-3">
+          <Input
+            type="text"
+            placeholder={isHindi ? "पीएनओ दर्ज करें" : "Enter PNO"}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={`transition-all duration-200 ${isHindi ? "font-mangal" : ""}`}
+          />
         </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="pno" className={isHindi ? "font-hindi" : ""}>
-            {isHindi ? "पीएनओ नंबर" : "PNO Number"}
-          </Label>
-          <div className="flex space-x-2">
-            <Input
-              id="pno"
-              value={pno}
-              onChange={(e) => setPno(e.target.value)}
-              placeholder={isHindi ? "पीएनओ/ यूनिक आईडी दर्ज करें" : "Enter PNO/ Unique ID"}
-              className={isHindi ? "font-hindi" : ""}
-              maxLength={12}
-            />
-            <Button
-              type="submit"
-              disabled={isSearching}
-              className="transition-all duration-200 hover:scale-105 active:scale-95"
-            >
-              {isSearching ? (
-                <span className={isHindi ? "font-hindi" : ""}>
-                  {isHindi ? "खोज रहा है..." : "Searching..."}
-                </span>
-              ) : (
-                <>
-                  <Search className="h-4 w-4 mr-2" />
-                  <span className={isHindi ? "font-hindi" : ""}>
-                    {isHindi ? "खोजें" : "Search"}
-                  </span>
-                </>
-              )}
-            </Button>
-          </div>
+        <div>
+          <Button 
+            type="submit" 
+            disabled={isLoading} 
+            className="w-full"
+          >
+            {isLoading ? (
+              <span className={isHindi ? "font-mangal" : ""}>
+                {isHindi ? "खोज रहा है..." : "Searching..."}
+              </span>
+            ) : (
+              <span className={isHindi ? "font-mangal" : ""}>
+                {isHindi ? "खोजें" : "Search"}
+              </span>
+            )}
+          </Button>
         </div>
       </div>
     </form>

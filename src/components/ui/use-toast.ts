@@ -1,4 +1,7 @@
 
-import { useToast, toast } from "@/hooks/use-toast";
+// Using Sonner toast library
+import { useToast as useSonnerToast, toast } from "sonner";
 
-export { useToast, toast };
+// Re-export the sonner toast functions
+export const useToast = useSonnerToast;
+export { toast };
