@@ -79,6 +79,14 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
 
+      // Ensure data has the required properties before creating the PersonData object
+      if (typeof data.id !== 'string' || typeof data.pno !== 'string' || 
+          typeof data.name !== 'string' || typeof data.mobile_number !== 'string') {
+        console.error("Invalid data structure:", data);
+        toast.error("Invalid data format received");
+        return;
+      }
+
       // Create a properly typed PersonData object
       const personData: PersonData = {
         id: data.id,
@@ -87,10 +95,10 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         mobile_number: data.mobile_number
       };
 
-      // Add type-specific fields
-      if (personType === 'trainee' && 'chest_no' in data && data.chest_no) {
+      // Add type-specific fields with proper type checking
+      if (personType === 'trainee' && 'chest_no' in data && typeof data.chest_no === 'string') {
         personData.chest_no = data.chest_no;
-      } else if (personType === 'staff' && 'rank' in data && data.rank) {
+      } else if (personType === 'staff' && 'rank' in data && typeof data.rank === 'string') {
         personData.rank = data.rank;
       }
 

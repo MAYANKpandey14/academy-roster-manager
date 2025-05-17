@@ -8,7 +8,7 @@ export interface AttendanceRecord {
   recordId: string; // Original database record ID
   recordType: 'absence' | 'leave'; // To identify record type for approval actions
   date: string;
-  type: string; // Using string type to avoid recursive type definition
+  type: string; // Using a simple string type to avoid recursive type definition
   reason?: string;
   leave_type?: string;
   approvalStatus: 'approved' | 'pending' | 'rejected';
@@ -67,8 +67,8 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
             ? item.status.toLowerCase() 
             : 'absent';
             
-          // Always use status as the reason
-          const reason = item.status;
+          // Always use status as the reason if reason is not provided
+          const reason = item.reason || item.status;
             
           // Apply the approval logic
           const absenceType = isSpecialStatus ? item.status.toLowerCase() : 'absent';
