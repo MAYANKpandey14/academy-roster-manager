@@ -44,3 +44,4 @@ verify_jwt = false
 [[functions]]
 name = "attendance-manage"
 verify_jwt = false
+

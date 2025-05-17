@@ -79,24 +79,27 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
 
-      // Create a properly typed PersonData object with type assertion
+      // Create a properly typed PersonData object
       const personData: PersonData = {
-        id: data.id as string,
-        pno: data.pno as string,
-        name: data.name as string,
-        mobile_number: data.mobile_number as string
+        id: data.id,
+        pno: data.pno,
+        name: data.name,
+        mobile_number: data.mobile_number
       };
 
-      // Add type-specific fields with type checking
+      // Add type-specific fields
       if (personType === 'trainee' && 'chest_no' in data && data.chest_no) {
-        personData.chest_no = data.chest_no as string;
+        personData.chest_no = data.chest_no;
       } else if (personType === 'staff' && 'rank' in data && data.rank) {
-        personData.rank = data.rank as string;
+        personData.rank = data.rank;
       }
 
       onPersonFound(personData, personType);
+      toast.success(isHindi
+        ? "व्यक्ति मिल गया"
+        : "Person found successfully");
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error searching person:", error);
       toast.error(isHindi
         ? "व्यक्ति खोजने में त्रुटि"

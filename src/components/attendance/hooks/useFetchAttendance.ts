@@ -8,7 +8,7 @@ export interface AttendanceRecord {
   recordId: string; // Original database record ID
   recordType: 'absence' | 'leave'; // To identify record type for approval actions
   date: string;
-  type: string; // Using string instead of union type to avoid recursion
+  type: string; // Using string type to avoid recursive type definition
   reason?: string;
   leave_type?: string;
   approvalStatus: 'approved' | 'pending' | 'rejected';
