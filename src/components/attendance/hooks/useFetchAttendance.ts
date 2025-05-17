@@ -9,8 +9,8 @@ export interface AttendanceRecord {
   date: string;
   type: string;
   reason?: string;
-  approvalStatus: string;
-  recordType: 'attendance' | 'leave';
+  approvalStatus: "pending" | "approved" | "rejected";
+  recordType: "absence" | "leave";
   recordId: string;
   leave_type?: string;
 }
@@ -73,8 +73,8 @@ export function useFetchAttendance(
           id: `attendance-${record.id}`,
           date: format(new Date(record.date), 'yyyy-MM-dd'),
           type: record.status || 'present',
-          approvalStatus: record.approval_status || 'pending',
-          recordType: 'attendance' as const,
+          approvalStatus: (record.approval_status || 'pending') as "pending" | "approved" | "rejected",
+          recordType: "absence",
           recordId: record.id,
         }));
         
@@ -84,8 +84,8 @@ export function useFetchAttendance(
           date: `${format(new Date(record.start_date), 'yyyy-MM-dd')} to ${format(new Date(record.end_date), 'yyyy-MM-dd')}`,
           type: 'on_leave',
           reason: record.reason,
-          approvalStatus: record.status || 'pending',
-          recordType: 'leave' as const,
+          approvalStatus: (record.status || 'pending') as "pending" | "approved" | "rejected",
+          recordType: "leave",
           recordId: record.id,
           leave_type: record.leave_type
         }));

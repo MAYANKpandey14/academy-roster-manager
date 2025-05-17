@@ -35,9 +35,21 @@ const searchSchema = z.object({
 
 type SearchValues = z.infer<typeof searchSchema>;
 
-interface PersonSearchProps {
+// Export the PersonData interface so it can be imported by other components
+export interface PersonData {
+  id: string;
+  name: string;
+  pno: string;
+  rank?: string;
+  chest_no?: string;
+  current_posting_district?: string;
+  photo_url?: string | null;
+  mobile_number?: string;
+}
+
+export interface PersonSearchProps {
   onPersonSelected: (
-    person: Staff | Trainee | null,
+    person: PersonData | null,
     type: "staff" | "trainee"
   ) => void;
 }
@@ -80,7 +92,8 @@ export function PersonSearch({ onPersonSelected }: PersonSearchProps) {
             rank: data.rank ?? "",
             current_posting_district: data.current_posting_district ?? "",
             photo_url: data.photo_url ?? null,
-          } as Staff, "staff");
+            mobile_number: data.mobile_number,
+          } as PersonData, "staff");
           setSearchSuccess(true);
         } else {
           throw new Error("Staff member not found");
@@ -103,7 +116,8 @@ export function PersonSearch({ onPersonSelected }: PersonSearchProps) {
             chest_no: data.chest_no ?? "",
             current_posting_district: data.current_posting_district ?? "",
             photo_url: data.photo_url ?? null,
-          } as Trainee, "trainee");
+            mobile_number: data.mobile_number,
+          } as PersonData, "trainee");
           setSearchSuccess(true);
         } else {
           throw new Error("Trainee not found");

@@ -27,7 +27,7 @@ interface AttendanceHistoryProps {
 
 export const AttendanceHistory = ({ personId, personType, personData }: AttendanceHistoryProps) => {
   const { isHindi } = useLanguage();
-  const { data: attendanceRecords, isLoading } = useFetchAttendance(personId, personType);
+  const { records: attendanceRecords, isLoading } = useFetchAttendance(personId, personType);
   const [isExporting, setIsExporting] = useState(false);
 
   const handlePrintClick = () => {

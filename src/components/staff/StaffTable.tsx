@@ -34,11 +34,26 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
     exportStaffToExcel([staffMember], isHindi);
   };
   
+  // Adapter functions to convert between types for print/download actions
+  const handlePrintStaff = (staffId: string) => {
+    const staffToPrint = staff.find(s => s.id === staffId);
+    if (staffToPrint) {
+      handlePrintAction([staffToPrint]);
+    }
+  };
+
+  const handleDownloadStaff = (staffId: string) => {
+    const staffToDownload = staff.find(s => s.id === staffId);
+    if (staffToDownload) {
+      handleDownloadAction([staffToDownload]);
+    }
+  };
+  
   const columns = getStaffColumns(
     isHindi, 
     isLoading, 
-    handlePrintAction,
-    handleDownloadAction,
+    handlePrintStaff,
+    handleDownloadStaff,
     onRefresh, // Pass onRefresh as handleDelete
     handleExcelExport
   );

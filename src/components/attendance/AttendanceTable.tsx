@@ -24,7 +24,7 @@ interface AttendanceTableProps {
 
 export const AttendanceTable = ({ personId, personType, personData }: AttendanceTableProps) => {
   const { isHindi } = useLanguage();
-  const { data: attendanceRecords, isLoading } = useFetchAttendance(personId, personType);
+  const { records: attendanceRecords, isLoading } = useFetchAttendance(personId, personType);
 
   const handlePrintClick = () => {
     const printContent = document.getElementById('attendance-table')?.outerHTML;

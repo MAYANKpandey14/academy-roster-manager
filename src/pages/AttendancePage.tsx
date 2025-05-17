@@ -18,7 +18,7 @@ export default function AttendancePage() {
   // Apply language-specific classes to inputs
   useLanguageInputs();
 
-  const handlePersonFound = (foundPerson: PersonData, type: 'trainee' | 'staff') => {
+  const handlePersonSelected = (foundPerson: PersonData | null, type: 'trainee' | 'staff') => {
     setPerson(foundPerson);
     setPersonType(type);
   };
@@ -37,7 +37,7 @@ export default function AttendancePage() {
         </h1>
         
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 animate-scale-in">
-          <PersonSearch onPersonFound={handlePersonFound} />
+          <PersonSearch onPersonSelected={handlePersonSelected} />
           
           {person && (
             <div className="mt-6 space-y-6 animate-fade-in">
