@@ -1,4 +1,3 @@
-
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
@@ -94,6 +93,10 @@ const router = createBrowserRouter([
     // Add a redirect from the old register path to trainee-register
     path: "register",
     element: <Navigate to="/trainee-register" replace />,
+  },
+  {
+    path: "/staff-register",
+    element: <StaffRegister />,
   },
   {
     path: "*",

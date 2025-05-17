@@ -15,6 +15,9 @@ export interface AttendanceRecord {
   absenceType?: string; // To track the original absence type
 }
 
+// Define a simple type for data from database to avoid excessive type checking
+type DatabaseRecord = Record<string, unknown>;
+
 // Helper to determine if a status requires approval
 function requiresApproval(status: string): boolean {
   return ['on_leave', 'resignation'].includes(status);
@@ -35,9 +38,6 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         const leaveTable = personType === 'trainee' ? 'trainee_leave' : 'staff_leave';
         const leaveIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
 
-        // Type for attendance data from database
-        type AttendanceData = Record<string, any>;
-
         // Fetch absence data
         const absenceResponse = await supabase
           .from(absenceTable)
@@ -47,7 +47,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
           .limit(50);
         
         if (absenceResponse.error) throw absenceResponse.error;
-        const absences = absenceResponse.data || [];
+        const absences: DatabaseRecord[] = absenceResponse.data || [];
         
         // Fetch leave data
         const leaveResponse = await supabase
@@ -58,60 +58,60 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
           .limit(50);
 
         if (leaveResponse.error) throw leaveResponse.error;
-        const leaves = leaveResponse.data || [];
+        const leaves: DatabaseRecord[] = leaveResponse.data || [];
 
         // Format absences
-        const formattedAbsences: AttendanceRecord[] = absences.map((item: AttendanceData) => {
+        const formattedAbsences: AttendanceRecord[] = absences.map((item: DatabaseRecord) => {
           // Check if the status is one of our special statuses
+          const status = String(item.status || '');
           const specialStatuses = ['suspension', 'resignation', 'termination'];
-          const isSpecialStatus = specialStatuses.includes(item.status?.toLowerCase());
+          const isSpecialStatus = specialStatuses.includes(status.toLowerCase());
           
-          const type = isSpecialStatus 
-            ? item.status.toLowerCase() 
-            : 'absent';
-            
+          const type = isSpecialStatus ? status.toLowerCase() : 'absent';
+          
           // Always use status as the reason if reason is not provided
-          const reason = item.reason || item.status;
+          const reason = String(item.reason || status);
             
           // Apply the approval logic
-          const absenceType = isSpecialStatus ? item.status.toLowerCase() : 'absent';
+          const absenceType = isSpecialStatus ? status.toLowerCase() : 'absent';
           
           // Use the database approval_status value, defaulting to auto-approval logic if not set
-          const approvalStatus = item.approval_status?.toLowerCase() || 
+          const approvalStatus = String(item.approval_status || '').toLowerCase() as 'approved' | 'pending' | 'rejected' || 
             (requiresApproval(absenceType) ? 'pending' : 'approved');
 
           return {
-            id: `absence-${item.id}`,
-            recordId: item.id,
+            id: `absence-${String(item.id)}`,
+            recordId: String(item.id),
             recordType: 'absence',
-            date: item.date,
+            date: String(item.date),
             type,
             reason,
-            approvalStatus,
+            approvalStatus: approvalStatus as 'approved' | 'pending' | 'rejected',
             absenceType
           };
         });
 
         // Format leaves
-        const formattedLeaves: AttendanceRecord[] = leaves.map((item: AttendanceData) => {
+        const formattedLeaves: AttendanceRecord[] = leaves.map((item: DatabaseRecord) => {
           // Format date range for leaves
-          const dateDisplay = item.start_date === item.end_date 
-            ? item.start_date 
-            : `${item.start_date} - ${item.end_date}`;
+          const startDate = String(item.start_date || '');
+          const endDate = String(item.end_date || '');
+          const dateDisplay = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
             
           // Map leave status to our approval status
-          const approvalStatus = (item.status === 'approved' || item.status === 'rejected')
-            ? item.status
+          const status = String(item.status || '').toLowerCase();
+          const approvalStatus = (status === 'approved' || status === 'rejected')
+            ? status as 'approved' | 'rejected'
             : 'pending';
 
           return {
-            id: `leave-${item.id}`,
-            recordId: item.id,
+            id: `leave-${String(item.id)}`,
+            recordId: String(item.id),
             recordType: 'leave',
             date: dateDisplay,
             type: 'on_leave',
-            reason: item.reason || '',
-            leave_type: item.leave_type,
+            reason: String(item.reason || ''),
+            leave_type: String(item.leave_type || ''),
             approvalStatus,
             absenceType: 'on_leave' // All leaves are of type on_leave
           };

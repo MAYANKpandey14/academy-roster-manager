@@ -12,7 +12,7 @@ port = 54322
 [studio]
 port = 54323
 
-# Only keep essential Edge Functions
+# Edge Functions
 [[functions]]
 name = "add-trainee"
 verify_jwt = true

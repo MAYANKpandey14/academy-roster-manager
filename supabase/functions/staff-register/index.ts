@@ -22,6 +22,8 @@ serve(async (req) => {
 
     // Process staff registration
     if (req.method === "POST") {
+      console.log("Processing staff registration request");
+      
       // Parse the request body
       const staffData = await req.json();
 
@@ -34,6 +36,7 @@ serve(async (req) => {
 
       for (const field of requiredFields) {
         if (!staffData[field]) {
+          console.log(`Missing required field: ${field}`);
           return new Response(
             JSON.stringify({ error: `Missing required field: ${field}` }),
             {
@@ -52,6 +55,7 @@ serve(async (req) => {
         .maybeSingle();
 
       if (searchError) {
+        console.error("Error checking PNO uniqueness:", searchError);
         return new Response(
           JSON.stringify({ error: "Error checking PNO uniqueness", details: searchError }),
           {
@@ -62,6 +66,7 @@ serve(async (req) => {
       }
 
       if (existingStaff) {
+        console.log("PNO already exists:", staffData.pno);
         return new Response(
           JSON.stringify({ error: "A staff member with this PNO already exists" }),
           {
@@ -89,6 +94,7 @@ serve(async (req) => {
         );
       }
 
+      console.log("Staff registered successfully:", data.id);
       return new Response(
         JSON.stringify({ 
           message: "Staff registered successfully", 

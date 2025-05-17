@@ -57,7 +57,7 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         columns += ', rank';
       }
 
-      // Use maybeSingle instead of single to avoid errors when no results are found
+      // Use the Supabase client to query the data
       const { data, error } = await supabase
         .from(tableName)
         .select(columns)
@@ -80,8 +80,8 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
       }
 
       // Validate the data structure before proceeding
-      if (!data.id || !data.pno || !data.name || !data.mobile_number) {
-        console.error("Invalid or missing data fields:", data);
+      if (!data || typeof data !== 'object') {
+        console.error("Invalid data received:", data);
         toast.error(isHindi
           ? "अमान्य डेटा प्रारूप प्राप्त हुआ"
           : "Invalid data format received");
@@ -90,17 +90,17 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
 
       // Create a properly typed PersonData object with type assertions
       const personData: PersonData = {
-        id: String(data.id),
-        pno: String(data.pno),
-        name: String(data.name),
-        mobile_number: String(data.mobile_number)
+        id: String(data.id || ''),
+        pno: String(data.pno || ''),
+        name: String(data.name || ''),
+        mobile_number: String(data.mobile_number || '')
       };
 
       // Add type-specific fields with proper type checking
-      if (personType === 'trainee' && 'chest_no' in data && data.chest_no) {
-        personData.chest_no = String(data.chest_no);
-      } else if (personType === 'staff' && 'rank' in data && data.rank) {
-        personData.rank = String(data.rank);
+      if (personType === 'trainee' && 'chest_no' in data) {
+        personData.chest_no = String(data.chest_no || '');
+      } else if (personType === 'staff' && 'rank' in data) {
+        personData.rank = String(data.rank || '');
       }
 
       onPersonFound(personData, personType);
