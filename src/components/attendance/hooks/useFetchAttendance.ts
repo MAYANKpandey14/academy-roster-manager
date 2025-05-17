@@ -58,10 +58,10 @@ export function useFetchAttendance(
           
         if (attendanceError) throw attendanceError;
         
-        // Fetch leave records - Fix the excessive type instantiation by simplifying the query
+        // Fetch leave records with simplified type handling
         const { data: leaveData, error: leaveError } = await supabase
           .from(leaveTable)
-          .select('*')
+          .select('id, start_date, end_date, reason, status, leave_type')
           .eq(personIdColumn, personId)
           .order('start_date', { ascending: false });
           

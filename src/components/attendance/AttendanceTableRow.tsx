@@ -85,8 +85,8 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
       <TableCell>
         <ApprovalStatus
           status={record.approvalStatus}
-          recordType={record.recordType}
-          recordId={record.recordId}
+          type={record.recordType === "absence" ? "attendance" : "leave"}
+          id={record.recordId}
           personType={personType}
           onChange={() => {}}
           readonly

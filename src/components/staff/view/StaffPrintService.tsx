@@ -4,6 +4,8 @@ import { createStaffPrintContent, createStaffCSVContent } from "@/utils/staffExp
 import { handlePrint, handleDownload, exportStaffToExcel } from "@/utils/export";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useFetchAttendance } from "@/components/attendance/hooks/useFetchAttendance";
+import { createPersonWithAttendancePrintContent } from "@/utils/export/attendancePrintUtils";
 
 export interface StaffPrintServiceProps {
   staff: Staff;
@@ -11,8 +13,11 @@ export interface StaffPrintServiceProps {
 
 export function useStaffPrintService(staff: Staff) {
   const { isHindi } = useLanguage();
-  // Use isHindi directly to determine language
-  const currentLanguage = isHindi ? 'hi' : 'en';
+  
+  // Fetch attendance records for the staff if available
+  const { records: attendanceRecords } = staff?.id ? 
+    useFetchAttendance(staff.id, 'staff') : 
+    { records: [], isLoading: false, error: null };
 
   const handlePrintStaff = () => {
     // Ensure the staff object has the photo_url property before printing
@@ -21,13 +26,31 @@ export function useStaffPrintService(staff: Staff) {
       photo_url: staff.photo_url || null
     };
     
-    const printContent = createStaffPrintContent([staffWithPhoto], isHindi);
-    const printSuccess = handlePrint(printContent);
-    
-    if (!printSuccess) {
-      toast.error(isHindi ? "प्रिंट विंडो खोलने में विफल" : "Failed to open print window. Please check your pop-up blocker settings.");
+    // Use the enhanced print format that includes attendance records
+    if (attendanceRecords.length > 0) {
+      const content = createPersonWithAttendancePrintContent(
+        staffWithPhoto,
+        'staff',
+        attendanceRecords,
+        isHindi
+      );
+      const printSuccess = handlePrint(content);
+      
+      if (!printSuccess) {
+        toast.error(isHindi ? "प्रिंट विंडो खोलने में विफल" : "Failed to open print window. Please check your pop-up blocker settings.");
+      } else {
+        toast.success(isHindi ? "स्टाफ विवरण प्रिंट हो रहा है..." : "Printing staff details");
+      }
     } else {
-      toast.success(isHindi ? "स्टाफ विवरण प्रिंट हो रहा है..." : "Printing staff details");
+      // Fallback to original print format if no attendance records
+      const printContent = createStaffPrintContent([staffWithPhoto], isHindi);
+      const printSuccess = handlePrint(printContent);
+      
+      if (!printSuccess) {
+        toast.error(isHindi ? "प्रिंट विंडो खोलने में विफल" : "Failed to open print window. Please check your pop-up blocker settings.");
+      } else {
+        toast.success(isHindi ? "स्टाफ विवरण प्रिंट हो रहा है..." : "Printing staff details");
+      }
     }
   };
 

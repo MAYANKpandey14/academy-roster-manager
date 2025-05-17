@@ -6,21 +6,38 @@ import { createPrintContent } from "@/utils/export/traineePrintUtils";
 import { handlePrint as utilHandlePrint } from "@/utils/export/printUtils";
 import { exportTraineesToExcel } from "@/utils/export/traineeExcelUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { createPersonWithAttendancePrintContent } from "@/utils/export/attendancePrintUtils";
+import { useFetchAttendance } from "@/components/attendance/hooks/useFetchAttendance";
 
 export function useTraineePrintService(trainee: Trainee | null) {
   const [isLoading, setIsLoading] = useState(false);
   const { isHindi } = useLanguage();
+  
+  // Fetch attendance records for the trainee if available
+  const { records: attendanceRecords } = trainee?.id ? 
+    useFetchAttendance(trainee.id, 'trainee') : 
+    { records: [], isLoading: false, error: null };
 
   const handlePrint = () => {
     if (!trainee) return;
     
     setIsLoading(true);
     try {
-      const content = createPrintContent([trainee], isHindi);
-      // Use the utility function and don't check its return value directly
-      utilHandlePrint(content);
+      // Use the enhanced print format that includes attendance records
+      if (attendanceRecords.length > 0) {
+        const content = createPersonWithAttendancePrintContent(
+          trainee,
+          'trainee',
+          attendanceRecords,
+          isHindi
+        );
+        utilHandlePrint(content);
+      } else {
+        // Fallback to original print format if there are no attendance records
+        const content = createPrintContent([trainee], isHindi);
+        utilHandlePrint(content);
+      }
       
-      // Just show success toast - the utility function handles opening the print dialog
       toast.success(isHindi ? "प्रिंट विंडो खोल दी गई है" : "Print window opened");
     } catch (error) {
       console.error("Error printing:", error);
