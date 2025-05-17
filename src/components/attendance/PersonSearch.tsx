@@ -79,27 +79,28 @@ export function PersonSearch({ onPersonFound }: PersonSearchProps) {
         return;
       }
 
-      // Ensure data has the required properties before creating the PersonData object
-      if (typeof data.id !== 'string' || typeof data.pno !== 'string' || 
-          typeof data.name !== 'string' || typeof data.mobile_number !== 'string') {
-        console.error("Invalid data structure:", data);
-        toast.error("Invalid data format received");
+      // Validate the data structure before proceeding
+      if (!data.id || !data.pno || !data.name || !data.mobile_number) {
+        console.error("Invalid or missing data fields:", data);
+        toast.error(isHindi
+          ? "अमान्य डेटा प्रारूप प्राप्त हुआ"
+          : "Invalid data format received");
         return;
       }
 
-      // Create a properly typed PersonData object
+      // Create a properly typed PersonData object with type assertions
       const personData: PersonData = {
-        id: data.id,
-        pno: data.pno,
-        name: data.name,
-        mobile_number: data.mobile_number
+        id: String(data.id),
+        pno: String(data.pno),
+        name: String(data.name),
+        mobile_number: String(data.mobile_number)
       };
 
       // Add type-specific fields with proper type checking
-      if (personType === 'trainee' && 'chest_no' in data && typeof data.chest_no === 'string') {
-        personData.chest_no = data.chest_no;
-      } else if (personType === 'staff' && 'rank' in data && typeof data.rank === 'string') {
-        personData.rank = data.rank;
+      if (personType === 'trainee' && 'chest_no' in data && data.chest_no) {
+        personData.chest_no = String(data.chest_no);
+      } else if (personType === 'staff' && 'rank' in data && data.rank) {
+        personData.rank = String(data.rank);
       }
 
       onPersonFound(personData, personType);

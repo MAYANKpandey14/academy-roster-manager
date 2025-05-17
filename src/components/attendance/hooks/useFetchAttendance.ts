@@ -35,6 +35,9 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         const leaveTable = personType === 'trainee' ? 'trainee_leave' : 'staff_leave';
         const leaveIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
 
+        // Type for attendance data from database
+        type AttendanceData = Record<string, any>;
+
         // Fetch absence data
         const absenceResponse = await supabase
           .from(absenceTable)
@@ -58,7 +61,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         const leaves = leaveResponse.data || [];
 
         // Format absences
-        const formattedAbsences: AttendanceRecord[] = absences.map((item: any) => {
+        const formattedAbsences: AttendanceRecord[] = absences.map((item: AttendanceData) => {
           // Check if the status is one of our special statuses
           const specialStatuses = ['suspension', 'resignation', 'termination'];
           const isSpecialStatus = specialStatuses.includes(item.status?.toLowerCase());
@@ -90,7 +93,7 @@ export const useFetchAttendance = (personId?: string, personType: "staff" | "tra
         });
 
         // Format leaves
-        const formattedLeaves: AttendanceRecord[] = leaves.map((item: any) => {
+        const formattedLeaves: AttendanceRecord[] = leaves.map((item: AttendanceData) => {
           // Format date range for leaves
           const dateDisplay = item.start_date === item.end_date 
             ? item.start_date 
