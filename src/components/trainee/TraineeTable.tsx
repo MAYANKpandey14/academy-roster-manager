@@ -14,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { SortAsc } from "lucide-react";
 
 interface TraineeTableProps {
   trainees: Trainee[];
@@ -42,16 +41,17 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
   useEffect(() => {
     let sorted = [...trainees]; // Create a copy to avoid mutating props
     
-    if (sortBy === "toli_no") {
-      sorted = sorted.sort((a, b) => {
-        // Handle null/undefined toli_no values
-        if (!a.toli_no) return 1;
-        if (!b.toli_no) return -1;
-        return a.toli_no.localeCompare(b.toli_no, undefined, { numeric: true });
-      });
-    } else if (sortBy === "chest_no") {
+    if (sortBy === "chest_no") {
       sorted = sorted.sort((a, b) => {
         return a.chest_no.localeCompare(b.chest_no, undefined, { numeric: true });
+      });
+    } else if (sortBy === "pno") {
+      sorted = sorted.sort((a, b) => {
+        return a.pno.localeCompare(b.pno);
+      });
+    } else if (sortBy === "name") {
+      sorted = sorted.sort((a, b) => {
+        return a.name.localeCompare(b.name);
       });
     }
     
@@ -82,11 +82,14 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
                 <SelectItem value="none">
                   {isHindi ? "कोई क्रम नहीं" : "None"}
                 </SelectItem>
-                <SelectItem value="toli_no">
-                  {isHindi ? "टोली नंबर" : "Toli No"}
-                </SelectItem>
                 <SelectItem value="chest_no">
                   {isHindi ? "चेस्ट नंबर" : "Chest No"}
+                </SelectItem>
+                <SelectItem value="pno">
+                  {isHindi ? "पीएनओ" : "PNO"}
+                </SelectItem>
+                <SelectItem value="name">
+                  {isHindi ? "नाम" : "Name"}
                 </SelectItem>
               </SelectGroup>
             </SelectContent>

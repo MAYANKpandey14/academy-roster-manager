@@ -86,7 +86,7 @@ export function useFetchAttendance(
         const leaveTable = personType === 'staff' ? 'staff_leave' : 'trainee_leave';
         const personIdColumn = personType === 'staff' ? 'staff_id' : 'trainee_id';
         
-        // Fetch attendance records with explicit typing
+        // Fetch attendance records
         const { data: attendanceData, error: attendanceError } = await supabase
           .from(attendanceTable)
           .select('*')
@@ -97,7 +97,12 @@ export function useFetchAttendance(
           
         if (attendanceError) throw attendanceError;
         
-        // Fetch leave records with explicit typing
+        // Type guard the results based on personType
+        const typedAttendanceData = personType === 'staff' 
+          ? attendanceData as StaffAttendanceRecord[]
+          : attendanceData as TraineeAttendanceRecord[];
+        
+        // Fetch leave records 
         const { data: leaveData, error: leaveError } = await supabase
           .from(leaveTable)
           .select('id, start_date, end_date, reason, status, leave_type')
@@ -106,8 +111,11 @@ export function useFetchAttendance(
           
         if (leaveError) throw leaveError;
 
+        // Type the leave data explicitly
+        const typedLeaveData = leaveData as LeaveRecord[];
+
         // Filter leave records that fall within the date range
-        const filteredLeaveData = (leaveData || []).filter(record => {
+        const filteredLeaveData = typedLeaveData.filter(record => {
           // Check if leave period overlaps with the selected date range
           const leaveStart = new Date(record.start_date);
           const leaveEnd = new Date(record.end_date);
@@ -119,12 +127,11 @@ export function useFetchAttendance(
         });
 
         // Process attendance data
-        const formattedAttendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => ({
+        const formattedAttendanceRecords: AttendanceRecord[] = typedAttendanceData.map(record => ({
           id: `attendance-${record.id}`,
           date: format(new Date(record.date), 'yyyy-MM-dd'),
           type: record.status || 'present',
-          // Only access reason if it exists
-          reason: (record as any).reason || '',
+          reason: record.reason || '',
           approvalStatus: (record.approval_status as "pending" | "approved" | "rejected") || "pending",
           recordType: "absence",
           recordId: record.id,

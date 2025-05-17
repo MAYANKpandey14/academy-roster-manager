@@ -2,6 +2,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Trainee } from "@/types/trainee";
 import { TraineeRowActions } from "./TraineeRowActions";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function getTraineeTableColumns(isHindi: boolean, onRefresh?: () => void): ColumnDef<Trainee>[] {
   return [
@@ -34,9 +35,19 @@ export function getTraineeTableColumns(isHindi: boolean, onRefresh?: () => void)
       enableHiding: false,
     },
     {
-      accessorKey: "chest_no",
-      header: isHindi ? "चेस्ट नंबर" : "Chest Number",
-      cell: ({ row }) => <div className="font-medium">{row.getValue("chest_no")}</div>,
+      accessorKey: "photo_url",
+      header: isHindi ? "फोटो" : "Photo",
+      cell: ({ row }) => {
+        const trainee = row.original;
+        const firstLetter = trainee.name.charAt(0).toUpperCase();
+        
+        return (
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={trainee.photo_url} alt={trainee.name} />
+            <AvatarFallback>{firstLetter}</AvatarFallback>
+          </Avatar>
+        );
+      },
     },
     {
       accessorKey: "pno",
@@ -44,14 +55,14 @@ export function getTraineeTableColumns(isHindi: boolean, onRefresh?: () => void)
       cell: ({ row }) => <div className="font-medium">{row.getValue("pno")}</div>,
     },
     {
+      accessorKey: "chest_no",
+      header: isHindi ? "चेस्ट नंबर" : "Chest No",
+      cell: ({ row }) => <div className="font-medium">{row.getValue("chest_no")}</div>,
+    },
+    {
       accessorKey: "name",
       header: isHindi ? "नाम" : "Name",
       cell: ({ row }) => <div>{row.getValue("name")}</div>,
-    },
-    {
-      accessorKey: "father_name",
-      header: isHindi ? "पिता का नाम" : "Father's Name",
-      cell: ({ row }) => <div>{row.getValue("father_name")}</div>,
     },
     {
       accessorKey: "current_posting_district",
@@ -59,9 +70,9 @@ export function getTraineeTableColumns(isHindi: boolean, onRefresh?: () => void)
       cell: ({ row }) => <div>{row.getValue("current_posting_district")}</div>,
     },
     {
-      accessorKey: "toli_no",
-      header: isHindi ? "टोली नंबर" : "Toli Number",
-      cell: ({ row }) => <div>{row.getValue("toli_no") || '-'}</div>,
+      accessorKey: "mobile_number",
+      header: isHindi ? "मोबाइल नंबर" : "Mobile Number",
+      cell: ({ row }) => <div>{row.getValue("mobile_number")}</div>,
     },
     {
       id: "actions",
