@@ -89,6 +89,7 @@ export function handlePrint(content: string): boolean {
     }
     
     // Write content to the new window
+    // Make sure the styles are in the head, not in the body
     printWindow.document.open();
     printWindow.document.write(content);
     printWindow.document.close();
@@ -96,8 +97,6 @@ export function handlePrint(content: string): boolean {
     // Wait for images to load before printing
     setTimeout(() => {
       printWindow.print();
-      // Close the window after print dialog is closed
-      // printWindow.close(); // Commented out to allow user to close window manually
     }, 1000); // Increased timeout to ensure images load
     
     return true;

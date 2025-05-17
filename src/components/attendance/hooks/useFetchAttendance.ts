@@ -64,7 +64,7 @@ export function useFetchAttendance(
           
         if (attendanceError) throw attendanceError;
         
-        // Fetch leave records with simplified type handling
+        // Fetch leave records
         const { data: leaveData, error: leaveError } = await supabase
           .from(leaveTable)
           .select('id, start_date, end_date, reason, status, leave_type')
@@ -73,8 +73,8 @@ export function useFetchAttendance(
           
         if (leaveError) throw leaveError;
 
-        // Filtered leave records that fall within the date range
-        const filteredLeaveData = (leaveData || []).filter(record => {
+        // Filter leave records that fall within the date range
+        const filteredLeaveData = leaveData?.filter(record => {
           // Check if leave period overlaps with the selected date range
           const leaveStart = new Date(record.start_date);
           const leaveEnd = new Date(record.end_date);
@@ -83,14 +83,15 @@ export function useFetchAttendance(
           
           // If leave period overlaps with the date range
           return (leaveStart <= rangeEnd && leaveEnd >= rangeStart);
-        });
+        }) || [];
 
         // Process attendance data
         const formattedAttendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => ({
           id: `attendance-${record.id}`,
           date: format(new Date(record.date), 'yyyy-MM-dd'),
           type: record.status || 'present',
-          approvalStatus: record.approval_status as "pending" | "approved" | "rejected",
+          reason: record.reason || '',
+          approvalStatus: (record.approval_status as "pending" | "approved" | "rejected") || "pending",
           recordType: "absence",
           recordId: record.id,
         }));
@@ -100,8 +101,8 @@ export function useFetchAttendance(
           id: `leave-${record.id}`,
           date: `${format(new Date(record.start_date), 'yyyy-MM-dd')} to ${format(new Date(record.end_date), 'yyyy-MM-dd')}`,
           type: 'on_leave',
-          reason: record.reason,
-          approvalStatus: record.status as "pending" | "approved" | "rejected",
+          reason: record.reason || '',
+          approvalStatus: (record.status as "pending" | "approved" | "rejected") || "pending",
           recordType: "leave",
           recordId: record.id,
           leave_type: record.leave_type

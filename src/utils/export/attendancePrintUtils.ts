@@ -95,7 +95,7 @@ export function createPersonWithAttendancePrintContent(
       <head>
         <meta charset="utf-8">
         <title>${headerText}</title>
-        ${styles}
+        <style>${styles}</style>
         ${additionalStyles}
       </head>
       <body>
