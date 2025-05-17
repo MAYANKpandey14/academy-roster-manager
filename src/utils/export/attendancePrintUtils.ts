@@ -1,246 +1,260 @@
 
-import { format } from 'date-fns';
-import { AttendanceRecord } from '@/components/attendance/hooks/useFetchAttendance';
-import { getPrintStyles } from './printUtils';
-import { Staff } from '@/types/staff';
-import { Trainee } from '@/types/trainee';
-import { PersonData, PersonType } from '@/components/attendance/types/attendanceTypes';
+import { format } from "date-fns";
+import { AttendanceRecord } from "@/components/attendance/hooks/useFetchAttendance";
+import { PersonData, PersonType } from "@/components/attendance/types/attendanceTypes";
+import { getPrintStyles, createPrintHeader, createPrintFooter } from "./printUtils";
+import { prepareTextForLanguage } from "../textUtils";
+import { Trainee } from "@/types/trainee";
+import { Staff } from "@/types/staff";
 
 /**
- * Creates a print template for a person (staff or trainee) with their attendance records
+ * Creates HTML content for printing person details with attendance records
  */
 export function createPersonWithAttendancePrintContent(
-  person: Staff | Trainee | PersonData,
+  person: PersonData | Trainee | Staff,
   personType: PersonType,
   attendanceRecords: AttendanceRecord[],
   isHindi: boolean
 ): string {
-  // Common person details
-  const name = person.name || '';
-  const pno = person.pno || '';
-  
-  // Type-specific properties
-  const chestNo = 'chest_no' in person ? person.chest_no : null;
-  const rank = person.rank || '';
-  
-  // Header text based on type
-  const headerText = isHindi
-    ? `${personType === 'trainee' ? 'प्रशिक्षु' : 'स्टाफ'} उपस्थिति विवरण`
-    : `${personType === 'trainee' ? 'Trainee' : 'Staff'} Attendance Details`;
-  
-  // CSS styles
+  // Get styles for print
   const styles = getPrintStyles(isHindi);
+
+  // Create header
+  const headerText = isHindi 
+    ? (personType === 'trainee' ? "प्रशिक्षु विवरण और उपस्थिति" : "कर्मचारी विवरण और उपस्थिति") 
+    : (personType === 'trainee' ? "Trainee Details and Attendance" : "Staff Details and Attendance");
+  
+  const header = createPrintHeader(headerText, isHindi);
+
+  // Create person details section
+  const profileSection = createProfileSection(person, personType, isHindi);
+
+  // Create attendance section
+  const attendanceSection = createAttendanceSection(attendanceRecords, isHindi);
+
+  // Create footer
+  const footer = createPrintFooter(isHindi);
+
+  // Additional styles for this specific print
   const additionalStyles = `
     <style>
       .person-details {
         margin-bottom: 2em;
-        border: 1px solid #ddd;
-        padding: 1em;
-        border-radius: 4px;
+        page-break-after: avoid;
       }
-      
-      .person-detail {
-        margin-bottom: 0.5em;
+      .attendance-section {
+        margin-top: 2em;
+        page-break-before: avoid;
       }
-      
-      .person-detail strong {
-        display: inline-block;
-        min-width: 100px;
-      }
-      
       .attendance-table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 1em;
       }
-      
       .attendance-table th, .attendance-table td {
         border: 1px solid #ddd;
-        padding: 8px 12px;
+        padding: 8px;
         text-align: left;
       }
-      
       .attendance-table th {
-        background-color: #f5f5f5;
+        background-color: #f2f2f2;
+        font-weight: bold;
       }
-      
-      .attendance-summary {
-        margin-top: 2em;
-        padding-top: 1em;
-        border-top: 1px solid #ddd;
-      }
-      
-      .photo-container {
-        float: right;
-        width: 120px;
-        height: 150px;
-        overflow: hidden;
-        border: 1px solid #ddd;
-        margin-left: 1em;
-        text-align: center;
-      }
-      
-      .photo-container img {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: cover;
-      }
-      
-      .status-badge {
-        display: inline-block;
-        padding: 3px 8px;
-        border-radius: 12px;
-        font-size: 0.9em;
-      }
-      
       .status-present {
-        background-color: #e7f7ed;
-        color: #107b41;
+        color: green;
+        font-weight: bold;
       }
-      
       .status-absent {
-        background-color: #fce8e8;
-        color: #c42222;
+        color: red;
+        font-weight: bold;
       }
-      
       .status-leave {
-        background-color: #fff8e5;
-        color: #997500;
+        color: orange;
+        font-weight: bold;
       }
-      
-      .clearfix::after {
-        content: "";
-        clear: both;
-        display: table;
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
       }
-      
-      @media print {
-        @page {
-          size: portrait;
-        }
-        
-        .attendance-table {
-          page-break-inside: avoid;
-        }
+      .photo-container {
+        text-align: center;
+        margin-bottom: 15px;
+      }
+      .photo-container img {
+        max-width: 150px;
+        max-height: 150px;
+        border-radius: 4px;
       }
     </style>
   `;
-  
-  // HTML template
+
   return `
     <!DOCTYPE html>
-    <html lang="${isHindi ? 'hi' : 'en'}">
+    <html>
       <head>
         <meta charset="utf-8">
         <title>${headerText}</title>
-        <style>${styles}</style>
+        ${styles}
         ${additionalStyles}
       </head>
       <body>
-        <div class="container">
-          <div class="header">
-            <h1>${headerText}</h1>
-            <p>${isHindi ? 'दिनांक' : 'Date'}: ${format(new Date(), 'dd/MM/yyyy')}</p>
+        ${header}
+        <div class="content">
+          <div class="person-details">
+            ${profileSection}
           </div>
-          
-          <div class="person-details clearfix">
-            ${person.photo_url ? `
-              <div class="photo-container">
-                <img src="${person.photo_url}" alt="${name}" />
-              </div>
-            ` : ''}
-            
-            <div class="person-detail">
-              <strong>${isHindi ? 'पीएनओ' : 'PNO'}:</strong> ${pno}
-            </div>
-            
-            <div class="person-detail">
-              <strong>${isHindi ? 'नाम' : 'Name'}:</strong> ${name}
-            </div>
-            
-            ${personType === 'trainee' && chestNo ? `
-              <div class="person-detail">
-                <strong>${isHindi ? 'छाती संख्या' : 'Chest No'}:</strong> ${chestNo}
-              </div>
-            ` : ''}
-            
-            <div class="person-detail">
-              <strong>${isHindi ? 'रैंक' : 'Rank'}:</strong> ${rank}
-            </div>
-          </div>
-          
-          <h2>${isHindi ? 'उपस्थिति रिकॉर्ड' : 'Attendance Records'}</h2>
-          
-          ${attendanceRecords && attendanceRecords.length > 0 ? `
-            <table class="attendance-table">
-              <thead>
-                <tr>
-                  <th>${isHindi ? 'क्र. सं.' : 'S.No.'}</th>
-                  <th>${isHindi ? 'दिनांक' : 'Date'}</th>
-                  <th>${isHindi ? 'प्रकार' : 'Type'}</th>
-                  <th>${isHindi ? 'कारण' : 'Reason'}</th>
-                  <th>${isHindi ? 'स्थिति' : 'Status'}</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${attendanceRecords.map((record, index) => {
-                  // Determine status class
-                  let statusClass = '';
-                  let typeDisplay = '';
-                  
-                  switch (record.type) {
-                    case 'present':
-                      statusClass = 'status-present';
-                      typeDisplay = isHindi ? 'उपस्थित' : 'Present';
-                      break;
-                    case 'absent':
-                      statusClass = 'status-absent';
-                      typeDisplay = isHindi ? 'अनुपस्थित' : 'Absent';
-                      break;
-                    case 'on_leave':
-                    case 'leave':
-                      statusClass = 'status-leave';
-                      typeDisplay = isHindi ? 'छुट्टी पर' : 'On Leave';
-                      typeDisplay += record.leave_type ? 
-                        ` (${isHindi ? 'प्रकार' : 'Type'}: ${record.leave_type})` : '';
-                      break;
-                    default:
-                      typeDisplay = record.type;
-                  }
-                  
-                  // Map approval status
-                  const approvalStatus = (() => {
-                    switch (record.approvalStatus) {
-                      case 'approved':
-                        return isHindi ? 'स्वीकृत' : 'Approved';
-                      case 'rejected':
-                        return isHindi ? 'अस्वीकृत' : 'Rejected';
-                      default:
-                        return isHindi ? 'लंबित' : 'Pending';
-                    }
-                  })();
-                  
-                  return `
-                    <tr>
-                      <td>${index + 1}</td>
-                      <td>${record.date}</td>
-                      <td><span class="status-badge ${statusClass}">${typeDisplay}</span></td>
-                      <td>${record.reason || '-'}</td>
-                      <td>${approvalStatus}</td>
-                    </tr>
-                  `;
-                }).join('')}
-              </tbody>
-            </table>
-          ` : `
-            <p class="no-data">${isHindi ? 'कोई उपस्थिति रिकॉर्ड नहीं मिला' : 'No attendance records found'}</p>
-          `}
-          
-          <div class="footer">
-            <p>${isHindi ? 'आरटीसी पुलिस लाइन, मुरादाबाद' : 'RTC Police Line, Moradabad'}</p>
+          <div class="attendance-section">
+            ${attendanceSection}
           </div>
         </div>
+        ${footer}
       </body>
     </html>
+  `;
+}
+
+function createProfileSection(person: any, personType: PersonType, isHindi: boolean): string {
+  // Check for photo URL
+  const photoSection = person.photo_url ? `
+    <div class="photo-container">
+      <img src="${person.photo_url}" alt="${person.name}" />
+    </div>
+  ` : '';
+
+  // Common fields
+  let fields = `
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">${isHindi ? "पीएनओ" : "PNO"}:</span>
+        <span class="info-value">${person.pno}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">${isHindi ? "नाम" : "Name"}:</span>
+        <span class="info-value">${prepareTextForLanguage(person.name, isHindi)}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">${isHindi ? "मोबाइल नंबर" : "Mobile Number"}:</span>
+        <span class="info-value">${person.mobile_number}</span>
+      </div>
+  `;
+
+  // Trainee-specific fields
+  if (personType === 'trainee') {
+    fields += `
+      <div class="info-item">
+        <span class="info-label">${isHindi ? "छाती नंबर" : "Chest No"}:</span>
+        <span class="info-value">${person.chest_no || "-"}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">${isHindi ? "पदोन्नत तिथि" : "Arrival Date"}:</span>
+        <span class="info-value">${person.arrival_date ? format(new Date(person.arrival_date), 'dd/MM/yyyy') : "-"}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">${isHindi ? "प्रस्थान तिथि" : "Departure Date"}:</span>
+        <span class="info-value">${person.departure_date ? format(new Date(person.departure_date), 'dd/MM/yyyy') : "-"}</span>
+      </div>
+    `;
+  }
+
+  // Staff-specific fields
+  if (personType === 'staff') {
+    fields += `
+      <div class="info-item">
+        <span class="info-label">${isHindi ? "पद" : "Rank"}:</span>
+        <span class="info-value">${person.rank || "-"}</span>
+      </div>
+    `;
+  }
+
+  // Common fields continued
+  fields += `
+      <div class="info-item">
+        <span class="info-label">${isHindi ? "वर्तमान पोस्टिंग जिला" : "Current Posting District"}:</span>
+        <span class="info-value">${prepareTextForLanguage(person.current_posting_district, isHindi)}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">${isHindi ? "पिता का नाम" : "Father's Name"}:</span>
+        <span class="info-value">${prepareTextForLanguage(person.father_name || "-", isHindi)}</span>
+      </div>
+    </div>
+  `;
+
+  return `
+    <h2>${isHindi ? (personType === 'trainee' ? "प्रशिक्षु विवरण" : "कर्मचारी विवरण") : (personType === 'trainee' ? "Trainee Details" : "Staff Details")}</h2>
+    ${photoSection}
+    ${fields}
+  `;
+}
+
+function createAttendanceSection(attendanceRecords: AttendanceRecord[], isHindi: boolean): string {
+  if (!attendanceRecords || attendanceRecords.length === 0) {
+    return `
+      <h2>${isHindi ? "उपस्थिति रिकॉर्ड" : "Attendance Records"}</h2>
+      <p>${isHindi ? "कोई उपस्थिति रिकॉर्ड नहीं मिला" : "No attendance records found"}</p>
+    `;
+  }
+
+  const rows = attendanceRecords.map(record => {
+    let statusClass = '';
+    let statusText = '';
+
+    switch (record.type) {
+      case 'present':
+        statusClass = 'status-present';
+        statusText = isHindi ? "उपस्थित" : "Present";
+        break;
+      case 'absent':
+        statusClass = 'status-absent';
+        statusText = isHindi ? "अनुपस्थित" : "Absent";
+        break;
+      case 'leave':
+      case 'on_leave':
+        statusClass = 'status-leave';
+        statusText = isHindi ? "छुट्टी पर" : "On Leave";
+        break;
+      default:
+        statusText = record.type;
+    }
+
+    const approvalStatusText = (() => {
+      switch(record.approvalStatus) {
+        case 'approved':
+          return isHindi ? "स्वीकृत" : "Approved";
+        case 'rejected':
+          return isHindi ? "अस्वीकृत" : "Rejected";
+        case 'pending':
+        default:
+          return isHindi ? "लंबित" : "Pending";
+      }
+    })();
+
+    return `
+      <tr>
+        <td>${record.date}</td>
+        <td class="${statusClass}">${statusText}</td>
+        <td>${record.leave_type || "-"}</td>
+        <td>${record.reason || "-"}</td>
+        <td>${approvalStatusText}</td>
+      </tr>
+    `;
+  }).join('');
+
+  return `
+    <h2>${isHindi ? "उपस्थिति रिकॉर्ड" : "Attendance Records"}</h2>
+    <table class="attendance-table">
+      <thead>
+        <tr>
+          <th>${isHindi ? "दिनांक" : "Date"}</th>
+          <th>${isHindi ? "स्थिति" : "Status"}</th>
+          <th>${isHindi ? "छुट्टी प्रकार" : "Leave Type"}</th>
+          <th>${isHindi ? "कारण" : "Reason"}</th>
+          <th>${isHindi ? "अनुमोदन स्थिति" : "Approval Status"}</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows}
+      </tbody>
+    </table>
   `;
 }
