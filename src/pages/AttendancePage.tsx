@@ -4,10 +4,11 @@ import { Header } from "@/components/layout/Header";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PersonSearch, PersonData } from "@/components/attendance/PersonSearch";
+import { PersonSearch } from "@/components/attendance/PersonSearch";
 import { PersonDetails } from "@/components/attendance/PersonDetails";
 import { AttendanceHistory } from "@/components/attendance/AttendanceHistory";
 import { AttendanceForm } from "@/components/attendance/AttendanceForm";
+import { PersonData } from "@/components/attendance/types/attendanceTypes";
 
 export default function AttendancePage() {
   const { isHindi } = useLanguage();

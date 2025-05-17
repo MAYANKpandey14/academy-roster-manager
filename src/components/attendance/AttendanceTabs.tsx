@@ -4,11 +4,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AttendanceTable } from "./AttendanceTable";
 import { LeaveHistoryTable } from "./components/LeaveHistoryTable";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PersonData } from "./PersonSearch";
+import { PersonData, PersonType } from "./types/attendanceTypes";
 
 interface AttendanceTabsProps {
   personId: string;
-  personType: "staff" | "trainee";
+  personType: PersonType;
   pno?: string; 
   personData?: PersonData;
 }

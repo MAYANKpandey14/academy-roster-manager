@@ -1,9 +1,10 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Printer, FileSpreadsheet } from "lucide-react";
 import { handlePrint } from "@/utils/export/printUtils";
 import { exportToExcel } from "@/utils/export/excelUtils";
-import { useFetchAttendance, AttendanceRecord } from "./hooks/useFetchAttendance";
+import { useFetchAttendance } from "./hooks/useFetchAttendance";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Table,
@@ -16,12 +17,11 @@ import {
 import { AttendanceTableRow } from "./AttendanceTableRow";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PersonData } from "./PersonSearch";
-import { useState } from "react";
+import { PersonData, PersonType } from "./types/attendanceTypes";
 
 interface AttendanceHistoryProps {
   personId: string;
-  personType: "staff" | "trainee";
+  personType: PersonType;
   personData?: PersonData;
 }
 

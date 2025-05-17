@@ -10,15 +10,15 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
-import { useFetchAttendance, AttendanceRecord } from "./hooks/useFetchAttendance";
+import { useFetchAttendance } from "./hooks/useFetchAttendance";
 import { AttendanceTableRow } from "./AttendanceTableRow";
-import { PersonData } from "./PersonSearch";
+import { PersonData, PersonType } from "./types/attendanceTypes";
 import { handlePrint } from "@/utils/export/printUtils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface AttendanceTableProps {
   personId: string;
-  personType: "staff" | "trainee";
+  personType: PersonType;
   personData?: PersonData;
 }
 

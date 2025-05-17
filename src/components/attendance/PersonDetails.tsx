@@ -1,12 +1,7 @@
 
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
-import { PersonData } from "./PersonSearch";
-
-interface PersonDetailsProps {
-  person: PersonData;
-  personType: 'trainee' | 'staff';
-}
+import { PersonDetailsProps } from "./types/attendanceTypes";
 
 export function PersonDetails({ person, personType }: PersonDetailsProps) {
   const { isHindi } = useLanguage();

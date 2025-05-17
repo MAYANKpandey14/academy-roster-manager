@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { PersonType } from '../types/attendanceTypes';
 
 export interface AttendanceRecord {
   id: string;
@@ -17,7 +18,7 @@ export interface AttendanceRecord {
 
 export function useFetchAttendance(
   personId: string | null, 
-  personType: 'staff' | 'trainee',
+  personType: PersonType,
   startDate?: Date,
   endDate?: Date
 ) {
@@ -62,11 +63,23 @@ export function useFetchAttendance(
           .from(leaveTable)
           .select('*')
           .eq(personIdColumn, personId)
+          // Fix the filter conditions to avoid excessive type instantiation
           .or(`start_date.gte.${formattedStartDate},end_date.gte.${formattedStartDate}`)
-          .or(`start_date.lte.${formattedEndDate},end_date.lte.${formattedEndDate}`)
           .order('start_date', { ascending: false });
           
         if (leaveError) throw leaveError;
+
+        // Filtered leave records that fall within the date range
+        const filteredLeaveData = (leaveData || []).filter(record => {
+          // Check if leave period overlaps with the selected date range
+          const leaveStart = new Date(record.start_date);
+          const leaveEnd = new Date(record.end_date);
+          const rangeStart = new Date(formattedStartDate);
+          const rangeEnd = new Date(formattedEndDate);
+          
+          // If leave period overlaps with the date range
+          return (leaveStart <= rangeEnd && leaveEnd >= rangeStart);
+        });
 
         // Process attendance data
         const formattedAttendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => ({
@@ -79,7 +92,7 @@ export function useFetchAttendance(
         }));
         
         // Process leave data 
-        const formattedLeaveRecords: AttendanceRecord[] = (leaveData || []).map(record => ({
+        const formattedLeaveRecords: AttendanceRecord[] = filteredLeaveData.map(record => ({
           id: `leave-${record.id}`,
           date: `${format(new Date(record.start_date), 'yyyy-MM-dd')} to ${format(new Date(record.end_date), 'yyyy-MM-dd')}`,
           type: 'on_leave',
