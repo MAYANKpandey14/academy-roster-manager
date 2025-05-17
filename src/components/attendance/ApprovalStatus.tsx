@@ -5,22 +5,11 @@ import { memo } from "react";
 
 export interface ApprovalStatusProps {
   status: 'approved' | 'pending' | 'rejected';
-  type?: string; // Added this property
-  id?: string; // Added this property
-  personType?: string; // Added this property
-  onChange?: () => void; // Added this property
-  readonly?: boolean; // Added this property
+  readonly?: boolean;
 }
 
 // Using memo to prevent unnecessary re-renders
-export const ApprovalStatus = memo(function ApprovalStatus({ 
-  status, 
-  type, // Added these props
-  id,
-  personType,
-  onChange,
-  readonly
-}: ApprovalStatusProps) {
+export const ApprovalStatus = memo(function ApprovalStatus({ status, readonly }: ApprovalStatusProps) {
   const { isHindi } = useLanguage();
   
   if (status === 'approved') {

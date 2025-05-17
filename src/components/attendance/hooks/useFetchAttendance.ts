@@ -16,12 +16,18 @@ export interface AttendanceRecord {
   leave_type?: string;
 }
 
+interface UseFetchAttendanceResult {
+  records: AttendanceRecord[];
+  isLoading: boolean;
+  error: string | null;
+}
+
 export function useFetchAttendance(
   personId: string | null, 
   personType: PersonType,
   startDate?: Date,
   endDate?: Date
-) {
+): UseFetchAttendanceResult {
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

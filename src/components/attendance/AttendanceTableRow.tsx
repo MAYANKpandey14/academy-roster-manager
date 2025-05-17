@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { AttendanceRecord } from "./hooks/useFetchAttendance";
 import { PersonType } from "./types/attendanceTypes";
 import { ApprovalStatus } from "./ApprovalStatus";
+import { ApprovalActions } from "./ApprovalActions";
 
 interface AttendanceTableRowProps {
   record: AttendanceRecord;
@@ -21,7 +22,6 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
       case "absent":
         return isHindi ? "अनुपस्थित" : "Absent";
       case "leave":
-        return isHindi ? "छुट्टी पर" : "On Leave";
       case "on_leave":
         return isHindi ? "छुट्टी पर" : "On Leave";
       default:
@@ -80,16 +80,26 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
     );
   };
 
-  const renderApprovalCell = () => {
+  const renderApprovalStatusCell = () => {
     return (
       <TableCell>
         <ApprovalStatus
           status={record.approvalStatus}
-          type={record.recordType === "absence" ? "attendance" : "leave"}
-          id={record.recordId}
-          personType={personType}
-          onChange={() => {}}
           readonly
+        />
+      </TableCell>
+    );
+  };
+
+  const renderActionsCell = () => {
+    return (
+      <TableCell>
+        <ApprovalActions
+          recordId={record.recordId}
+          recordType={record.recordType}
+          personType={personType}
+          currentStatus={record.approvalStatus}
+          absenceType={record.type}
         />
       </TableCell>
     );
@@ -100,7 +110,8 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
       {renderDateCell()}
       {renderStatusCell()}
       {renderReasonCell()}
-      {renderApprovalCell()}
+      {renderApprovalStatusCell()}
+      {renderActionsCell()}
     </TableRow>
   );
 }

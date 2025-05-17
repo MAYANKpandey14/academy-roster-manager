@@ -143,14 +143,17 @@ export const AttendanceHistory = ({ personId, personType, personData }: Attendan
                   {isHindi ? "कारण" : "Reason"}
                 </TableHead>
                 <TableHead className={isHindi ? 'font-mangal' : ''}>
-                  {isHindi ? "स्थिति" : "Status"}
+                  {isHindi ? "अनुमोदन स्थिति" : "Approval Status"}
+                </TableHead>
+                <TableHead className={isHindi ? 'font-mangal' : ''}>
+                  {isHindi ? "कार्य" : "Actions"}
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8">
+                  <TableCell colSpan={5} className="text-center py-8">
                     <span className={isHindi ? 'font-mangal' : ''}>
                       {isHindi ? "लोड हो रहा है..." : "Loading..."}
                     </span>
@@ -166,7 +169,7 @@ export const AttendanceHistory = ({ personId, personType, personData }: Attendan
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8">
+                  <TableCell colSpan={5} className="text-center py-8">
                     <span className={isHindi ? 'font-mangal' : ''}>
                       {isHindi ? "कोई डेटा उपलब्ध नहीं है" : "No data available"}
                     </span>
