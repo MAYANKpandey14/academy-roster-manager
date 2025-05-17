@@ -58,13 +58,11 @@ export function useFetchAttendance(
           
         if (attendanceError) throw attendanceError;
         
-        // Fetch leave records
+        // Fetch leave records - Fix the excessive type instantiation by simplifying the query
         const { data: leaveData, error: leaveError } = await supabase
           .from(leaveTable)
           .select('*')
           .eq(personIdColumn, personId)
-          // Fix the filter conditions to avoid excessive type instantiation
-          .or(`start_date.gte.${formattedStartDate},end_date.gte.${formattedStartDate}`)
           .order('start_date', { ascending: false });
           
         if (leaveError) throw leaveError;
@@ -86,7 +84,7 @@ export function useFetchAttendance(
           id: `attendance-${record.id}`,
           date: format(new Date(record.date), 'yyyy-MM-dd'),
           type: record.status || 'present',
-          approvalStatus: (record.approval_status || 'pending') as "pending" | "approved" | "rejected",
+          approvalStatus: record.approval_status as "pending" | "approved" | "rejected",
           recordType: "absence",
           recordId: record.id,
         }));
@@ -97,7 +95,7 @@ export function useFetchAttendance(
           date: `${format(new Date(record.start_date), 'yyyy-MM-dd')} to ${format(new Date(record.end_date), 'yyyy-MM-dd')}`,
           type: 'on_leave',
           reason: record.reason,
-          approvalStatus: (record.status || 'pending') as "pending" | "approved" | "rejected",
+          approvalStatus: record.status as "pending" | "approved" | "rejected",
           recordType: "leave",
           recordId: record.id,
           leave_type: record.leave_type

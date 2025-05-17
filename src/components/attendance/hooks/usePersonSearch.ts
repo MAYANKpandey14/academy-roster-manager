@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { PersonData, PersonType } from "../types/attendanceTypes";
+import { toast } from "sonner";
 
 interface PersonSearchResult {
   isLoading: boolean;
@@ -23,16 +24,24 @@ export function usePersonSearch(
     setIsLoading(true);
     setSearchError(null);
     setSearchSuccess(false);
+    console.log("Searching for:", values);
 
     try {
+      if (!values.pno || values.pno.trim() === "") {
+        throw new Error(isHindi ? "कृपया PNO दर्ज करें" : "Please enter a PNO");
+      }
+
       if (values.type === "staff") {
         const { data, error } = await supabase
           .from("staff")
           .select("*")
-          .eq("pno", values.pno)
-          .single();
+          .eq("pno", values.pno.trim())
+          .maybeSingle();
 
-        if (error) throw new Error(error.message);
+        if (error) {
+          console.error("Supabase error:", error);
+          throw new Error(error.message);
+        }
 
         if (data) {
           onPersonSelected({
@@ -45,17 +54,22 @@ export function usePersonSearch(
             mobile_number: data.mobile_number,
           }, "staff");
           setSearchSuccess(true);
+          console.log("Staff found:", data);
         } else {
-          throw new Error("Staff member not found");
+          console.log("No staff found with PNO:", values.pno);
+          throw new Error(isHindi ? "स्टाफ सदस्य नहीं मिला" : "Staff member not found");
         }
       } else {
         const { data, error } = await supabase
           .from("trainees")
           .select("*")
-          .eq("pno", values.pno)
-          .single();
+          .eq("pno", values.pno.trim())
+          .maybeSingle();
 
-        if (error) throw new Error(error.message);
+        if (error) {
+          console.error("Supabase error:", error);
+          throw new Error(error.message);
+        }
 
         if (data) {
           onPersonSelected({
@@ -68,17 +82,20 @@ export function usePersonSearch(
             mobile_number: data.mobile_number,
           }, "trainee");
           setSearchSuccess(true);
+          console.log("Trainee found:", data);
         } else {
-          throw new Error("Trainee not found");
+          console.log("No trainee found with PNO:", values.pno);
+          throw new Error(isHindi ? "प्रशिक्षु नहीं मिला" : "Trainee not found");
         }
       }
     } catch (error) {
       console.error("Search error:", error);
-      setSearchError(
-        isHindi
-          ? "व्यक्ति नहीं मिला। कृपया PNO की जाँच करें।"
-          : "Person not found. Please check the PNO."
-      );
+      const errorMessage = isHindi
+        ? "व्यक्ति नहीं मिला। कृपया PNO की जाँच करें।"
+        : "Person not found. Please check the PNO.";
+      
+      setSearchError(errorMessage);
+      toast.error(errorMessage);
       onPersonSelected(null, values.type);
     } finally {
       setIsLoading(false);
