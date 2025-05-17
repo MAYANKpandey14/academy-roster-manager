@@ -5,6 +5,39 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { PersonType } from '../types/attendanceTypes';
 
+// Define explicit interface for attendance record types
+interface StaffAttendanceRecord {
+  id: string;
+  staff_id: string;
+  date: string;
+  status: string;
+  approval_status: string;
+  reason?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface TraineeAttendanceRecord {
+  id: string;
+  trainee_id: string;
+  date: string;
+  status: string;
+  approval_status: string;
+  reason?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Define explicit interface for leave record types
+interface LeaveRecord {
+  id: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  status: string;
+  leave_type?: string;
+}
+
 export interface AttendanceRecord {
   id: string;
   date: string;
@@ -64,7 +97,12 @@ export function useFetchAttendance(
           
         if (attendanceError) throw attendanceError;
         
-        // Fetch leave records with simplified type handling
+        // Type guard the results based on personType
+        const typedAttendanceData = personType === 'staff' 
+          ? attendanceData as StaffAttendanceRecord[]
+          : attendanceData as TraineeAttendanceRecord[];
+        
+        // Fetch leave records 
         const { data: leaveData, error: leaveError } = await supabase
           .from(leaveTable)
           .select('id, start_date, end_date, reason, status, leave_type')
@@ -73,8 +111,11 @@ export function useFetchAttendance(
           
         if (leaveError) throw leaveError;
 
-        // Filtered leave records that fall within the date range
-        const filteredLeaveData = (leaveData || []).filter(record => {
+        // Type the leave data explicitly
+        const typedLeaveData = leaveData as LeaveRecord[];
+
+        // Filter leave records that fall within the date range
+        const filteredLeaveData = typedLeaveData.filter(record => {
           // Check if leave period overlaps with the selected date range
           const leaveStart = new Date(record.start_date);
           const leaveEnd = new Date(record.end_date);
@@ -86,11 +127,12 @@ export function useFetchAttendance(
         });
 
         // Process attendance data
-        const formattedAttendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => ({
+        const formattedAttendanceRecords: AttendanceRecord[] = typedAttendanceData.map(record => ({
           id: `attendance-${record.id}`,
           date: format(new Date(record.date), 'yyyy-MM-dd'),
           type: record.status || 'present',
-          approvalStatus: record.approval_status as "pending" | "approved" | "rejected",
+          reason: record.reason || '',
+          approvalStatus: (record.approval_status as "pending" | "approved" | "rejected") || "pending",
           recordType: "absence",
           recordId: record.id,
         }));
@@ -100,8 +142,8 @@ export function useFetchAttendance(
           id: `leave-${record.id}`,
           date: `${format(new Date(record.start_date), 'yyyy-MM-dd')} to ${format(new Date(record.end_date), 'yyyy-MM-dd')}`,
           type: 'on_leave',
-          reason: record.reason,
-          approvalStatus: record.status as "pending" | "approved" | "rejected",
+          reason: record.reason || '',
+          approvalStatus: (record.status as "pending" | "approved" | "rejected") || "pending",
           recordType: "leave",
           recordId: record.id,
           leave_type: record.leave_type
