@@ -44,3 +44,11 @@ verify_jwt = false
 [[functions]]
 name = "attendance-manage"
 verify_jwt = false
+
+[[functions]]
+name = "delete-staff"
+verify_jwt = true
+
+[[functions]]
+name = "delete-trainee"
+verify_jwt = true

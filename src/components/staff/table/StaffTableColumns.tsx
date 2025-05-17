@@ -9,7 +9,7 @@ export const getStaffColumns = (
   isLoading: boolean,
   handlePrint?: (staffId: string) => void,
   handleDownload?: (staffId: string) => void,
-  handleDelete?: (staffId: string) => void,
+  onDelete?: () => void,
   handleExcelExport?: (staff: Staff) => void
 ): ColumnDef<Staff>[] => [
   {
@@ -95,7 +95,7 @@ export const getStaffColumns = (
           handlePrintAction={handlePrint}
           handleDownloadAction={handleDownload}
           handleExcelExport={handleExcelExport ? () => handleExcelExport(staff) : undefined}
-          handleDelete={handleDelete}
+          onDelete={onDelete}
         />
       );
     },

@@ -175,12 +175,18 @@ export async function deleteStaff(id: string): Promise<{ error: Error | null }> 
       throw new Error("No active session found");
     }
     
-    const { error } = await supabase
-      .from('staff')
-      .delete()
-      .eq('id', id);
+    // Call the delete-staff edge function
+    const { error } = await supabase.functions.invoke('delete-staff', {
+      body: { id },
+      headers: {
+        Authorization: `Bearer ${sessionData.session.access_token}`
+      }
+    });
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error invoking delete-staff function:', error);
+      throw error;
+    }
     
     return { error: null };
   } catch (error) {

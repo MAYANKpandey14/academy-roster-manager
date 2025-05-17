@@ -4,8 +4,9 @@ import { TraineeActions } from "../TraineeActions";
 
 interface TraineeRowActionsProps {
   trainee: Trainee;
+  onDelete?: () => void;
 }
 
-export function TraineeRowActions({ trainee }: TraineeRowActionsProps) {
-  return <TraineeActions trainee={trainee} />;
+export function TraineeRowActions({ trainee, onDelete }: TraineeRowActionsProps) {
+  return <TraineeActions trainee={trainee} onDelete={onDelete} />;
 }
