@@ -14,7 +14,7 @@ export function useTraineePrintService(trainee: Trainee | null) {
   const { isHindi } = useLanguage();
   
   // Fetch attendance records for the trainee if available
-  const { records: attendanceRecords } = trainee?.id ? 
+  const { records: attendanceRecords, isLoading: attendanceLoading, error: attendanceError } = trainee?.id ? 
     useFetchAttendance(trainee.id, 'trainee') : 
     { records: [], isLoading: false, error: null };
 

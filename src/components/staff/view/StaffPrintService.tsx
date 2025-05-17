@@ -15,7 +15,7 @@ export function useStaffPrintService(staff: Staff) {
   const { isHindi } = useLanguage();
   
   // Fetch attendance records for the staff if available
-  const { records: attendanceRecords } = staff?.id ? 
+  const { records: attendanceRecords, isLoading: attendanceLoading, error: attendanceError } = staff?.id ? 
     useFetchAttendance(staff.id, 'staff') : 
     { records: [], isLoading: false, error: null };
 

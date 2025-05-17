@@ -3,12 +3,24 @@ import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { memo } from "react";
 
-interface ApprovalStatusProps {
+export interface ApprovalStatusProps {
   status: 'approved' | 'pending' | 'rejected';
+  type?: string; // Added this property
+  id?: string; // Added this property
+  personType?: string; // Added this property
+  onChange?: () => void; // Added this property
+  readonly?: boolean; // Added this property
 }
 
 // Using memo to prevent unnecessary re-renders
-export const ApprovalStatus = memo(function ApprovalStatus({ status }: ApprovalStatusProps) {
+export const ApprovalStatus = memo(function ApprovalStatus({ 
+  status, 
+  type, // Added these props
+  id,
+  personType,
+  onChange,
+  readonly
+}: ApprovalStatusProps) {
   const { isHindi } = useLanguage();
   
   if (status === 'approved') {
