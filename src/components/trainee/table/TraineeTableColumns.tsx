@@ -2,6 +2,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Trainee } from "@/types/trainee";
 import { TraineeRowActions } from "./TraineeRowActions";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function getTraineeTableColumns(isHindi: boolean, onRefresh?: () => void): ColumnDef<Trainee>[] {
   return [
@@ -37,12 +38,12 @@ export function getTraineeTableColumns(isHindi: boolean, onRefresh?: () => void)
     accessorKey: "photo_url",
     header: isHindi ? "फोटो" : "Photo",
     cell: ({ row }) => {
-      const staff = row.original;
-      const firstLetter = staff.name.charAt(0).toUpperCase();
+      const trainee = row.original;
+      const firstLetter = trainee.name.charAt(0).toUpperCase();
       
       return (
         <Avatar className="h-10 w-10">
-          <AvatarImage src={staff.photo_url} alt={staff.name} />
+          <AvatarImage src={trainee.photo_url} alt={trainee.name} />
           <AvatarFallback>{firstLetter}</AvatarFallback>
         </Avatar>
       );
