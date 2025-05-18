@@ -97,11 +97,6 @@ export function useFetchAttendance(
           
         if (attendanceError) throw attendanceError;
         
-        // Type guard the results based on personType
-        const typedAttendanceData = personType === 'staff' 
-          ? attendanceData as StaffAttendanceRecord[]
-          : attendanceData as TraineeAttendanceRecord[];
-        
         // Fetch leave records 
         const { data: leaveData, error: leaveError } = await supabase
           .from(leaveTable)
@@ -111,11 +106,8 @@ export function useFetchAttendance(
           
         if (leaveError) throw leaveError;
 
-        // Type the leave data explicitly
-        const typedLeaveData = leaveData as LeaveRecord[];
-
         // Filter leave records that fall within the date range
-        const filteredLeaveData = typedLeaveData.filter(record => {
+        const filteredLeaveData = (leaveData || []).filter((record: any) => {
           // Check if leave period overlaps with the selected date range
           const leaveStart = new Date(record.start_date);
           const leaveEnd = new Date(record.end_date);
@@ -127,35 +119,37 @@ export function useFetchAttendance(
         });
 
         // Process attendance data
-        const formattedAttendanceRecords: AttendanceRecord[] = typedAttendanceData.map(record => ({
+        const formattedAttendanceRecords: AttendanceRecord[] = (attendanceData || []).map((record: any) => ({
           id: `attendance-${record.id}`,
           date: format(new Date(record.date), 'yyyy-MM-dd'),
           type: record.status || 'present',
           reason: record.reason || '',
           approvalStatus: (record.approval_status as "pending" | "approved" | "rejected") || "pending",
-          recordType: "absence",
+          recordType: "absence" as const,
           recordId: record.id,
         }));
         
         // Process leave data 
-        const formattedLeaveRecords: AttendanceRecord[] = filteredLeaveData.map(record => ({
+        const formattedLeaveRecords: AttendanceRecord[] = (filteredLeaveData || []).map((record: any) => ({
           id: `leave-${record.id}`,
           date: `${format(new Date(record.start_date), 'yyyy-MM-dd')} to ${format(new Date(record.end_date), 'yyyy-MM-dd')}`,
           type: 'on_leave',
           reason: record.reason || '',
           approvalStatus: (record.status as "pending" | "approved" | "rejected") || "pending",
-          recordType: "leave",
+          recordType: "leave" as const,
           recordId: record.id,
           leave_type: record.leave_type
         }));
         
         // Combine and sort all records by date (most recent first)
-        setRecords([...formattedAttendanceRecords, ...formattedLeaveRecords]
+        const combinedRecords: AttendanceRecord[] = [...formattedAttendanceRecords, ...formattedLeaveRecords]
           .sort((a, b) => {
             const dateA = a.date.split(' to ')[0]; 
             const dateB = b.date.split(' to ')[0];
             return new Date(dateB).getTime() - new Date(dateA).getTime();
-          }));
+          });
+          
+        setRecords(combinedRecords);
       } catch (err) {
         console.error("Error fetching attendance:", err);
         setError(isHindi 

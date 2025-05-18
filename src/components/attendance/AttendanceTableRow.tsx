@@ -43,16 +43,12 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
     }
   };
 
-  const renderDateCell = () => {
-    return (
+  return (
+    <TableRow>
       <TableCell>
         <span className={isHindi ? "font-hindi" : ""}>{record.date}</span>
       </TableCell>
-    );
-  };
-
-  const renderStatusCell = () => {
-    return (
+      
       <TableCell>
         <Badge variant="outline" className={`${getStatusColor(record.type)}`}>
           <span className={isHindi ? "font-hindi" : ""}>
@@ -67,32 +63,20 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
           </div>
         )}
       </TableCell>
-    );
-  };
-
-  const renderReasonCell = () => {
-    return (
+      
       <TableCell>
         <span className={`text-sm ${isHindi ? "font-hindi" : ""}`}>
           {record.reason || "-"}
         </span>
       </TableCell>
-    );
-  };
-
-  const renderApprovalStatusCell = () => {
-    return (
+      
       <TableCell>
         <ApprovalStatus
           status={record.approvalStatus}
           readonly
         />
       </TableCell>
-    );
-  };
-
-  const renderActionsCell = () => {
-    return (
+      
       <TableCell>
         <ApprovalActions
           recordId={record.recordId}
@@ -102,16 +86,6 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
           absenceType={record.type}
         />
       </TableCell>
-    );
-  };
-
-  return (
-    <TableRow>
-      {renderDateCell()}
-      {renderStatusCell()}
-      {renderReasonCell()}
-      {renderApprovalStatusCell()}
-      {renderActionsCell()}
     </TableRow>
   );
 }

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { getStaffById } from "@/services/staffApi";
 import { Staff } from "@/types/staff";
 import { toast } from "sonner";
@@ -15,6 +15,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 const ViewStaff = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [staff, setStaff] = useState<Staff | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { isHindi } = useLanguage();
@@ -23,29 +24,60 @@ const ViewStaff = () => {
   useLanguageInputs();
 
   // Get print and download functions
-  const { handlePrintStaff, handleDownloadStaff, handleExcelExport } = useStaffPrintService(staff);
+  const { handlePrintStaff, handleDownloadStaff, handleExcelExport, isLoading: printLoading } = useStaffPrintService(staff);
+  
+  const handlePrintClick = () => {
+    if (printLoading) return;
+    handlePrintStaff();
+  };
+  
+  const handleDownloadClick = () => {
+    if (printLoading) return;
+    handleDownloadStaff();
+  };
+  
+  const handleExcelExportClick = () => {
+    if (printLoading) return;
+    handleExcelExport();
+  };
 
   useEffect(() => {
     const fetchStaff = async () => {
-      if (!id) return;
+      if (!id) {
+        toast.error(isHindi ? "स्टाफ आईडी नहीं मिली" : "Staff ID not found");
+        navigate("/staff");
+        return;
+      }
       
       try {
         setIsLoading(true);
         const { data, error } = await getStaffById(id);
         
-        if (error) throw error;
+        if (error) {
+          console.error("Error fetching staff:", error);
+          toast.error(isHindi ? "स्टाफ विवरण लोड नहीं हो सका" : "Failed to fetch staff details");
+          navigate("/staff");
+          return;
+        }
+        
+        if (!data) {
+          toast.error(isHindi ? "स्टाफ नहीं मिला" : "Staff not found");
+          navigate("/staff");
+          return;
+        }
         
         setStaff(data);
       } catch (error) {
         console.error("Error fetching staff:", error);
-        toast.error(isHindi ? "स्टाफ विवरण लोड नहीं हो सकता" : "Failed to fetch staff details");
+        toast.error(isHindi ? "स्टाफ विवरण लोड नहीं हो सका" : "Failed to fetch staff details");
+        navigate("/staff");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchStaff();
-  }, [id, isHindi]);
+  }, [id, isHindi, navigate]);
 
   if (isLoading) {
     return <StaffLoadingState />;
@@ -63,9 +95,9 @@ const ViewStaff = () => {
           <StaffHeader 
             id={id}
             staff={staff}
-            onPrint={handlePrintStaff}
-            onDownload={handleDownloadStaff}
-            onExcelExport={handleExcelExport}
+            onPrint={handlePrintClick}
+            onDownload={handleDownloadClick}
+            onExcelExport={handleExcelExportClick}
           />
           
           <StaffDetailsSection staff={staff} />

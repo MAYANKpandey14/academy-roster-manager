@@ -7,7 +7,7 @@ import { handlePrint as utilHandlePrint } from "@/utils/export/printUtils";
 import { exportTraineesToExcel } from "@/utils/export/traineeExcelUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { createPersonWithAttendancePrintContent } from "@/utils/export/attendancePrintUtils";
-import { useFetchAttendance } from "@/components/attendance/hooks/useFetchAttendance";
+import { AttendanceRecord, useFetchAttendance } from "@/components/attendance/hooks/useFetchAttendance";
 
 export function useTraineePrintService(trainee: Trainee | null) {
   const [isLoading, setIsLoading] = useState(false);
@@ -15,33 +15,33 @@ export function useTraineePrintService(trainee: Trainee | null) {
   
   // Fetch attendance records for the trainee if available
   const { 
-    records: attendanceRecords, 
-    isLoading: attendanceLoading, 
-    error: attendanceError 
+    records: attendanceRecords,
+    isLoading: attendanceLoading
   } = trainee?.id ? 
     useFetchAttendance(trainee.id, 'trainee') : 
-    { records: [], isLoading: false, error: null };
+    { records: [] as AttendanceRecord[], isLoading: false };
 
   const handlePrint = () => {
     if (!trainee) return;
     
     setIsLoading(true);
     try {
-      // Use the enhanced print format that includes attendance records
-      if (attendanceRecords.length > 0) {
-        const content = createPersonWithAttendancePrintContent(
+      let content = '';
+      
+      // Use the enhanced print format that includes attendance records if available
+      if (attendanceRecords && attendanceRecords.length > 0) {
+        content = createPersonWithAttendancePrintContent(
           trainee,
           'trainee',
           attendanceRecords,
           isHindi
         );
-        utilHandlePrint(content);
       } else {
         // Fallback to original print format if there are no attendance records
-        const content = createPrintContent([trainee], isHindi);
-        utilHandlePrint(content);
+        content = createPrintContent([trainee], isHindi);
       }
       
+      utilHandlePrint(content);
       toast.success(isHindi ? "प्रिंट विंडो खोल दी गई है" : "Print window opened");
     } catch (error) {
       console.error("Error printing:", error);
@@ -70,7 +70,7 @@ export function useTraineePrintService(trainee: Trainee | null) {
   };
 
   return {
-    isLoading,
+    isLoading: isLoading || attendanceLoading,
     handlePrint,
     handleExcelExport
   };

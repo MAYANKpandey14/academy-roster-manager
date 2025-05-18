@@ -89,9 +89,14 @@ export function handlePrint(content: string): boolean {
     }
     
     // Make sure the content has the styles in the head section, not in the body
-    if (!content.includes('<style>') && !content.includes('<link')) {
-      const styleTag = `<style>${getPrintStyles(false)}</style>`;
-      content = content.replace('<head>', `<head>${styleTag}`);
+    const styleTag = `<style>${getPrintStyles(false)}</style>`;
+    
+    // Check if content already has <head> tags
+    if (!content.includes('<head>')) {
+      content = content.replace('<html>', '<html><head>' + styleTag + '</head>');
+    } else if (!content.includes('<style>') && !content.includes('<link')) {
+      // If it has head tags but no style, add styles to head
+      content = content.replace('<head>', '<head>' + styleTag);
     }
     
     // Write content to the new window
