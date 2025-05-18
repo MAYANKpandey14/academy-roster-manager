@@ -5,7 +5,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { AttendanceRecord } from "./hooks/useFetchAttendance";
 import { PersonType } from "./types/attendanceTypes";
 import { ApprovalStatus } from "./ApprovalStatus";
-import { ApprovalActions } from "./ApprovalActions";
 
 interface AttendanceTableRowProps {
   record: AttendanceRecord;
@@ -22,6 +21,7 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
       case "absent":
         return isHindi ? "अनुपस्थित" : "Absent";
       case "leave":
+        return isHindi ? "छुट्टी पर" : "On Leave";
       case "on_leave":
         return isHindi ? "छुट्टी पर" : "On Leave";
       default:
@@ -43,12 +43,16 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
     }
   };
 
-  return (
-    <TableRow>
+  const renderDateCell = () => {
+    return (
       <TableCell>
         <span className={isHindi ? "font-hindi" : ""}>{record.date}</span>
       </TableCell>
-      
+    );
+  };
+
+  const renderStatusCell = () => {
+    return (
       <TableCell>
         <Badge variant="outline" className={`${getStatusColor(record.type)}`}>
           <span className={isHindi ? "font-hindi" : ""}>
@@ -63,29 +67,40 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
           </div>
         )}
       </TableCell>
-      
+    );
+  };
+
+  const renderReasonCell = () => {
+    return (
       <TableCell>
         <span className={`text-sm ${isHindi ? "font-hindi" : ""}`}>
           {record.reason || "-"}
         </span>
       </TableCell>
-      
+    );
+  };
+
+  const renderApprovalCell = () => {
+    return (
       <TableCell>
         <ApprovalStatus
           status={record.approvalStatus}
+          recordType={record.recordType}
+          recordId={record.recordId}
+          personType={personType}
+          onChange={() => {}}
           readonly
         />
       </TableCell>
-      
-      <TableCell>
-        <ApprovalActions
-          recordId={record.recordId}
-          recordType={record.recordType}
-          personType={personType}
-          currentStatus={record.approvalStatus}
-          absenceType={record.type}
-        />
-      </TableCell>
+    );
+  };
+
+  return (
+    <TableRow>
+      {renderDateCell()}
+      {renderStatusCell()}
+      {renderReasonCell()}
+      {renderApprovalCell()}
     </TableRow>
   );
 }

@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Trainee } from "@/types/trainee";
 import { toast } from "sonner";
+import { getTrainees } from "@/services/api";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 import { TraineeHeader } from "@/components/trainee/view/TraineeHeader";
 import { TraineeDetailsSection } from "@/components/trainee/view/TraineeDetailsSection";
@@ -11,8 +12,8 @@ import { TraineeLoadingState } from "@/components/trainee/view/TraineeLoadingSta
 import { TraineeNotFound } from "@/components/trainee/view/TraineeNotFound";
 import { useTraineePrintService } from "@/components/trainee/view/TraineePrintService";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { exportTraineesToExcel } from "@/utils/export";
 import { supabase } from "@/integrations/supabase/client";
-import { AttendanceTabs } from "@/components/attendance/AttendanceTabs";
 
 const ViewTrainee = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,17 +26,7 @@ const ViewTrainee = () => {
   useLanguageInputs();
   
   // Initialize print service with the trainee data
-  const { handlePrint, handleExcelExport, isLoading: printLoading } = useTraineePrintService(trainee);
-  
-  const handlePrintClick = () => {
-    if (printLoading) return;
-    handlePrint();
-  };
-  
-  const handleExcelExportClick = () => {
-    if (printLoading) return;
-    handleExcelExport();
-  };
+  const { handlePrint, handleExcelExport } = useTraineePrintService(trainee);
 
   useEffect(() => {
     const fetchTrainee = async () => {
@@ -55,7 +46,7 @@ const ViewTrainee = () => {
           .from('trainees')
           .select('*')
           .eq('id', id)
-          .maybeSingle();
+          .single();
         
         if (error) {
           console.error("Error fetching trainee:", error);
@@ -97,26 +88,12 @@ const ViewTrainee = () => {
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
           <TraineeHeader 
             trainee={trainee} 
-            onPrint={handlePrintClick} 
-            onDownload={handleExcelExportClick} 
-            onExcelExport={handleExcelExportClick}
+            onPrint={handlePrint} 
+            onDownload={handleExcelExport} 
+            onExcelExport={handleExcelExport}
           />
           
           <TraineeDetailsSection trainee={trainee} />
-
-          {/* Add attendance tabs section only if trainee data is loaded */}
-          {trainee && trainee.id && (
-            <AttendanceTabs 
-              personId={trainee.id}
-              personType="trainee"
-              personData={{
-                pno: trainee.pno,
-                name: trainee.name,
-                chest_no: trainee.chest_no,
-                mobile_number: trainee.mobile_number
-              }}
-            />
-          )}
         </div>
       </main>
     </div>

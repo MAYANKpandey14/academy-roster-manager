@@ -88,17 +88,6 @@ export function handlePrint(content: string): boolean {
       return false;
     }
     
-    // Make sure the content has the styles in the head section, not in the body
-    const styleTag = `<style>${getPrintStyles(false)}</style>`;
-    
-    // Check if content already has <head> tags
-    if (!content.includes('<head>')) {
-      content = content.replace('<html>', '<html><head>' + styleTag + '</head>');
-    } else if (!content.includes('<style>') && !content.includes('<link')) {
-      // If it has head tags but no style, add styles to head
-      content = content.replace('<head>', '<head>' + styleTag);
-    }
-    
     // Write content to the new window
     printWindow.document.open();
     printWindow.document.write(content);
@@ -107,6 +96,8 @@ export function handlePrint(content: string): boolean {
     // Wait for images to load before printing
     setTimeout(() => {
       printWindow.print();
+      // Close the window after print dialog is closed
+      // printWindow.close(); // Commented out to allow user to close window manually
     }, 1000); // Increased timeout to ensure images load
     
     return true;

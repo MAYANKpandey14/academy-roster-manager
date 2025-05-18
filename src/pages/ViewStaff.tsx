@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { getStaffById } from "@/services/staffApi";
 import { Staff } from "@/types/staff";
 import { toast } from "sonner";
@@ -12,11 +12,9 @@ import { StaffLoadingState } from "@/components/staff/view/StaffLoadingState";
 import { StaffNotFound } from "@/components/staff/view/StaffNotFound";
 import { useStaffPrintService } from "@/components/staff/view/StaffPrintService";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { AttendanceTabs } from "@/components/attendance/AttendanceTabs";
 
 const ViewStaff = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const { id } = useParams();
   const [staff, setStaff] = useState<Staff | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { isHindi } = useLanguage();
@@ -25,65 +23,29 @@ const ViewStaff = () => {
   useLanguageInputs();
 
   // Get print and download functions
-  const { 
-    handlePrintStaff, 
-    handleDownloadStaff, 
-    handleExcelExport, 
-    isLoading: printLoading 
-  } = useStaffPrintService(staff);
-  
-  const handlePrintClick = () => {
-    if (printLoading) return;
-    handlePrintStaff();
-  };
-  
-  const handleDownloadClick = () => {
-    if (printLoading) return;
-    handleDownloadStaff();
-  };
-  
-  const handleExcelExportClick = () => {
-    if (printLoading) return;
-    handleExcelExport();
-  };
+  const { handlePrintStaff, handleDownloadStaff, handleExcelExport } = useStaffPrintService(staff);
 
   useEffect(() => {
     const fetchStaff = async () => {
-      if (!id) {
-        toast.error(isHindi ? "स्टाफ आईडी नहीं मिली" : "Staff ID not found");
-        navigate("/staff");
-        return;
-      }
+      if (!id) return;
       
       try {
         setIsLoading(true);
         const { data, error } = await getStaffById(id);
         
-        if (error) {
-          console.error("Error fetching staff:", error);
-          toast.error(isHindi ? "स्टाफ विवरण लोड नहीं हो सका" : "Failed to fetch staff details");
-          navigate("/staff");
-          return;
-        }
-        
-        if (!data) {
-          toast.error(isHindi ? "स्टाफ नहीं मिला" : "Staff not found");
-          navigate("/staff");
-          return;
-        }
+        if (error) throw error;
         
         setStaff(data);
       } catch (error) {
         console.error("Error fetching staff:", error);
-        toast.error(isHindi ? "स्टाफ विवरण लोड नहीं हो सका" : "Failed to fetch staff details");
-        navigate("/staff");
+        toast.error(isHindi ? "स्टाफ विवरण लोड नहीं हो सकता" : "Failed to fetch staff details");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchStaff();
-  }, [id, isHindi, navigate]);
+  }, [id, isHindi]);
 
   if (isLoading) {
     return <StaffLoadingState />;
@@ -99,28 +61,14 @@ const ViewStaff = () => {
       <main className="container mx-auto py-6 px-4">
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
           <StaffHeader 
-            id={id || ''}
+            id={id}
             staff={staff}
-            onPrint={handlePrintClick}
-            onDownload={handleDownloadClick}
-            onExcelExport={handleExcelExportClick}
+            onPrint={handlePrintStaff}
+            onDownload={handleDownloadStaff}
+            onExcelExport={handleExcelExport}
           />
           
           <StaffDetailsSection staff={staff} />
-          
-          {/* Add attendance tabs section only if staff data is loaded */}
-          {staff && staff.id && (
-            <AttendanceTabs 
-              personId={staff.id}
-              personType="staff"
-              personData={{
-                pno: staff.pno,
-                name: staff.name,
-                rank: staff.rank,
-                mobile_number: staff.mobile_number
-              }}
-            />
-          )}
         </div>
       </main>
     </div>

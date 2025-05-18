@@ -18,7 +18,6 @@ import { AttendanceTableRow } from "./AttendanceTableRow";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PersonData, PersonType } from "./types/attendanceTypes";
-import { createPersonWithAttendancePrintContent } from "@/utils/export/attendancePrintUtils";
 
 interface AttendanceHistoryProps {
   personId: string;
@@ -32,23 +31,39 @@ export const AttendanceHistory = ({ personId, personType, personData }: Attendan
   const [isExporting, setIsExporting] = useState(false);
 
   const handlePrintClick = () => {
-    if (!personData) {
-      toast.error(isHindi ? "प्रिंट करने के लिए व्यक्ति विवरण अनुपलब्ध" : "Person details unavailable for printing");
-      return;
-    }
+    const printContent = document.getElementById('attendance-table')?.outerHTML;
+    if (!printContent) return;
     
-    // Use the new combined print format
-    const content = createPersonWithAttendancePrintContent(
-      personData,
-      personType,
-      attendanceRecords,
-      isHindi
-    );
+    const content = `
+      <html>
+        <head>
+          <title>${isHindi ? 'उपस्थिति रिकॉर्ड' : 'Attendance Records'}</title>
+          <style>
+            body { font-family: 'Space Grotesk', Arial, sans-serif; padding: 20px; }
+            .font-mangal { font-family: 'Mangal', 'Arial Unicode MS', sans-serif; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+            .header-info { margin-bottom: 20px; }
+            .header-info h3 { margin: 5px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="header-info">
+            <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'पी.एन.ओ: ' : 'PNO: '} ${personData?.pno || '-'}</h3>
+            <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'नाम: ' : 'Name: '} ${personData?.name || '-'}</h3>
+            ${personType === 'staff' ? `
+              <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'रैंक: ' : 'Rank: '} ${personData?.rank || '-'}</h3>
+            ` : `
+              <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'छाती संख्या: ' : 'Chest No: '} ${personData?.chest_no || '-'}</h3>
+            `}
+          </div>
+          ${printContent}
+        </body>
+      </html>
+    `;
     
-    const success = handlePrint(content);
-    if (!success) {
-      toast.error(isHindi ? "प्रिंट विंडो खोलने में त्रुटि" : "Error opening print window");
-    }
+    handlePrint(content);
   };
 
   const handleExcelExport = async () => {
@@ -64,7 +79,6 @@ export const AttendanceHistory = ({ personId, personType, personData }: Attendan
         id: index + 1,
         date: record.date,
         type: record.type,
-        leave_type: record.leave_type || '-',
         reason: record.reason || '-',
         status: record.approvalStatus
       }));
@@ -73,7 +87,6 @@ export const AttendanceHistory = ({ personId, personType, personData }: Attendan
         { key: 'id', header: isHindi ? 'क्र.सं.' : 'S.No.' },
         { key: 'date', header: isHindi ? 'दिनांक' : 'Date' },
         { key: 'type', header: isHindi ? 'प्रकार' : 'Type' },
-        { key: 'leave_type', header: isHindi ? 'छुट्टी प्रकार' : 'Leave Type' },
         { key: 'reason', header: isHindi ? 'कारण' : 'Reason' },
         { key: 'status', header: isHindi ? 'स्थिति' : 'Status' }
       ];
@@ -118,7 +131,7 @@ export const AttendanceHistory = ({ personId, personType, personData }: Attendan
             variant="outline" 
             size="sm" 
             onClick={handlePrintClick} 
-            disabled={isLoading || !personData}
+            disabled={isLoading || !attendanceRecords || attendanceRecords.length === 0}
           >
             <Printer className="h-4 w-4 mr-2" />
             <span className={isHindi ? 'font-mangal' : ''}>
@@ -143,10 +156,10 @@ export const AttendanceHistory = ({ personId, personType, personData }: Attendan
                   {isHindi ? "कारण" : "Reason"}
                 </TableHead>
                 <TableHead className={isHindi ? 'font-mangal' : ''}>
-                  {isHindi ? "अनुमोदन स्थिति" : "Approval Status"}
+                  {isHindi ? "स्थिति" : "Status"}
                 </TableHead>
                 <TableHead className={isHindi ? 'font-mangal' : ''}>
-                  {isHindi ? "कार्य" : "Actions"}
+                  {isHindi ? "कार्रवाई" : "Actions"}
                 </TableHead>
               </TableRow>
             </TableHeader>

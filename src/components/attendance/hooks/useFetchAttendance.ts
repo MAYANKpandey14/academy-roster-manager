@@ -5,24 +5,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { PersonType } from '../types/attendanceTypes';
 
-// Simple record types to avoid deep type instantiation
-interface AttendanceDbRecord {
-  id: string;
-  date: string;
-  status: string;
-  approval_status?: string;
-  reason?: string;
-}
-
-interface LeaveDbRecord {
-  id: string;
-  start_date: string;
-  end_date: string;
-  reason: string;
-  status: string;
-  leave_type?: string;
-}
-
 export interface AttendanceRecord {
   id: string;
   date: string;
@@ -34,18 +16,12 @@ export interface AttendanceRecord {
   leave_type?: string;
 }
 
-interface UseFetchAttendanceResult {
-  records: AttendanceRecord[];
-  isLoading: boolean;
-  error: string | null;
-}
-
 export function useFetchAttendance(
   personId: string | null, 
   personType: PersonType,
   startDate?: Date,
   endDate?: Date
-): UseFetchAttendanceResult {
+) {
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,17 +58,17 @@ export function useFetchAttendance(
           
         if (attendanceError) throw attendanceError;
         
-        // Fetch leave records 
+        // Fetch leave records - Fix the excessive type instantiation by simplifying the query
         const { data: leaveData, error: leaveError } = await supabase
           .from(leaveTable)
-          .select('id, start_date, end_date, reason, status, leave_type')
+          .select('*')
           .eq(personIdColumn, personId)
           .order('start_date', { ascending: false });
           
         if (leaveError) throw leaveError;
 
-        // Filter leave records that fall within the date range
-        const filteredLeaveData = (leaveData || []).filter((record: any) => {
+        // Filtered leave records that fall within the date range
+        const filteredLeaveData = (leaveData || []).filter(record => {
           // Check if leave period overlaps with the selected date range
           const leaveStart = new Date(record.start_date);
           const leaveEnd = new Date(record.end_date);
@@ -103,38 +79,35 @@ export function useFetchAttendance(
           return (leaveStart <= rangeEnd && leaveEnd >= rangeStart);
         });
 
-        // Process attendance data using simple type annotation
-        const formattedAttendanceRecords: AttendanceRecord[] = (attendanceData || []).map((record: any) => ({
+        // Process attendance data
+        const formattedAttendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => ({
           id: `attendance-${record.id}`,
           date: format(new Date(record.date), 'yyyy-MM-dd'),
           type: record.status || 'present',
-          reason: record.reason || '',
-          approvalStatus: (record.approval_status as "pending" | "approved" | "rejected") || "pending",
-          recordType: "absence" as const,
+          approvalStatus: record.approval_status as "pending" | "approved" | "rejected",
+          recordType: "absence",
           recordId: record.id,
         }));
         
-        // Process leave data using simple type annotation
-        const formattedLeaveRecords: AttendanceRecord[] = (filteredLeaveData || []).map((record: any) => ({
+        // Process leave data 
+        const formattedLeaveRecords: AttendanceRecord[] = filteredLeaveData.map(record => ({
           id: `leave-${record.id}`,
           date: `${format(new Date(record.start_date), 'yyyy-MM-dd')} to ${format(new Date(record.end_date), 'yyyy-MM-dd')}`,
           type: 'on_leave',
-          reason: record.reason || '',
-          approvalStatus: (record.status as "pending" | "approved" | "rejected") || "pending",
-          recordType: "leave" as const,
+          reason: record.reason,
+          approvalStatus: record.status as "pending" | "approved" | "rejected",
+          recordType: "leave",
           recordId: record.id,
           leave_type: record.leave_type
         }));
         
         // Combine and sort all records by date (most recent first)
-        const combinedRecords: AttendanceRecord[] = [...formattedAttendanceRecords, ...formattedLeaveRecords]
+        setRecords([...formattedAttendanceRecords, ...formattedLeaveRecords]
           .sort((a, b) => {
             const dateA = a.date.split(' to ')[0]; 
             const dateB = b.date.split(' to ')[0];
             return new Date(dateB).getTime() - new Date(dateA).getTime();
-          });
-          
-        setRecords(combinedRecords);
+          }));
       } catch (err) {
         console.error("Error fetching attendance:", err);
         setError(isHindi 

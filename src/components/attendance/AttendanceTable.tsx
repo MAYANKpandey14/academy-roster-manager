@@ -24,13 +24,9 @@ interface AttendanceTableProps {
 
 export const AttendanceTable = ({ personId, personType, personData }: AttendanceTableProps) => {
   const { isHindi } = useLanguage();
-  // Using a simple try-catch to prevent errors when personId is invalid
-  const { records: attendanceRecords, isLoading, error } = 
-    useFetchAttendance(personId || null, personType);
+  const { records: attendanceRecords, isLoading } = useFetchAttendance(personId, personType);
 
   const handlePrintClick = () => {
-    if (!personData) return;
-    
     const printContent = document.getElementById('attendance-table')?.outerHTML;
     if (!printContent) return;
     
@@ -58,11 +54,11 @@ export const AttendanceTable = ({ personId, personType, personData }: Attendance
           <div class="header-info">
             <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'पी.एन.ओ: ' : 'PNO: '} ${personData?.pno || '-'}</h3>
             <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'नाम: ' : 'Name: '} ${personData?.name || '-'}</h3>
-            ${personType === 'staff' && personData?.rank ? `
-              <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'रैंक: ' : 'Rank: '} ${personData.rank || '-'}</h3>
-            ` : personType === 'trainee' && personData?.chest_no ? `
-              <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'छाती संख्या: ' : 'Chest No: '} ${personData.chest_no || '-'}</h3>
-            ` : ''}
+            ${personType === 'staff' ? `
+              <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'रैंक: ' : 'Rank: '} ${personData?.rank || '-'}</h3>
+            ` : `
+              <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'छाती संख्या: ' : 'Chest No: '} ${personData?.chest_no || '-'}</h3>
+            `}
           </div>
           ${printContent}
         </body>
@@ -79,12 +75,7 @@ export const AttendanceTable = ({ personId, personType, personData }: Attendance
           {isHindi ? "उपस्थिति सारांश" : "Attendance Summary"}
         </h3>
         
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={handlePrintClick}
-          disabled={isLoading || !attendanceRecords?.length}
-        >
+        <Button variant="outline" size="sm" onClick={handlePrintClick}>
           <Printer className="h-4 w-4 mr-2" />
           <span className={isHindi ? 'font-mangal' : ''}>
             {isHindi ? "प्रिंट करें" : "Print"}
@@ -101,33 +92,22 @@ export const AttendanceTable = ({ personId, personType, personData }: Attendance
                   {isHindi ? "दिनांक" : "Date"}
                 </TableHead>
                 <TableHead className={isHindi ? 'font-mangal' : ''}>
-                  {isHindi ? "प्रकार" : "Type"}
+                  {isHindi ? "स्थिति" : "Status"}
                 </TableHead>
                 <TableHead className={isHindi ? 'font-mangal' : ''}>
                   {isHindi ? "कारण" : "Reason"}
                 </TableHead>
                 <TableHead className={isHindi ? 'font-mangal' : ''}>
-                  {isHindi ? "अनुमोदन स्थिति" : "Approval Status"}
-                </TableHead>
-                <TableHead className={isHindi ? 'font-mangal' : ''}>
-                  {isHindi ? "कार्य" : "Actions"}
+                  {isHindi ? "स्थिति" : "Status"}
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
+                  <TableCell colSpan={4} className="text-center py-8">
                     <span className={isHindi ? 'font-mangal' : ''}>
                       {isHindi ? "लोड हो रहा है..." : "Loading..."}
-                    </span>
-                  </TableCell>
-                </TableRow>
-              ) : error ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-red-500">
-                    <span className={isHindi ? 'font-mangal' : ''}>
-                      {error}
                     </span>
                   </TableCell>
                 </TableRow>
@@ -141,7 +121,7 @@ export const AttendanceTable = ({ personId, personType, personData }: Attendance
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
+                  <TableCell colSpan={4} className="text-center py-8">
                     <span className={isHindi ? 'font-mangal' : ''}>
                       {isHindi ? "कोई डेटा उपलब्ध नहीं है" : "No data available"}
                     </span>
