@@ -5,8 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { PersonType } from '../types/attendanceTypes';
 
-// Define explicit interface for attendance record types
-interface BaseAttendanceRecord {
+// Simplified attendance record type to avoid deep type instantiation
+interface AttendanceDbRecord {
   id: string;
   date: string;
   status: string;
@@ -14,37 +14,21 @@ interface BaseAttendanceRecord {
   created_at: string;
   updated_at: string;
   reason?: string;
+  staff_id?: string;
+  trainee_id?: string;
 }
 
-interface StaffAttendanceRecord extends BaseAttendanceRecord {
-  staff_id: string;
-}
-
-interface TraineeAttendanceRecord extends BaseAttendanceRecord {
-  trainee_id: string;
-}
-
-type AttendanceDbRecord = StaffAttendanceRecord | TraineeAttendanceRecord;
-
-// Define explicit interface for leave record types
-interface BaseLeaveRecord {
+// Simplified leave record type to avoid deep type instantiation
+interface LeaveDbRecord {
   id: string;
   start_date: string;
   end_date: string;
   reason: string;
   status: string;
   leave_type?: string;
+  staff_id?: string;
+  trainee_id?: string;
 }
-
-interface StaffLeaveRecord extends BaseLeaveRecord {
-  staff_id: string;
-}
-
-interface TraineeLeaveRecord extends BaseLeaveRecord {
-  trainee_id: string;
-}
-
-type LeaveDbRecord = StaffLeaveRecord | TraineeLeaveRecord;
 
 export interface AttendanceRecord {
   id: string;
@@ -137,8 +121,15 @@ export function useFetchAttendance(
           recordId: record.id,
         }));
         
-        // Process leave data 
-        const formattedLeaveRecords: AttendanceRecord[] = (filteredLeaveData || []).map((record: LeaveDbRecord) => ({
+        // Process leave data - using explicit typing for the map function
+        const formattedLeaveRecords: AttendanceRecord[] = (filteredLeaveData || []).map((record: {
+          id: string;
+          start_date: string;
+          end_date: string;
+          reason: string;
+          status: string;
+          leave_type?: string;
+        }) => ({
           id: `leave-${record.id}`,
           date: `${format(new Date(record.start_date), 'yyyy-MM-dd')} to ${format(new Date(record.end_date), 'yyyy-MM-dd')}`,
           type: 'on_leave',
