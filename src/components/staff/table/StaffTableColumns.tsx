@@ -59,7 +59,7 @@ export const getStaffColumns = (
   },
   {
     accessorKey: "pno",
-    header: "PNO",
+    header: "PNO/Unique ID",
     cell: ({ row }) => {
       return <div className="font-medium">{row.getValue("pno")}</div>;
     },
