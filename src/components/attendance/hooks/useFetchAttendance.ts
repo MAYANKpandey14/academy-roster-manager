@@ -6,30 +6,28 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { PersonType } from '../types/attendanceTypes';
 
 // Define explicit interface for attendance record types
-interface StaffAttendanceRecord {
+interface BaseAttendanceRecord {
   id: string;
-  staff_id: string;
   date: string;
   status: string;
   approval_status: string;
-  reason?: string;
   created_at: string;
   updated_at: string;
+  reason?: string;
 }
 
-interface TraineeAttendanceRecord {
-  id: string;
-  trainee_id: string;
-  date: string;
-  status: string;
-  approval_status: string;
-  reason?: string;
-  created_at: string;
-  updated_at: string;
+interface StaffAttendanceRecord extends BaseAttendanceRecord {
+  staff_id: string;
 }
+
+interface TraineeAttendanceRecord extends BaseAttendanceRecord {
+  trainee_id: string;
+}
+
+type AttendanceDbRecord = StaffAttendanceRecord | TraineeAttendanceRecord;
 
 // Define explicit interface for leave record types
-interface LeaveRecord {
+interface BaseLeaveRecord {
   id: string;
   start_date: string;
   end_date: string;
@@ -37,6 +35,16 @@ interface LeaveRecord {
   status: string;
   leave_type?: string;
 }
+
+interface StaffLeaveRecord extends BaseLeaveRecord {
+  staff_id: string;
+}
+
+interface TraineeLeaveRecord extends BaseLeaveRecord {
+  trainee_id: string;
+}
+
+type LeaveDbRecord = StaffLeaveRecord | TraineeLeaveRecord;
 
 export interface AttendanceRecord {
   id: string;
@@ -119,7 +127,7 @@ export function useFetchAttendance(
         });
 
         // Process attendance data
-        const formattedAttendanceRecords: AttendanceRecord[] = (attendanceData || []).map((record: any) => ({
+        const formattedAttendanceRecords: AttendanceRecord[] = (attendanceData || []).map((record: AttendanceDbRecord) => ({
           id: `attendance-${record.id}`,
           date: format(new Date(record.date), 'yyyy-MM-dd'),
           type: record.status || 'present',
@@ -130,7 +138,7 @@ export function useFetchAttendance(
         }));
         
         // Process leave data 
-        const formattedLeaveRecords: AttendanceRecord[] = (filteredLeaveData || []).map((record: any) => ({
+        const formattedLeaveRecords: AttendanceRecord[] = (filteredLeaveData || []).map((record: LeaveDbRecord) => ({
           id: `leave-${record.id}`,
           date: `${format(new Date(record.start_date), 'yyyy-MM-dd')} to ${format(new Date(record.end_date), 'yyyy-MM-dd')}`,
           type: 'on_leave',
