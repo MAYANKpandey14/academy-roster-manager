@@ -12,6 +12,7 @@ import { TraineeNotFound } from "@/components/trainee/view/TraineeNotFound";
 import { useTraineePrintService } from "@/components/trainee/view/TraineePrintService";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { AttendanceTabs } from "@/components/attendance/AttendanceTabs";
 
 const ViewTrainee = () => {
   const { id } = useParams<{ id: string }>();
@@ -102,6 +103,20 @@ const ViewTrainee = () => {
           />
           
           <TraineeDetailsSection trainee={trainee} />
+
+          {/* Add attendance tabs section only if trainee data is loaded */}
+          {trainee && trainee.id && (
+            <AttendanceTabs 
+              personId={trainee.id}
+              personType="trainee"
+              personData={{
+                pno: trainee.pno,
+                name: trainee.name,
+                chest_no: trainee.chest_no,
+                mobile_number: trainee.mobile_number
+              }}
+            />
+          )}
         </div>
       </main>
     </div>

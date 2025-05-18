@@ -6,6 +6,22 @@ import { PersonDetailsProps } from "./types/attendanceTypes";
 export function PersonDetails({ person, personType }: PersonDetailsProps) {
   const { isHindi } = useLanguage();
 
+  // If person data is not available, show a placeholder
+  if (!person) {
+    return (
+      <Card className="animate-fade-in">
+        <CardContent className="pt-6">
+          <h3 className={`text-lg font-medium mb-4 ${isHindi ? "font-hindi" : ""}`}>
+            {isHindi ? "व्यक्तिगत विवरण" : "Person Details"}
+          </h3>
+          <div className="text-gray-500">
+            {isHindi ? "कोई व्यक्तिगत डेटा उपलब्ध नहीं है" : "No person data available"}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const renderField = (label: string, value: string | undefined) => (
     <div className="flex flex-col mb-2 animate-fade-in">
       <span className={`text-sm text-gray-500 ${isHindi ? "font-hindi" : ""}`}>

@@ -12,9 +12,10 @@ import { StaffLoadingState } from "@/components/staff/view/StaffLoadingState";
 import { StaffNotFound } from "@/components/staff/view/StaffNotFound";
 import { useStaffPrintService } from "@/components/staff/view/StaffPrintService";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { AttendanceTabs } from "@/components/attendance/AttendanceTabs";
 
 const ViewStaff = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [staff, setStaff] = useState<Staff | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,7 +25,12 @@ const ViewStaff = () => {
   useLanguageInputs();
 
   // Get print and download functions
-  const { handlePrintStaff, handleDownloadStaff, handleExcelExport, isLoading: printLoading } = useStaffPrintService(staff);
+  const { 
+    handlePrintStaff, 
+    handleDownloadStaff, 
+    handleExcelExport, 
+    isLoading: printLoading 
+  } = useStaffPrintService(staff);
   
   const handlePrintClick = () => {
     if (printLoading) return;
@@ -93,7 +99,7 @@ const ViewStaff = () => {
       <main className="container mx-auto py-6 px-4">
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
           <StaffHeader 
-            id={id}
+            id={id || ''}
             staff={staff}
             onPrint={handlePrintClick}
             onDownload={handleDownloadClick}
@@ -101,6 +107,20 @@ const ViewStaff = () => {
           />
           
           <StaffDetailsSection staff={staff} />
+          
+          {/* Add attendance tabs section only if staff data is loaded */}
+          {staff && staff.id && (
+            <AttendanceTabs 
+              personId={staff.id}
+              personType="staff"
+              personData={{
+                pno: staff.pno,
+                name: staff.name,
+                rank: staff.rank,
+                mobile_number: staff.mobile_number
+              }}
+            />
+          )}
         </div>
       </main>
     </div>

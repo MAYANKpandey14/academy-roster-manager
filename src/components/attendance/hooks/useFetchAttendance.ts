@@ -5,20 +5,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { PersonType } from '../types/attendanceTypes';
 
-// Simplified attendance record type to avoid deep type instantiation
+// Simple record types to avoid deep type instantiation
 interface AttendanceDbRecord {
   id: string;
   date: string;
   status: string;
-  approval_status: string;
-  created_at: string;
-  updated_at: string;
+  approval_status?: string;
   reason?: string;
-  staff_id?: string;
-  trainee_id?: string;
 }
 
-// Simplified leave record type to avoid deep type instantiation
 interface LeaveDbRecord {
   id: string;
   start_date: string;
@@ -26,8 +21,6 @@ interface LeaveDbRecord {
   reason: string;
   status: string;
   leave_type?: string;
-  staff_id?: string;
-  trainee_id?: string;
 }
 
 export interface AttendanceRecord {
@@ -110,8 +103,8 @@ export function useFetchAttendance(
           return (leaveStart <= rangeEnd && leaveEnd >= rangeStart);
         });
 
-        // Process attendance data
-        const formattedAttendanceRecords: AttendanceRecord[] = (attendanceData || []).map((record: AttendanceDbRecord) => ({
+        // Process attendance data using simple type annotation
+        const formattedAttendanceRecords: AttendanceRecord[] = (attendanceData || []).map((record: any) => ({
           id: `attendance-${record.id}`,
           date: format(new Date(record.date), 'yyyy-MM-dd'),
           type: record.status || 'present',
@@ -121,15 +114,8 @@ export function useFetchAttendance(
           recordId: record.id,
         }));
         
-        // Process leave data - using explicit typing for the map function
-        const formattedLeaveRecords: AttendanceRecord[] = (filteredLeaveData || []).map((record: {
-          id: string;
-          start_date: string;
-          end_date: string;
-          reason: string;
-          status: string;
-          leave_type?: string;
-        }) => ({
+        // Process leave data using simple type annotation
+        const formattedLeaveRecords: AttendanceRecord[] = (filteredLeaveData || []).map((record: any) => ({
           id: `leave-${record.id}`,
           date: `${format(new Date(record.start_date), 'yyyy-MM-dd')} to ${format(new Date(record.end_date), 'yyyy-MM-dd')}`,
           type: 'on_leave',
