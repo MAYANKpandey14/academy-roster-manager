@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { AttendanceRecord } from "./hooks/useFetchAttendance";
 import { PersonType } from "./types/attendanceTypes";
 import { ApprovalStatus } from "./ApprovalStatus";
+import { ApprovalActions } from "./ApprovalActions";
 
 interface AttendanceTableRowProps {
   record: AttendanceRecord;
@@ -95,12 +96,27 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
     );
   };
 
+  const renderActionsCell = () => {
+    return (
+      <TableCell>
+        <ApprovalActions
+          recordId={record.recordId}
+          recordType={record.recordType}
+          personType={personType}
+          currentStatus={record.approvalStatus}
+          absenceType={record.type}
+        />
+      </TableCell>
+    );
+  };
+
   return (
     <TableRow>
       {renderDateCell()}
       {renderStatusCell()}
       {renderReasonCell()}
       {renderApprovalCell()}
+      {renderActionsCell()}
     </TableRow>
   );
 }

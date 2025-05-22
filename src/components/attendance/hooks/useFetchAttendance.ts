@@ -16,22 +16,22 @@ export interface AttendanceRecord {
   leave_type?: string;
 }
 
-// Simple type definitions to avoid excessive type instantiation
-type AttendanceDbRecord = {
+// Define simplified types to avoid excessive type instantiation
+interface AttendanceDbRecord {
   id: string;
   date: string;
   status: string;
   approval_status: string;
-};
+}
 
-type LeaveDbRecord = {
+interface LeaveDbRecord {
   id: string;
   start_date: string;
   end_date: string;
   reason: string;
   status: string;
   leave_type?: string;
-};
+}
 
 export function useFetchAttendance(
   personId: string | null, 
@@ -67,7 +67,7 @@ export function useFetchAttendance(
         // Fetch attendance records
         const { data: attendanceData, error: attendanceError } = await supabase
           .from(attendanceTable)
-          .select('*')
+          .select('id, date, status, approval_status')
           .eq(personIdColumn, personId)
           .gte('date', formattedStartDate)
           .lte('date', formattedEndDate)
@@ -75,7 +75,7 @@ export function useFetchAttendance(
           
         if (attendanceError) throw attendanceError;
         
-        // Fetch leave records using a simplified query to avoid TypeScript issues
+        // Fetch leave records
         const { data: leaveData, error: leaveError } = await supabase
           .from(leaveTable)
           .select('id, start_date, end_date, reason, status, leave_type')
@@ -85,7 +85,7 @@ export function useFetchAttendance(
         if (leaveError) throw leaveError;
 
         // Filter leave records that fall within the date range
-        const filteredLeaveData = (leaveData || []).filter(record => {
+        const filteredLeaveData = (leaveData || []).filter((record: any) => {
           const leaveStart = new Date(record.start_date);
           const leaveEnd = new Date(record.end_date);
           const rangeStart = new Date(formattedStartDate);
@@ -95,27 +95,42 @@ export function useFetchAttendance(
           return (leaveStart <= rangeEnd && leaveEnd >= rangeStart);
         });
 
+        // Extract the status part for reason if it contains a colon (format: "absent: reason")
+        const extractReason = (status: string): { type: string, reason?: string } => {
+          if (status.includes(':')) {
+            const [type, reason] = status.split(':', 2);
+            return { type: type.trim(), reason: reason.trim() };
+          }
+          return { type: status };
+        };
+
         // Process attendance data
-        const formattedAttendanceRecords: AttendanceRecord[] = (attendanceData || []).map((record: AttendanceDbRecord) => ({
-          id: `attendance-${record.id}`,
-          date: format(new Date(record.date), 'yyyy-MM-dd'),
-          type: record.status || 'present',
-          approvalStatus: record.approval_status as "pending" | "approved" | "rejected",
-          recordType: "absence",
-          recordId: record.id,
-        }));
+        const formattedAttendanceRecords: AttendanceRecord[] = (attendanceData || []).map((record: any) => {
+          const { type, reason } = extractReason(record.status || 'present');
+          return {
+            id: `attendance-${record.id}`,
+            date: format(new Date(record.date), 'yyyy-MM-dd'),
+            type: type,
+            reason: reason,
+            approvalStatus: record.approval_status as "pending" | "approved" | "rejected",
+            recordType: "absence",
+            recordId: record.id,
+          };
+        });
         
-        // Process leave data with explicit typing
-        const formattedLeaveRecords: AttendanceRecord[] = filteredLeaveData.map((record: LeaveDbRecord) => ({
-          id: `leave-${record.id}`,
-          date: `${format(new Date(record.start_date), 'yyyy-MM-dd')} to ${format(new Date(record.end_date), 'yyyy-MM-dd')}`,
-          type: 'on_leave',
-          reason: record.reason,
-          approvalStatus: record.status as "pending" | "approved" | "rejected",
-          recordType: "leave",
-          recordId: record.id,
-          leave_type: record.leave_type
-        }));
+        // Process leave data
+        const formattedLeaveRecords: AttendanceRecord[] = (filteredLeaveData || []).map((record: any) => {
+          return {
+            id: `leave-${record.id}`,
+            date: `${format(new Date(record.start_date), 'yyyy-MM-dd')} to ${format(new Date(record.end_date), 'yyyy-MM-dd')}`,
+            type: 'on_leave',
+            reason: record.reason,
+            approvalStatus: record.status as "pending" | "approved" | "rejected",
+            recordType: "leave",
+            recordId: record.id,
+            leave_type: record.leave_type
+          };
+        });
         
         // Combine and sort all records by date (most recent first)
         setRecords([...formattedAttendanceRecords, ...formattedLeaveRecords]

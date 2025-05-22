@@ -32,7 +32,7 @@ export function ApprovalActions({
   }
   
   // Check if this absence type requires approval based on the business rules
-  const requiresApproval = (absenceType && ['on_leave', 'resignation'].includes(absenceType));
+  const requiresApproval = absenceType && ['on_leave', 'resignation'].includes(absenceType);
   
   // If it's an absence type that doesn't require approval, don't show approval actions
   if (recordType === 'absence' && absenceType && !requiresApproval) {
@@ -53,7 +53,7 @@ export function ApprovalActions({
           absence: 'staff_attendance',
           leave: 'staff_leave'
         }
-      } as const;
+      };
       
       const tableName = tableMap[personType][recordType];
       
