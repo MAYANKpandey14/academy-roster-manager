@@ -44,18 +44,13 @@ export function ApprovalActions({
     
     try {
       // Determine which table to update
-      const tableMap = {
-        trainee: {
-          absence: 'trainee_attendance',
-          leave: 'trainee_leave'
-        },
-        staff: {
-          absence: 'staff_attendance',
-          leave: 'staff_leave'
-        }
-      };
+      let tableName: 'trainee_attendance' | 'staff_attendance' | 'trainee_leave' | 'staff_leave';
       
-      const tableName = tableMap[personType][recordType];
+      if (personType === 'trainee') {
+        tableName = recordType === 'absence' ? 'trainee_attendance' : 'trainee_leave';
+      } else {
+        tableName = recordType === 'absence' ? 'staff_attendance' : 'staff_leave';
+      }
       
       // Field to update depends on record type
       const updateField = recordType === 'leave' ? 'status' : 'approval_status';
