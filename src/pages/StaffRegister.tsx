@@ -21,7 +21,6 @@ import { ServiceInfoFields } from '@/components/staff/form/ServiceInfoFields';
 import { ContactInfoFields } from '@/components/staff/form/ContactInfoFields';
 import { StaffFormValues } from '@/components/staff/StaffFormSchema';
 import { Separator } from '@/components/ui/separator';
-import { supabase } from '@/integrations/supabase/client';
 
 const StaffRegister = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -59,18 +58,19 @@ const StaffRegister = () => {
     try {
       console.log('Submitting staff data:', data);
 
-      // Call the staff-register edge function
+      // Call the staff-register edge function with proper headers
       const response = await fetch('https://zjgphamebgrclivvkhmw.supabase.co/functions/v1/staff-register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZ3BoYW1lYmdyY2xpdnZraG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU2OTM2NDcsImV4cCI6MjA2MTI2OTY0N30.1SmOoYa7R4iybW0nCIuc-FrbYML-EP9yC2ykJ6kpUTo'
         },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to register staff');
+        throw new Error(errorData.error || `Failed to register staff (Status: ${response.status})`);
       }
 
       const result = await response.json();

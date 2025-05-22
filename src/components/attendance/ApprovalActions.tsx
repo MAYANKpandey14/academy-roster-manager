@@ -1,123 +1,123 @@
 
-import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { Check, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { PersonType } from './types/attendanceTypes';
 
 interface ApprovalActionsProps {
   recordId: string;
-  recordType: 'absence' | 'leave';
-  personType: 'staff' | 'trainee';
-  currentStatus: 'approved' | 'pending' | 'rejected';
-  absenceType?: string; // To know the type of absence
+  recordType: 'attendance' | 'leave';
+  personType: PersonType;
+  currentStatus: string;
+  absenceType: string;
 }
 
-export function ApprovalActions({ 
-  recordId, 
-  recordType, 
-  personType, 
+export function ApprovalActions({
+  recordId,
+  recordType,
+  personType,
   currentStatus,
   absenceType
 }: ApprovalActionsProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const queryClient = useQueryClient();
   const { isHindi } = useLanguage();
-  
-  // Skip showing actions if already approved/rejected
-  if (currentStatus !== 'pending') {
+  const [isApproving, setIsApproving] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
+
+  // Only show approval actions for pending items
+  // Also don't show approval for 'present' status which doesn't need approval
+  if (currentStatus !== 'pending' || absenceType === 'present') {
     return null;
   }
-  
-  // Check if this absence type requires approval based on the business rules
-  const requiresApproval = absenceType && ['on_leave', 'resignation'].includes(absenceType);
-  
-  // If it's an absence type that doesn't require approval, don't show approval actions
-  if (recordType === 'absence' && absenceType && !requiresApproval) {
-    return null;
-  }
-  
-  const handleApprovalAction = async (action: 'approve' | 'reject') => {
-    setIsLoading(true);
-    
+
+  const handleApprove = async () => {
+    setIsApproving(true);
+    await updateApprovalStatus('approved');
+    setIsApproving(false);
+  };
+
+  const handleReject = async () => {
+    setIsRejecting(true);
+    await updateApprovalStatus('rejected');
+    setIsRejecting(false);
+  };
+
+  const updateApprovalStatus = async (status: 'approved' | 'rejected') => {
     try {
-      // Determine which table to update
-      let tableName: 'trainee_attendance' | 'staff_attendance' | 'trainee_leave' | 'staff_leave';
-      
-      if (personType === 'trainee') {
-        tableName = recordType === 'absence' ? 'trainee_attendance' : 'trainee_leave';
+      // Determine the table name based on recordType and personType
+      let tableName: string;
+
+      if (recordType === 'attendance') {
+        tableName = personType === 'trainee' ? 'trainee_attendance' : 'staff_attendance';
       } else {
-        tableName = recordType === 'absence' ? 'staff_attendance' : 'staff_leave';
+        tableName = personType === 'trainee' ? 'trainee_leave' : 'staff_leave';
       }
-      
-      // Field to update depends on record type
-      const updateField = recordType === 'leave' ? 'status' : 'approval_status';
-      const updateValue = action === 'approve' ? 'approved' : 'rejected';
-      
-      console.log(`Updating record in table ${tableName}, field ${updateField}, value: ${updateValue}`);
-      
-      // Update the record
-      const { data, error } = await supabase
-        .from(tableName)
-        .update({ [updateField]: updateValue })
-        .eq('id', recordId)
-        .select();
-      
+
+      // Type-safe approach for Supabase table names
+      const validTableNames = ['trainee_attendance', 'staff_attendance', 'trainee_leave', 'staff_leave'] as const;
+      if (!validTableNames.includes(tableName as any)) {
+        throw new Error(`Invalid table name: ${tableName}`);
+      }
+
+      // Use the table name safely
+      const { error } = await supabase
+        .from(tableName as any)
+        .update({ 
+          ...(recordType === 'attendance' ? { approval_status: status } : { status }),
+        })
+        .eq('id', recordId);
+
       if (error) {
-        console.error("Error updating approval status:", error);
         throw error;
       }
-      
-      console.log("Update result:", data);
-      
-      // Show success message
+
       toast.success(
-        isHindi
-          ? (action === 'approve' ? 'अनुरोध स्वीकृत' : 'अनुरोध अस्वीकृत')
-          : (action === 'approve' ? 'Request approved' : 'Request rejected')
+        status === 'approved'
+          ? isHindi
+            ? 'स्वीकृत किया गया'
+            : 'Approved successfully'
+          : isHindi
+          ? 'अस्वीकृत किया गया'
+          : 'Rejected successfully'
       );
-      
-      // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ['attendance'] });
-      queryClient.invalidateQueries({ queryKey: ['absences'] });
-      queryClient.invalidateQueries({ queryKey: ['leaves'] });
-      
     } catch (error) {
       console.error('Error updating approval status:', error);
       toast.error(
         isHindi
-          ? 'स्थिति अपडेट करने में त्रुटि'
+          ? 'अपडेट करने में त्रुटि हुई'
           : 'Error updating status'
       );
-    } finally {
-      setIsLoading(false);
     }
   };
-  
+
   return (
     <div className="flex space-x-2">
       <Button
-        variant="ghost"
         size="sm"
-        className="w-8 h-8 p-0 text-green-500 hover:text-green-700 hover:bg-green-100 transition-colors duration-200"
-        disabled={isLoading}
-        onClick={() => handleApprovalAction('approve')}
-        title={isHindi ? 'स्वीकृत करें' : 'Approve'}
+        variant="outline"
+        className="bg-green-50 text-green-600 hover:bg-green-100 border-green-200"
+        onClick={handleApprove}
+        disabled={isApproving || isRejecting}
       >
-        <Check className="h-4 w-4" />
+        <span className={isHindi ? 'font-hindi' : ''}>
+          {isApproving 
+            ? (isHindi ? 'स्वीकृत कर रहा है...' : 'Approving...') 
+            : (isHindi ? 'स्वीकृत करें' : 'Approve')}
+        </span>
       </Button>
-      
       <Button
-        variant="ghost"
         size="sm"
-        className="w-8 h-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-100 transition-colors duration-200"
-        disabled={isLoading}
-        onClick={() => handleApprovalAction('reject')}
-        title={isHindi ? 'अस्वीकृत करें' : 'Reject'}
+        variant="outline"
+        className="bg-red-50 text-red-600 hover:bg-red-100 border-red-200"
+        onClick={handleReject}
+        disabled={isApproving || isRejecting}
       >
-        <X className="h-4 w-4" />
+        <span className={isHindi ? 'font-hindi' : ''}>
+          {isRejecting 
+            ? (isHindi ? 'अस्वीकृत कर रहा है...' : 'Rejecting...') 
+            : (isHindi ? 'अस्वीकृत करें' : 'Reject')}
+        </span>
       </Button>
     </div>
   );
