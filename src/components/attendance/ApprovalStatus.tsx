@@ -1,14 +1,27 @@
 
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PersonType } from "./types/attendanceTypes";
 import { memo } from "react";
 
-interface ApprovalStatusProps {
+export interface ApprovalStatusProps {
   status: 'approved' | 'pending' | 'rejected';
+  recordType?: 'absence' | 'leave';
+  recordId?: string;
+  personType?: PersonType;
+  onChange?: () => void;
+  readonly?: boolean;
 }
 
 // Using memo to prevent unnecessary re-renders
-export const ApprovalStatus = memo(function ApprovalStatus({ status }: ApprovalStatusProps) {
+export const ApprovalStatus = memo(function ApprovalStatus({ 
+  status,
+  recordType,
+  recordId,
+  personType,
+  onChange,
+  readonly
+}: ApprovalStatusProps) {
   const { isHindi } = useLanguage();
   
   if (status === 'approved') {

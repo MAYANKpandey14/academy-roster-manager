@@ -16,6 +16,23 @@ export interface AttendanceRecord {
   leave_type?: string;
 }
 
+// Simple type definitions to avoid excessive type instantiation
+type AttendanceDbRecord = {
+  id: string;
+  date: string;
+  status: string;
+  approval_status: string;
+};
+
+type LeaveDbRecord = {
+  id: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  status: string;
+  leave_type?: string;
+};
+
 export function useFetchAttendance(
   personId: string | null, 
   personType: PersonType,
@@ -58,18 +75,17 @@ export function useFetchAttendance(
           
         if (attendanceError) throw attendanceError;
         
-        // Fetch leave records - Fix the excessive type instantiation by simplifying the query
+        // Fetch leave records using a simplified query to avoid TypeScript issues
         const { data: leaveData, error: leaveError } = await supabase
           .from(leaveTable)
-          .select('*')
+          .select('id, start_date, end_date, reason, status, leave_type')
           .eq(personIdColumn, personId)
           .order('start_date', { ascending: false });
           
         if (leaveError) throw leaveError;
 
-        // Filtered leave records that fall within the date range
+        // Filter leave records that fall within the date range
         const filteredLeaveData = (leaveData || []).filter(record => {
-          // Check if leave period overlaps with the selected date range
           const leaveStart = new Date(record.start_date);
           const leaveEnd = new Date(record.end_date);
           const rangeStart = new Date(formattedStartDate);
@@ -80,7 +96,7 @@ export function useFetchAttendance(
         });
 
         // Process attendance data
-        const formattedAttendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => ({
+        const formattedAttendanceRecords: AttendanceRecord[] = (attendanceData || []).map((record: AttendanceDbRecord) => ({
           id: `attendance-${record.id}`,
           date: format(new Date(record.date), 'yyyy-MM-dd'),
           type: record.status || 'present',
@@ -89,8 +105,8 @@ export function useFetchAttendance(
           recordId: record.id,
         }));
         
-        // Process leave data 
-        const formattedLeaveRecords: AttendanceRecord[] = filteredLeaveData.map(record => ({
+        // Process leave data with explicit typing
+        const formattedLeaveRecords: AttendanceRecord[] = filteredLeaveData.map((record: LeaveDbRecord) => ({
           id: `leave-${record.id}`,
           date: `${format(new Date(record.start_date), 'yyyy-MM-dd')} to ${format(new Date(record.end_date), 'yyyy-MM-dd')}`,
           type: 'on_leave',

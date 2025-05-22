@@ -89,7 +89,7 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
           recordId={record.recordId}
           personType={personType}
           onChange={() => {}}
-          readonly
+          readonly={true}
         />
       </TableCell>
     );

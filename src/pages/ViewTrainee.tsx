@@ -4,7 +4,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Trainee } from "@/types/trainee";
 import { toast } from "sonner";
-import { getTrainees } from "@/services/api";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 import { TraineeHeader } from "@/components/trainee/view/TraineeHeader";
 import { TraineeDetailsSection } from "@/components/trainee/view/TraineeDetailsSection";
@@ -12,7 +11,6 @@ import { TraineeLoadingState } from "@/components/trainee/view/TraineeLoadingSta
 import { TraineeNotFound } from "@/components/trainee/view/TraineeNotFound";
 import { useTraineePrintService } from "@/components/trainee/view/TraineePrintService";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { exportTraineesToExcel } from "@/utils/export";
 import { supabase } from "@/integrations/supabase/client";
 
 const ViewTrainee = () => {
