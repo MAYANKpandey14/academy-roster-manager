@@ -1,64 +1,126 @@
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { staffFormSchema } from '@/components/staff/StaffFormSchema';
-import { toast } from 'sonner';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { 
-  Form, 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
-} from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ImageUpload } from '@/components/common/ImageUpload';
-import { PersonalInfoFields } from '@/components/staff/form/PersonalInfoFields';
-import { ServiceInfoFields } from '@/components/staff/form/ServiceInfoFields';
-import { ContactInfoFields } from '@/components/staff/form/ContactInfoFields';
-import { StaffFormValues } from '@/components/staff/StaffFormSchema';
-import { Separator } from '@/components/ui/separator';
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Check, AlertTriangle, Upload } from "lucide-react";
+import { supabase } from '@/integrations/supabase/client';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { bloodGroups, staffRanks } from "@/components/staff/StaffFormSchema";
 
-const StaffRegister = () => {
+// Form schema definition
+const registerFormSchema = z.object({
+  pno: z.string().min(1, { message: "PNO is required" }),
+  name: z.string().min(1, { message: "Name is required" }),
+  father_name: z.string().min(1, { message: "Father's name is required" }),
+  rank: z.string().min(1, { message: "Rank is required" }),
+  current_posting_district: z.string().min(1, { message: "Current posting district is required" }),
+  mobile_number: z.string().min(10, { message: "Valid mobile number is required" }),
+  education: z.string().min(1, { message: "Education is required" }),
+  date_of_birth: z.string().min(1, { message: "Date of birth is required" }),
+  date_of_joining: z.string().min(1, { message: "Date of joining is required" }),
+  blood_group: z.string().min(1, { message: "Blood group is required" }),
+  nominee: z.string().min(1, { message: "Nominee is required" }),
+  home_address: z.string().min(1, { message: "Home address is required" }),
+  toli_no: z.string().optional(),
+  class_no: z.string().optional(),
+  class_subject: z.string().optional(),
+  photo_url: z.string().optional(),
+});
+
+type RegisterFormValues = z.infer<typeof registerFormSchema>;
+
+export default function StaffRegister() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const { isHindi } = useLanguage();
+  const [isUploading, setIsUploading] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [submissionStatus, setSubmissionStatus] = useState<{
+    success?: boolean;
+    message?: string;
+  }>({});
 
-  const form = useForm<StaffFormValues>({
-    resolver: zodResolver(staffFormSchema),
+  // Initialize form with default values
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerFormSchema),
     defaultValues: {
       pno: "",
       name: "",
       father_name: "",
-      rank: undefined,
-      current_posting_district: "",
+      rank: "",
+      toli_no: "",
       mobile_number: "",
+      current_posting_district: "",
       education: "",
-      date_of_birth: "",
-      date_of_joining: "",
-      blood_group: undefined,
+      date_of_birth: new Date().toISOString().split('T')[0],
+      date_of_joining: new Date().toISOString().split('T')[0],
+      blood_group: "",
       nominee: "",
       home_address: "",
-      toli_no: "",
       class_no: "",
       class_subject: "",
       photo_url: "",
-    },
+    }
   });
 
-  const handleImageUpload = (url: string | null) => {
-    form.setValue("photo_url", url || '');
+  // Handle image upload
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    // Validate file type and size
+    if (!file.type.match(/image\/(jpeg|jpg|png|webp)/i)) {
+      alert("Only JPG, PNG, and WEBP images are accepted");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image must be smaller than 5MB");
+      return;
+    }
+
+    setIsUploading(true);
+    
+    try {
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${file.name.split('.').pop()}`;
+      
+      // Upload the file to Supabase storage
+      const { data, error: uploadError } = await supabase.storage
+        .from('staff_photos')
+        .upload(fileName, file, { upsert: true });
+      
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+      
+      // Get the public URL
+      const { data: publicUrlData } = supabase.storage
+        .from('staff_photos')
+        .getPublicUrl(fileName);
+      
+      const url = publicUrlData.publicUrl;
+      console.log("Image uploaded successfully:", url);
+      setImageUrl(url);
+      form.setValue("photo_url", url);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      alert("Error uploading image");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
-  const handleSubmit = async (data: StaffFormValues) => {
+  async function onSubmit(data: RegisterFormValues) {
     setIsSubmitting(true);
+    setSubmissionStatus({});
+    
     try {
-      console.log('Submitting staff data:', data);
-
-      // Call the staff-register edge function with proper headers
+      console.log("Submitting staff registration:", data);
+      
       const response = await fetch('https://zjgphamebgrclivvkhmw.supabase.co/functions/v1/staff-register', {
         method: 'POST',
         headers: {
@@ -70,118 +132,368 @@ const StaffRegister = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || `Failed to register staff (Status: ${response.status})`);
+        throw new Error(errorData.error || `Failed to register (Status: ${response.status})`);
       }
 
-      const result = await response.json();
-
-      console.log('Registration success:', result);
-      toast.success(isHindi ? 'आपका पंजीकरण सफल रहा' : 'Your registration was successful');
-      setIsSuccess(true);
+      console.log("Registration successful");
+      
+      // Reset form and show success message
       form.reset();
+      setImageUrl(null);
+      setSubmissionStatus({ 
+        success: true,
+        message: "THANK YOU, you may close this page"
+      });
     } catch (error: any) {
-      console.error('Registration error:', error);
-      toast.error(error.message || (isHindi ? 'पंजीकरण विफल हुआ' : 'Registration failed'));
+      console.error("Error during registration:", error);
+      
+      // Handle duplicate PNO error
+      const errorMessage = error.message?.includes("already exists") 
+        ? "A staff with this PNO already exists" 
+        : "Registration failed. Please try again.";
+      
+      setSubmissionStatus({
+        success: false,
+        message: errorMessage
+      });
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="container max-w-4xl mx-auto">
-        <Card className="border-t-4 border-t-blue-500 shadow-md">
-          <CardHeader className="text-center">
-            <CardTitle className={`text-2xl ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? 'स्टाफ पंजीकरण फॉर्म' : 'Staff Registration Form'}
-            </CardTitle>
-            <CardDescription className={isHindi ? 'font-hindi' : ''}>
-              {isHindi
-                ? 'कृपया अपना विवरण भरें। सभी आवश्यक फ़ील्ड (*) भरें।'
-                : 'Please fill in your details. All fields marked with (*) are required.'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isSuccess ? (
-              <div className="text-center py-8">
-                <h3 className={`text-xl font-medium text-green-600 mb-4 ${isHindi ? 'font-hindi' : ''}`}>
-                  {isHindi ? 'पंजीकरण सफल!' : 'Registration Successful!'}
-                </h3>
-                <p className={isHindi ? 'font-hindi' : ''}>
-                  {isHindi
-                    ? 'आपका विवरण सफलतापूर्वक जमा कर दिया गया है।'
-                    : 'Your details have been successfully submitted.'}
-                </p>
-                <Button 
-                  className="mt-6" 
-                  onClick={() => {
-                    setIsSuccess(false);
-                  }}
-                >
-                  <span className={isHindi ? 'font-hindi' : ''}>
-                    {isHindi ? 'नया पंजीकरण करें' : 'Register Another'}
-                  </span>
-                </Button>
+    <div className="min-h-screen bg-white py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-gray-900">Staff Registration</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Please fill in your details below
+          </p>
+        </div>
+
+        {submissionStatus.success ? (
+          <div className="bg-green-50 border border-green-200 rounded-md p-4 mb-6">
+            <div className="flex items-center">
+              <Check className="h-5 w-5 text-green-600 mr-3" />
+              <p className="text-green-700 font-medium">{submissionStatus.message}</p>
+            </div>
+          </div>
+        ) : submissionStatus.message ? (
+          <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+            <div className="flex items-center">
+              <AlertTriangle className="h-5 w-5 text-red-600 mr-3" />
+              <p className="text-red-700 font-medium">{submissionStatus.message}</p>
+            </div>
+          </div>
+        ) : null}
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Service Info Section */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg border-b pb-2">Service Information</h3>
+                
+                <FormField
+                  control={form.control}
+                  name="pno"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel aria-required="true">PNO / Unique ID</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter your PNO" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="rank"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel aria-required="true">Rank</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select rank" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {staffRanks.map((rank) => (
+                            <SelectItem key={rank} value={rank}>
+                              {rank}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="toli_no"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Toli No.</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter toli number (optional)" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="current_posting_district"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel aria-required="true">Current Posting District</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter your current posting district" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="education"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel aria-required="true">Education</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter your education" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-            ) : (
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
-                  <div>
-                    <h3 className={`text-lg font-medium mb-4 ${isHindi ? 'font-hindi' : ''}`}>
-                      {isHindi ? 'सेवा विवरण' : 'Service Information'}
-                    </h3>
-                    <Separator className="mb-4" />
-                    <ServiceInfoFields isHindi={isHindi} />
-                  </div>
 
-                  <div>
-                    <h3 className={`text-lg font-medium mb-4 ${isHindi ? 'font-hindi' : ''}`}>
-                      {isHindi ? 'व्यक्तिगत विवरण' : 'Personal Information'}
-                    </h3>
-                    <Separator className="mb-4" />
-                    <PersonalInfoFields isHindi={isHindi} />
-                  </div>
+              {/* Personal Info Section */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg border-b pb-2">Personal Information</h3>
+                
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel aria-required="true">Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter your full name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <div>
-                    <h3 className={`text-lg font-medium mb-4 ${isHindi ? 'font-hindi' : ''}`}>
-                      {isHindi ? 'संपर्क विवरण' : 'Contact Information'}
-                    </h3>
-                    <Separator className="mb-4" />
-                    <ContactInfoFields isHindi={isHindi} />
-                  </div>
+                <FormField
+                  control={form.control}
+                  name="father_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel aria-required="true">Father's Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter your father's name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <div className="mt-6">
-                    <h3 className={`text-lg font-medium mb-4 ${isHindi ? 'font-hindi' : ''}`}>
-                      {isHindi ? 'फोटो अपलोड' : 'Photo Upload'}
-                    </h3>
-                    <Separator className="mb-4" />
-                    <ImageUpload 
-                      bucketName="staff_photos"
-                      onImageUpload={handleImageUpload}
-                      label={isHindi ? 'स्टाफ फोटो (वैकल्पिक)' : 'Staff Photo (Optional)'}
-                    />
-                  </div>
+                <FormField
+                  control={form.control}
+                  name="date_of_birth"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel aria-required="true">Date of Birth</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <Button 
-                    type="submit" 
-                    disabled={isSubmitting} 
-                    className="w-full"
-                  >
-                    <span className={isHindi ? 'font-hindi' : ''}>
-                      {isSubmitting 
-                        ? (isHindi ? "पंजीकरण हो रहा है..." : "Registering...") 
-                        : (isHindi ? "पंजीकरण करें" : "Register")
-                      }
-                    </span>
-                  </Button>
-                </form>
-              </Form>
-            )}
-          </CardContent>
-        </Card>
+                <FormField
+                  control={form.control}
+                  name="date_of_joining"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel aria-required="true">Date of Joining</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="blood_group"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel aria-required="true">Blood Group</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select blood group" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {bloodGroups.map((group) => (
+                            <SelectItem key={group} value={group}>
+                              {group}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="nominee"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel aria-required="true">Nominee</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter nominee name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Additional Fields Section */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg border-b pb-2">Additional Information</h3>
+                
+                <FormField
+                  control={form.control}
+                  name="class_no"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Class No (Optional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter class number" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="class_subject"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Class Subject (Optional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter class subject" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Photo Upload */}
+                <div className="space-y-2">
+                  <FormLabel>Profile Photo</FormLabel>
+                  <div className="flex flex-col space-y-3">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      className="w-full relative overflow-hidden" 
+                      disabled={isUploading}
+                    >
+                      <span className="mr-2">
+                        {isUploading ? "Uploading..." : "Choose Photo"}
+                      </span>
+                      <Upload className="h-4 w-4" />
+                      <Input 
+                        type="file" 
+                        accept="image/jpeg,image/jpg,image/png,image/webp" 
+                        className="absolute inset-0 opacity-0 cursor-pointer" 
+                        onChange={handleFileChange} 
+                      />
+                    </Button>
+                    
+                    {imageUrl && (
+                      <div className="flex items-center gap-2">
+                        <div className="w-16 h-16 rounded-md overflow-hidden border">
+                          <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                        </div>
+                        <span className="text-sm text-muted-foreground">Photo uploaded</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Section */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg border-b pb-2">Contact Information</h3>
+                
+                <FormField
+                  control={form.control}
+                  name="mobile_number"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel aria-required="true">Mobile Number</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="tel" 
+                          placeholder="Enter your mobile number" 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="home_address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel aria-required="true">Full Address</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Enter your complete home address" 
+                          className="min-h-[100px]"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            <Button 
+              type="submit" 
+              className="w-full bg-blue-700 hover:bg-blue-800"
+              disabled={isSubmitting || isUploading}
+            >
+              {isSubmitting ? "Submitting..." : "Register"}
+            </Button>
+          </form>
+        </Form>
       </div>
     </div>
   );
-};
-
-export default StaffRegister;
+}

@@ -1,140 +1,76 @@
 
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { format } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow 
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
-import { useFetchAttendance } from "./hooks/useFetchAttendance";
 import { AttendanceTableRow } from "./AttendanceTableRow";
-import { PersonData, PersonType } from "./types/attendanceTypes";
-import { handlePrint } from "@/utils/export/printUtils";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { type AttendanceRecord } from "./hooks/useFetchAttendance";
+import { PersonType } from "./types/attendanceTypes";
 
 interface AttendanceTableProps {
-  personId: string;
+  attendanceRecords: AttendanceRecord[];
   personType: PersonType;
-  personData?: PersonData;
 }
 
-export const AttendanceTable = ({ personId, personType, personData }: AttendanceTableProps) => {
+export const AttendanceTable = ({ attendanceRecords, personType }: AttendanceTableProps) => {
   const { isHindi } = useLanguage();
-  const { records: attendanceRecords, isLoading } = useFetchAttendance(personId, personType);
 
-  const handlePrintClick = () => {
-    const printContent = document.getElementById('attendance-table')?.outerHTML;
-    if (!printContent) return;
-    
-    const content = `
-      <html>
-        <head>
-          <title>${isHindi ? 'उपस्थिति रिकॉर्ड' : 'Attendance Records'}</title>
-          <style>
-            body { font-family: 'Space Grotesk', Arial, sans-serif; padding: 20px; }
-            .font-mangal { font-family: 'Mangal', 'Arial Unicode MS', sans-serif; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; }
-            .header-info { margin-bottom: 20px; }
-            .header-info h3 { margin: 5px 0; }
-            .print-button {
-              background-color: rgb(41, 100, 188);
-              color: white;
-              padding: 10px 20px;
-              border: none;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="header-info">
-            <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'पी.एन.ओ: ' : 'PNO: '} ${personData?.pno || '-'}</h3>
-            <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'नाम: ' : 'Name: '} ${personData?.name || '-'}</h3>
-            ${personType === 'staff' ? `
-              <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'रैंक: ' : 'Rank: '} ${personData?.rank || '-'}</h3>
-            ` : `
-              <h3 class="${isHindi ? 'font-mangal' : ''}">${isHindi ? 'छाती संख्या: ' : 'Chest No: '} ${personData?.chest_no || '-'}</h3>
-            `}
-          </div>
-          ${printContent}
-        </body>
-      </html>
-    `;
-    
-    handlePrint(content);
-  };
+  if (attendanceRecords.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className={isHindi ? 'font-hindi' : ''}>
+            {isHindi ? 'उपस्थिति रिकॉर्ड' : 'Attendance Records'}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 text-center">
+          <p className={`text-muted-foreground ${isHindi ? 'font-hindi' : ''}`}>
+            {isHindi ? 'कोई उपस्थिति रिकॉर्ड उपलब्ध नहीं है' : 'No attendance records available'}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <div className="animate-fade-in">
-      <div className="mb-4 flex justify-between items-center">
-        <h3 className={`font-medium ${isHindi ? 'font-mangal' : ''}`}>
-          {isHindi ? "उपस्थिति सारांश" : "Attendance Summary"}
-        </h3>
-        
-        <Button variant="outline" size="sm" onClick={handlePrintClick}>
-          <Printer className="h-4 w-4 mr-2" />
-          <span className={isHindi ? 'font-mangal' : ''}>
-            {isHindi ? "प्रिंट करें" : "Print"}
-          </span>
-        </Button>
-      </div>
-      
-      <div className="border rounded-md">
-        <ScrollArea className="h-[350px]">
-          <Table id="attendance-table">
-            <TableHeader className="sticky top-0 bg-white z-10">
-              <TableRow>
-                <TableHead className={isHindi ? 'font-mangal' : ''}>
-                  {isHindi ? "दिनांक" : "Date"}
-                </TableHead>
-                <TableHead className={isHindi ? 'font-mangal' : ''}>
-                  {isHindi ? "स्थिति" : "Status"}
-                </TableHead>
-                <TableHead className={isHindi ? 'font-mangal' : ''}>
-                  {isHindi ? "कारण" : "Reason"}
-                </TableHead>
-                <TableHead className={isHindi ? 'font-mangal' : ''}>
-                  {isHindi ? "स्थिति" : "Status"}
-                </TableHead>
-                <TableHead className={isHindi ? 'font-mangal' : ''}>
-                  {isHindi ? "कार्रवाई" : "Actions"}
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
-                    <span className={isHindi ? 'font-mangal' : ''}>
-                      {isHindi ? "लोड हो रहा है..." : "Loading..."}
-                    </span>
-                  </TableCell>
-                </TableRow>
-              ) : attendanceRecords && attendanceRecords.length > 0 ? (
-                attendanceRecords.map((record) => (
-                  <AttendanceTableRow 
-                    key={record.id} 
-                    record={record} 
-                    personType={personType} 
-                  />  
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
-                    <span className={isHindi ? 'font-mangal' : ''}>
-                      {isHindi ? "कोई डेटा उपलब्ध नहीं है" : "No data available"}
-                    </span>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </ScrollArea>
-      </div>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className={isHindi ? 'font-hindi' : ''}>
+          {isHindi ? 'उपस्थिति रिकॉर्ड' : 'Attendance Records'}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? 'दिनांक' : 'Date'}
+              </TableHead>
+              <TableHead className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? 'स्थिति' : 'Status'}
+              </TableHead>
+              <TableHead className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? 'कारण' : 'Reason'}
+              </TableHead>
+              <TableHead className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? 'अनुमोदन स्थिति' : 'Approval Status'}
+              </TableHead>
+              <TableHead className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? 'कार्रवाई' : 'Actions'}
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {attendanceRecords.map((record) => (
+              <AttendanceTableRow
+                key={record.id}
+                record={record}
+                personType={personType}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
-}
+};

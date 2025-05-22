@@ -46,23 +46,23 @@ export function ApprovalActions({
   const updateApprovalStatus = async (status: 'approved' | 'rejected') => {
     try {
       // Determine the table name based on recordType and personType
-      let tableName: string;
+      const tables = {
+        attendance: {
+          trainee: 'trainee_attendance',
+          staff: 'staff_attendance'
+        },
+        leave: {
+          trainee: 'trainee_leave',
+          staff: 'staff_leave'
+        }
+      };
+      
+      // Get table name using the mappings
+      const tableName = tables[recordType][personType];
 
-      if (recordType === 'attendance') {
-        tableName = personType === 'trainee' ? 'trainee_attendance' : 'staff_attendance';
-      } else {
-        tableName = personType === 'trainee' ? 'trainee_leave' : 'staff_leave';
-      }
-
-      // Type-safe approach for Supabase table names
-      const validTableNames = ['trainee_attendance', 'staff_attendance', 'trainee_leave', 'staff_leave'] as const;
-      if (!validTableNames.includes(tableName as any)) {
-        throw new Error(`Invalid table name: ${tableName}`);
-      }
-
-      // Use the table name safely
+      // Use the table name for the update operation
       const { error } = await supabase
-        .from(tableName as any)
+        .from(tableName)
         .update({ 
           ...(recordType === 'attendance' ? { approval_status: status } : { status }),
         })

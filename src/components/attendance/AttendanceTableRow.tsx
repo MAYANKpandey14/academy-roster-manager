@@ -1,134 +1,83 @@
 
-import { Badge } from "@/components/ui/badge";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { format, parseISO } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { AttendanceRecord } from "./hooks/useFetchAttendance";
-import { PersonType } from "./types/attendanceTypes";
+import { Badge } from "@/components/ui/badge";
 import { ApprovalStatus } from "./ApprovalStatus";
 import { ApprovalActions } from "./ApprovalActions";
+import { AttendanceStatus } from "./AttendanceStatus";
+import { type AttendanceRecord } from "./hooks/useFetchAttendance";
+import { PersonType } from "./types/attendanceTypes";
 
 interface AttendanceTableRowProps {
   record: AttendanceRecord;
   personType: PersonType;
 }
 
+// Determine record type based on status
+const getRecordType = (status: string): 'attendance' | 'leave' => {
+  if (status === 'absent' || status === 'present') {
+    return 'attendance';
+  } else {
+    return 'leave';
+  }
+};
+
+// Map attendance status to appropriate display format
+function formatAttendanceStatus(status: string): string {
+  const statusMap: Record<string, string> = {
+    'present': 'Present',
+    'absent': 'Absent',
+    'on_leave': 'On Leave',
+    'suspension': 'Suspension',
+    'termination': 'Termination',
+    'resignation': 'Resignation',
+  };
+  
+  return statusMap[status] || status;
+}
+
+// Map approval status values
+function mapApprovalStatus(status: string): "pending" | "approved" | "rejected" {
+  if (status === "approved" || status === "rejected") {
+    return status;
+  }
+  return "pending";
+}
+
 export function AttendanceTableRow({ record, personType }: AttendanceTableRowProps) {
   const { isHindi } = useLanguage();
   
-  const getStatusText = (status: string): string => {
-    switch (status) {
-      case "present":
-        return isHindi ? "उपस्थित" : "Present";
-      case "absent":
-        return isHindi ? "अनुपस्थित" : "Absent";
-      case "leave":
-        return isHindi ? "छुट्टी पर" : "On Leave";
-      case "on_leave":
-        return isHindi ? "छुट्टी पर" : "On Leave";
-      case "suspension":
-        return isHindi ? "निलंबन" : "Suspension";
-      case "resignation":
-        return isHindi ? "इस्तीफ़ा" : "Resignation";
-      case "termination":
-        return isHindi ? "बर्खास्त" : "Termination";
-      default:
-        return status;
-    }
-  };
-  
-  const getStatusColor = (status: string): string => {
-    switch (status) {
-      case "present":
-        return "bg-green-100 text-green-800 border-green-300";
-      case "absent":
-        return "bg-red-100 text-red-800 border-red-300";
-      case "leave":
-      case "on_leave":
-        return "bg-amber-100 text-amber-800 border-amber-300";
-      case "suspension":
-        return "bg-yellow-100 text-yellow-800 border-yellow-300";
-      case "resignation":
-        return "bg-gray-100 text-gray-800 border-gray-300";
-      case "termination":
-        return "bg-red-100 text-red-900 border-red-300";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-300";
-    }
-  };
-
-  const renderDateCell = () => {
-    return (
-      <TableCell>
-        <span className={isHindi ? "font-hindi" : ""}>{record.date}</span>
-      </TableCell>
-    );
-  };
-
-  const renderStatusCell = () => {
-    return (
-      <TableCell>
-        <Badge variant="outline" className={`${getStatusColor(record.type)}`}>
-          <span className={isHindi ? "font-hindi" : ""}>
-            {getStatusText(record.type)}
-          </span>
-        </Badge>
-        {record.leave_type && (
-          <div className="mt-1 text-xs text-gray-500">
-            <span className={isHindi ? "font-hindi" : ""}>
-              {isHindi ? "छुट्टी प्रकार:" : "Leave Type:"} {record.leave_type}
-            </span>
-          </div>
-        )}
-      </TableCell>
-    );
-  };
-
-  const renderReasonCell = () => {
-    return (
-      <TableCell>
-        <span className={`text-sm ${isHindi ? "font-hindi" : ""}`}>
-          {record.reason || "-"}
-        </span>
-      </TableCell>
-    );
-  };
-
-  const renderApprovalCell = () => {
-    return (
-      <TableCell>
-        <ApprovalStatus
-          status={record.approvalStatus}
-          recordType={record.recordType}
-          recordId={record.recordId}
-          personType={personType}
-          onChange={() => {}}
-          readonly={true}
-        />
-      </TableCell>
-    );
-  };
-
-  const renderActionsCell = () => {
-    return (
-      <TableCell>
-        <ApprovalActions
-          recordId={record.recordId}
-          recordType={record.recordType}
-          personType={personType}
-          currentStatus={record.approvalStatus}
-          absenceType={record.type}
-        />
-      </TableCell>
-    );
-  };
+  // Format the date
+  const formattedDate = record.date ? format(parseISO(record.date), 'dd/MM/yyyy') : 'N/A';
 
   return (
     <TableRow>
-      {renderDateCell()}
-      {renderStatusCell()}
-      {renderReasonCell()}
-      {renderApprovalCell()}
-      {renderActionsCell()}
+      <TableCell className="font-medium">{formattedDate}</TableCell>
+      <TableCell>
+        <AttendanceStatus status={record.status} />
+      </TableCell>
+      <TableCell>
+        {record.reason ? (
+          <span className="text-sm">{record.reason}</span>
+        ) : (
+          <span className="text-sm text-muted-foreground italic">
+            {isHindi ? 'कारण नहीं दिया गया' : 'No reason provided'}
+          </span>
+        )}
+      </TableCell>
+      <TableCell>
+        <ApprovalStatus status={mapApprovalStatus(record.approval_status)} />
+      </TableCell>
+      <TableCell>
+        <ApprovalActions
+          recordId={record.id}
+          recordType={getRecordType(record.status)}
+          personType={personType}
+          currentStatus={record.approval_status}
+          absenceType={record.status}
+        />
+      </TableCell>
     </TableRow>
   );
 }
