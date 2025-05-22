@@ -25,6 +25,12 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
         return isHindi ? "छुट्टी पर" : "On Leave";
       case "on_leave":
         return isHindi ? "छुट्टी पर" : "On Leave";
+      case "suspension":
+        return isHindi ? "निलंबन" : "Suspension";
+      case "resignation":
+        return isHindi ? "इस्तीफ़ा" : "Resignation";
+      case "termination":
+        return isHindi ? "बर्खास्त" : "Termination";
       default:
         return status;
     }
@@ -39,6 +45,12 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
       case "leave":
       case "on_leave":
         return "bg-amber-100 text-amber-800 border-amber-300";
+      case "suspension":
+        return "bg-yellow-100 text-yellow-800 border-yellow-300";
+      case "resignation":
+        return "bg-gray-100 text-gray-800 border-gray-300";
+      case "termination":
+        return "bg-red-100 text-red-900 border-red-300";
       default:
         return "bg-gray-100 text-gray-800 border-gray-300";
     }

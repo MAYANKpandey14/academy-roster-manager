@@ -56,13 +56,21 @@ export function ApprovalActions({
       const updateField = recordType === 'leave' ? 'status' : 'approval_status';
       const updateValue = action === 'approve' ? 'approved' : 'rejected';
       
+      console.log(`Updating record in table ${tableName}, field ${updateField}, value: ${updateValue}`);
+      
       // Update the record
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from(tableName)
         .update({ [updateField]: updateValue })
-        .eq('id', recordId);
+        .eq('id', recordId)
+        .select();
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error updating approval status:", error);
+        throw error;
+      }
+      
+      console.log("Update result:", data);
       
       // Show success message
       toast.success(

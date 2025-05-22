@@ -60,6 +60,7 @@ export function useAttendanceSubmit({ personType, personId, onSuccess }: UseAtte
       // Determine if auto-approval applies based on status
       const requiresApproval = ['on_leave', 'resignation'].includes(values.status);
       console.log(`Status: ${values.status}, Requires Approval: ${requiresApproval}`);
+      console.log(`Reason provided: ${values.reason}`); // Debug log
       
       // Prepare the request data
       const requestData = {

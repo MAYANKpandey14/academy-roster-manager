@@ -87,7 +87,7 @@ export function useFetchAttendance(
         if (leaveError) throw leaveError;
 
         // Filter leave records that fall within the date range
-        const filteredLeaveData = (leaveData || []).filter((record: LeaveDbRecord) => {
+        const filteredLeaveData = (leaveData || []).filter((record) => {
           const leaveStart = new Date(record.start_date);
           const leaveEnd = new Date(record.end_date);
           const rangeStart = new Date(formattedStartDate);
@@ -107,7 +107,7 @@ export function useFetchAttendance(
         };
 
         // Process attendance data
-        const formattedAttendanceRecords: AttendanceRecord[] = (attendanceData || []).map((record: AttendanceDbRecord) => {
+        const formattedAttendanceRecords: AttendanceRecord[] = (attendanceData || []).map((record) => {
           const { type, reason } = extractReason(record.status || 'present');
           return {
             id: `attendance-${record.id}`,
@@ -121,7 +121,7 @@ export function useFetchAttendance(
         });
         
         // Process leave data
-        const formattedLeaveRecords: AttendanceRecord[] = (filteredLeaveData || []).map((record: LeaveDbRecord) => {
+        const formattedLeaveRecords: AttendanceRecord[] = (filteredLeaveData || []).map((record) => {
           return {
             id: `leave-${record.id}`,
             date: `${format(new Date(record.start_date), 'yyyy-MM-dd')} to ${format(new Date(record.end_date), 'yyyy-MM-dd')}`,

@@ -120,23 +120,23 @@ export async function handleAbsenceRequest(
   let result;
   
   if (existingRecord) {
-    // Update existing record
+    // Update existing record - Store reason in the status field with format "status: reason"
     result = await supabaseClient
       .from(tableName)
       .update({ 
-        status: status === "absent" ? reason : status,
+        status: reason ? `${status}: ${reason}` : status,
         approval_status: approvalStatus
       })
       .eq("id", existingRecord.id)
       .select();
   } else {
-    // Insert new record
+    // Insert new record - Store reason in the status field with format "status: reason"
     result = await supabaseClient
       .from(tableName)
       .insert({
         [personIdField]: personId,
         date,
-        status: status === "absent" ? reason : status,
+        status: reason ? `${status}: ${reason}` : status,
         approval_status: approvalStatus
       })
       .select();
