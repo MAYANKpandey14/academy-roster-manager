@@ -65,7 +65,6 @@ export default function AttendancePage() {
                   <AttendanceHistory 
                     personId={person.id} 
                     personType={personType} 
-                    personData={person}
                   />
                 </TabsContent>
                 

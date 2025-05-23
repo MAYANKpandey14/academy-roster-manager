@@ -1,7 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { format } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AttendanceTableRow } from "./AttendanceTableRow";
 import { type AttendanceRecord } from "./hooks/useFetchAttendance";
@@ -10,6 +9,8 @@ import { PersonType } from "./types/attendanceTypes";
 interface AttendanceTableProps {
   attendanceRecords: AttendanceRecord[];
   personType: PersonType;
+  personId?: string;
+  personData?: any;
 }
 
 export const AttendanceTable = ({ attendanceRecords, personType }: AttendanceTableProps) => {

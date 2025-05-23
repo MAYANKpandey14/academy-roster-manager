@@ -14,6 +14,12 @@ interface ApprovalActionsProps {
   absenceType: string;
 }
 
+type TableName = 
+  | 'trainee_attendance'
+  | 'staff_attendance' 
+  | 'trainee_leave'
+  | 'staff_leave';
+
 export function ApprovalActions({
   recordId,
   recordType,
@@ -46,20 +52,8 @@ export function ApprovalActions({
   const updateApprovalStatus = async (status: 'approved' | 'rejected') => {
     try {
       // Determine the table name based on recordType and personType
-      const tables = {
-        attendance: {
-          trainee: 'trainee_attendance',
-          staff: 'staff_attendance'
-        },
-        leave: {
-          trainee: 'trainee_leave',
-          staff: 'staff_leave'
-        }
-      };
+      const tableName = getTableName(recordType, personType);
       
-      // Get table name using the mappings
-      const tableName = tables[recordType][personType];
-
       // Use the table name for the update operation
       const { error } = await supabase
         .from(tableName)
@@ -89,6 +83,22 @@ export function ApprovalActions({
           : 'Error updating status'
       );
     }
+  };
+
+  // Helper function to get the correct table name
+  const getTableName = (recordType: 'attendance' | 'leave', personType: PersonType): TableName => {
+    const tables: Record<string, Record<PersonType, TableName>> = {
+      attendance: {
+        trainee: 'trainee_attendance',
+        staff: 'staff_attendance'
+      },
+      leave: {
+        trainee: 'trainee_leave',
+        staff: 'staff_leave'
+      }
+    };
+    
+    return tables[recordType][personType];
   };
 
   return (

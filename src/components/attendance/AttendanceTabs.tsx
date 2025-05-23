@@ -36,8 +36,9 @@ export const AttendanceTabs = ({ personId, personType, personData }: AttendanceT
       <TabsContent value="attendance" className="mt-4">
         <AttendanceTable 
           key={`attendance-${personId}`}
-          personId={personId} 
+          attendanceRecords={[]} 
           personType={personType}
+          personId={personId}
           personData={personData}
         />
       </TabsContent>

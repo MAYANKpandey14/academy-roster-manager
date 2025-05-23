@@ -3,16 +3,20 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
 import { memo } from "react";
 
-interface AttendanceStatusProps {
-  type: 'absent' | 'present' | 'leave' | 'on_leave' | 'suspension' | 'resignation' | 'termination';
+export interface AttendanceStatusProps {
+  type?: string;
+  status?: string;
 }
 
 // Using memo to prevent unnecessary re-renders
-export const AttendanceStatus = memo(function AttendanceStatus({ type }: AttendanceStatusProps) {
+export const AttendanceStatus = memo(function AttendanceStatus({ status, type }: AttendanceStatusProps) {
   const { isHindi } = useLanguage();
   
+  // Determine which prop to use (for backward compatibility)
+  const statusValue = type || status || 'present';
+  
   // Absent (red badge)
-  if (type === 'absent') {
+  if (statusValue === 'absent') {
     return (
       <Badge variant="destructive" className="font-normal transition-colors duration-200">
         <span className={isHindi ? "font-hindi" : ""}>
@@ -23,7 +27,7 @@ export const AttendanceStatus = memo(function AttendanceStatus({ type }: Attenda
   }
   
   // Leave status (outlined blue badge)
-  if (type === 'leave' || type === 'on_leave') {
+  if (statusValue === 'leave' || statusValue === 'on_leave') {
     return (
       <Badge variant="outline" className="font-normal bg-blue-100 text-blue-800 border-blue-200 transition-colors duration-200">
         <span className={isHindi ? "font-hindi" : ""}>
@@ -34,7 +38,7 @@ export const AttendanceStatus = memo(function AttendanceStatus({ type }: Attenda
   }
   
   // Suspension status (yellow badge)
-  if (type === 'suspension') {
+  if (statusValue === 'suspension') {
     return (
       <Badge variant="outline" className="font-normal bg-yellow-100 text-yellow-800 border-yellow-200 transition-colors duration-200">
         <span className={isHindi ? "font-hindi" : ""}>
@@ -45,7 +49,7 @@ export const AttendanceStatus = memo(function AttendanceStatus({ type }: Attenda
   }
   
   // Resignation status (gray badge)
-  if (type === 'resignation') {
+  if (statusValue === 'resignation') {
     return (
       <Badge variant="outline" className="font-normal bg-gray-100 text-gray-800 border-gray-200 transition-colors duration-200">
         <span className={isHindi ? "font-hindi" : ""}>
@@ -56,7 +60,7 @@ export const AttendanceStatus = memo(function AttendanceStatus({ type }: Attenda
   }
   
   // Termination status (dark red badge)
-  if (type === 'termination') {
+  if (statusValue === 'termination') {
     return (
       <Badge variant="outline" className="font-normal bg-red-100 text-red-900 border-red-200 transition-colors duration-200">
         <span className={isHindi ? "font-hindi" : ""}>

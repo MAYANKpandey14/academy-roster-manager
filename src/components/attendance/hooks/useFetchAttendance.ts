@@ -3,11 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PersonType } from "../types/attendanceTypes";
 
+export type ApprovalStatusType = "pending" | "approved" | "rejected";
+
 export type AttendanceRecord = {
   id: string;
   date: string;
   status: string;
-  approval_status: "pending" | "approved" | "rejected";
+  approval_status: ApprovalStatusType;
   created_at: string;
   updated_at: string;
   person_id: string;
@@ -19,7 +21,7 @@ export type LeaveRecord = {
   start_date: string;
   end_date: string;
   reason: string;
-  status: "pending" | "approved" | "rejected";
+  status: ApprovalStatusType;
   leave_type: string;
   created_at: string;
   updated_at: string;
@@ -59,15 +61,15 @@ export const useFetchAttendance = (
     }
 
     // Map raw attendance data to our defined type
-    const attendanceRecords: AttendanceRecord[] = attendanceData.map(record => ({
+    const attendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => ({
       id: record.id,
       date: record.date,
       status: record.status,
-      approval_status: record.approval_status,
+      approval_status: mapToApprovalStatus(record.approval_status),
       created_at: record.created_at,
       updated_at: record.updated_at,
       person_id: record[idField],
-      reason: record.reason
+      reason: extractReason(record.status, record.reason)
     }));
 
     // Fetch leave records
@@ -84,13 +86,13 @@ export const useFetchAttendance = (
     }
 
     // Map raw leave data to our defined type
-    const leaveRecords: LeaveRecord[] = leaveData.map(record => ({
+    const leaveRecords: LeaveRecord[] = (leaveData || []).map(record => ({
       id: record.id,
       start_date: record.start_date,
       end_date: record.end_date,
-      reason: record.reason,
-      status: record.status,
-      leave_type: record.leave_type,
+      reason: record.reason || '',
+      status: mapToApprovalStatus(record.status),
+      leave_type: record.leave_type || '',
       created_at: record.created_at,
       updated_at: record.updated_at,
       person_id: record[idField]
@@ -98,6 +100,26 @@ export const useFetchAttendance = (
 
     return { attendanceRecords, leaveRecords };
   };
+
+  // Helper function to extract reason from status field if it contains a colon
+  function extractReason(status: string, explicitReason?: string): string | undefined {
+    if (explicitReason) return explicitReason;
+    
+    if (status && status.includes(': ')) {
+      const parts = status.split(': ');
+      if (parts.length > 1) {
+        return parts.slice(1).join(': ');
+      }
+    }
+    return undefined;
+  }
+
+  // Helper function to ensure status is one of the allowed types
+  function mapToApprovalStatus(status: string | null | undefined): ApprovalStatusType {
+    if (status === 'approved') return 'approved';
+    if (status === 'rejected') return 'rejected';
+    return 'pending';
+  }
 
   return useQuery({
     queryKey: ["attendance", personId, personType, startDate, endDate],

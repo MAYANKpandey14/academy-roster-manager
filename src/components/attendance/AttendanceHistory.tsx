@@ -56,11 +56,17 @@ export const AttendanceHistory = ({ personId, personType, startDate, endDate }: 
         </TabsList>
 
         <TabsContent value="attendance" className="mt-0">
-          <AttendanceTable attendanceRecords={attendanceRecords} personType={personType} />
+          <AttendanceTable 
+            attendanceRecords={attendanceRecords} 
+            personType={personType} 
+          />
         </TabsContent>
 
         <TabsContent value="leave" className="mt-0">
-          <LeaveHistoryTable leaveRecords={leaveRecords} personType={personType} />
+          <LeaveHistoryTable 
+            personId={personId} 
+            personType={personType} 
+          />
         </TabsContent>
       </Tabs>
     </div>
