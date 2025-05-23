@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PersonType } from "../types/attendanceTypes";
 
+// Define strict types for approval status
 export type ApprovalStatusType = "pending" | "approved" | "rejected";
 
 export type AttendanceRecord = {
@@ -61,16 +62,28 @@ export const useFetchAttendance = (
     }
 
     // Map raw attendance data to our defined type
-    const attendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => ({
-      id: record.id,
-      date: record.date,
-      status: record.status,
-      approval_status: mapToApprovalStatus(record.approval_status),
-      created_at: record.created_at,
-      updated_at: record.updated_at,
-      person_id: record[idField],
-      reason: extractReason(record.status, record.reason)
-    }));
+    const attendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => {
+      // Extract reason from status field if it contains a colon
+      let extractedReason: string | undefined;
+      let statusValue = record.status;
+
+      if (record.status && typeof record.status === 'string' && record.status.includes(': ')) {
+        const parts = record.status.split(': ');
+        statusValue = parts[0];
+        extractedReason = parts.slice(1).join(': ');
+      }
+
+      return {
+        id: record.id,
+        date: record.date,
+        status: statusValue,
+        approval_status: mapToApprovalStatus(record.approval_status),
+        created_at: record.created_at,
+        updated_at: record.updated_at,
+        person_id: record[idField],
+        reason: extractedReason
+      };
+    });
 
     // Fetch leave records
     const leaveTableName = personType === "trainee" ? "trainee_leave" : "staff_leave";
@@ -100,19 +113,6 @@ export const useFetchAttendance = (
 
     return { attendanceRecords, leaveRecords };
   };
-
-  // Helper function to extract reason from status field if it contains a colon
-  function extractReason(status: string, explicitReason?: string): string | undefined {
-    if (explicitReason) return explicitReason;
-    
-    if (status && status.includes(': ')) {
-      const parts = status.split(': ');
-      if (parts.length > 1) {
-        return parts.slice(1).join(': ');
-      }
-    }
-    return undefined;
-  }
 
   // Helper function to ensure status is one of the allowed types
   function mapToApprovalStatus(status: string | null | undefined): ApprovalStatusType {

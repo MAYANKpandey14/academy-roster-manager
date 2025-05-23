@@ -29,9 +29,7 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
   const formattedDate = record.date ? format(parseISO(record.date), 'dd/MM/yyyy') : 'N/A';
 
   // Extract the base status without the reason
-  const baseStatus = record.status.includes(': ')
-    ? record.status.split(': ')[0]
-    : record.status;
+  const baseStatus = record.status;
 
   return (
     <TableRow>
