@@ -58,29 +58,32 @@ export const fetchAttendanceForPrint = async (
     throw new Error(`Failed to fetch attendance records`);
   }
 
-  // Map raw attendance data to our defined type
-  const attendanceRecords: AttendanceRecord[] = (attendanceData || []).map((record) => {
-    // Extract reason from status field if it contains a colon
-    let extractedReason: string | undefined;
-    let statusValue = record.status;
+  // Map raw attendance data to our defined type with explicit typing
+  const attendanceRecords: AttendanceRecord[] = [];
+  if (attendanceData) {
+    for (const record of attendanceData) {
+      // Extract reason from status field if it contains a colon
+      let extractedReason: string | undefined;
+      let statusValue = record.status;
 
-    if (record.status && typeof record.status === 'string' && record.status.includes(': ')) {
-      const parts = record.status.split(': ');
-      statusValue = parts[0];
-      extractedReason = parts.slice(1).join(': ');
+      if (record.status && typeof record.status === 'string' && record.status.includes(': ')) {
+        const parts = record.status.split(': ');
+        statusValue = parts[0];
+        extractedReason = parts.slice(1).join(': ');
+      }
+
+      attendanceRecords.push({
+        id: record.id,
+        date: record.date,
+        status: statusValue,
+        approval_status: mapToApprovalStatus(record.approval_status),
+        created_at: record.created_at,
+        updated_at: record.updated_at,
+        person_id: record[idField],
+        reason: extractedReason
+      });
     }
-
-    return {
-      id: record.id,
-      date: record.date,
-      status: statusValue,
-      approval_status: mapToApprovalStatus(record.approval_status),
-      created_at: record.created_at,
-      updated_at: record.updated_at,
-      person_id: record[idField],
-      reason: extractedReason
-    };
-  });
+  }
 
   // Fetch leave records
   const leaveTableName = personType === "trainee" ? "trainee_leave" : "staff_leave";
@@ -95,18 +98,23 @@ export const fetchAttendanceForPrint = async (
     throw new Error(`Failed to fetch leave records`);
   }
 
-  // Map raw leave data to our defined type
-  const leaveRecords: LeaveRecord[] = (leaveData || []).map((record) => ({
-    id: record.id,
-    start_date: record.start_date,
-    end_date: record.end_date,
-    reason: record.reason || '',
-    status: mapToApprovalStatus(record.status),
-    leave_type: record.leave_type || '',
-    created_at: record.created_at,
-    updated_at: record.updated_at,
-    person_id: record[idField]
-  }));
+  // Map raw leave data to our defined type with explicit typing
+  const leaveRecords: LeaveRecord[] = [];
+  if (leaveData) {
+    for (const record of leaveData) {
+      leaveRecords.push({
+        id: record.id,
+        start_date: record.start_date,
+        end_date: record.end_date,
+        reason: record.reason || '',
+        status: mapToApprovalStatus(record.status),
+        leave_type: record.leave_type || '',
+        created_at: record.created_at,
+        updated_at: record.updated_at,
+        person_id: record[idField]
+      });
+    }
+  }
 
   return { attendanceRecords, leaveRecords };
 };

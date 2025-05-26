@@ -187,6 +187,7 @@ export function LeaveHistoryTable({ personId, personType }: LeaveHistoryTablePro
                     personType={personType}
                     currentStatus={record.status}
                     absenceType="leave"
+                    personId={personId}
                   />
                 </TableCell>
               </TableRow>

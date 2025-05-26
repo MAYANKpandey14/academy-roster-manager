@@ -13,9 +13,10 @@ import { ApprovalActions } from "../ApprovalActions";
 interface LeaveHistoryTableContentProps {
   leaveRecords: LeaveRecord[];
   personType: PersonType;
+  personId: string;
 }
 
-export function LeaveHistoryTableContent({ leaveRecords, personType }: LeaveHistoryTableContentProps) {
+export function LeaveHistoryTableContent({ leaveRecords, personType, personId }: LeaveHistoryTableContentProps) {
   const { isHindi } = useLanguage();
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
 
@@ -136,6 +137,7 @@ export function LeaveHistoryTableContent({ leaveRecords, personType }: LeaveHist
                 personType={personType}
                 currentStatus={record.status}
                 absenceType="leave"
+                personId={personId}
               />
             </TableCell>
           </TableRow>
