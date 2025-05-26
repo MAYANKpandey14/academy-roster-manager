@@ -13,7 +13,7 @@ interface ApprovalActionsProps {
   personType: PersonType;
   currentStatus: string;
   absenceType: string;
-  personId: string; // Add personId to refresh the query
+  personId: string;
 }
 
 type TableName = 
@@ -58,12 +58,13 @@ export function ApprovalActions({
       // Determine the table name based on recordType and personType
       const tableName = getTableName(recordType, personType);
       
-      // Use the table name for the update operation
+      // For attendance records, update approval_status
+      // For leave records, update status
+      const updateField = recordType === 'attendance' ? 'approval_status' : 'status';
+      
       const { error } = await supabase
         .from(tableName)
-        .update({ 
-          ...(recordType === 'attendance' ? { approval_status: status } : { status }),
-        })
+        .update({ [updateField]: status })
         .eq('id', recordId);
 
       if (error) {
@@ -74,6 +75,13 @@ export function ApprovalActions({
       await queryClient.invalidateQueries({
         queryKey: ["attendance", personId, personType]
       });
+
+      // Also invalidate leave history if it's a leave record
+      if (recordType === 'leave') {
+        await queryClient.invalidateQueries({
+          queryKey: ['leave-history', personId, personType]
+        });
+      }
 
       toast.success(
         status === 'approved'

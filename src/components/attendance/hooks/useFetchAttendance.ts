@@ -58,10 +58,10 @@ export const fetchAttendanceForPrint = async (
     throw new Error(`Failed to fetch attendance records`);
   }
 
-  // Map raw attendance data to our defined type with explicit typing
+  // Process attendance records
   const attendanceRecords: AttendanceRecord[] = [];
-  if (attendanceData) {
-    for (const record of attendanceData) {
+  if (attendanceData && Array.isArray(attendanceData)) {
+    attendanceData.forEach((record: any) => {
       // Extract reason from status field if it contains a colon
       let extractedReason: string | undefined;
       let statusValue = record.status;
@@ -82,7 +82,7 @@ export const fetchAttendanceForPrint = async (
         person_id: record[idField],
         reason: extractedReason
       });
-    }
+    });
   }
 
   // Fetch leave records
@@ -98,10 +98,10 @@ export const fetchAttendanceForPrint = async (
     throw new Error(`Failed to fetch leave records`);
   }
 
-  // Map raw leave data to our defined type with explicit typing
+  // Process leave records
   const leaveRecords: LeaveRecord[] = [];
-  if (leaveData) {
-    for (const record of leaveData) {
+  if (leaveData && Array.isArray(leaveData)) {
+    leaveData.forEach((record: any) => {
       leaveRecords.push({
         id: record.id,
         start_date: record.start_date,
@@ -113,7 +113,7 @@ export const fetchAttendanceForPrint = async (
         updated_at: record.updated_at,
         person_id: record[idField]
       });
-    }
+    });
   }
 
   return { attendanceRecords, leaveRecords };
