@@ -14,20 +14,25 @@ export function useStaffPrintService(staff: Staff) {
   // Use isHindi directly to determine language
   const currentLanguage = isHindi ? 'hi' : 'en';
 
-  const handlePrintStaff = () => {
+  const handlePrintStaff = async () => {
     // Ensure the staff object has the photo_url property before printing
     const staffWithPhoto = {
       ...staff,
       photo_url: staff.photo_url || null
     };
     
-    const printContent = createStaffPrintContent([staffWithPhoto], isHindi);
-    const printSuccess = handlePrint(printContent);
-    
-    if (!printSuccess) {
-      toast.error(isHindi ? "प्रिंट विंडो खोलने में विफल" : "Failed to open print window. Please check your pop-up blocker settings.");
-    } else {
-      toast.success(isHindi ? "स्टाफ विवरण प्रिंट हो रहा है..." : "Printing staff details");
+    try {
+      const printContent = await createStaffPrintContent([staffWithPhoto], isHindi);
+      const printSuccess = handlePrint(printContent);
+      
+      if (!printSuccess) {
+        toast.error(isHindi ? "प्रिंट विंडो खोलने में विफल" : "Failed to open print window. Please check your pop-up blocker settings.");
+      } else {
+        toast.success(isHindi ? "स्टाफ विवरण प्रिंट हो रहा है..." : "Printing staff details");
+      }
+    } catch (error) {
+      console.error("Error printing staff:", error);
+      toast.error(isHindi ? "प्रिंट करते समय त्रुटि हुई" : "Error while printing");
     }
   };
 

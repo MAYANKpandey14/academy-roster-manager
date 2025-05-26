@@ -1,11 +1,96 @@
-
 import { Staff } from "@/types/staff";
 import { prepareTextForLanguage } from "./textUtils";
+import { fetchAttendanceForPrint, AttendanceRecord, LeaveRecord } from "@/components/attendance/hooks/useFetchAttendance";
+
+// Function to create attendance section HTML for staff
+function createStaffAttendanceSection(
+  attendanceRecords: AttendanceRecord[],
+  leaveRecords: LeaveRecord[],
+  isHindi: boolean
+): string {
+  const attendanceTitle = isHindi ? "उपस्थिति रिकॉर्ड" : "Attendance Records";
+  const leaveTitle = isHindi ? "छुट्टी रिकॉर्ड" : "Leave Records";
+  const noDataText = isHindi ? "कोई डेटा उपलब्ध नहीं है" : "No data available";
+
+  // Create attendance table
+  let attendanceTable = '';
+  if (attendanceRecords.length > 0) {
+    const attendanceRows = attendanceRecords.slice(0, 10).map(record => `
+      <tr>
+        <td>${new Date(record.date).toLocaleDateString()}</td>
+        <td>${record.status}</td>
+        <td>${record.reason || '-'}</td>
+        <td>${record.approval_status}</td>
+      </tr>
+    `).join('');
+
+    attendanceTable = `
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>${isHindi ? "दिनांक" : "Date"}</th>
+            <th>${isHindi ? "स्थिति" : "Status"}</th>
+            <th>${isHindi ? "कारण" : "Reason"}</th>
+            <th>${isHindi ? "अनुमोदन" : "Approval"}</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${attendanceRows}
+        </tbody>
+      </table>
+    `;
+  } else {
+    attendanceTable = `<p class="no-data">${noDataText}</p>`;
+  }
+
+  // Create leave table
+  let leaveTable = '';
+  if (leaveRecords.length > 0) {
+    const leaveRows = leaveRecords.slice(0, 10).map(record => `
+      <tr>
+        <td>${new Date(record.start_date).toLocaleDateString()}</td>
+        <td>${new Date(record.end_date).toLocaleDateString()}</td>
+        <td>${record.leave_type}</td>
+        <td>${record.reason}</td>
+        <td>${record.status}</td>
+      </tr>
+    `).join('');
+
+    leaveTable = `
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>${isHindi ? "प्रारंभ तिथि" : "Start Date"}</th>
+            <th>${isHindi ? "समाप्ति तिथि" : "End Date"}</th>
+            <th>${isHindi ? "छुट्टी प्रकार" : "Leave Type"}</th>
+            <th>${isHindi ? "कारण" : "Reason"}</th>
+            <th>${isHindi ? "स्थिति" : "Status"}</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${leaveRows}
+        </tbody>
+      </table>
+    `;
+  } else {
+    leaveTable = `<p class="no-data">${noDataText}</p>`;
+  }
+
+  return `
+    <div class="attendance-section">
+      <h3>${attendanceTitle}</h3>
+      ${attendanceTable}
+      
+      <h3>${leaveTitle}</h3>
+      ${leaveTable}
+    </div>
+  `;
+}
 
 /**
- * Creates HTML content for printing staff details
+ * Creates HTML content for printing staff details with attendance and leave data
  */
-export function createStaffPrintContent(staffList: Staff[], isHindi: boolean): string {
+export async function createStaffPrintContent(staffList: Staff[], isHindi: boolean): Promise<string> {
   const today = new Date().toLocaleDateString();
 
   // Create header
@@ -17,8 +102,8 @@ export function createStaffPrintContent(staffList: Staff[], isHindi: boolean): s
     </div>
   `;
 
-  // Create staff content
-  const staffContent = staffList.map(staff => {
+  // Create staff content with attendance data
+  const staffContentPromises = staffList.map(async (staff) => {
     // Enhanced photo section with proper styling and fallback
     const photoSection = staff.photo_url ? `
       <div class="staff-photo">
@@ -31,6 +116,16 @@ export function createStaffPrintContent(staffList: Staff[], isHindi: boolean): s
         </div>
       </div>
     `;
+
+    // Fetch attendance and leave data
+    let attendanceSection = '';
+    try {
+      const { attendanceRecords, leaveRecords } = await fetchAttendanceForPrint(staff.id, 'staff');
+      attendanceSection = createStaffAttendanceSection(attendanceRecords, leaveRecords, isHindi);
+    } catch (error) {
+      console.error('Error fetching attendance data for staff print:', error);
+      attendanceSection = `<div class="attendance-section"><p class="no-data">${isHindi ? "उपस्थिति डेटा लोड नहीं हो सका" : "Could not load attendance data"}</p></div>`;
+    }
     
     return `
       <div class="staff-details">
@@ -100,9 +195,12 @@ export function createStaffPrintContent(staffList: Staff[], isHindi: boolean): s
           </div>
           ` : ''}
         </div>
+        ${attendanceSection}
       </div>
     `;
-  }).join('<hr />');
+  });
+
+  const staffContent = (await Promise.all(staffContentPromises)).join('<hr />');
 
   // Create footer
   const footer = `
@@ -111,7 +209,7 @@ export function createStaffPrintContent(staffList: Staff[], isHindi: boolean): s
     </div>
   `;
 
-  // Create styles with enhanced photo styling
+  // Create styles with enhanced photo styling and attendance tables
   const styles = `
     <style>
       @media print {
@@ -171,6 +269,39 @@ export function createStaffPrintContent(staffList: Staff[], isHindi: boolean): s
         border: none;
         border-top: 1px dashed #ccc;
         margin: 30px 0;
+      }
+      .attendance-section {
+        margin-top: 20px;
+        page-break-inside: avoid;
+        width: 100%;
+      }
+      .attendance-section h3 {
+        margin-top: 20px;
+        margin-bottom: 10px;
+        color: #333;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 5px;
+      }
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        font-size: 12px;
+      }
+      .data-table th,
+      .data-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      .data-table th {
+        background-color: #f5f5f5;
+        font-weight: bold;
+      }
+      .no-data {
+        font-style: italic;
+        color: #666;
+        margin: 10px 0;
       }
       @media print {
         .staff-photo img {

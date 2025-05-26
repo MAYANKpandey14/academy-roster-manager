@@ -11,12 +11,12 @@ export function useTraineePrintService(trainee: Trainee | null) {
   const [isLoading, setIsLoading] = useState(false);
   const { isHindi } = useLanguage();
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     if (!trainee) return;
     
     setIsLoading(true);
     try {
-      const content = createPrintContent([trainee], isHindi);
+      const content = await createPrintContent([trainee], isHindi);
       // Use the utility function and don't check its return value directly
       utilHandlePrint(content);
       
