@@ -26,7 +26,7 @@ export function StaffTableActions({
   const isMobile = useIsMobile();
   const { isHindi } = useLanguage();
   
-  function handlePrintAction() {
+  async function handlePrintAction() {
     const selectedStaff = getSelectedStaff();
     
     if (selectedStaff.length === 0) {
@@ -34,13 +34,18 @@ export function StaffTableActions({
       return;
     }
     
-    const content = createStaffPrintContent(selectedStaff, isHindi);
-    const success = handlePrint(content);
-    
-    if (success) {
-      toast.success(isHindi ? "स्टाफ प्रिंट हो रहा है..." : `Printing ${selectedStaff.length} staff member(s)`);
-    } else {
-      toast.error(isHindi ? "प्रिंट विंडो खोलने में विफल" : "Failed to open print window. Please check your pop-up blocker settings.");
+    try {
+      const content = await createStaffPrintContent(selectedStaff, isHindi);
+      const success = handlePrint(content);
+      
+      if (success) {
+        toast.success(isHindi ? "स्टाफ प्रिंट हो रहा है..." : `Printing ${selectedStaff.length} staff member(s)`);
+      } else {
+        toast.error(isHindi ? "प्रिंट विंडो खोलने में विफल" : "Failed to open print window. Please check your pop-up blocker settings.");
+      }
+    } catch (error) {
+      console.error("Error creating print content:", error);
+      toast.error(isHindi ? "प्रिंट सामग्री तैयार करने में त्रुटि" : "Error preparing print content");
     }
   }
 

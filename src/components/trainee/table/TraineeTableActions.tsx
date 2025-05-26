@@ -30,7 +30,7 @@ export function TraineeTableActions({
   const isMobile = useIsMobile();
   const { isHindi } = useLanguage();
   
-  function handlePrintAction() {
+  async function handlePrintAction() {
     const selectedTrainees = getSelectedTrainees();
     
     if (selectedTrainees.length === 0) {
@@ -38,13 +38,18 @@ export function TraineeTableActions({
       return;
     }
     
-    const content = createPrintContent(selectedTrainees, isHindi);
-    const success = handlePrint(content);
-    
-    if (success) {
-      toast.success(isHindi ? "प्रशिक्षानिवेशी प्रिंट हो रहा है..." : `Printing ${selectedTrainees.length} trainee(s)`);
-    } else {
-      toast.error(isHindi ? "प्रिंट विंडो खोलने में विफल" : "Failed to open print window. Please check your pop-up blocker settings.");
+    try {
+      const content = await createPrintContent(selectedTrainees, isHindi);
+      const success = handlePrint(content);
+      
+      if (success) {
+        toast.success(isHindi ? "प्रशिक्षानिवेशी प्रिंट हो रहा है..." : `Printing ${selectedTrainees.length} trainee(s)`);
+      } else {
+        toast.error(isHindi ? "प्रिंट विंडो खोलने में विफल" : "Failed to open print window. Please check your pop-up blocker settings.");
+      }
+    } catch (error) {
+      console.error("Error creating print content:", error);
+      toast.error(isHindi ? "प्रिंट सामग्री तैयार करने में त्रुटि" : "Error preparing print content");
     }
   }
   

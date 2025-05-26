@@ -29,6 +29,13 @@ export type LeaveRecord = {
   person_id: string;
 };
 
+// Helper function to ensure status is one of the allowed types
+function mapToApprovalStatus(status: string | null | undefined): ApprovalStatusType {
+  if (status === 'approved') return 'approved';
+  if (status === 'rejected') return 'rejected';
+  return 'pending';
+}
+
 // Separate function to fetch attendance and leave data for printing
 export const fetchAttendanceForPrint = async (
   personId: string,
@@ -50,7 +57,7 @@ export const fetchAttendanceForPrint = async (
   }
 
   // Map raw attendance data to our defined type
-  const attendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => {
+  const attendanceRecords: AttendanceRecord[] = (attendanceData || []).map((record: any) => {
     // Extract reason from status field if it contains a colon
     let extractedReason: string | undefined;
     let statusValue = record.status;
@@ -87,7 +94,7 @@ export const fetchAttendanceForPrint = async (
   }
 
   // Map raw leave data to our defined type
-  const leaveRecords: LeaveRecord[] = (leaveData || []).map(record => ({
+  const leaveRecords: LeaveRecord[] = (leaveData || []).map((record: any) => ({
     id: record.id,
     start_date: record.start_date,
     end_date: record.end_date,
@@ -101,13 +108,6 @@ export const fetchAttendanceForPrint = async (
 
   return { attendanceRecords, leaveRecords };
 };
-
-// Helper function to ensure status is one of the allowed types
-function mapToApprovalStatus(status: string | null | undefined): ApprovalStatusType {
-  if (status === 'approved') return 'approved';
-  if (status === 'rejected') return 'rejected';
-  return 'pending';
-}
 
 export const useFetchAttendance = (
   personId: string | undefined,

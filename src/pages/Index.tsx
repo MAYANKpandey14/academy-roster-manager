@@ -87,14 +87,20 @@ const Index = () => {
     toast.success("Data refreshed");
   };
 
-  const handlePrintAll = () => {
+  const handlePrintAll = async () => {
     if (filteredTrainees.length === 0) {
       toast.error("No trainees to print");
       return;
     }
-    const content = createPrintContent(filteredTrainees, isHindi);
-    handlePrint(content);
-    toast.success(`Printing ${filteredTrainees.length} trainees`);
+    
+    try {
+      const content = await createPrintContent(filteredTrainees, isHindi);
+      handlePrint(content);
+      toast.success(`Printing ${filteredTrainees.length} trainees`);
+    } catch (error) {
+      console.error("Error creating print content:", error);
+      toast.error("Error preparing print content");
+    }
   };
 
   const handleDownloadAll = () => {
