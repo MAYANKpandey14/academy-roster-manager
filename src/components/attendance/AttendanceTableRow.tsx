@@ -56,6 +56,7 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
           personType={personType}
           currentStatus={record.approval_status}
           absenceType={baseStatus}
+          personId={record.person_id}
         />
       </TableCell>
     </TableRow>

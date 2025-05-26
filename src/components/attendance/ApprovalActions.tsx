@@ -5,6 +5,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { PersonType } from './types/attendanceTypes';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface ApprovalActionsProps {
   recordId: string;
@@ -12,6 +13,7 @@ interface ApprovalActionsProps {
   personType: PersonType;
   currentStatus: string;
   absenceType: string;
+  personId: string; // Add personId to refresh the query
 }
 
 type TableName = 
@@ -25,11 +27,13 @@ export function ApprovalActions({
   recordType,
   personType,
   currentStatus,
-  absenceType
+  absenceType,
+  personId
 }: ApprovalActionsProps) {
   const { isHindi } = useLanguage();
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
+  const queryClient = useQueryClient();
 
   // Only show approval actions for pending items
   // Also don't show approval for 'present' status which doesn't need approval
@@ -65,6 +69,11 @@ export function ApprovalActions({
       if (error) {
         throw error;
       }
+
+      // Invalidate and refetch the attendance data
+      await queryClient.invalidateQueries({
+        queryKey: ["attendance", personId, personType]
+      });
 
       toast.success(
         status === 'approved'
