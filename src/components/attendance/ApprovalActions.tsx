@@ -55,6 +55,8 @@ export function ApprovalActions({
 
   const updateApprovalStatus = async (status: 'approved' | 'rejected') => {
     try {
+      console.log(`Updating ${recordType} record ${recordId} to ${status}`);
+      
       // Determine the table name based on recordType and personType
       const tableName = getTableName(recordType, personType);
       
@@ -62,14 +64,20 @@ export function ApprovalActions({
       // For leave records, update status
       const updateField = recordType === 'attendance' ? 'approval_status' : 'status';
       
-      const { error } = await supabase
+      console.log(`Updating ${tableName}.${updateField} to ${status}`);
+      
+      const { data, error } = await supabase
         .from(tableName)
         .update({ [updateField]: status })
-        .eq('id', recordId);
+        .eq('id', recordId)
+        .select();
 
       if (error) {
+        console.error('Database update error:', error);
         throw error;
       }
+
+      console.log('Database update successful:', data);
 
       // Invalidate and refetch the attendance data
       await queryClient.invalidateQueries({
