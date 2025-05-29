@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -140,25 +139,19 @@ export default function StaffRegister() {
     setSubmissionStatus({});
     
     try {
-      const response = await fetch('https://zjgphamebgrclivvkhmw.supabase.co/functions/v1/staff-register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZ3BoYW1lYmdyY2xpdnZraG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU2OTM2NDcsImV4cCI6MjA2MTI2OTY0N30.1SmOoYa7R4iybW0nCIuc-FrbYML-EP9yC2ykJ6kpUTo'
-        },
-        body: JSON.stringify(data),
+      // Use Supabase Functions invoke instead of direct fetch
+      const { data: responseData, error } = await supabase.functions.invoke('staff-register', {
+        body: data,
       });
 
-      console.log("API Response status:", response.status);
-      
-      const responseData = await response.json();
-      console.log("API Response data:", responseData);
+      console.log("Edge function response:", { responseData, error });
 
-      if (!response.ok) {
-        throw new Error(responseData.error || `Failed to register (Status: ${response.status})`);
+      if (error) {
+        console.error("Edge function error:", error);
+        throw new Error(error.message || "Failed to register staff");
       }
 
-      console.log("Registration successful");
+      console.log("Registration successful:", responseData);
       
       // Reset form and show success message
       form.reset();
@@ -178,6 +171,8 @@ export default function StaffRegister() {
         errorMessage = "A staff with this PNO already exists";
       } else if (error.message?.includes("network") || error.message?.includes("fetch")) {
         errorMessage = "Network error. Please check your connection and try again.";
+      } else if (error.message?.includes("401") || error.message?.includes("unauthorized")) {
+        errorMessage = "Authentication error. Please refresh the page and try again.";
       }
       
       setSubmissionStatus({
