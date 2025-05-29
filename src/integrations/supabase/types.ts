@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      archive_folders: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          folder_name: string
+          id: string
+          item_count: number | null
+          last_modified: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          folder_name: string
+          id?: string
+          item_count?: number | null
+          last_modified?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          folder_name?: string
+          id?: string
+          item_count?: number | null
+          last_modified?: string | null
+        }
+        Relationships: []
+      }
       archived_staff: {
         Row: {
           archived_at: string
@@ -22,6 +52,7 @@ export type Database = {
           date_of_joining: string
           education: string
           father_name: string
+          folder_id: string | null
           home_address: string
           id: string
           mobile_number: string
@@ -30,6 +61,7 @@ export type Database = {
           photo_url: string | null
           pno: string
           rank: string
+          status: string | null
           toli_no: string | null
           updated_at: string | null
         }
@@ -45,6 +77,7 @@ export type Database = {
           date_of_joining: string
           education: string
           father_name: string
+          folder_id?: string | null
           home_address: string
           id?: string
           mobile_number: string
@@ -53,6 +86,7 @@ export type Database = {
           photo_url?: string | null
           pno: string
           rank: string
+          status?: string | null
           toli_no?: string | null
           updated_at?: string | null
         }
@@ -68,6 +102,7 @@ export type Database = {
           date_of_joining?: string
           education?: string
           father_name?: string
+          folder_id?: string | null
           home_address?: string
           id?: string
           mobile_number?: string
@@ -76,10 +111,19 @@ export type Database = {
           photo_url?: string | null
           pno?: string
           rank?: string
+          status?: string | null
           toli_no?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "archived_staff_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "archive_folders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       archived_trainees: {
         Row: {
@@ -95,6 +139,7 @@ export type Database = {
           departure_date: string
           education: string
           father_name: string
+          folder_id: string | null
           home_address: string
           id: string
           mobile_number: string
@@ -103,6 +148,7 @@ export type Database = {
           photo_url: string | null
           pno: string
           rank: string
+          status: string | null
           toli_no: string | null
           updated_at: string | null
         }
@@ -119,6 +165,7 @@ export type Database = {
           departure_date: string
           education: string
           father_name: string
+          folder_id?: string | null
           home_address: string
           id?: string
           mobile_number: string
@@ -127,6 +174,7 @@ export type Database = {
           photo_url?: string | null
           pno: string
           rank?: string
+          status?: string | null
           toli_no?: string | null
           updated_at?: string | null
         }
@@ -143,6 +191,7 @@ export type Database = {
           departure_date?: string
           education?: string
           father_name?: string
+          folder_id?: string | null
           home_address?: string
           id?: string
           mobile_number?: string
@@ -151,10 +200,19 @@ export type Database = {
           photo_url?: string | null
           pno?: string
           rank?: string
+          status?: string | null
           toli_no?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "archived_trainees_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "archive_folders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

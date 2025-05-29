@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { DataTable } from "@/components/ui/data-table";
@@ -99,9 +98,7 @@ const ArchivePage = () => {
   };
 
   const handleUnarchive = async (record: ArchivedStaff | ArchivedTrainee, type: 'staff' | 'trainee') => {
-    // This would need to be implemented with proper API calls
-    // For now, just refresh the data
-    toast.success(isHindi ? 'अनआर्काइव सुविधा जल्द ही उपलब्ध होगी' : 'Unarchive feature coming soon');
+    // Refresh the data after unarchiving
     if (type === 'staff') {
       await fetchArchivedStaff();
     } else {

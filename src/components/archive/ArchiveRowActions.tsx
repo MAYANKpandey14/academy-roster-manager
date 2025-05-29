@@ -1,21 +1,15 @@
 
-import { 
-  MoreHorizontal, 
-  Eye, 
-  Printer, 
-  Download, 
-  ArchiveRestore
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger 
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
+import { MoreHorizontal, Eye, Printer, Download, RotateCcw } from "lucide-react";
 import { ArchivedStaff, ArchivedTrainee } from "@/types/archive";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -27,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { unarchiveStaff, unarchiveTrainee } from "@/services/unarchiveApi";
 import { toast } from "sonner";
 
 interface ArchiveRowActionsProps {
@@ -38,8 +33,8 @@ interface ArchiveRowActionsProps {
   onUnarchive: (record: ArchivedStaff | ArchivedTrainee) => void;
 }
 
-export function ArchiveRowActions({ 
-  record, 
+export function ArchiveRowActions({
+  record,
   type,
   onView,
   onPrint,
@@ -47,33 +42,41 @@ export function ArchiveRowActions({
   onUnarchive
 }: ArchiveRowActionsProps) {
   const { isHindi } = useLanguage();
-  const [isUnarchiveDialogOpen, setIsUnarchiveDialogOpen] = useState(false);
+  const [showUnarchiveDialog, setShowUnarchiveDialog] = useState(false);
   const [isUnarchiving, setIsUnarchiving] = useState(false);
 
-  const handleUnarchiveClick = () => {
-    setIsUnarchiveDialogOpen(true);
-  };
-
-  const handleConfirmUnarchive = async () => {
+  const handleUnarchive = async () => {
+    setIsUnarchiving(true);
     try {
-      setIsUnarchiving(true);
-      await onUnarchive(record);
+      let result;
+      if (type === 'staff') {
+        result = await unarchiveStaff(record.id);
+      } else {
+        result = await unarchiveTrainee(record.id);
+      }
+
+      if (result.error) {
+        throw result.error;
+      }
+
       toast.success(isHindi ? 
-        `${type === 'staff' ? 'स्टाफ' : 'प्रशिक्षु'} सफलतापूर्वक अनआर्काइव कर दिया गया` : 
-        `${type === 'staff' ? 'Staff' : 'Trainee'} unarchived successfully`
+        `${type === 'staff' ? 'स्टाफ' : 'प्रशिक्षु'} सफलतापूर्वक बहाल किया गया` : 
+        `${type === 'staff' ? 'Staff' : 'Trainee'} restored successfully`
       );
-      setIsUnarchiveDialogOpen(false);
+      
+      onUnarchive(record);
     } catch (error) {
-      console.error("Error unarchiving:", error);
+      console.error('Error unarchiving record:', error);
       toast.error(isHindi ? 
-        `${type === 'staff' ? 'स्टाफ' : 'प्रशिक्षु'} अनआर्काइव करने में विफल` : 
-        `Failed to unarchive ${type}`
+        'बहाल करने में त्रुटि' : 
+        'Error restoring record'
       );
     } finally {
       setIsUnarchiving(false);
+      setShowUnarchiveDialog(false);
     }
   };
-  
+
   return (
     <>
       <DropdownMenu>
@@ -86,58 +89,65 @@ export function ArchiveRowActions({
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => onView(record)}>
             <Eye className="mr-2 h-4 w-4" />
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "देखें" : "View"}
+            <span className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'देखें' : 'View'}
             </span>
           </DropdownMenuItem>
+          
           <DropdownMenuItem onClick={() => onPrint(record)}>
             <Printer className="mr-2 h-4 w-4" />
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "प्रिंट करें" : "Print"}
+            <span className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'प्रिंट करें' : 'Print'}
             </span>
           </DropdownMenuItem>
+          
           <DropdownMenuItem onClick={() => onExport(record)}>
             <Download className="mr-2 h-4 w-4" />
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "एक्सेल डाउनलोड करें" : "Export Excel"}
+            <span className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'एक्सपोर्ट करें' : 'Export'}
             </span>
           </DropdownMenuItem>
+          
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleUnarchiveClick} className="text-blue-600 focus:text-blue-600">
-            <ArchiveRestore className="mr-2 h-4 w-4" />
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "अनआर्काइव करें" : "Unarchive"}
+          
+          <DropdownMenuItem 
+            onClick={() => setShowUnarchiveDialog(true)}
+            className="text-green-600 hover:text-green-800"
+          >
+            <RotateCcw className="mr-2 h-4 w-4" />
+            <span className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'बहाल करें' : 'Unarchive'}
             </span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog open={isUnarchiveDialogOpen} onOpenChange={setIsUnarchiveDialogOpen}>
+      <AlertDialog open={showUnarchiveDialog} onOpenChange={setShowUnarchiveDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? 
-                `${type === 'staff' ? 'स्टाफ' : 'प्रशिक्षु'} अनआर्काइव करने की पुष्टि करें` : 
-                `Confirm Unarchive ${type === 'staff' ? 'Staff' : 'Trainee'}`}
+              {isHindi ? 'बहाली की पुष्टि करें' : 'Confirm Restore'}
             </AlertDialogTitle>
             <AlertDialogDescription className={isHindi ? 'font-hindi' : ''}>
-              {isHindi
-                ? `क्या आप वाकई "${record.name}" को अनआर्काइव करना चाहते हैं? यह उन्हें सक्रिय सूची में वापस लाएगा।`
-                : `Are you sure you want to unarchive "${record.name}"? This will restore them to the active list.`}
+              {isHindi ? 
+                `क्या आप वाकई इस ${type === 'staff' ? 'स्टाफ' : 'प्रशिक्षु'} रिकॉर्ड को सक्रिय स्थिति में बहाल करना चाहते हैं? यह रिकॉर्ड को मुख्य ${type === 'staff' ? 'स्टाफ' : 'प्रशिक्षु'} तालिका में वापस ले जाएगा।` :
+                `Are you sure you want to restore this ${type} record to active status? This will move the record back to the main ${type} table.`
+              }
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isUnarchiving} className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? "रद्द करें" : "Cancel"}
+            <AlertDialogCancel disabled={isUnarchiving}>
+              {isHindi ? 'रद्द करें' : 'Cancel'}
             </AlertDialogCancel>
             <AlertDialogAction 
-              onClick={handleConfirmUnarchive}
+              onClick={handleUnarchive}
               disabled={isUnarchiving}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-green-600 hover:bg-green-700"
             >
               {isUnarchiving ? 
-                (isHindi ? "अनआर्काइव कर रहा है..." : "Unarchiving...") : 
-                (isHindi ? "अनआर्काइव करें" : "Unarchive")}
+                (isHindi ? 'बहाल कर रहे हैं...' : 'Restoring...') : 
+                (isHindi ? 'बहाल करें' : 'Restore')
+              }
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

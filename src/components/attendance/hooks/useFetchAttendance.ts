@@ -55,7 +55,6 @@ export const fetchAttendanceForPrint = async (
     throw new Error(`Failed to fetch attendance records`);
   }
 
-  // Process attendance records
   const attendanceRecords: AttendanceRecord[] = [];
   if (attendanceData) {
     for (const record of attendanceData) {
@@ -94,7 +93,6 @@ export const fetchAttendanceForPrint = async (
     throw new Error(`Failed to fetch leave records`);
   }
 
-  // Process leave records
   const leaveRecords: LeaveRecord[] = [];
   if (leaveData) {
     for (const record of leaveData) {
