@@ -59,28 +59,31 @@ export const fetchAttendanceForPrint = async (
   }
 
   // Process attendance records with explicit typing
-  const attendanceRecords: AttendanceRecord[] = (attendanceData || []).map((record: any) => {
-    // Extract reason from status field if it contains a colon
-    let extractedReason: string | undefined;
-    let statusValue = record.status;
+  const attendanceRecords: AttendanceRecord[] = [];
+  if (attendanceData) {
+    for (const record of attendanceData) {
+      // Extract reason from status field if it contains a colon
+      let extractedReason: string | undefined;
+      let statusValue = record.status;
 
-    if (record.status && typeof record.status === 'string' && record.status.includes(': ')) {
-      const parts = record.status.split(': ');
-      statusValue = parts[0];
-      extractedReason = parts.slice(1).join(': ');
+      if (record.status && typeof record.status === 'string' && record.status.includes(': ')) {
+        const parts = record.status.split(': ');
+        statusValue = parts[0];
+        extractedReason = parts.slice(1).join(': ');
+      }
+
+      attendanceRecords.push({
+        id: record.id,
+        date: record.date,
+        status: statusValue,
+        approval_status: mapToApprovalStatus(record.approval_status),
+        created_at: record.created_at,
+        updated_at: record.updated_at,
+        person_id: record[idField],
+        reason: extractedReason
+      });
     }
-
-    return {
-      id: record.id,
-      date: record.date,
-      status: statusValue,
-      approval_status: mapToApprovalStatus(record.approval_status),
-      created_at: record.created_at,
-      updated_at: record.updated_at,
-      person_id: record[idField],
-      reason: extractedReason
-    };
-  });
+  }
 
   // Fetch leave records
   const leaveTableName = personType === "trainee" ? "trainee_leave" : "staff_leave";
@@ -96,17 +99,22 @@ export const fetchAttendanceForPrint = async (
   }
 
   // Process leave records with explicit typing
-  const leaveRecords: LeaveRecord[] = (leaveData || []).map((record: any) => ({
-    id: record.id,
-    start_date: record.start_date,
-    end_date: record.end_date,
-    reason: record.reason || '',
-    status: mapToApprovalStatus(record.status),
-    leave_type: record.leave_type || '',
-    created_at: record.created_at,
-    updated_at: record.updated_at,
-    person_id: record[idField]
-  }));
+  const leaveRecords: LeaveRecord[] = [];
+  if (leaveData) {
+    for (const record of leaveData) {
+      leaveRecords.push({
+        id: record.id,
+        start_date: record.start_date,
+        end_date: record.end_date,
+        reason: record.reason || '',
+        status: mapToApprovalStatus(record.status),
+        leave_type: record.leave_type || '',
+        created_at: record.created_at,
+        updated_at: record.updated_at,
+        person_id: record[idField]
+      });
+    }
+  }
 
   return { attendanceRecords, leaveRecords };
 };

@@ -1,3 +1,4 @@
+
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
@@ -18,6 +19,7 @@ import LeavePage from "@/pages/LeavePage";
 import Welcome from "@/pages/Welcome";
 import TraineeRegister from "@/pages/TraineeRegister";
 import StaffRegister from "@/pages/StaffRegister";
+import ArchivePage from "@/pages/ArchivePage";
 
 const router = createBrowserRouter([
   {
@@ -80,6 +82,10 @@ const router = createBrowserRouter([
   {
     path: "leave",
     element: <ProtectedRoute><LeavePage /></ProtectedRoute>,
+  },
+  {
+    path: "archive",
+    element: <ProtectedRoute><ArchivePage /></ProtectedRoute>,
   },
   {
     path: "trainee-register",

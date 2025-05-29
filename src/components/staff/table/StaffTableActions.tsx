@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { createStaffPrintContent, createStaffCSVContent } from "@/utils/staffExportUtils";
 import { handlePrint, handleDownload, exportStaffToExcel } from "@/utils/export";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ArchiveAllButton } from "@/components/archive/ArchiveAllButton";
+import { archiveAllStaff } from "@/services/archiveApi";
 
 interface StaffTableActionsProps {
   staff: Staff[];
@@ -66,8 +68,31 @@ export function StaffTableActions({
     }
   }
 
+  const handleArchiveAll = async () => {
+    const staffIds = staff.map(s => s.id);
+    
+    try {
+      const { error } = await archiveAllStaff(staffIds);
+      
+      if (error) throw error;
+      
+      toast.success(isHindi ? "सभी स्टाफ सफलतापूर्वक आर्काइव कर दिए गए" : "All staff archived successfully");
+      
+      if (onRefresh) onRefresh();
+    } catch (error) {
+      console.error("Error archiving all staff:", error);
+      toast.error(isHindi ? "सभी स्टाफ आर्काइव करने में विफल" : "Failed to archive all staff");
+    }
+  };
+
   return (
     <div className="flex flex-wrap gap-2 justify-end">
+      <ArchiveAllButton
+        onArchiveAll={handleArchiveAll}
+        isLoading={isLoading}
+        count={staff.length}
+        type="staff"
+      />
       {onRefresh && (
         <Button
           variant="outline"

@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { createPrintContent, createCSVContent, exportTraineesToExcel } from "@/utils/export";
 import { handlePrint, handleDownload } from "@/utils/export";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ArchiveAllButton } from "@/components/archive/ArchiveAllButton";
+import { archiveAllTrainees } from "@/services/archiveApi";
 
 interface TraineeTableActionsProps {
   trainees: Trainee[];
@@ -71,7 +73,6 @@ export function TraineeTableActions({
   }
   
   function handleAllExcelExport() {
-    // Export all trainees (sorted if sorting is applied)
     const dataToExport = sortBy !== "none" ? sortedTrainees : trainees;
     
     const success = exportTraineesToExcel(dataToExport, isHindi, true, sortBy);
@@ -83,8 +84,31 @@ export function TraineeTableActions({
     }
   }
 
+  const handleArchiveAll = async () => {
+    const traineeIds = trainees.map(t => t.id);
+    
+    try {
+      const { error } = await archiveAllTrainees(traineeIds);
+      
+      if (error) throw error;
+      
+      toast.success(isHindi ? "सभी प्रशिक्षानिवेशी सफलतापूर्वक आर्काइव कर दिए गए" : "All trainees archived successfully");
+      
+      if (onRefresh) onRefresh();
+    } catch (error) {
+      console.error("Error archiving all trainees:", error);
+      toast.error(isHindi ? "सभी प्रशिक्षानिवेशी आर्काइव करने में विफल" : "Failed to archive all trainees");
+    }
+  };
+
   return (
     <div className="flex flex-wrap gap-2 justify-end">
+      <ArchiveAllButton
+        onArchiveAll={handleArchiveAll}
+        isLoading={isLoading}
+        count={trainees.length}
+        type="trainee"
+      />
       {onRefresh && (
         <Button
           variant="outline"

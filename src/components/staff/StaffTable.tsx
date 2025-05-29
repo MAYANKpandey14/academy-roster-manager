@@ -55,7 +55,8 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
     handlePrintStaff,
     handleDownloadStaff,
     onRefresh, // Pass onRefresh as handleDelete
-    handleExcelExport
+    handleExcelExport,
+    onRefresh // Pass onRefresh as handleArchive
   );
 
   return (

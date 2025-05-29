@@ -1,7 +1,9 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/languageswitch/LanguageSwitcher";
+
 export function Navigation() {
   const location = useLocation();
   const { isHindi } = useLanguage();
@@ -18,6 +20,10 @@ export function Navigation() {
     { 
       name: isHindi ? "उपस्थिति" : "Attendance",
       path: "/attendance"
+    },
+    { 
+      name: isHindi ? "आर्काइव" : "Archive",
+      path: "/archive"
     },
   ];
 

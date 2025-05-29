@@ -6,7 +6,8 @@ import {
   Download,
   Printer,
   FileSpreadsheet,
-  Trash2
+  Trash2,
+  Archive
 } from "lucide-react";
 import { Trainee } from "@/types/trainee";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ import {
 import { useTraineePrintService } from "@/components/trainee/view/TraineePrintService";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { deleteTrainee } from "@/services/traineeApi";
+import { archiveTrainee } from "@/services/archiveApi";
 import { toast } from "sonner";
 import { useState } from "react";
 import {
@@ -37,17 +39,24 @@ import {
 interface TraineeActionsProps {
   trainee: Trainee;
   onDelete?: () => void;
+  onArchive?: () => void;
 }
 
-export function TraineeActions({ trainee, onDelete }: TraineeActionsProps) {
+export function TraineeActions({ trainee, onDelete, onArchive }: TraineeActionsProps) {
   const navigate = useNavigate();
   const { isHindi } = useLanguage();
   const { handlePrint, handleExcelExport } = useTraineePrintService(trainee);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isArchiving, setIsArchiving] = useState(false);
   
   const handleDeleteClick = () => {
     setIsDeleteDialogOpen(true);
+  };
+
+  const handleArchiveClick = () => {
+    setIsArchiveDialogOpen(true);
   };
 
   const handleConfirmDelete = async () => {
@@ -60,13 +69,31 @@ export function TraineeActions({ trainee, onDelete }: TraineeActionsProps) {
       toast.success(isHindi ? "प्रशिक्षु सफलतापूर्वक हटा दिया गया" : "Trainee deleted successfully");
       setIsDeleteDialogOpen(false);
       
-      // Call the onDelete callback to refresh the list
       if (onDelete) onDelete();
     } catch (error) {
       console.error("Error deleting trainee:", error);
       toast.error(isHindi ? "प्रशिक्षु हटाने में विफल" : "Failed to delete trainee");
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleConfirmArchive = async () => {
+    try {
+      setIsArchiving(true);
+      const { error } = await archiveTrainee(trainee.id);
+      
+      if (error) throw error;
+      
+      toast.success(isHindi ? "प्रशिक्षु सफलतापूर्वक आर्काइव कर दिया गया" : "Trainee archived successfully");
+      setIsArchiveDialogOpen(false);
+      
+      if (onArchive) onArchive();
+    } catch (error) {
+      console.error("Error archiving trainee:", error);
+      toast.error(isHindi ? "प्रशिक्षु आर्काइव करने में विफल" : "Failed to archive trainee");
+    } finally {
+      setIsArchiving(false);
     }
   };
   
@@ -105,6 +132,12 @@ export function TraineeActions({ trainee, onDelete }: TraineeActionsProps) {
             </span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleArchiveClick} className="text-orange-600 focus:text-orange-600">
+            <Archive className="mr-2 h-4 w-4" />
+            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+              {isHindi ? "आर्काइव करें" : "Archive"}
+            </span>
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={handleDeleteClick} className="text-destructive focus:text-destructive">
             <Trash2 className="mr-2 h-4 w-4" />
             <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
@@ -113,6 +146,35 @@ export function TraineeActions({ trainee, onDelete }: TraineeActionsProps) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <AlertDialog open={isArchiveDialogOpen} onOpenChange={setIsArchiveDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? "प्रशिक्षु आर्काइव करने की पुष्टि करें" : "Confirm Archive Trainee"}
+            </AlertDialogTitle>
+            <AlertDialogDescription className={isHindi ? 'font-hindi' : ''}>
+              {isHindi
+                ? `क्या आप वाकई प्रशिक्षु "${trainee.name}" को आर्काइव करना चाहते हैं? यह उन्हें सक्रिय सूची से हटा देगा।`
+                : `Are you sure you want to archive trainee "${trainee.name}"? This will remove them from the active list.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isArchiving} className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? "रद्द करें" : "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmArchive}
+              disabled={isArchiving}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              {isArchiving ? 
+                (isHindi ? "आर्काइव कर रहा है..." : "Archiving...") : 
+                (isHindi ? "आर्काइव करें" : "Archive")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>

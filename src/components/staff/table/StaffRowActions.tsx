@@ -7,7 +7,8 @@ import {
   Download,
   Printer,
   FileSpreadsheet,
-  Trash2
+  Trash2,
+  Archive
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -31,6 +32,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { deleteStaff } from "@/services/staffApi";
+import { archiveStaff } from "@/services/archiveApi";
 import { toast } from "sonner";
 
 export interface StaffRowActionsProps {
@@ -39,6 +41,7 @@ export interface StaffRowActionsProps {
   handleDownloadAction?: (staffId: string) => void;
   handleExcelExport?: (staff: Staff) => void;
   onDelete?: () => void;
+  onArchive?: () => void;
 }
 
 export function StaffRowActions({ 
@@ -46,15 +49,22 @@ export function StaffRowActions({
   handlePrintAction, 
   handleDownloadAction, 
   handleExcelExport,
-  onDelete
+  onDelete,
+  onArchive
 }: StaffRowActionsProps) {
   const navigate = useNavigate();
   const { isHindi } = useLanguage();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isArchiving, setIsArchiving] = useState(false);
 
   const handleDeleteClick = () => {
     setIsDeleteDialogOpen(true);
+  };
+
+  const handleArchiveClick = () => {
+    setIsArchiveDialogOpen(true);
   };
 
   const handleConfirmDelete = async () => {
@@ -67,13 +77,31 @@ export function StaffRowActions({
       toast.success(isHindi ? "स्टाफ सफलतापूर्वक हटा दिया गया" : "Staff deleted successfully");
       setIsDeleteDialogOpen(false);
       
-      // Call the onDelete callback to refresh the list
       if (onDelete) onDelete();
     } catch (error) {
       console.error("Error deleting staff:", error);
       toast.error(isHindi ? "स्टाफ हटाने में विफल" : "Failed to delete staff");
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleConfirmArchive = async () => {
+    try {
+      setIsArchiving(true);
+      const { error } = await archiveStaff(staff.id);
+      
+      if (error) throw error;
+      
+      toast.success(isHindi ? "स्टाफ सफलतापूर्वक आर्काइव कर दिया गया" : "Staff archived successfully");
+      setIsArchiveDialogOpen(false);
+      
+      if (onArchive) onArchive();
+    } catch (error) {
+      console.error("Error archiving staff:", error);
+      toast.error(isHindi ? "स्टाफ आर्काइव करने में विफल" : "Failed to archive staff");
+    } finally {
+      setIsArchiving(false);
     }
   };
   
@@ -116,6 +144,12 @@ export function StaffRowActions({
             </DropdownMenuItem>
           )}
           <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleArchiveClick} className="text-orange-600 focus:text-orange-600">
+            <Archive className="mr-2 h-4 w-4" />
+            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+              {isHindi ? "आर्काइव करें" : "Archive"}
+            </span>
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={handleDeleteClick} className="text-destructive focus:text-destructive">
             <Trash2 className="mr-2 h-4 w-4" />
             <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
@@ -124,6 +158,35 @@ export function StaffRowActions({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <AlertDialog open={isArchiveDialogOpen} onOpenChange={setIsArchiveDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? "स्टाफ आर्काइव करने की पुष्टि करें" : "Confirm Archive Staff"}
+            </AlertDialogTitle>
+            <AlertDialogDescription className={isHindi ? 'font-hindi' : ''}>
+              {isHindi
+                ? `क्या आप वाकई स्टाफ सदस्य "${staff.name}" को आर्काइव करना चाहते हैं? यह उन्हें सक्रिय सूची से हटा देगा।`
+                : `Are you sure you want to archive staff member "${staff.name}"? This will remove them from the active list.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isArchiving} className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? "रद्द करें" : "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmArchive}
+              disabled={isArchiving}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              {isArchiving ? 
+                (isHindi ? "आर्काइव कर रहा है..." : "Archiving...") : 
+                (isHindi ? "आर्काइव करें" : "Archive")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
