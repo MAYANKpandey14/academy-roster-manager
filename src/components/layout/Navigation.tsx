@@ -1,14 +1,6 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { 
-  Users, 
-  UserPlus, 
-  Calendar, 
-  UserX, 
-  Archive,
-  Home
-} from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export const Navigation = () => {
@@ -18,31 +10,26 @@ export const Navigation = () => {
   const navItems = [
     {
       href: "/trainees",
-      icon: Home,
       label: isHindi ? "होम" : "Home",
       isActive: location.pathname === "/trainees"
     },
     {
       href: "/staff",
-      icon: Users,
       label: isHindi ? "स्टाफ" : "Staff",
       isActive: location.pathname.startsWith("/staff")
     },
     {
       href: "/attendance",
-      icon: Calendar,
       label: isHindi ? "उपस्थिति" : "Attendance",
       isActive: location.pathname === "/attendance"
     },
     {
       href: "/leave",
-      icon: UserX,
       label: isHindi ? "छुट्टी" : "Leave",
       isActive: location.pathname === "/leave"
     },
     {
       href: "/archive",
-      icon: Archive,
       label: isHindi ? "आर्काइव" : "Archive",
       isActive: location.pathname === "/archive"
     }
