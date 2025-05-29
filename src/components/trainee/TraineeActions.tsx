@@ -62,7 +62,7 @@ export function TraineeActions({ trainee, onDelete, onArchive }: TraineeActionsP
     }
   };
 
-  const handlePrint = async () => {
+  const handlePrintTrainee = async () => {
     try {
       const content = await createPrintContent([trainee], isHindi);
       const success = handlePrint(content);
@@ -116,7 +116,7 @@ export function TraineeActions({ trainee, onDelete, onArchive }: TraineeActionsP
             </Link>
           </DropdownMenuItem>
           
-          <DropdownMenuItem onClick={handlePrint}>
+          <DropdownMenuItem onClick={handlePrintTrainee}>
             <Printer className="mr-2 h-4 w-4" />
             <span className={isHindi ? 'font-hindi' : ''}>
               {isHindi ? 'प्रिंट करें' : 'Print'}

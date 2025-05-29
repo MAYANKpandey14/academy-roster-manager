@@ -6,7 +6,7 @@ export interface AttendanceRecord {
   id: string;
   date: string;
   status: string;
-  approval_status: string;
+  approval_status: 'approved' | 'pending' | 'rejected';
   created_at: string;
   updated_at: string;
   person_id: string;
@@ -18,7 +18,7 @@ export interface LeaveRecord {
   start_date: string;
   end_date: string;
   reason: string;
-  status: string;
+  status: 'approved' | 'pending' | 'rejected';
   leave_type: string;
   created_at: string;
   updated_at: string;
@@ -68,7 +68,11 @@ export const useFetchAttendance = () => {
         throw error;
       }
 
-      return data || [];
+      return (data || []).map(record => ({
+        ...record,
+        person_id: record.staff_id,
+        approval_status: record.approval_status as 'approved' | 'pending' | 'rejected'
+      }));
     },
   });
 
@@ -93,7 +97,11 @@ export const useFetchAttendance = () => {
         throw error;
       }
 
-      return data || [];
+      return (data || []).map(record => ({
+        ...record,
+        person_id: record.trainee_id,
+        approval_status: record.approval_status as 'approved' | 'pending' | 'rejected'
+      }));
     },
   });
 
@@ -147,12 +155,14 @@ export const useFetchPersonAttendance = (personId: string, personType: 'staff' |
 
       const attendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => ({
         ...record,
-        person_id: record[idField]
+        person_id: record[idField],
+        approval_status: record.approval_status as 'approved' | 'pending' | 'rejected'
       }));
 
       const leaveRecords: LeaveRecord[] = (leaveData || []).map(record => ({
         ...record,
-        person_id: record[idField]
+        person_id: record[idField],
+        status: record.status as 'approved' | 'pending' | 'rejected'
       }));
 
       return {
@@ -190,12 +200,14 @@ export const fetchAttendanceForPrint = async (personId: string, personType: 'sta
 
   const attendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => ({
     ...record,
-    person_id: record[idField]
+    person_id: record[idField],
+    approval_status: record.approval_status as 'approved' | 'pending' | 'rejected'
   }));
 
   const leaveRecords: LeaveRecord[] = (leaveData || []).map(record => ({
     ...record,
-    person_id: record[idField]
+    person_id: record[idField],
+    status: record.status as 'approved' | 'pending' | 'rejected'
   }));
 
   return { attendanceRecords, leaveRecords };
