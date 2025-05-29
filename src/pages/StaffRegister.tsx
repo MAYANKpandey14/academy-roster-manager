@@ -41,6 +41,7 @@ export default function StaffRegister() {
   const [submissionStatus, setSubmissionStatus] = useState<{
     success?: boolean;
     message?: string;
+    details?: string;
   }>({});
 
   // Initialize form with default values
@@ -66,26 +67,36 @@ export default function StaffRegister() {
     }
   });
 
-  // Handle image upload
+  // Handle image upload with better error handling
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
     
+    console.log("Starting file upload for:", file.name);
+    
     // Validate file type and size
     if (!file.type.match(/image\/(jpeg|jpg|png|webp)/i)) {
-      alert("Only JPG, PNG, and WEBP images are accepted");
+      setSubmissionStatus({
+        success: false,
+        message: "Only JPG, PNG, and WEBP images are accepted"
+      });
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      alert("Image must be smaller than 5MB");
+      setSubmissionStatus({
+        success: false,
+        message: "Image must be smaller than 5MB"
+      });
       return;
     }
 
     setIsUploading(true);
+    setSubmissionStatus({});
     
     try {
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${file.name.split('.').pop()}`;
+      console.log("Uploading file with name:", fileName);
       
       // Upload the file to Supabase storage
       const { data, error: uploadError } = await supabase.storage
@@ -94,7 +105,7 @@ export default function StaffRegister() {
       
       if (uploadError) {
         console.error('Upload error:', uploadError);
-        throw uploadError;
+        throw new Error(`Upload failed: ${uploadError.message}`);
       }
       
       // Get the public URL
@@ -106,21 +117,29 @@ export default function StaffRegister() {
       console.log("Image uploaded successfully:", url);
       setImageUrl(url);
       form.setValue("photo_url", url);
-    } catch (error) {
+      
+      setSubmissionStatus({
+        success: true,
+        message: "Photo uploaded successfully"
+      });
+    } catch (error: any) {
       console.error('Error uploading file:', error);
-      alert("Error uploading image");
+      setSubmissionStatus({
+        success: false,
+        message: "Error uploading image",
+        details: error.message
+      });
     } finally {
       setIsUploading(false);
     }
   };
 
   async function onSubmit(data: RegisterFormValues) {
+    console.log("Starting staff registration submission:", data);
     setIsSubmitting(true);
     setSubmissionStatus({});
     
     try {
-      console.log("Submitting staff registration:", data);
-      
       const response = await fetch('https://zjgphamebgrclivvkhmw.supabase.co/functions/v1/staff-register', {
         method: 'POST',
         headers: {
@@ -130,9 +149,13 @@ export default function StaffRegister() {
         body: JSON.stringify(data),
       });
 
+      console.log("API Response status:", response.status);
+      
+      const responseData = await response.json();
+      console.log("API Response data:", responseData);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Failed to register (Status: ${response.status})`);
+        throw new Error(responseData.error || `Failed to register (Status: ${response.status})`);
       }
 
       console.log("Registration successful");
@@ -147,14 +170,20 @@ export default function StaffRegister() {
     } catch (error: any) {
       console.error("Error during registration:", error);
       
-      // Handle duplicate PNO error
-      const errorMessage = error.message?.includes("already exists") 
-        ? "A staff with this PNO already exists" 
-        : "Registration failed. Please try again.";
+      // Handle different types of errors
+      let errorMessage = "Registration failed. Please try again.";
+      let errorDetails = error.message;
+      
+      if (error.message?.includes("already exists")) {
+        errorMessage = "A staff with this PNO already exists";
+      } else if (error.message?.includes("network") || error.message?.includes("fetch")) {
+        errorMessage = "Network error. Please check your connection and try again.";
+      }
       
       setSubmissionStatus({
         success: false,
-        message: errorMessage
+        message: errorMessage,
+        details: errorDetails
       });
     } finally {
       setIsSubmitting(false);
@@ -180,17 +209,22 @@ export default function StaffRegister() {
           </div>
         ) : submissionStatus.message ? (
           <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
-            <div className="flex items-center">
-              <AlertTriangle className="h-5 w-5 text-red-600 mr-3" />
-              <p className="text-red-700 font-medium">{submissionStatus.message}</p>
+            <div className="flex items-start">
+              <AlertTriangle className="h-5 w-5 text-red-600 mr-3 mt-0.5" />
+              <div>
+                <p className="text-red-700 font-medium">{submissionStatus.message}</p>
+                {submissionStatus.details && (
+                  <p className="text-red-600 text-sm mt-1">Details: {submissionStatus.details}</p>
+                )}
+              </div>
             </div>
           </div>
         ) : null}
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Service Info Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Service Info Section */}
               <div className="space-y-4">
                 <h3 className="font-semibold text-lg border-b pb-2">Service Information</h3>
                 
@@ -427,6 +461,7 @@ export default function StaffRegister() {
                         accept="image/jpeg,image/jpg,image/png,image/webp" 
                         className="absolute inset-0 opacity-0 cursor-pointer" 
                         onChange={handleFileChange} 
+                        disabled={isUploading}
                       />
                     </Button>
                     

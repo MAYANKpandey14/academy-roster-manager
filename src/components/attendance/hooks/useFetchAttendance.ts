@@ -6,7 +6,7 @@ import { PersonType } from "../types/attendanceTypes";
 // Define strict types for approval status
 export type ApprovalStatusType = "pending" | "approved" | "rejected";
 
-export type AttendanceRecord = {
+export interface AttendanceRecord {
   id: string;
   date: string;
   status: string;
@@ -15,9 +15,9 @@ export type AttendanceRecord = {
   updated_at: string;
   person_id: string;
   reason?: string;
-};
+}
 
-export type LeaveRecord = {
+export interface LeaveRecord {
   id: string;
   start_date: string;
   end_date: string;
@@ -27,7 +27,7 @@ export type LeaveRecord = {
   created_at: string;
   updated_at: string;
   person_id: string;
-};
+}
 
 // Helper function to ensure status is one of the allowed types
 function mapToApprovalStatus(status: unknown): ApprovalStatusType {
@@ -60,8 +60,8 @@ export const fetchAttendanceForPrint = async (
 
   // Process attendance records with explicit typing
   const attendanceRecords: AttendanceRecord[] = [];
-  if (attendanceData) {
-    attendanceData.forEach((record) => {
+  if (attendanceData && Array.isArray(attendanceData)) {
+    attendanceData.forEach((record: any) => {
       // Extract reason from status field if it contains a colon
       let extractedReason: string | undefined;
       let statusValue = record.status;
@@ -100,8 +100,8 @@ export const fetchAttendanceForPrint = async (
 
   // Process leave records with explicit typing
   const leaveRecords: LeaveRecord[] = [];
-  if (leaveData) {
-    leaveData.forEach((record) => {
+  if (leaveData && Array.isArray(leaveData)) {
+    leaveData.forEach((record: any) => {
       leaveRecords.push({
         id: record.id,
         start_date: record.start_date,
