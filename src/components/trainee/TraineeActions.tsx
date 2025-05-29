@@ -99,7 +99,7 @@ export function TraineeActions({ trainee, onDelete, onArchive }: TraineeActionsP
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem asChild>
-            <Link to={`/trainee/${trainee.id}`}>
+            <Link to={`/trainees/${trainee.id}`}>
               <Eye className="mr-2 h-4 w-4" />
               <span className={isHindi ? 'font-hindi' : ''}>
                 {isHindi ? 'देखें' : 'View'}
@@ -108,7 +108,7 @@ export function TraineeActions({ trainee, onDelete, onArchive }: TraineeActionsP
           </DropdownMenuItem>
           
           <DropdownMenuItem asChild>
-            <Link to={`/trainee/${trainee.id}/edit`}>
+            <Link to={`/trainees/${trainee.id}/edit`}>
               <Edit className="mr-2 h-4 w-4" />
               <span className={isHindi ? 'font-hindi' : ''}>
                 {isHindi ? 'संपादित करें' : 'Edit'}

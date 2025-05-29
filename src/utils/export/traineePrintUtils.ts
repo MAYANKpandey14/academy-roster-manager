@@ -193,7 +193,7 @@ export async function createPrintContent(
 
   // Create header if needed
   const header = showHeader 
-    ? createPrintHeader(isHindi ? "प्रशिक्षु विवरण" : "Trainee Details", isHindi) 
+    ? createPrintHeader(isHindi ? "ट्रेनी नॉमिनल रोल" : "Trainee Nominal Roll", isHindi) 
     : '';
 
   // Create footer if needed
@@ -207,7 +207,7 @@ export async function createPrintContent(
     <html>
       <head>
         <meta charset="utf-8">
-        <title>${isHindi ? "प्रशिक्षु विवरण" : "Trainee Details"}</title>
+        <title>${isHindi ? "ट्रेनी नॉमिनल रोल" : "Trainee Nominal Roll"}</title>
         <style>${styles}</style>
         <style>
           .trainee-card {
