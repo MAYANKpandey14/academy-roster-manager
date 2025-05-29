@@ -1,9 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Staff } from "@/types/staff";
-import { Trainee } from "@/types/trainee";
 
-export async function archiveStaff(staffId: string): Promise<{ error: Error | null }> {
+export async function archiveStaff(staffId: string, folderId?: string): Promise<{ error: Error | null }> {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     
@@ -12,7 +10,10 @@ export async function archiveStaff(staffId: string): Promise<{ error: Error | nu
     }
     
     const { error } = await supabase.functions.invoke('archive-staff', {
-      body: { id: staffId },
+      body: { 
+        id: staffId,
+        folder_id: folderId
+      },
       headers: {
         Authorization: `Bearer ${session.access_token}`
       }
@@ -32,7 +33,7 @@ export async function archiveStaff(staffId: string): Promise<{ error: Error | nu
   }
 }
 
-export async function archiveTrainee(traineeId: string): Promise<{ error: Error | null }> {
+export async function archiveTrainee(traineeId: string, folderId?: string): Promise<{ error: Error | null }> {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     
@@ -41,7 +42,10 @@ export async function archiveTrainee(traineeId: string): Promise<{ error: Error 
     }
     
     const { error } = await supabase.functions.invoke('archive-trainee', {
-      body: { id: traineeId },
+      body: { 
+        id: traineeId,
+        folder_id: folderId
+      },
       headers: {
         Authorization: `Bearer ${session.access_token}`
       }
@@ -61,7 +65,7 @@ export async function archiveTrainee(traineeId: string): Promise<{ error: Error 
   }
 }
 
-export async function archiveAllStaff(staffIds: string[]): Promise<{ error: Error | null }> {
+export async function archiveAllStaff(staffIds: string[], folderId?: string): Promise<{ error: Error | null }> {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     
@@ -70,7 +74,10 @@ export async function archiveAllStaff(staffIds: string[]): Promise<{ error: Erro
     }
     
     const { error } = await supabase.functions.invoke('archive-all-staff', {
-      body: { ids: staffIds },
+      body: { 
+        staff_ids: staffIds,
+        folder_id: folderId
+      },
       headers: {
         Authorization: `Bearer ${session.access_token}`
       }
@@ -90,7 +97,7 @@ export async function archiveAllStaff(staffIds: string[]): Promise<{ error: Erro
   }
 }
 
-export async function archiveAllTrainees(traineeIds: string[]): Promise<{ error: Error | null }> {
+export async function archiveAllTrainees(traineeIds: string[], folderId?: string): Promise<{ error: Error | null }> {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     
@@ -99,7 +106,10 @@ export async function archiveAllTrainees(traineeIds: string[]): Promise<{ error:
     }
     
     const { error } = await supabase.functions.invoke('archive-all-trainees', {
-      body: { ids: traineeIds },
+      body: { 
+        trainee_ids: traineeIds,
+        folder_id: folderId
+      },
       headers: {
         Authorization: `Bearer ${session.access_token}`
       }
@@ -121,13 +131,16 @@ export async function archiveAllTrainees(traineeIds: string[]): Promise<{ error:
 
 export async function getArchivedStaff() {
   try {
-    // Use type assertion since TypeScript doesn't recognize the new table yet
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('archived_staff')
       .select('*')
+      .eq('status', 'archived')
       .order('archived_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching archived staff:', error);
+      throw error;
+    }
 
     return { data, error: null };
   } catch (error) {
@@ -141,13 +154,16 @@ export async function getArchivedStaff() {
 
 export async function getArchivedTrainees() {
   try {
-    // Use type assertion since TypeScript doesn't recognize the new table yet
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('archived_trainees')
       .select('*')
+      .eq('status', 'archived')
       .order('archived_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching archived trainees:', error);
+      throw error;
+    }
 
     return { data, error: null };
   } catch (error) {

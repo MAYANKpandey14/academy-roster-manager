@@ -1,13 +1,14 @@
 
 import { Button } from "@/components/ui/button";
-import { Download, Printer, RefreshCw, FileSpreadsheet } from "lucide-react";
+import { Download, Printer, RefreshCw, FileSpreadsheet, Archive } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Staff } from "@/types/staff";
 import { toast } from "sonner";
 import { createStaffPrintContent, createStaffCSVContent } from "@/utils/staffExportUtils";
 import { handlePrint, handleDownload, exportStaffToExcel } from "@/utils/export";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ArchiveAllButton } from "@/components/archive/ArchiveAllButton";
+import { useState } from "react";
+import { ArchiveConfirmationDialog } from "@/components/archive/ArchiveConfirmationDialog";
 import { archiveAllStaff } from "@/services/archiveApi";
 
 interface StaffTableActionsProps {
@@ -27,6 +28,7 @@ export function StaffTableActions({
 }: StaffTableActionsProps) {
   const isMobile = useIsMobile();
   const { isHindi } = useLanguage();
+  const [showArchiveAllDialog, setShowArchiveAllDialog] = useState(false);
   
   async function handlePrintAction() {
     const selectedStaff = getSelectedStaff();
@@ -68,17 +70,18 @@ export function StaffTableActions({
     }
   }
 
-  const handleArchiveAll = async () => {
+  const handleArchiveAll = async (folderId: string) => {
     const staffIds = staff.map(s => s.id);
     
     try {
-      const { error } = await archiveAllStaff(staffIds);
+      const { error } = await archiveAllStaff(staffIds, folderId);
       
       if (error) throw error;
       
       toast.success(isHindi ? "सभी स्टाफ सफलतापूर्वक आर्काइव कर दिए गए" : "All staff archived successfully");
       
       if (onRefresh) onRefresh();
+      setShowArchiveAllDialog(false);
     } catch (error) {
       console.error("Error archiving all staff:", error);
       toast.error(isHindi ? "सभी स्टाफ आर्काइव करने में विफल" : "Failed to archive all staff");
@@ -86,51 +89,68 @@ export function StaffTableActions({
   };
 
   return (
-    <div className="flex flex-wrap gap-2 justify-end">
-      <ArchiveAllButton
-        onArchiveAll={handleArchiveAll}
-        isLoading={isLoading}
-        count={staff.length}
-        type="staff"
-      />
-      {onRefresh && (
+    <>
+      <div className="flex flex-wrap gap-2 justify-end">
         <Button
           variant="outline"
           size="sm"
-          onClick={onRefresh}
-          disabled={isLoading}
+          onClick={() => setShowArchiveAllDialog(true)}
+          disabled={isLoading || staff.length === 0}
           className="animate-slide-in"
         >
-          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          <Archive className="h-4 w-4" />
           {!isMobile && <span className={`ml-2 dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-            {isHindi ? "अपडेट करें" : "Refresh"}
+            {isHindi ? "सभी आर्काइव करें" : "Archive All"} ({staff.length})
           </span>}
         </Button>
-      )}
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handlePrintAction}
-        className="print-button animate-slide-in"
-        disabled={isLoading || selectedCount === 0}
-      >
-        <Printer className="h-4 w-4" />
-        {!isMobile && <span className={`ml-2 ${isHindi ? 'font-mangal' : ''}`}>
-          {isHindi ? "चयनित प्रिंट करें" : "Print Selected"}{selectedCount > 0 ? ` (${selectedCount})` : ''}
-        </span>}
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleExcelExport}
-        className="excel-button animate-slide-in"
-        disabled={isLoading || selectedCount === 0}
-      >
-        <FileSpreadsheet className="h-4 w-4" />
-        {!isMobile && <span className={`ml-2 ${isHindi ? 'font-mangal' : ''}`}>
-          {isHindi ? "एक्सेल डाउनलोड करें" : "Download Excel"}{selectedCount > 0 ? ` (${selectedCount})` : ''}
-        </span>}
-      </Button>
-    </div>
+        
+        {onRefresh && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onRefresh}
+            disabled={isLoading}
+            className="animate-slide-in"
+          >
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            {!isMobile && <span className={`ml-2 dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+              {isHindi ? "अपडेट करें" : "Refresh"}
+            </span>}
+          </Button>
+        )}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handlePrintAction}
+          className="print-button animate-slide-in"
+          disabled={isLoading || selectedCount === 0}
+        >
+          <Printer className="h-4 w-4" />
+          {!isMobile && <span className={`ml-2 ${isHindi ? 'font-mangal' : ''}`}>
+            {isHindi ? "चयनित प्रिंट करें" : "Print Selected"}{selectedCount > 0 ? ` (${selectedCount})` : ''}
+          </span>}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleExcelExport}
+          className="excel-button animate-slide-in"
+          disabled={isLoading || selectedCount === 0}
+        >
+          <FileSpreadsheet className="h-4 w-4" />
+          {!isMobile && <span className={`ml-2 ${isHindi ? 'font-mangal' : ''}`}>
+            {isHindi ? "एक्सेल डाउनलोड करें" : "Download Excel"}{selectedCount > 0 ? ` (${selectedCount})` : ''}
+          </span>}
+        </Button>
+      </div>
+
+      <ArchiveConfirmationDialog
+        isOpen={showArchiveAllDialog}
+        onClose={() => setShowArchiveAllDialog(false)}
+        onConfirm={handleArchiveAll}
+        selectedRecords={staff}
+        recordType="staff"
+      />
+    </>
   );
 }

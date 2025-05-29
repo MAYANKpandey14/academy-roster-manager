@@ -1,29 +1,16 @@
 
-import { 
-  MoreHorizontal, 
-  Edit,
-  Eye,
-  Download,
-  Printer,
-  FileSpreadsheet,
-  Trash2,
-  Archive
-} from "lucide-react";
-import { Trainee } from "@/types/trainee";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger 
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useTraineePrintService } from "@/components/trainee/view/TraineePrintService";
+import { Button } from "@/components/ui/button";
+import { MoreHorizontal, Eye, Edit, Trash2, Printer, Download, Archive } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Trainee } from "@/types/trainee";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { deleteTrainee } from "@/services/traineeApi";
-import { archiveTrainee } from "@/services/archiveApi";
-import { toast } from "sonner";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -35,6 +22,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { deleteTrainee } from "@/services/traineeApi";
+import { toast } from "sonner";
+import { createPrintContent, exportTraineesToExcel } from "@/utils/export";
+import { handlePrint } from "@/utils/export";
 
 interface TraineeActionsProps {
   trainee: Trainee;
@@ -43,60 +34,60 @@ interface TraineeActionsProps {
 }
 
 export function TraineeActions({ trainee, onDelete, onArchive }: TraineeActionsProps) {
-  const navigate = useNavigate();
   const { isHindi } = useLanguage();
-  const { handlePrint, handleExcelExport } = useTraineePrintService(trainee);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isArchiving, setIsArchiving] = useState(false);
-  
-  const handleDeleteClick = () => {
-    setIsDeleteDialogOpen(true);
-  };
 
-  const handleArchiveClick = () => {
-    setIsArchiveDialogOpen(true);
-  };
-
-  const handleConfirmDelete = async () => {
+  const handleDeleteConfirm = async () => {
+    setIsDeleting(true);
     try {
-      setIsDeleting(true);
       const { error } = await deleteTrainee(trainee.id);
-      
       if (error) throw error;
       
-      toast.success(isHindi ? "प्रशिक्षु सफलतापूर्वक हटा दिया गया" : "Trainee deleted successfully");
-      setIsDeleteDialogOpen(false);
+      toast.success(isHindi ? 
+        'प्रशिक्षानिवेशी सफलतापूर्वक हटा दिया गया' : 
+        'Trainee deleted successfully'
+      );
       
       if (onDelete) onDelete();
     } catch (error) {
-      console.error("Error deleting trainee:", error);
-      toast.error(isHindi ? "प्रशिक्षु हटाने में विफल" : "Failed to delete trainee");
+      console.error('Error deleting trainee:', error);
+      toast.error(isHindi ? 
+        'प्रशिक्षानिवेशी हटाने में विफल' : 
+        'Failed to delete trainee'
+      );
     } finally {
       setIsDeleting(false);
+      setShowDeleteDialog(false);
     }
   };
 
-  const handleConfirmArchive = async () => {
+  const handlePrint = async () => {
     try {
-      setIsArchiving(true);
-      const { error } = await archiveTrainee(trainee.id);
+      const content = await createPrintContent([trainee], isHindi);
+      const success = handlePrint(content);
       
-      if (error) throw error;
-      
-      toast.success(isHindi ? "प्रशिक्षु सफलतापूर्वक आर्काइव कर दिया गया" : "Trainee archived successfully");
-      setIsArchiveDialogOpen(false);
-      
-      if (onArchive) onArchive();
+      if (success) {
+        toast.success(isHindi ? 'प्रिंट तैयार है' : 'Print ready');
+      } else {
+        toast.error(isHindi ? 'प्रिंट विंडो खोलने में विफल' : 'Failed to open print window');
+      }
     } catch (error) {
-      console.error("Error archiving trainee:", error);
-      toast.error(isHindi ? "प्रशिक्षु आर्काइव करने में विफल" : "Failed to archive trainee");
-    } finally {
-      setIsArchiving(false);
+      console.error('Error printing trainee:', error);
+      toast.error(isHindi ? 'प्रिंट करने में त्रुटि' : 'Error printing trainee');
     }
   };
-  
+
+  const handleExport = () => {
+    try {
+      exportTraineesToExcel([trainee], isHindi);
+      toast.success(isHindi ? 'एक्सेल फ़ाइल डाउनलोड हो गई' : 'Excel file downloaded');
+    } catch (error) {
+      console.error('Error exporting trainee:', error);
+      toast.error(isHindi ? 'एक्सपोर्ट करने में त्रुटि' : 'Error exporting trainee');
+    }
+  };
+
   return (
     <>
       <DropdownMenu>
@@ -107,99 +98,90 @@ export function TraineeActions({ trainee, onDelete, onArchive }: TraineeActionsP
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => navigate(`/trainees/${trainee.id}`)}>
-            <Eye className="mr-2 h-4 w-4" />
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "देखें" : "View"}
-            </span>
+          <DropdownMenuItem asChild>
+            <Link to={`/trainee/${trainee.id}`}>
+              <Eye className="mr-2 h-4 w-4" />
+              <span className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? 'देखें' : 'View'}
+              </span>
+            </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => navigate(`/trainees/${trainee.id}/edit`)}>
-            <Edit className="mr-2 h-4 w-4" />
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "संपादित करें" : "Edit"}
-            </span>
+          
+          <DropdownMenuItem asChild>
+            <Link to={`/trainee/${trainee.id}/edit`}>
+              <Edit className="mr-2 h-4 w-4" />
+              <span className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? 'संपादित करें' : 'Edit'}
+              </span>
+            </Link>
           </DropdownMenuItem>
+          
           <DropdownMenuItem onClick={handlePrint}>
             <Printer className="mr-2 h-4 w-4" />
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "प्रिंट करें" : "Print"}
+            <span className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'प्रिंट करें' : 'Print'}
             </span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleExcelExport}>
-            <FileSpreadsheet className="mr-2 h-4 w-4" /> 
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "एक्सेल" : "Excel"}
+          
+          <DropdownMenuItem onClick={handleExport}>
+            <Download className="mr-2 h-4 w-4" />
+            <span className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'एक्सपोर्ट करें' : 'Export'}
             </span>
           </DropdownMenuItem>
+          
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleArchiveClick} className="text-orange-600 focus:text-orange-600">
-            <Archive className="mr-2 h-4 w-4" />
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "आर्काइव करें" : "Archive"}
-            </span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDeleteClick} className="text-destructive focus:text-destructive">
+          
+          {onArchive && (
+            <DropdownMenuItem 
+              onClick={onArchive}
+              className="text-orange-600 hover:text-orange-800"
+            >
+              <Archive className="mr-2 h-4 w-4" />
+              <span className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? 'आर्काइव करें' : 'Archive'}
+              </span>
+            </DropdownMenuItem>
+          )}
+          
+          <DropdownMenuItem 
+            onClick={() => setShowDeleteDialog(true)}
+            className="text-red-600 hover:text-red-800"
+          >
             <Trash2 className="mr-2 h-4 w-4" />
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "हटाएं" : "Delete"}
+            <span className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'हटाएं' : 'Delete'}
             </span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog open={isArchiveDialogOpen} onOpenChange={setIsArchiveDialogOpen}>
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? "प्रशिक्षु आर्काइव करने की पुष्टि करें" : "Confirm Archive Trainee"}
+              {isHindi ? 'हटाने की पुष्टि करें' : 'Confirm Delete'}
             </AlertDialogTitle>
             <AlertDialogDescription className={isHindi ? 'font-hindi' : ''}>
-              {isHindi
-                ? `क्या आप वाकई प्रशिक्षु "${trainee.name}" को आर्काइव करना चाहते हैं? यह उन्हें सक्रिय सूची से हटा देगा।`
-                : `Are you sure you want to archive trainee "${trainee.name}"? This will remove them from the active list.`}
+              {isHindi ? 
+                `क्या आप वाकई "${trainee.name}" को हटाना चाहते हैं? यह क्रिया को पूर्ववत नहीं किया जा सकता।` :
+                `Are you sure you want to delete "${trainee.name}"? This action cannot be undone.`
+              }
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isArchiving} className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? "रद्द करें" : "Cancel"}
+            <AlertDialogCancel disabled={isDeleting}>
+              {isHindi ? 'रद्द करें' : 'Cancel'}
             </AlertDialogCancel>
             <AlertDialogAction 
-              onClick={handleConfirmArchive}
-              disabled={isArchiving}
-              className="bg-orange-600 hover:bg-orange-700"
-            >
-              {isArchiving ? 
-                (isHindi ? "आर्काइव कर रहा है..." : "Archiving...") : 
-                (isHindi ? "आर्काइव करें" : "Archive")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? "प्रशिक्षु हटाने की पुष्टि करें" : "Confirm Delete Trainee"}
-            </AlertDialogTitle>
-            <AlertDialogDescription className={isHindi ? 'font-hindi' : ''}>
-              {isHindi
-                ? `क्या आप वाकई प्रशिक्षु "${trainee.name}" को हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।`
-                : `Are you sure you want to delete trainee "${trainee.name}"? This action cannot be undone.`}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting} className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? "रद्द करें" : "Cancel"}
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleConfirmDelete}
+              onClick={handleDeleteConfirm}
               disabled={isDeleting}
-              className="bg-destructive hover:bg-destructive/90"
+              className="bg-red-600 hover:bg-red-700"
             >
               {isDeleting ? 
-                (isHindi ? "हटा रहा है..." : "Deleting...") : 
-                (isHindi ? "हटाएं" : "Delete")}
+                (isHindi ? 'हटा रहे हैं...' : 'Deleting...') : 
+                (isHindi ? 'हटाएं' : 'Delete')
+              }
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,135 +1,95 @@
 
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { PersonType } from "../types/attendanceTypes";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
-export type ApprovalStatusType = "pending" | "approved" | "rejected";
-
-export interface AttendanceRecord {
+interface AttendanceRecord {
   id: string;
   date: string;
   status: string;
-  approval_status: ApprovalStatusType;
+  approval_status: string;
   created_at: string;
   updated_at: string;
-  person_id: string;
-  reason?: string;
 }
 
-export interface LeaveRecord {
-  id: string;
-  start_date: string;
-  end_date: string;
-  reason: string;
-  status: ApprovalStatusType;
-  leave_type: string;
-  created_at: string;
-  updated_at: string;
-  person_id: string;
+interface StaffAttendanceRecord extends AttendanceRecord {
+  staff_id: string;
+  staff?: {
+    id: string;
+    name: string;
+    pno: string;
+    rank: string;
+  };
 }
 
-function mapToApprovalStatus(status: unknown): ApprovalStatusType {
-  if (typeof status === 'string') {
-    if (status === 'approved') return 'approved';
-    if (status === 'rejected') return 'rejected';
-  }
-  return 'pending';
+interface TraineeAttendanceRecord extends AttendanceRecord {
+  trainee_id: string;
+  trainee?: {
+    id: string;
+    name: string;
+    pno: string;
+    chest_no: string;
+  };
 }
 
-export const fetchAttendanceForPrint = async (
-  personId: string,
-  personType: PersonType
-): Promise<{ attendanceRecords: AttendanceRecord[]; leaveRecords: LeaveRecord[] }> => {
-  const tableName = personType === "trainee" ? "trainee_attendance" : "staff_attendance";
-  const idField = personType === "trainee" ? "trainee_id" : "staff_id";
+export const useFetchAttendance = () => {
+  const fetchStaffAttendance = useQuery({
+    queryKey: ['staff-attendance'],
+    queryFn: async (): Promise<StaffAttendanceRecord[]> => {
+      const { data, error } = await supabase
+        .from('staff_attendance')
+        .select(`
+          *,
+          staff (
+            id,
+            name,
+            pno,
+            rank
+          )
+        `)
+        .order('date', { ascending: false });
 
-  // Fetch attendance records
-  const { data: attendanceData, error: attendanceError } = await supabase
-    .from(tableName)
-    .select("*")
-    .eq(idField, personId)
-    .order("date", { ascending: false });
-
-  if (attendanceError) {
-    console.error(`Error fetching ${personType} attendance:`, attendanceError);
-    throw new Error(`Failed to fetch attendance records`);
-  }
-
-  const attendanceRecords: AttendanceRecord[] = [];
-  if (attendanceData) {
-    for (const record of attendanceData) {
-      let extractedReason: string | undefined;
-      let statusValue = record.status;
-
-      if (record.status && typeof record.status === 'string' && record.status.includes(': ')) {
-        const parts = record.status.split(': ');
-        statusValue = parts[0];
-        extractedReason = parts.slice(1).join(': ');
+      if (error) {
+        console.error('Error fetching staff attendance:', error);
+        throw error;
       }
 
-      attendanceRecords.push({
-        id: record.id,
-        date: record.date,
-        status: statusValue,
-        approval_status: mapToApprovalStatus(record.approval_status),
-        created_at: record.created_at,
-        updated_at: record.updated_at,
-        person_id: record[idField],
-        reason: extractedReason
-      });
-    }
-  }
-
-  // Fetch leave records
-  const leaveTableName = personType === "trainee" ? "trainee_leave" : "staff_leave";
-  const { data: leaveData, error: leaveError } = await supabase
-    .from(leaveTableName)
-    .select("*")
-    .eq(idField, personId)
-    .order("start_date", { ascending: false });
-
-  if (leaveError) {
-    console.error(`Error fetching ${personType} leave:`, leaveError);
-    throw new Error(`Failed to fetch leave records`);
-  }
-
-  const leaveRecords: LeaveRecord[] = [];
-  if (leaveData) {
-    for (const record of leaveData) {
-      leaveRecords.push({
-        id: record.id,
-        start_date: record.start_date,
-        end_date: record.end_date,
-        reason: record.reason || '',
-        status: mapToApprovalStatus(record.status),
-        leave_type: record.leave_type || '',
-        created_at: record.created_at,
-        updated_at: record.updated_at,
-        person_id: record[idField]
-      });
-    }
-  }
-
-  return { attendanceRecords, leaveRecords };
-};
-
-export const useFetchAttendance = (
-  personId: string | undefined,
-  personType: PersonType,
-  startDate?: string,
-  endDate?: string
-) => {
-  const fetchAttendanceHistory = async () => {
-    if (!personId) {
-      return { attendanceRecords: [], leaveRecords: [] };
-    }
-
-    return await fetchAttendanceForPrint(personId, personType);
-  };
-
-  return useQuery({
-    queryKey: ["attendance", personId, personType, startDate, endDate],
-    queryFn: fetchAttendanceHistory,
-    enabled: !!personId,
+      return data || [];
+    },
   });
+
+  const fetchTraineeAttendance = useQuery({
+    queryKey: ['trainee-attendance'],
+    queryFn: async (): Promise<TraineeAttendanceRecord[]> => {
+      const { data, error } = await supabase
+        .from('trainee_attendance')
+        .select(`
+          *,
+          trainee:trainees (
+            id,
+            name,
+            pno,
+            chest_no
+          )
+        `)
+        .order('date', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching trainee attendance:', error);
+        throw error;
+      }
+
+      return data || [];
+    },
+  });
+
+  return {
+    staffAttendance: fetchStaffAttendance.data || [],
+    traineeAttendance: fetchTraineeAttendance.data || [],
+    isLoadingStaff: fetchStaffAttendance.isLoading,
+    isLoadingTrainee: fetchTraineeAttendance.isLoading,
+    staffError: fetchStaffAttendance.error,
+    traineeError: fetchTraineeAttendance.error,
+    refetchStaff: fetchStaffAttendance.refetch,
+    refetchTrainee: fetchTraineeAttendance.refetch,
+  };
 };
