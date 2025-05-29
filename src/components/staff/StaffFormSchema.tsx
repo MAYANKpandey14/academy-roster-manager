@@ -13,18 +13,25 @@ import {
 // List of blood groups for selection
 export const bloodGroups: BloodGroup[] = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
 
-// List of staff ranks for selection
+// List of staff ranks for selection - updated to match StaffRank type
 export const staffRanks: StaffRank[] = [
+  "R/ CONST", 
   "CONST", 
-  "HC", 
-  "SI", 
-  "Inspector", 
-  "DSP", 
-  "SP", 
-  "DIG", 
-  "IG", 
-  "ADGP", 
-  "DGP"
+  "CONST/ PTI", 
+  "HC/CP", 
+  "HC/AP", 
+  "HC-ITI", 
+  "HC-PTI", 
+  "SI/AP", 
+  "SI/CP", 
+  "RI", 
+  "RSI", 
+  "Inspector",
+  "FALL",
+  "Sweeper",
+  "Barber",
+  "Washerman",
+  "Peon"
 ];
 
 // Enhanced schema for staff form validation with better security
