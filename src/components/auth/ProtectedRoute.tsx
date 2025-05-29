@@ -1,29 +1,22 @@
 
-import { useEffect, useState } from "react";
+import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { User } from "@supabase/supabase-js";
+import { useAuth } from "@/hooks/useAuth";
 
-export function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null | undefined>();
+interface ProtectedRouteProps {
+  children: ReactNode;
+}
+
+export function ProtectedRoute({ children }: ProtectedRouteProps) {
+  const { user, loading } = useAuth();
   const location = useLocation();
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  if (user === undefined) {
-    return null; // or a loading spinner
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      </div>
+    );
   }
 
   if (!user) {

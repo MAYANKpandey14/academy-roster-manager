@@ -72,7 +72,7 @@ export const useFetchAttendance = () => {
         ...record,
         person_id: record.staff_id,
         approval_status: record.approval_status as 'approved' | 'pending' | 'rejected'
-      })) as StaffAttendanceRecord[];
+      }));
     },
   });
 
@@ -101,7 +101,7 @@ export const useFetchAttendance = () => {
         ...record,
         person_id: record.trainee_id,
         approval_status: record.approval_status as 'approved' | 'pending' | 'rejected'
-      })) as TraineeAttendanceRecord[];
+      }));
     },
   });
 

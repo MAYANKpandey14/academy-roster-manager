@@ -7,94 +7,208 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Input sanitization function
+function sanitizeInput(input: string): string {
+  return input
+    .trim()
+    .replace(/[<>]/g, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+=/gi, '');
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
+    // Verify authorization
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Missing authorization header' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 401 
+        }
+      );
+    }
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
         global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
+          headers: { Authorization: authHeader },
         },
       }
     )
 
-    const { folderId, targetFolderId, recordType } = await req.json()
+    // Verify user is authenticated
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 401 
+        }
+      );
+    }
+
+    // Check user role
+    const { data: profile } = await supabaseClient
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile || !['admin', 'staff'].includes(profile.role)) {
+      return new Response(
+        JSON.stringify({ error: 'Insufficient permissions' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 403 
+        }
+      );
+    }
+
+    const requestData = await req.json();
+    const folderId = sanitizeInput(requestData.folderId || '');
+    const destinationFolderId = requestData.destinationFolderId ? 
+      sanitizeInput(requestData.destinationFolderId) : null;
 
     if (!folderId) {
-      throw new Error('Folder ID is required')
+      return new Response(
+        JSON.stringify({ error: 'Folder ID is required' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      );
     }
 
-    // Get current user
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
-    if (userError || !user) {
-      throw new Error('Authentication required')
+    // Verify folder exists and user has permission to delete it
+    const { data: folder, error: folderError } = await supabaseClient
+      .from('archive_folders')
+      .select('*')
+      .eq('id', folderId)
+      .single();
+
+    if (folderError || !folder) {
+      return new Response(
+        JSON.stringify({ error: 'Folder not found' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 404 
+        }
+      );
     }
 
-    console.log(`Deleting folder ${folderId}, moving records to ${targetFolderId || 'nowhere'}, type: ${recordType}`)
+    // Only allow deletion if user is admin or folder creator
+    if (profile.role !== 'admin' && folder.created_by !== user.id) {
+      return new Response(
+        JSON.stringify({ error: 'You can only delete folders you created' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 403 
+        }
+      );
+    }
 
-    // Start transaction-like operations
-    const archiveTable = recordType === 'staff' ? 'archived_staff' : 'archived_trainees'
+    // If destination folder is specified, verify it exists
+    if (destinationFolderId) {
+      const { data: destFolder, error: destError } = await supabaseClient
+        .from('archive_folders')
+        .select('id')
+        .eq('id', destinationFolderId)
+        .single();
 
-    // If targetFolderId is provided, move all records to the target folder
-    if (targetFolderId) {
-      const { error: moveError } = await supabaseClient
-        .from(archiveTable)
-        .update({ folder_id: targetFolderId })
-        .eq('folder_id', folderId)
-
-      if (moveError) {
-        console.error('Error moving records:', moveError)
-        throw new Error(`Failed to move records: ${moveError.message}`)
+      if (destError || !destFolder) {
+        return new Response(
+          JSON.stringify({ error: 'Destination folder not found' }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 404 
+          }
+        );
       }
 
-      console.log(`Successfully moved records from folder ${folderId} to ${targetFolderId}`)
+      // Move archived staff to destination folder
+      const { error: staffMoveError } = await supabaseClient
+        .from('archived_staff')
+        .update({ folder_id: destinationFolderId })
+        .eq('folder_id', folderId);
+
+      if (staffMoveError) {
+        console.error('Error moving staff:', staffMoveError);
+        throw new Error('Failed to move staff records');
+      }
+
+      // Move archived trainees to destination folder
+      const { error: traineesMoveError } = await supabaseClient
+        .from('archived_trainees')
+        .update({ folder_id: destinationFolderId })
+        .eq('folder_id', folderId);
+
+      if (traineesMoveError) {
+        console.error('Error moving trainees:', traineesMoveError);
+        throw new Error('Failed to move trainee records');
+      }
     } else {
-      // Delete all records in the folder
-      const { error: deleteRecordsError } = await supabaseClient
-        .from(archiveTable)
+      // If no destination folder, delete all records in this folder
+      const { error: staffDeleteError } = await supabaseClient
+        .from('archived_staff')
         .delete()
-        .eq('folder_id', folderId)
+        .eq('folder_id', folderId);
 
-      if (deleteRecordsError) {
-        console.error('Error deleting records:', deleteRecordsError)
-        throw new Error(`Failed to delete records: ${deleteRecordsError.message}`)
+      if (staffDeleteError) {
+        console.error('Error deleting staff:', staffDeleteError);
+        throw new Error('Failed to delete staff records');
       }
 
-      console.log(`Successfully deleted all records from folder ${folderId}`)
+      const { error: traineesDeleteError } = await supabaseClient
+        .from('archived_trainees')
+        .delete()
+        .eq('folder_id', folderId);
+
+      if (traineesDeleteError) {
+        console.error('Error deleting trainees:', traineesDeleteError);
+        throw new Error('Failed to delete trainee records');
+      }
     }
 
     // Delete the folder
     const { error: deleteFolderError } = await supabaseClient
       .from('archive_folders')
       .delete()
-      .eq('id', folderId)
+      .eq('id', folderId);
 
     if (deleteFolderError) {
-      console.error('Error deleting folder:', deleteFolderError)
-      throw new Error(`Failed to delete folder: ${deleteFolderError.message}`)
+      console.error('Error deleting folder:', deleteFolderError);
+      throw new Error('Failed to delete folder');
     }
 
-    console.log(`Successfully deleted folder ${folderId}`)
+    // Log the action for audit trail
+    console.log(`Folder ${folderId} deleted by user ${user.id} (${user.email})`);
 
     return new Response(
-      JSON.stringify({ success: true }),
+      JSON.stringify({ 
+        message: 'Folder deleted successfully',
+        action: destinationFolderId ? 'moved_and_deleted' : 'deleted_with_contents'
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200 
       }
     )
   } catch (error) {
-    console.error('Error in delete-archive-folder function:', error)
+    console.error('Error in delete-archive-folder:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: 'Internal server error' }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400 
+        status: 500 
       }
     )
   }
