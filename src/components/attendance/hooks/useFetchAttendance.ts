@@ -46,12 +46,14 @@ export const fetchAttendanceForPrint = async (
   const tableName = personType === "trainee" ? "trainee_attendance" : "staff_attendance";
   const idField = personType === "trainee" ? "trainee_id" : "staff_id";
 
-  // Fetch attendance records
-  const { data: attendanceData, error: attendanceError } = await supabase
+  // Fetch attendance records with explicit typing
+  const attendanceQuery = supabase
     .from(tableName)
     .select("*")
     .eq(idField, personId)
     .order("date", { ascending: false });
+
+  const { data: attendanceData, error: attendanceError } = await attendanceQuery;
 
   if (attendanceError) {
     console.error(`Error fetching ${personType} attendance:`, attendanceError);
@@ -61,7 +63,7 @@ export const fetchAttendanceForPrint = async (
   // Process attendance records with explicit typing
   const attendanceRecords: AttendanceRecord[] = [];
   if (attendanceData) {
-    for (const record of attendanceData) {
+    attendanceData.forEach((record: any) => {
       // Extract reason from status field if it contains a colon
       let extractedReason: string | undefined;
       let statusValue = record.status;
@@ -82,16 +84,18 @@ export const fetchAttendanceForPrint = async (
         person_id: record[idField],
         reason: extractedReason
       });
-    }
+    });
   }
 
-  // Fetch leave records
+  // Fetch leave records with explicit typing
   const leaveTableName = personType === "trainee" ? "trainee_leave" : "staff_leave";
-  const { data: leaveData, error: leaveError } = await supabase
+  const leaveQuery = supabase
     .from(leaveTableName)
     .select("*")
     .eq(idField, personId)
     .order("start_date", { ascending: false });
+
+  const { data: leaveData, error: leaveError } = await leaveQuery;
 
   if (leaveError) {
     console.error(`Error fetching ${personType} leave:`, leaveError);
@@ -101,7 +105,7 @@ export const fetchAttendanceForPrint = async (
   // Process leave records with explicit typing
   const leaveRecords: LeaveRecord[] = [];
   if (leaveData) {
-    for (const record of leaveData) {
+    leaveData.forEach((record: any) => {
       leaveRecords.push({
         id: record.id,
         start_date: record.start_date,
@@ -113,7 +117,7 @@ export const fetchAttendanceForPrint = async (
         updated_at: record.updated_at,
         person_id: record[idField]
       });
-    }
+    });
   }
 
   return { attendanceRecords, leaveRecords };

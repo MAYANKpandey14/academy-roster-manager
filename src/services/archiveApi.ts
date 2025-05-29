@@ -121,7 +121,8 @@ export async function archiveAllTrainees(traineeIds: string[]): Promise<{ error:
 
 export async function getArchivedStaff() {
   try {
-    const { data, error } = await supabase
+    // Use type assertion since TypeScript doesn't recognize the new table yet
+    const { data, error } = await (supabase as any)
       .from('archived_staff')
       .select('*')
       .order('archived_at', { ascending: false });
@@ -140,7 +141,8 @@ export async function getArchivedStaff() {
 
 export async function getArchivedTrainees() {
   try {
-    const { data, error } = await supabase
+    // Use type assertion since TypeScript doesn't recognize the new table yet
+    const { data, error } = await (supabase as any)
       .from('archived_trainees')
       .select('*')
       .order('archived_at', { ascending: false });

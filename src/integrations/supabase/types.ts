@@ -9,6 +9,153 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      archived_staff: {
+        Row: {
+          archived_at: string
+          archived_by: string | null
+          blood_group: string
+          class_no: string | null
+          class_subject: string | null
+          created_at: string | null
+          current_posting_district: string
+          date_of_birth: string
+          date_of_joining: string
+          education: string
+          father_name: string
+          home_address: string
+          id: string
+          mobile_number: string
+          name: string
+          nominee: string
+          photo_url: string | null
+          pno: string
+          rank: string
+          toli_no: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          archived_at?: string
+          archived_by?: string | null
+          blood_group: string
+          class_no?: string | null
+          class_subject?: string | null
+          created_at?: string | null
+          current_posting_district: string
+          date_of_birth: string
+          date_of_joining: string
+          education: string
+          father_name: string
+          home_address: string
+          id?: string
+          mobile_number: string
+          name: string
+          nominee: string
+          photo_url?: string | null
+          pno: string
+          rank: string
+          toli_no?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          archived_at?: string
+          archived_by?: string | null
+          blood_group?: string
+          class_no?: string | null
+          class_subject?: string | null
+          created_at?: string | null
+          current_posting_district?: string
+          date_of_birth?: string
+          date_of_joining?: string
+          education?: string
+          father_name?: string
+          home_address?: string
+          id?: string
+          mobile_number?: string
+          name?: string
+          nominee?: string
+          photo_url?: string | null
+          pno?: string
+          rank?: string
+          toli_no?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      archived_trainees: {
+        Row: {
+          archived_at: string
+          archived_by: string | null
+          arrival_date: string
+          blood_group: string
+          chest_no: string
+          created_at: string | null
+          current_posting_district: string
+          date_of_birth: string
+          date_of_joining: string
+          departure_date: string
+          education: string
+          father_name: string
+          home_address: string
+          id: string
+          mobile_number: string
+          name: string
+          nominee: string
+          photo_url: string | null
+          pno: string
+          rank: string
+          toli_no: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          archived_at?: string
+          archived_by?: string | null
+          arrival_date: string
+          blood_group: string
+          chest_no: string
+          created_at?: string | null
+          current_posting_district: string
+          date_of_birth: string
+          date_of_joining: string
+          departure_date: string
+          education: string
+          father_name: string
+          home_address: string
+          id?: string
+          mobile_number: string
+          name: string
+          nominee: string
+          photo_url?: string | null
+          pno: string
+          rank?: string
+          toli_no?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          archived_at?: string
+          archived_by?: string | null
+          arrival_date?: string
+          blood_group?: string
+          chest_no?: string
+          created_at?: string | null
+          current_posting_district?: string
+          date_of_birth?: string
+          date_of_joining?: string
+          departure_date?: string
+          education?: string
+          father_name?: string
+          home_address?: string
+          id?: string
+          mobile_number?: string
+          name?: string
+          nominee?: string
+          photo_url?: string | null
+          pno?: string
+          rank?: string
+          toli_no?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
