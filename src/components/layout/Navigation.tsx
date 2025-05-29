@@ -1,61 +1,56 @@
 
 import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSwitcher from "@/components/languageswitch/LanguageSwitcher";
 
-export const Navigation = () => {
+export function Navigation() {
   const location = useLocation();
   const { isHindi } = useLanguage();
   
-  const navItems = [
-    {
-      href: "/trainees",
-      label: isHindi ? "होम" : "Home",
-      isActive: location.pathname === "/trainees"
+  const routes = [
+    { 
+      name: isHindi ? "प्रशिक्षु" : "Trainees", 
+      path: "/trainees" 
     },
-    {
-      href: "/staff",
-      label: isHindi ? "स्टाफ" : "Staff",
-      isActive: location.pathname.startsWith("/staff")
+    { 
+      name: isHindi ? "स्टाफ" : "Staff", 
+      path: "/staff" 
     },
-    {
-      href: "/attendance",
-      label: isHindi ? "उपस्थिति" : "Attendance",
-      isActive: location.pathname === "/attendance"
+    { 
+      name: isHindi ? "उपस्थिति" : "Attendance",
+      path: "/attendance"
     },
-    {
-      href: "/leave",
-      label: isHindi ? "छुट्टी" : "Leave",
-      isActive: location.pathname === "/leave"
+    { 
+      name: isHindi ? "आर्काइव" : "Archive",
+      path: "/archive"
     },
-    {
-      href: "/archive",
-      label: isHindi ? "आर्काइव" : "Archive",
-      isActive: location.pathname === "/archive"
-    }
   ];
 
   return (
-    <nav className="flex space-x-1">
-      {navItems.map((item) => {
-        const Icon = item.icon;
-        return (
-          <Link
-            key={item.href}
-            to={item.href}
-            className={cn(
-              "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
-              item.isActive
-                ? "bg-blue-100 text-blue-700"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100",
-              isHindi ? "font-hindi" : ""
-            )}
-          >
-            <Icon className="w-4 h-4 mr-2" />
-            {item.label}
-          </Link>
-        );
-      })}
+    <nav className="border-b bg-background">
+      <div className="container mx-auto px-4 py-2">
+        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-center md:justify-start space-x-2 md:space-x-4 overflow-x-auto">
+          <div className="flex flex-wrap gap-4">
+          {routes.map((route) => (
+            <Button
+              key={route.path}
+              variant={location.pathname.startsWith(route.path) ? "default" : "ghost"}
+              size="sm"
+              asChild
+              className={`whitespace-nowrap ${isHindi ? "font-mangal" : ""}`}
+            >
+              <Link to={route.path}>{route.name}</Link>
+            </Button>
+          ))}
+          </div>
+        </div>
+        <div className="flex items-center justify-center md:justify-end">
+          <LanguageSwitcher />
+        </div>
+        </div>
+      </div>
     </nav>
   );
-};
+}
