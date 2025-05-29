@@ -1,21 +1,41 @@
 
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { AttendanceRecord, AttendanceFormData, PersonType, ApprovalStatus } from '../types/attendanceTypes';
+import { PersonType, ApprovalStatus } from '../types/attendanceTypes';
+
+// Simplified interfaces to avoid type conflicts
+interface SimpleAttendanceRecord {
+  id: string;
+  person_id: string;
+  person_type: PersonType;
+  date: string;
+  status: string;
+  approval_status: ApprovalStatus;
+  created_at: string;
+  updated_at: string;
+  reason?: string;
+}
+
+interface AttendanceFormData {
+  attendanceType: 'Present' | 'Absent' | 'On Leave';
+  leaveType?: 'Sick Leave' | 'Casual Leave' | 'Emergency Leave' | 'Annual Leave';
+  startDate: string;
+  endDate?: string;
+  reason?: string;
+}
 
 export function useAttendanceManager() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Fetch attendance records for a person
-  const fetchAttendance = useCallback(async (personId: string, personType: PersonType): Promise<AttendanceRecord[]> => {
+  const fetchAttendance = useCallback(async (personId: string, personType: PersonType): Promise<SimpleAttendanceRecord[]> => {
     if (!personId) return [];
     
     setIsLoading(true);
     setError(null);
     
     try {
-      // For now, we'll use the existing attendance tables structure
       const attendanceTable = personType === 'staff' ? 'staff_attendance' : 'trainee_attendance';
       const idField = personType === 'staff' ? 'staff_id' : 'trainee_id';
       
@@ -27,16 +47,14 @@ export function useAttendanceManager() {
 
       if (fetchError) throw fetchError;
       
-      // Transform the data to match AttendanceRecord interface
-      const records: AttendanceRecord[] = (data || []).map(record => ({
+      // Transform the data to match SimpleAttendanceRecord interface
+      const records: SimpleAttendanceRecord[] = (data || []).map(record => ({
         id: record.id,
-        person_id: record[idField],
+        person_id: personType === 'staff' ? record.staff_id : record.trainee_id,
         person_type: personType,
-        attendance_type: record.status === 'present' ? 'Present' : 'Absent',
-        start_date: record.date,
-        end_date: record.date,
-        status: record.approval_status as ApprovalStatus,
-        created_by: 'system', // Default value since not available in current schema
+        date: record.date,
+        status: record.status || 'present',
+        approval_status: (record.approval_status as ApprovalStatus) || 'pending',
         created_at: record.created_at || new Date().toISOString(),
         updated_at: record.updated_at || new Date().toISOString(),
       }));
@@ -65,14 +83,21 @@ export function useAttendanceManager() {
     
     try {
       const attendanceTable = personType === 'staff' ? 'staff_attendance' : 'trainee_attendance';
-      const idField = personType === 'staff' ? 'staff_id' : 'trainee_id';
       
-      const record = {
-        [idField]: personId,
-        date: formData.startDate,
-        status: formData.attendanceType === 'Present' ? 'present' : 'absent',
-        approval_status: formData.attendanceType === 'Present' ? 'approved' : 'pending',
-      };
+      // Create record with explicit field names instead of dynamic keys
+      const record = personType === 'staff' 
+        ? {
+            staff_id: personId,
+            date: formData.startDate,
+            status: formData.attendanceType === 'Present' ? 'present' : 'absent',
+            approval_status: formData.attendanceType === 'Present' ? 'approved' : 'pending',
+          }
+        : {
+            trainee_id: personId,
+            date: formData.startDate,
+            status: formData.attendanceType === 'Present' ? 'present' : 'absent',
+            approval_status: formData.attendanceType === 'Present' ? 'approved' : 'pending',
+          };
 
       const { error: insertError } = await supabase
         .from(attendanceTable)
@@ -93,7 +118,7 @@ export function useAttendanceManager() {
   // Update attendance status (approve/reject)
   const updateAttendanceStatus = useCallback(async (
     recordId: string,
-    status: 'Approved' | 'Rejected',
+    status: 'approved' | 'rejected',
     userId: string
   ): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);

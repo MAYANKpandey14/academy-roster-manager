@@ -29,13 +29,14 @@ export const searchSchema = {
   pno: "string" as const,
 };
 
-// Additional types for attendance management
+// Simplified types to avoid circular references
 export type ApprovalStatus = 'approved' | 'pending' | 'rejected';
 
 export type AttendanceType = 'Present' | 'Absent' | 'On Leave' | 'Resignation';
 
 export type LeaveType = 'Sick Leave' | 'Casual Leave' | 'Emergency Leave' | 'Annual Leave';
 
+// Simplified AttendanceRecord without complex references
 export interface AttendanceRecord {
   id: string;
   person_id: string;
