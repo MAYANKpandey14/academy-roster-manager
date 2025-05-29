@@ -34,6 +34,10 @@ export function ArchiveViewModal({ record, type, isOpen, onClose }: ArchiveViewM
     return 'chest_no' in record;
   };
 
+  const isStaff = (record: ArchivedStaff | ArchivedTrainee): record is ArchivedStaff => {
+    return !('chest_no' in record);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
@@ -172,7 +176,7 @@ export function ArchiveViewModal({ record, type, isOpen, onClose }: ArchiveViewM
                 </div>
               )}
               
-              {record.class_no && (
+              {isStaff(record) && record.class_no && (
                 <div>
                   <span className={`font-medium ${isHindi ? 'font-hindi' : ''}`}>
                     {isHindi ? 'क्लास नं:' : 'Class No:'}

@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PersonType } from "../types/attendanceTypes";
 
-// Define strict types for approval status
 export type ApprovalStatusType = "pending" | "approved" | "rejected";
 
 export interface AttendanceRecord {
@@ -29,7 +28,6 @@ export interface LeaveRecord {
   person_id: string;
 }
 
-// Helper function to ensure status is one of the allowed types
 function mapToApprovalStatus(status: unknown): ApprovalStatusType {
   if (typeof status === 'string') {
     if (status === 'approved') return 'approved';
@@ -38,7 +36,6 @@ function mapToApprovalStatus(status: unknown): ApprovalStatusType {
   return 'pending';
 }
 
-// Separate function to fetch attendance and leave data for printing
 export const fetchAttendanceForPrint = async (
   personId: string,
   personType: PersonType
@@ -62,7 +59,6 @@ export const fetchAttendanceForPrint = async (
   const attendanceRecords: AttendanceRecord[] = [];
   if (attendanceData) {
     for (const record of attendanceData) {
-      // Extract reason from status field if it contains a colon
       let extractedReason: string | undefined;
       let statusValue = record.status;
 
