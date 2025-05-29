@@ -23,26 +23,38 @@ serve(async (req) => {
       }
     )
 
-    const { ids } = await req.json()
+    const { trainee_ids, folder_id } = await req.json()
 
-    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    if (!trainee_ids || !Array.isArray(trainee_ids) || trainee_ids.length === 0) {
       throw new Error('Trainee IDs array is required')
+    }
+
+    // Get the current user for audit trail
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
+    if (userError || !user) {
+      throw new Error('Authentication required')
     }
 
     // Get all trainee records first
     const { data: traineeData, error: fetchError } = await supabaseClient
       .from('trainees')
       .select('*')
-      .in('id', ids)
+      .in('id', trainee_ids)
 
     if (fetchError) {
       throw new Error(`Failed to fetch trainees: ${fetchError.message}`)
     }
 
-    // Add archived_at timestamp to each record
+    if (!traineeData || traineeData.length === 0) {
+      throw new Error('No trainee records found')
+    }
+
+    // Add archived_at, folder_id, and archived_by timestamp to each record
     const archivedTrainees = traineeData.map(trainee => ({
       ...trainee,
-      archived_at: new Date().toISOString()
+      folder_id: folder_id || null,
+      archived_at: new Date().toISOString(),
+      archived_by: user.id
     }))
 
     // Insert into archived_trainees table
@@ -58,20 +70,31 @@ serve(async (req) => {
     const { error: deleteError } = await supabaseClient
       .from('trainees')
       .delete()
-      .in('id', ids)
+      .in('id', trainee_ids)
 
     if (deleteError) {
+      // If deletion fails, we should clean up the archived records
+      await supabaseClient
+        .from('archived_trainees')
+        .delete()
+        .in('id', trainee_ids)
+      
       throw new Error(`Failed to remove trainees from active list: ${deleteError.message}`)
     }
 
     return new Response(
-      JSON.stringify({ message: `${traineeData.length} trainees archived successfully` }),
+      JSON.stringify({ 
+        message: `${traineeData.length} trainees archived successfully`,
+        archived_count: traineeData.length,
+        folder_id: folder_id || null
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200 
       }
     )
   } catch (error) {
+    console.error('Archive all trainees error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { 

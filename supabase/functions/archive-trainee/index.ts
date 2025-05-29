@@ -23,10 +23,16 @@ serve(async (req) => {
       }
     )
 
-    const { id } = await req.json()
+    const { id, folder_id } = await req.json()
 
     if (!id) {
       throw new Error('Trainee ID is required')
+    }
+
+    // Get the current user for audit trail
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
+    if (userError || !user) {
+      throw new Error('Authentication required')
     }
 
     // Get the trainee record first
@@ -40,12 +46,18 @@ serve(async (req) => {
       throw new Error(`Failed to fetch trainee: ${fetchError.message}`)
     }
 
-    // Insert into archived_trainees table
+    if (!traineeData) {
+      throw new Error('Trainee record not found')
+    }
+
+    // Insert into archived_trainees table with folder_id and archived_by
     const { error: insertError } = await supabaseClient
       .from('archived_trainees')
       .insert({
         ...traineeData,
-        archived_at: new Date().toISOString()
+        folder_id: folder_id || null,
+        archived_at: new Date().toISOString(),
+        archived_by: user.id
       })
 
     if (insertError) {
@@ -59,17 +71,28 @@ serve(async (req) => {
       .eq('id', id)
 
     if (deleteError) {
+      // If deletion fails, we should clean up the archived record
+      await supabaseClient
+        .from('archived_trainees')
+        .delete()
+        .eq('id', id)
+      
       throw new Error(`Failed to remove trainee from active list: ${deleteError.message}`)
     }
 
     return new Response(
-      JSON.stringify({ message: 'Trainee archived successfully' }),
+      JSON.stringify({ 
+        message: 'Trainee archived successfully',
+        archived_id: id,
+        folder_id: folder_id || null
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200 
       }
     )
   } catch (error) {
+    console.error('Archive trainee error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { 

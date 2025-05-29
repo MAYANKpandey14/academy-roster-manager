@@ -31,6 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { ArchiveConfirmationDialog } from "@/components/archive/ArchiveConfirmationDialog";
 import { deleteStaff } from "@/services/staffApi";
 import { archiveStaff } from "@/services/archiveApi";
 import { toast } from "sonner";
@@ -55,16 +56,15 @@ export function StaffRowActions({
   const navigate = useNavigate();
   const { isHindi } = useLanguage();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
+  const [showArchiveDialog, setShowArchiveDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isArchiving, setIsArchiving] = useState(false);
 
   const handleDeleteClick = () => {
     setIsDeleteDialogOpen(true);
   };
 
   const handleArchiveClick = () => {
-    setIsArchiveDialogOpen(true);
+    setShowArchiveDialog(true);
   };
 
   const handleConfirmDelete = async () => {
@@ -86,22 +86,19 @@ export function StaffRowActions({
     }
   };
 
-  const handleConfirmArchive = async () => {
+  const handleArchiveConfirm = async (folderId: string) => {
     try {
-      setIsArchiving(true);
-      const { error } = await archiveStaff(staff.id);
+      const { error } = await archiveStaff(staff.id, folderId);
       
       if (error) throw error;
       
       toast.success(isHindi ? "स्टाफ सफलतापूर्वक आर्काइव कर दिया गया" : "Staff archived successfully");
-      setIsArchiveDialogOpen(false);
+      setShowArchiveDialog(false);
       
       if (onArchive) onArchive();
     } catch (error) {
       console.error("Error archiving staff:", error);
       toast.error(isHindi ? "स्टाफ आर्काइव करने में विफल" : "Failed to archive staff");
-    } finally {
-      setIsArchiving(false);
     }
   };
   
@@ -159,34 +156,13 @@ export function StaffRowActions({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog open={isArchiveDialogOpen} onOpenChange={setIsArchiveDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? "स्टाफ आर्काइव करने की पुष्टि करें" : "Confirm Archive Staff"}
-            </AlertDialogTitle>
-            <AlertDialogDescription className={isHindi ? 'font-hindi' : ''}>
-              {isHindi
-                ? `क्या आप वाकई स्टाफ सदस्य "${staff.name}" को आर्काइव करना चाहते हैं? यह उन्हें सक्रिय सूची से हटा देगा।`
-                : `Are you sure you want to archive staff member "${staff.name}"? This will remove them from the active list.`}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isArchiving} className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? "रद्द करें" : "Cancel"}
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleConfirmArchive}
-              disabled={isArchiving}
-              className="bg-orange-600 hover:bg-orange-700"
-            >
-              {isArchiving ? 
-                (isHindi ? "आर्काइव कर रहा है..." : "Archiving...") : 
-                (isHindi ? "आर्काइव करें" : "Archive")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ArchiveConfirmationDialog
+        isOpen={showArchiveDialog}
+        onClose={() => setShowArchiveDialog(false)}
+        onConfirm={handleArchiveConfirm}
+        selectedRecords={[staff]}
+        recordType="staff"
+      />
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>

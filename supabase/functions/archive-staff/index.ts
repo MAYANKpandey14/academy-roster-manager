@@ -23,10 +23,16 @@ serve(async (req) => {
       }
     )
 
-    const { id } = await req.json()
+    const { id, folder_id } = await req.json()
 
     if (!id) {
       throw new Error('Staff ID is required')
+    }
+
+    // Get the current user for audit trail
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
+    if (userError || !user) {
+      throw new Error('Authentication required')
     }
 
     // Get the staff record first
@@ -40,12 +46,18 @@ serve(async (req) => {
       throw new Error(`Failed to fetch staff: ${fetchError.message}`)
     }
 
-    // Insert into archived_staff table
+    if (!staffData) {
+      throw new Error('Staff record not found')
+    }
+
+    // Insert into archived_staff table with folder_id and archived_by
     const { error: insertError } = await supabaseClient
       .from('archived_staff')
       .insert({
         ...staffData,
-        archived_at: new Date().toISOString()
+        folder_id: folder_id || null,
+        archived_at: new Date().toISOString(),
+        archived_by: user.id
       })
 
     if (insertError) {
@@ -59,17 +71,28 @@ serve(async (req) => {
       .eq('id', id)
 
     if (deleteError) {
+      // If deletion fails, we should clean up the archived record
+      await supabaseClient
+        .from('archived_staff')
+        .delete()
+        .eq('id', id)
+      
       throw new Error(`Failed to remove staff from active list: ${deleteError.message}`)
     }
 
     return new Response(
-      JSON.stringify({ message: 'Staff archived successfully' }),
+      JSON.stringify({ 
+        message: 'Staff archived successfully',
+        archived_id: id,
+        folder_id: folder_id || null
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200 
       }
     )
   } catch (error) {
+    console.error('Archive staff error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { 

@@ -23,26 +23,38 @@ serve(async (req) => {
       }
     )
 
-    const { ids } = await req.json()
+    const { staff_ids, folder_id } = await req.json()
 
-    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    if (!staff_ids || !Array.isArray(staff_ids) || staff_ids.length === 0) {
       throw new Error('Staff IDs array is required')
+    }
+
+    // Get the current user for audit trail
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
+    if (userError || !user) {
+      throw new Error('Authentication required')
     }
 
     // Get all staff records first
     const { data: staffData, error: fetchError } = await supabaseClient
       .from('staff')
       .select('*')
-      .in('id', ids)
+      .in('id', staff_ids)
 
     if (fetchError) {
       throw new Error(`Failed to fetch staff: ${fetchError.message}`)
     }
 
-    // Add archived_at timestamp to each record
+    if (!staffData || staffData.length === 0) {
+      throw new Error('No staff records found')
+    }
+
+    // Add archived_at, folder_id, and archived_by timestamp to each record
     const archivedStaff = staffData.map(staff => ({
       ...staff,
-      archived_at: new Date().toISOString()
+      folder_id: folder_id || null,
+      archived_at: new Date().toISOString(),
+      archived_by: user.id
     }))
 
     // Insert into archived_staff table
@@ -58,20 +70,31 @@ serve(async (req) => {
     const { error: deleteError } = await supabaseClient
       .from('staff')
       .delete()
-      .in('id', ids)
+      .in('id', staff_ids)
 
     if (deleteError) {
+      // If deletion fails, we should clean up the archived records
+      await supabaseClient
+        .from('archived_staff')
+        .delete()
+        .in('id', staff_ids)
+      
       throw new Error(`Failed to remove staff from active list: ${deleteError.message}`)
     }
 
     return new Response(
-      JSON.stringify({ message: `${staffData.length} staff members archived successfully` }),
+      JSON.stringify({ 
+        message: `${staffData.length} staff members archived successfully`,
+        archived_count: staffData.length,
+        folder_id: folder_id || null
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200 
       }
     )
   } catch (error) {
+    console.error('Archive all staff error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { 

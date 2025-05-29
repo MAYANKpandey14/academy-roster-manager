@@ -49,7 +49,7 @@ interface TraineeAttendanceRecord extends AttendanceRecord {
 export const useFetchAttendance = () => {
   const fetchStaffAttendance = useQuery({
     queryKey: ['staff-attendance'],
-    queryFn: async (): Promise<StaffAttendanceRecord[]> => {
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('staff_attendance')
         .select(`
@@ -72,13 +72,13 @@ export const useFetchAttendance = () => {
         ...record,
         person_id: record.staff_id,
         approval_status: record.approval_status as 'approved' | 'pending' | 'rejected'
-      }));
+      })) as StaffAttendanceRecord[];
     },
   });
 
   const fetchTraineeAttendance = useQuery({
     queryKey: ['trainee-attendance'],
-    queryFn: async (): Promise<TraineeAttendanceRecord[]> => {
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('trainee_attendance')
         .select(`
@@ -101,7 +101,7 @@ export const useFetchAttendance = () => {
         ...record,
         person_id: record.trainee_id,
         approval_status: record.approval_status as 'approved' | 'pending' | 'rejected'
-      }));
+      })) as TraineeAttendanceRecord[];
     },
   });
 
