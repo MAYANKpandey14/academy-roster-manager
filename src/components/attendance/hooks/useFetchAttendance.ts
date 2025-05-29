@@ -1,6 +1,10 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { AttendanceRecord } from '../types/attendanceTypes';
+
+// Export the main AttendanceRecord for compatibility
+export type { AttendanceRecord };
 
 // Simplified interface to avoid type instantiation issues
 export interface BasicAttendanceRecord {
@@ -26,31 +30,11 @@ export interface LeaveRecord {
   person_id: string;
 }
 
-interface StaffAttendanceRecord extends BasicAttendanceRecord {
-  staff_id: string;
-  staff?: {
-    id: string;
-    name: string;
-    pno: string;
-    rank: string;
-  };
-}
-
-interface TraineeAttendanceRecord extends BasicAttendanceRecord {
-  trainee_id: string;
-  trainee?: {
-    id: string;
-    name: string;
-    pno: string;
-    chest_no: string;
-  };
-}
-
 // Hook for fetching all attendance (used in management views)
 export const useFetchAttendance = () => {
   const fetchStaffAttendance = useQuery({
     queryKey: ['staff-attendance'],
-    queryFn: async (): Promise<StaffAttendanceRecord[]> => {
+    queryFn: async (): Promise<AttendanceRecord[]> => {
       const { data, error } = await supabase
         .from('staff_attendance')
         .select(`
@@ -70,16 +54,20 @@ export const useFetchAttendance = () => {
       }
 
       return (data || []).map(record => ({
-        ...record,
+        id: record.id,
         person_id: record.staff_id,
-        approval_status: record.approval_status as 'approved' | 'pending' | 'rejected'
+        date: record.date,
+        status: record.status,
+        approval_status: record.approval_status as 'approved' | 'pending' | 'rejected',
+        created_at: record.created_at,
+        updated_at: record.updated_at,
       }));
     },
   });
 
   const fetchTraineeAttendance = useQuery({
     queryKey: ['trainee-attendance'],
-    queryFn: async (): Promise<TraineeAttendanceRecord[]> => {
+    queryFn: async (): Promise<AttendanceRecord[]> => {
       const { data, error } = await supabase
         .from('trainee_attendance')
         .select(`
@@ -99,9 +87,13 @@ export const useFetchAttendance = () => {
       }
 
       return (data || []).map(record => ({
-        ...record,
+        id: record.id,
         person_id: record.trainee_id,
-        approval_status: record.approval_status as 'approved' | 'pending' | 'rejected'
+        date: record.date,
+        status: record.status,
+        approval_status: record.approval_status as 'approved' | 'pending' | 'rejected',
+        created_at: record.created_at,
+        updated_at: record.updated_at,
       }));
     },
   });
@@ -154,17 +146,39 @@ export const useFetchPersonAttendance = (personId: string, personType: 'staff' |
       
       if (leaveError) throw leaveError;
 
-      const attendanceRecords: BasicAttendanceRecord[] = (attendanceData || []).map(record => ({
-        ...record,
-        person_id: personType === 'staff' ? record.staff_id : record.trainee_id,
-        approval_status: record.approval_status as 'approved' | 'pending' | 'rejected'
-      }));
+      const attendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => {
+        const personId = personType === 'staff' 
+          ? (record as any).staff_id 
+          : (record as any).trainee_id;
+        
+        return {
+          id: record.id,
+          person_id: personId,
+          date: record.date,
+          status: record.status,
+          approval_status: record.approval_status as 'approved' | 'pending' | 'rejected',
+          created_at: record.created_at,
+          updated_at: record.updated_at,
+        };
+      });
 
-      const leaveRecords: LeaveRecord[] = (leaveData || []).map(record => ({
-        ...record,
-        person_id: personType === 'staff' ? record.staff_id : record.trainee_id,
-        status: record.status as 'approved' | 'pending' | 'rejected'
-      }));
+      const leaveRecords: LeaveRecord[] = (leaveData || []).map(record => {
+        const personId = personType === 'staff' 
+          ? (record as any).staff_id 
+          : (record as any).trainee_id;
+        
+        return {
+          id: record.id,
+          person_id: personId,
+          start_date: record.start_date,
+          end_date: record.end_date,
+          reason: record.reason,
+          status: record.status as 'approved' | 'pending' | 'rejected',
+          leave_type: record.leave_type,
+          created_at: record.created_at,
+          updated_at: record.updated_at,
+        };
+      });
 
       return {
         attendanceRecords,
@@ -176,7 +190,7 @@ export const useFetchPersonAttendance = (personId: string, personType: 'staff' |
 };
 
 // Function for fetching attendance data for print functionality
-export const fetchAttendanceForPrint = async (personId: string, personType: 'staff' | 'trainee'): Promise<{ attendanceRecords: BasicAttendanceRecord[], leaveRecords: LeaveRecord[] }> => {
+export const fetchAttendanceForPrint = async (personId: string, personType: 'staff' | 'trainee'): Promise<{ attendanceRecords: AttendanceRecord[], leaveRecords: LeaveRecord[] }> => {
   const attendanceTable = personType === 'staff' ? 'staff_attendance' : 'trainee_attendance';
   const leaveTable = personType === 'staff' ? 'staff_leave' : 'trainee_leave';
   const idField = personType === 'staff' ? 'staff_id' : 'trainee_id';
@@ -199,17 +213,39 @@ export const fetchAttendanceForPrint = async (personId: string, personType: 'sta
 
   if (leaveError) throw leaveError;
 
-  const attendanceRecords: BasicAttendanceRecord[] = (attendanceData || []).map(record => ({
-    ...record,
-    person_id: personType === 'staff' ? record.staff_id : record.trainee_id,
-    approval_status: record.approval_status as 'approved' | 'pending' | 'rejected'
-  }));
+  const attendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => {
+    const personId = personType === 'staff' 
+      ? (record as any).staff_id 
+      : (record as any).trainee_id;
+    
+    return {
+      id: record.id,
+      person_id: personId,
+      date: record.date,
+      status: record.status,
+      approval_status: record.approval_status as 'approved' | 'pending' | 'rejected',
+      created_at: record.created_at,
+      updated_at: record.updated_at,
+    };
+  });
 
-  const leaveRecords: LeaveRecord[] = (leaveData || []).map(record => ({
-    ...record,
-    person_id: personType === 'staff' ? record.staff_id : record.trainee_id,
-    status: record.status as 'approved' | 'pending' | 'rejected'
-  }));
+  const leaveRecords: LeaveRecord[] = (leaveData || []).map(record => {
+    const personId = personType === 'staff' 
+      ? (record as any).staff_id 
+      : (record as any).trainee_id;
+    
+    return {
+      id: record.id,
+      person_id: personId,
+      start_date: record.start_date,
+      end_date: record.end_date,
+      reason: record.reason,
+      status: record.status as 'approved' | 'pending' | 'rejected',
+      leave_type: record.leave_type,
+      created_at: record.created_at,
+      updated_at: record.updated_at,
+    };
+  });
 
   return { attendanceRecords, leaveRecords };
 };

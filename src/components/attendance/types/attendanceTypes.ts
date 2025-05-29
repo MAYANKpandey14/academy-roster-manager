@@ -29,31 +29,23 @@ export const searchSchema = {
   pno: "string" as const,
 };
 
-// Simplified types to avoid circular references
 export type ApprovalStatus = 'approved' | 'pending' | 'rejected';
-
 export type AttendanceType = 'Present' | 'Absent' | 'On Leave' | 'Resignation';
-
 export type LeaveType = 'Sick Leave' | 'Casual Leave' | 'Emergency Leave' | 'Annual Leave';
 
-// Simplified AttendanceRecord without complex references
+// Main AttendanceRecord interface that other components expect
 export interface AttendanceRecord {
   id: string;
   person_id: string;
-  person_type: PersonType;
-  attendance_type: AttendanceType;
-  leave_type?: LeaveType | null;
-  start_date: string;
-  end_date: string;
-  reason?: string | null;
-  status: ApprovalStatus;
-  created_by: string;
-  approved_by?: string | null;
-  approved_at?: string | null;
+  date: string;
+  status: string;
+  approval_status: ApprovalStatus;
   created_at: string;
   updated_at: string;
+  reason?: string;
 }
 
+// Simplified AttendanceFormData interface
 export interface AttendanceFormData {
   attendanceType: AttendanceType;
   leaveType?: LeaveType;
