@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { ArchiveFolder, ArchivedStaff, ArchivedTrainee } from "@/types/archive";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -18,6 +17,8 @@ import { toast } from "sonner";
 import { getEnhancedArchivedStaffColumns, getEnhancedArchivedTraineeColumns } from "@/components/archive/EnhancedArchiveTableColumns";
 import { exportStaffToExcel, exportTraineesToExcel } from "@/utils/export";
 import { createStaffPrintContent, createPrintContent, handlePrint } from "@/utils/export";
+import { StaffRank } from "@/types/staff";
+import { TraineeRank } from "@/types/trainee";
 
 interface FolderDetailViewProps {
   folder: ArchiveFolder;
@@ -43,7 +44,14 @@ export function FolderDetailView({ folder, recordType, onBack }: FolderDetailVie
         .order('archived_at', { ascending: false });
 
       if (error) throw error;
-      setRecords(data || []);
+      
+      // Type cast the records to ensure proper typing
+      const typedRecords = (data || []).map(record => ({
+        ...record,
+        rank: record.rank as StaffRank | TraineeRank
+      })) as (ArchivedStaff | ArchivedTrainee)[];
+      
+      setRecords(typedRecords);
     } catch (error) {
       console.error('Error fetching folder records:', error);
       toast.error(isHindi ? 'रिकॉर्ड लोड करने में त्रुटि' : 'Error loading records');
@@ -62,7 +70,7 @@ export function FolderDetailView({ folder, recordType, onBack }: FolderDetailVie
     console.log('View record:', record);
   };
 
-  const handlePrint = async (record: ArchivedStaff | ArchivedTrainee) => {
+  const handlePrintRecord = async (record: ArchivedStaff | ArchivedTrainee) => {
     try {
       if (recordType === 'staff') {
         const content = await createStaffPrintContent([record as ArchivedStaff], isHindi);
@@ -102,14 +110,14 @@ export function FolderDetailView({ folder, recordType, onBack }: FolderDetailVie
     ? getEnhancedArchivedStaffColumns(
         isHindi,
         handleView,
-        handlePrint,
+        handlePrintRecord,
         handleExport,
         handleUnarchive
       )
     : getEnhancedArchivedTraineeColumns(
         isHindi,
         handleView,
-        handlePrint,
+        handlePrintRecord,
         handleExport,
         handleUnarchive
       );
