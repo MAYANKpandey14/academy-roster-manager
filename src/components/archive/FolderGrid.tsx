@@ -210,7 +210,7 @@ export function FolderGrid({ folders, isLoading, recordType = 'staff', onFolderC
               <Button
                 variant="ghost"
                 size="sm"
-                className="absolute bottom-3 left-3 h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 hover:text-red-600"
+                className="absolute bottom-3 right-3 h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 hover:text-red-600"
                 onClick={(e) => handleDeleteClick(e, folder)}
               >
                 <Trash2 className="h-4 w-4" />
