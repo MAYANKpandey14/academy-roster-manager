@@ -47,11 +47,66 @@ const ArchivePage = () => {
     fetchFolders();
   };
 
-  // Filter folders that have records of the current type
-  const getFilteredFolders = (recordType: 'staff' | 'trainee') => {
-    // For now, show all folders. In a more advanced implementation,
-    // you could filter based on which folders contain which type of records
-    return folders;
+  // Filter folders based on the selected tab by checking which table has records
+  const getFilteredFolders = async (recordType: 'staff' | 'trainee') => {
+    if (folders.length === 0) return [];
+    
+    // Get folder IDs that contain records of the specified type
+    const table = recordType === 'staff' ? 'archived_staff' : 'archived_trainees';
+    
+    try {
+      const { data, error } = await supabase
+        .from(table)
+        .select('folder_id')
+        .not('folder_id', 'is', null);
+      
+      if (error) {
+        console.error(`Error fetching ${recordType} folder IDs:`, error);
+        return folders; // Return all folders if error
+      }
+      
+      const folderIds = [...new Set(data?.map(record => record.folder_id).filter(Boolean))];
+      return folders.filter(folder => folderIds.includes(folder.id));
+    } catch (error) {
+      console.error(`Error filtering ${recordType} folders:`, error);
+      return folders; // Return all folders if error
+    }
+  };
+
+  // State for filtered folders
+  const [staffFolders, setStaffFolders] = useState<ArchiveFolder[]>([]);
+  const [traineeFolders, setTraineeFolders] = useState<ArchiveFolder[]>([]);
+  const [isFilteringFolders, setIsFilteringFolders] = useState(false);
+
+  // Filter folders when folders list changes
+  useEffect(() => {
+    const filterFolders = async () => {
+      if (folders.length === 0) return;
+      
+      setIsFilteringFolders(true);
+      try {
+        const [staffFiltered, traineeFiltered] = await Promise.all([
+          getFilteredFolders('staff'),
+          getFilteredFolders('trainee')
+        ]);
+        
+        setStaffFolders(staffFiltered);
+        setTraineeFolders(traineeFiltered);
+      } catch (error) {
+        console.error('Error filtering folders:', error);
+        // Fallback to showing all folders
+        setStaffFolders(folders);
+        setTraineeFolders(folders);
+      } finally {
+        setIsFilteringFolders(false);
+      }
+    };
+
+    filterFolders();
+  }, [folders]);
+
+  const getCurrentFolders = () => {
+    return selectedTab === 'staff' ? staffFolders : traineeFolders;
   };
 
   if (selectedFolder) {
@@ -86,17 +141,17 @@ const ArchivePage = () => {
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="staff" className={isHindi ? 'font-hindi' : ''}>
               {isHindi ? 'स्टाफ आर्काइव' : 'Staff Archive'} 
-              {!isLoadingFolders && (
+              {!isFilteringFolders && (
                 <span className="ml-2 text-sm text-gray-500">
-                  ({getFilteredFolders('staff').length})
+                  ({staffFolders.length})
                 </span>
               )}
             </TabsTrigger>
             <TabsTrigger value="trainee" className={isHindi ? 'font-hindi' : ''}>
               {isHindi ? 'प्रशिक्षु आर्काइव' : 'Trainee Archive'} 
-              {!isLoadingFolders && (
+              {!isFilteringFolders && (
                 <span className="ml-2 text-sm text-gray-500">
-                  ({getFilteredFolders('trainee').length})
+                  ({traineeFolders.length})
                 </span>
               )}
             </TabsTrigger>
@@ -104,16 +159,16 @@ const ArchivePage = () => {
           
           <TabsContent value="staff" className="mt-6">
             <FolderGrid
-              folders={getFilteredFolders('staff')}
-              isLoading={isLoadingFolders}
+              folders={staffFolders}
+              isLoading={isLoadingFolders || isFilteringFolders}
               onFolderClick={handleFolderClick}
             />
           </TabsContent>
           
           <TabsContent value="trainee" className="mt-6">
             <FolderGrid
-              folders={getFilteredFolders('trainee')}
-              isLoading={isLoadingFolders}
+              folders={traineeFolders}
+              isLoading={isLoadingFolders || isFilteringFolders}
               onFolderClick={handleFolderClick}
             />
           </TabsContent>
