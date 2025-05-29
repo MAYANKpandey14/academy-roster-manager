@@ -2,7 +2,7 @@
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
-import Index from "@/pages/Index";
+import TraineesPage from "@/pages/TraineesPage";
 import Auth from "@/pages/Auth";
 import NotFound from "@/pages/NotFound";
 import ResetPassword from "@/pages/ResetPassword";
@@ -10,7 +10,6 @@ import StaffPage from "@/pages/StaffPage";
 import AddStaff from "@/pages/AddStaff";
 import EditStaff from "@/pages/EditStaff";
 import ViewStaff from "@/pages/ViewStaff";
-import TraineesPage from "@/pages/TraineesPage";
 import AddTrainee from "@/pages/AddTrainee";
 import EditTrainee from "@/pages/EditTrainee";
 import ViewTrainee from "@/pages/ViewTrainee";
@@ -24,7 +23,11 @@ import ArchivePage from "@/pages/ArchivePage";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <ProtectedRoute><Index /></ProtectedRoute>,
+    element: <Navigate to="/trainees" replace />,
+  },
+  {
+    path: "/trainees",
+    element: <ProtectedRoute><TraineesPage /></ProtectedRoute>,
   },
   {
     path: "welcome",
@@ -58,10 +61,6 @@ const router = createBrowserRouter([
   {
     path: "staff/:id",
     element: <ProtectedRoute><ViewStaff /></ProtectedRoute>,
-  },
-  {
-    path: "trainees",
-    element: <ProtectedRoute><TraineesPage /></ProtectedRoute>,
   },
   {
     path: "trainees/add",
