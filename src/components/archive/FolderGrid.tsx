@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { ArchiveFolder } from "@/types/archive";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -12,24 +11,29 @@ import {
   Calendar, 
   FileText,
   SortAsc,
-  SortDesc
+  SortDesc,
+  Trash2
 } from "lucide-react";
 import { format } from "date-fns";
+import { FolderDeleteDialog } from "./FolderDeleteDialog";
 
 interface FolderGridProps {
   folders: ArchiveFolder[];
   isLoading: boolean;
+  recordType?: 'staff' | 'trainee';
   onFolderClick: (folder: ArchiveFolder) => void;
+  onFolderDeleted?: () => void;
 }
 
 type SortOption = 'name' | 'date' | 'count';
 type SortDirection = 'asc' | 'desc';
 
-export function FolderGrid({ folders, isLoading, onFolderClick }: FolderGridProps) {
+export function FolderGrid({ folders, isLoading, recordType = 'staff', onFolderClick, onFolderDeleted }: FolderGridProps) {
   const { isHindi } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [deleteDialogFolder, setDeleteDialogFolder] = useState<ArchiveFolder | null>(null);
 
   // Filter folders based on search
   const filteredFolders = folders.filter(folder =>
@@ -68,6 +72,16 @@ export function FolderGrid({ folders, isLoading, onFolderClick }: FolderGridProp
   const getSortIcon = (option: SortOption) => {
     if (sortBy !== option) return null;
     return sortDirection === 'asc' ? <SortAsc className="h-3 w-3" /> : <SortDesc className="h-3 w-3" />;
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent, folder: ArchiveFolder) => {
+    e.stopPropagation(); // Prevent folder click
+    setDeleteDialogFolder(folder);
+  };
+
+  const handleFolderDeleted = () => {
+    setDeleteDialogFolder(null);
+    onFolderDeleted?.();
   };
 
   if (isLoading) {
@@ -157,7 +171,7 @@ export function FolderGrid({ folders, isLoading, onFolderClick }: FolderGridProp
           {sortedFolders.map((folder) => (
             <Card 
               key={folder.id} 
-              className="hover:shadow-lg transition-shadow cursor-pointer group"
+              className="hover:shadow-lg transition-shadow cursor-pointer group relative"
               onClick={() => onFolderClick(folder)}
             >
               <CardHeader className="pb-3">
@@ -191,10 +205,30 @@ export function FolderGrid({ folders, isLoading, onFolderClick }: FolderGridProp
                   </div>
                 )}
               </CardContent>
+
+              {/* Delete Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute bottom-3 left-3 h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 hover:text-red-600"
+                onClick={(e) => handleDeleteClick(e, folder)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </Card>
           ))}
         </div>
       )}
+
+      {/* Delete Dialog */}
+      <FolderDeleteDialog
+        folder={deleteDialogFolder}
+        allFolders={folders}
+        recordType={recordType}
+        isOpen={!!deleteDialogFolder}
+        onClose={() => setDeleteDialogFolder(null)}
+        onDeleted={handleFolderDeleted}
+      />
     </div>
   );
 }

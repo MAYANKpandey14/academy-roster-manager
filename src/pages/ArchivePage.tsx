@@ -47,6 +47,11 @@ const ArchivePage = () => {
     fetchFolders();
   };
 
+  const handleFolderDeleted = () => {
+    // Refresh folders after deletion
+    fetchFolders();
+  };
+
   // Filter folders based on the selected tab by checking which table has records
   const getFilteredFolders = async (recordType: 'staff' | 'trainee') => {
     if (folders.length === 0) return [];
@@ -161,7 +166,9 @@ const ArchivePage = () => {
             <FolderGrid
               folders={staffFolders}
               isLoading={isLoadingFolders || isFilteringFolders}
+              recordType="staff"
               onFolderClick={handleFolderClick}
+              onFolderDeleted={handleFolderDeleted}
             />
           </TabsContent>
           
@@ -169,7 +176,9 @@ const ArchivePage = () => {
             <FolderGrid
               folders={traineeFolders}
               isLoading={isLoadingFolders || isFilteringFolders}
+              recordType="trainee"
               onFolderClick={handleFolderClick}
+              onFolderDeleted={handleFolderDeleted}
             />
           </TabsContent>
         </Tabs>
