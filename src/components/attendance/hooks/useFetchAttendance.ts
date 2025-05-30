@@ -6,17 +6,50 @@ import { AttendanceRecord } from '../types/attendanceTypes';
 // Export the main AttendanceRecord for compatibility
 export type { AttendanceRecord };
 
-// Simplified interface to avoid type instantiation issues
-export interface BasicAttendanceRecord {
+// Simplified database row types to avoid deep type instantiation
+type StaffAttendanceRow = {
   id: string;
+  staff_id: string;
   date: string;
   status: string;
-  approval_status: 'approved' | 'pending' | 'rejected';
+  approval_status: string;
   created_at: string;
   updated_at: string;
-  person_id: string;
-  reason?: string;
-}
+};
+
+type TraineeAttendanceRow = {
+  id: string;
+  trainee_id: string;
+  date: string;
+  status: string;
+  approval_status: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type StaffLeaveRow = {
+  id: string;
+  staff_id: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  status: string;
+  leave_type: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type TraineeLeaveRow = {
+  id: string;
+  trainee_id: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  status: string;
+  leave_type: string;
+  created_at: string;
+  updated_at: string;
+};
 
 export interface LeaveRecord {
   id: string;
@@ -37,15 +70,7 @@ export const useFetchAttendance = () => {
     queryFn: async (): Promise<AttendanceRecord[]> => {
       const { data, error } = await supabase
         .from('staff_attendance')
-        .select(`
-          *,
-          staff (
-            id,
-            name,
-            pno,
-            rank
-          )
-        `)
+        .select('*')
         .order('date', { ascending: false });
 
       if (error) {
@@ -53,7 +78,7 @@ export const useFetchAttendance = () => {
         throw error;
       }
 
-      return (data || []).map(record => ({
+      return (data as StaffAttendanceRow[] || []).map(record => ({
         id: record.id,
         person_id: record.staff_id,
         date: record.date,
@@ -70,15 +95,7 @@ export const useFetchAttendance = () => {
     queryFn: async (): Promise<AttendanceRecord[]> => {
       const { data, error } = await supabase
         .from('trainee_attendance')
-        .select(`
-          *,
-          trainee:trainees (
-            id,
-            name,
-            pno,
-            chest_no
-          )
-        `)
+        .select('*')
         .order('date', { ascending: false });
 
       if (error) {
@@ -86,7 +103,7 @@ export const useFetchAttendance = () => {
         throw error;
       }
 
-      return (data || []).map(record => ({
+      return (data as TraineeAttendanceRow[] || []).map(record => ({
         id: record.id,
         person_id: record.trainee_id,
         date: record.date,
@@ -148,8 +165,8 @@ export const useFetchPersonAttendance = (personId: string, personType: 'staff' |
 
       const attendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => {
         const personId = personType === 'staff' 
-          ? (record as any).staff_id 
-          : (record as any).trainee_id;
+          ? (record as StaffAttendanceRow).staff_id 
+          : (record as TraineeAttendanceRow).trainee_id;
         
         return {
           id: record.id,
@@ -164,8 +181,8 @@ export const useFetchPersonAttendance = (personId: string, personType: 'staff' |
 
       const leaveRecords: LeaveRecord[] = (leaveData || []).map(record => {
         const personId = personType === 'staff' 
-          ? (record as any).staff_id 
-          : (record as any).trainee_id;
+          ? (record as StaffLeaveRow).staff_id 
+          : (record as TraineeLeaveRow).trainee_id;
         
         return {
           id: record.id,
@@ -215,8 +232,8 @@ export const fetchAttendanceForPrint = async (personId: string, personType: 'sta
 
   const attendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => {
     const personId = personType === 'staff' 
-      ? (record as any).staff_id 
-      : (record as any).trainee_id;
+      ? (record as StaffAttendanceRow).staff_id 
+      : (record as TraineeAttendanceRow).trainee_id;
     
     return {
       id: record.id,
@@ -231,8 +248,8 @@ export const fetchAttendanceForPrint = async (personId: string, personType: 'sta
 
   const leaveRecords: LeaveRecord[] = (leaveData || []).map(record => {
     const personId = personType === 'staff' 
-      ? (record as any).staff_id 
-      : (record as any).trainee_id;
+      ? (record as StaffLeaveRow).staff_id 
+      : (record as TraineeLeaveRow).trainee_id;
     
     return {
       id: record.id,
