@@ -10,55 +10,103 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return;
+
         setSession(session);
         
         if (session?.user) {
           // Fetch user role from profiles table
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', session.user.id)
-            .single();
-          
-          setUser({
-            id: session.user.id,
-            email: session.user.email || '',
-            role: profile?.role as UserRole || 'viewer'
-          });
+          try {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', session.user.id)
+              .single();
+            
+            if (mounted) {
+              setUser({
+                id: session.user.id,
+                email: session.user.email || '',
+                role: profile?.role as UserRole || 'viewer'
+              });
+            }
+          } catch (error) {
+            console.error('Error fetching user profile:', error);
+            if (mounted) {
+              setUser({
+                id: session.user.id,
+                email: session.user.email || '',
+                role: 'viewer'
+              });
+            }
+          }
         } else {
-          setUser(null);
+          if (mounted) {
+            setUser(null);
+          }
         }
-        setLoading(false);
+        
+        if (mounted) {
+          setLoading(false);
+        }
       }
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        // Fetch user role
-        supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single()
-          .then(({ data: profile }) => {
-            setUser({
-              id: session.user.id,
-              email: session.user.email || '',
-              role: profile?.role as UserRole || 'viewer'
-            });
-            setSession(session);
-            setLoading(false);
-          });
-      } else {
-        setLoading(false);
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!mounted) return;
+        
+        if (session?.user) {
+          try {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', session.user.id)
+              .single();
+            
+            if (mounted) {
+              setUser({
+                id: session.user.id,
+                email: session.user.email || '',
+                role: profile?.role as UserRole || 'viewer'
+              });
+              setSession(session);
+            }
+          } catch (error) {
+            console.error('Error fetching user profile:', error);
+            if (mounted) {
+              setUser({
+                id: session.user.id,
+                email: session.user.email || '',
+                role: 'viewer'
+              });
+              setSession(session);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
-    });
+    };
 
-    return () => subscription.unsubscribe();
+    initializeAuth();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const hasRole = (requiredRole: UserRole): boolean => {

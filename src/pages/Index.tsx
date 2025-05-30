@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { TraineeTable } from "@/components/trainee/TraineeTable";
@@ -19,7 +18,7 @@ const Index = () => {
   const isMobile = useIsMobile();
   const [trainees, setTrainees] = useState<Trainee[]>([]);
   const [filteredTrainees, setFilteredTrainees] = useState<Trainee[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const { isHindi } = useLanguage();
 
   useEffect(() => {
