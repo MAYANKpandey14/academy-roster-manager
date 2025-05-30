@@ -1,7 +1,6 @@
 
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { PublicRoute } from "@/components/auth/PublicRoute";
 
 import Index from "@/pages/Index";
 import Auth from "@/pages/Auth";
@@ -25,15 +24,15 @@ import ArchivePage from "@/pages/ArchivePage";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <ProtectedRoute><Navigate to="/trainees" replace /></ProtectedRoute>,
+    element: <ProtectedRoute><Index /></ProtectedRoute>,
   },
   {
     path: "welcome",
-    element: <ProtectedRoute><Welcome /></ProtectedRoute>,
+    element: <Welcome />,
   },
   {
     path: "login",
-    element: <PublicRoute><Auth /></PublicRoute>,
+    element: <Auth />,
   },
   {
     // Add a redirect from the old auth path to login

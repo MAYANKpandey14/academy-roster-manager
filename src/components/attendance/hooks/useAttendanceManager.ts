@@ -1,63 +1,46 @@
-
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { PersonType, ApprovalStatus, AttendanceFormData } from '../types/attendanceTypes';
+import { AttendanceRecord, AttendanceFormData, PersonType, ApprovalStatus } from '../types/attendanceTypes';
 
-// Simple attendance record interface for this hook
-interface SimpleAttendanceRecord {
-  id: string;
-  person_id: string;
-  person_type: PersonType;
-  date: string;
-  status: string;
-  approval_status: ApprovalStatus;
-  created_at: string;
-  updated_at: string;
-  reason?: string;
+// Define the database types for attendance records
+interface Database {
+  public: {
+    Tables: {
+      attendance_records: {
+        Row: AttendanceRecord;
+        Insert: Omit<AttendanceRecord, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Omit<AttendanceRecord, 'id' | 'created_at' | 'person_id' | 'person_type'>>;
+      };
+    };
+  };
 }
+
+// Helper function to get the Supabase client with types
+export const getSupabase = () => {
+  return supabase as unknown as import('@supabase/supabase-js').SupabaseClient<Database>;
+};
 
 export function useAttendanceManager() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Fetch attendance records for a person
-  const fetchAttendance = useCallback(async (personId: string, personType: PersonType): Promise<SimpleAttendanceRecord[]> => {
+  const fetchAttendance = useCallback(async (personId: string, personType: PersonType) => {
     if (!personId) return [];
     
     setIsLoading(true);
     setError(null);
     
     try {
-      const attendanceTable = personType === 'staff' ? 'staff_attendance' : 'trainee_attendance';
-      const idField = personType === 'staff' ? 'staff_id' : 'trainee_id';
-      
-      const { data, error: fetchError } = await supabase
-        .from(attendanceTable)
+      const { data, error: fetchError } = await getSupabase()
+        .from('attendance_records')
         .select('*')
-        .eq(idField, personId)
-        .order('date', { ascending: false });
+        .eq('person_id', personId)
+        .eq('person_type', personType)
+        .order('start_date', { ascending: false });
 
       if (fetchError) throw fetchError;
-      
-      // Transform the data to match SimpleAttendanceRecord interface
-      const records: SimpleAttendanceRecord[] = (data || []).map(record => {
-        const personId = personType === 'staff' 
-          ? (record as any).staff_id 
-          : (record as any).trainee_id;
-        
-        return {
-          id: record.id,
-          person_id: personId,
-          person_type: personType,
-          date: record.date,
-          status: record.status || 'present',
-          approval_status: (record.approval_status as ApprovalStatus) || 'pending',
-          created_at: record.created_at || new Date().toISOString(),
-          updated_at: record.updated_at || new Date().toISOString(),
-        };
-      });
-      
-      return records;
+      return data as AttendanceRecord[];
     } catch (err) {
       console.error('Error fetching attendance:', err);
       setError('Failed to fetch attendance records');
@@ -80,26 +63,28 @@ export function useAttendanceManager() {
     setError(null);
     
     try {
-      const attendanceTable = personType === 'staff' ? 'staff_attendance' : 'trainee_attendance';
-      
-      // Create record with explicit field names
-      const record = personType === 'staff' 
-        ? {
-            staff_id: personId,
-            date: formData.startDate,
-            status: formData.attendanceType === 'Present' ? 'present' : 'absent',
-            approval_status: formData.attendanceType === 'Present' ? 'approved' : 'pending',
-          }
-        : {
-            trainee_id: personId,
-            date: formData.startDate,
-            status: formData.attendanceType === 'Present' ? 'present' : 'absent',
-            approval_status: formData.attendanceType === 'Present' ? 'approved' : 'pending',
-          };
+      const record = {
+        person_id: personId,
+        person_type: personType,
+        attendance_type: formData.attendanceType,
+        leave_type: formData.attendanceType === 'On Leave' ? formData.leaveType : null,
+        start_date: formData.startDate,
+        end_date: formData.attendanceType === 'On Leave' ? formData.endDate : formData.startDate,
+        reason: formData.reason,
+        status: formData.attendanceType === 'On Leave' || formData.attendanceType === 'Resignation' 
+          ? 'Pending' as ApprovalStatus 
+          : 'Approved' as ApprovalStatus,
+        created_by: userId,
+      };
 
-      const { error: insertError } = await supabase
-        .from(attendanceTable)
-        .insert(record);
+      const { error: insertError } = await getSupabase()
+        .from('attendance_records')
+        .insert({
+          ...record,
+          id: undefined, // Let the database generate the ID
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        } as Database['public']['Tables']['attendance_records']['Insert']);
 
       if (insertError) throw insertError;
       return { success: true };
@@ -116,14 +101,24 @@ export function useAttendanceManager() {
   // Update attendance status (approve/reject)
   const updateAttendanceStatus = useCallback(async (
     recordId: string,
-    status: 'approved' | 'rejected',
+    status: 'Approved' | 'Rejected',
     userId: string
   ): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     setError(null);
     
     try {
-      console.log('Updating attendance status:', recordId, status, userId);
+const { error: updateError } = await getSupabase()
+        .from('attendance_records')
+        .update({
+          status,
+          approved_by: userId,
+          approved_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        } as Database['public']['Tables']['attendance_records']['Update'])
+        .eq('id', recordId);
+
+      if (updateError) throw updateError;
       return { success: true };
     } catch (err) {
       console.error('Error updating attendance status:', err);

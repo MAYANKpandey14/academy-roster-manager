@@ -1,55 +1,17 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { AttendanceRecord } from '../types/attendanceTypes';
 
-// Export the main AttendanceRecord for compatibility
-export type { AttendanceRecord };
-
-// Simplified database row types to avoid deep type instantiation
-type StaffAttendanceRow = {
+export interface AttendanceRecord {
   id: string;
-  staff_id: string;
   date: string;
   status: string;
-  approval_status: string;
+  approval_status: 'approved' | 'pending' | 'rejected';
   created_at: string;
   updated_at: string;
-};
-
-type TraineeAttendanceRow = {
-  id: string;
-  trainee_id: string;
-  date: string;
-  status: string;
-  approval_status: string;
-  created_at: string;
-  updated_at: string;
-};
-
-type StaffLeaveRow = {
-  id: string;
-  staff_id: string;
-  start_date: string;
-  end_date: string;
-  reason: string;
-  status: string;
-  leave_type: string;
-  created_at: string;
-  updated_at: string;
-};
-
-type TraineeLeaveRow = {
-  id: string;
-  trainee_id: string;
-  start_date: string;
-  end_date: string;
-  reason: string;
-  status: string;
-  leave_type: string;
-  created_at: string;
-  updated_at: string;
-};
+  person_id: string;
+  reason?: string;
+}
 
 export interface LeaveRecord {
   id: string;
@@ -63,14 +25,42 @@ export interface LeaveRecord {
   person_id: string;
 }
 
+interface StaffAttendanceRecord extends AttendanceRecord {
+  staff_id: string;
+  staff?: {
+    id: string;
+    name: string;
+    pno: string;
+    rank: string;
+  };
+}
+
+interface TraineeAttendanceRecord extends AttendanceRecord {
+  trainee_id: string;
+  trainee?: {
+    id: string;
+    name: string;
+    pno: string;
+    chest_no: string;
+  };
+}
+
 // Hook for fetching all attendance (used in management views)
 export const useFetchAttendance = () => {
   const fetchStaffAttendance = useQuery({
     queryKey: ['staff-attendance'],
-    queryFn: async (): Promise<AttendanceRecord[]> => {
+    queryFn: async (): Promise<StaffAttendanceRecord[]> => {
       const { data, error } = await supabase
         .from('staff_attendance')
-        .select('*')
+        .select(`
+          *,
+          staff (
+            id,
+            name,
+            pno,
+            rank
+          )
+        `)
         .order('date', { ascending: false });
 
       if (error) {
@@ -78,24 +68,28 @@ export const useFetchAttendance = () => {
         throw error;
       }
 
-      return (data as StaffAttendanceRow[] || []).map(record => ({
-        id: record.id,
+      return (data || []).map(record => ({
+        ...record,
         person_id: record.staff_id,
-        date: record.date,
-        status: record.status,
-        approval_status: record.approval_status as 'approved' | 'pending' | 'rejected',
-        created_at: record.created_at,
-        updated_at: record.updated_at,
-      }));
+        approval_status: record.approval_status as 'approved' | 'pending' | 'rejected'
+      })) as StaffAttendanceRecord[];
     },
   });
 
   const fetchTraineeAttendance = useQuery({
     queryKey: ['trainee-attendance'],
-    queryFn: async (): Promise<AttendanceRecord[]> => {
+    queryFn: async (): Promise<TraineeAttendanceRecord[]> => {
       const { data, error } = await supabase
         .from('trainee_attendance')
-        .select('*')
+        .select(`
+          *,
+          trainee:trainees (
+            id,
+            name,
+            pno,
+            chest_no
+          )
+        `)
         .order('date', { ascending: false });
 
       if (error) {
@@ -103,15 +97,11 @@ export const useFetchAttendance = () => {
         throw error;
       }
 
-      return (data as TraineeAttendanceRow[] || []).map(record => ({
-        id: record.id,
+      return (data || []).map(record => ({
+        ...record,
         person_id: record.trainee_id,
-        date: record.date,
-        status: record.status,
-        approval_status: record.approval_status as 'approved' | 'pending' | 'rejected',
-        created_at: record.created_at,
-        updated_at: record.updated_at,
-      }));
+        approval_status: record.approval_status as 'approved' | 'pending' | 'rejected'
+      })) as TraineeAttendanceRecord[];
     },
   });
 
@@ -163,39 +153,17 @@ export const useFetchPersonAttendance = (personId: string, personType: 'staff' |
       
       if (leaveError) throw leaveError;
 
-      const attendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => {
-        const personId = personType === 'staff' 
-          ? (record as StaffAttendanceRow).staff_id 
-          : (record as TraineeAttendanceRow).trainee_id;
-        
-        return {
-          id: record.id,
-          person_id: personId,
-          date: record.date,
-          status: record.status,
-          approval_status: record.approval_status as 'approved' | 'pending' | 'rejected',
-          created_at: record.created_at,
-          updated_at: record.updated_at,
-        };
-      });
+      const attendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => ({
+        ...record,
+        person_id: record[idField],
+        approval_status: record.approval_status as 'approved' | 'pending' | 'rejected'
+      }));
 
-      const leaveRecords: LeaveRecord[] = (leaveData || []).map(record => {
-        const personId = personType === 'staff' 
-          ? (record as StaffLeaveRow).staff_id 
-          : (record as TraineeLeaveRow).trainee_id;
-        
-        return {
-          id: record.id,
-          person_id: personId,
-          start_date: record.start_date,
-          end_date: record.end_date,
-          reason: record.reason,
-          status: record.status as 'approved' | 'pending' | 'rejected',
-          leave_type: record.leave_type,
-          created_at: record.created_at,
-          updated_at: record.updated_at,
-        };
-      });
+      const leaveRecords: LeaveRecord[] = (leaveData || []).map(record => ({
+        ...record,
+        person_id: record[idField],
+        status: record.status as 'approved' | 'pending' | 'rejected'
+      }));
 
       return {
         attendanceRecords,
@@ -230,39 +198,17 @@ export const fetchAttendanceForPrint = async (personId: string, personType: 'sta
 
   if (leaveError) throw leaveError;
 
-  const attendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => {
-    const personId = personType === 'staff' 
-      ? (record as StaffAttendanceRow).staff_id 
-      : (record as TraineeAttendanceRow).trainee_id;
-    
-    return {
-      id: record.id,
-      person_id: personId,
-      date: record.date,
-      status: record.status,
-      approval_status: record.approval_status as 'approved' | 'pending' | 'rejected',
-      created_at: record.created_at,
-      updated_at: record.updated_at,
-    };
-  });
+  const attendanceRecords: AttendanceRecord[] = (attendanceData || []).map(record => ({
+    ...record,
+    person_id: record[idField],
+    approval_status: record.approval_status as 'approved' | 'pending' | 'rejected'
+  }));
 
-  const leaveRecords: LeaveRecord[] = (leaveData || []).map(record => {
-    const personId = personType === 'staff' 
-      ? (record as StaffLeaveRow).staff_id 
-      : (record as TraineeLeaveRow).trainee_id;
-    
-    return {
-      id: record.id,
-      person_id: personId,
-      start_date: record.start_date,
-      end_date: record.end_date,
-      reason: record.reason,
-      status: record.status as 'approved' | 'pending' | 'rejected',
-      leave_type: record.leave_type,
-      created_at: record.created_at,
-      updated_at: record.updated_at,
-    };
-  });
+  const leaveRecords: LeaveRecord[] = (leaveData || []).map(record => ({
+    ...record,
+    person_id: record[idField],
+    status: record.status as 'approved' | 'pending' | 'rejected'
+  }));
 
   return { attendanceRecords, leaveRecords };
 };

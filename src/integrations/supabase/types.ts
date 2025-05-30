@@ -219,21 +219,18 @@ export type Database = {
           created_at: string | null
           email: string
           id: string
-          role: string | null
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           email: string
           id: string
-          role?: string | null
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           email?: string
           id?: string
-          role?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -534,30 +531,6 @@ export type Database = {
           rank?: string
           toli_no?: string | null
           updated_at?: string | null
-        }
-        Relationships: []
-      }
-      user_roles: {
-        Row: {
-          created_at: string | null
-          id: string
-          role: string
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          role: string
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          role?: string
-          updated_at?: string | null
-          user_id?: string
         }
         Relationships: []
       }
