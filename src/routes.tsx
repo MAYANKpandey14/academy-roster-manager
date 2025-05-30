@@ -24,7 +24,7 @@ import ArchivePage from "@/pages/ArchivePage";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <ProtectedRoute><Index /></ProtectedRoute>,
+    element: <Navigate to="/trainees" replace />,
   },
   {
     path: "welcome",
