@@ -1,85 +1,79 @@
-
 import jsPDF from 'jspdf';
 import { Trainee } from '@/types/trainee';
 import { BasicAttendanceRecord, LeaveRecord } from '@/components/attendance/hooks/useFetchAttendance';
+import { getPrintStyles, createPrintHeader, createPrintFooter } from './printUtils';
+import { prepareTextForLanguage } from '../textUtils';
+
+export async function createPrintContent(
+  traineeList: Trainee[],
+  isHindi: boolean = false
+): Promise<string> {
+  const title = isHindi ? "प्रशिक्षु रिकॉर्ड" : "Trainee Records";
+  
+  const styles = getPrintStyles(isHindi);
+  const header = createPrintHeader(title, isHindi);
+  const footer = createPrintFooter(isHindi);
+
+  const recordsHtml = traineeList.map(trainee => `
+    <div style="margin-bottom: 2em; padding: 1em; border: 1px solid #ddd; border-radius: 8px;">
+      <div style="display: flex; align-items: center; margin-bottom: 1em;">
+        ${trainee.photo_url ? `<img src="${trainee.photo_url}" alt="${trainee.name}" style="width: 80px; height: 80px; border-radius: 50%; margin-right: 1em; object-fit: cover;" />` : ''}
+        <div>
+          <h3 style="margin: 0; font-size: 1.2em;">${prepareTextForLanguage(trainee.name, isHindi)}</h3>
+          <p style="margin: 0.2em 0; color: #666;">${isHindi ? "पीएनओ" : "PNO"}: ${trainee.pno}</p>
+          <p style="margin: 0.2em 0; color: #666;">${isHindi ? "छाती संख्या" : "Chest No"}: ${trainee.chest_no}</p>
+          <p style="margin: 0.2em 0; color: #666;">${isHindi ? "रैंक" : "Rank"}: ${trainee.rank}</p>
+        </div>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em;">
+        <div>
+          <p><strong>${isHindi ? "पिता का नाम" : "Father's Name"}:</strong> ${prepareTextForLanguage(trainee.father_name, isHindi)}</p>
+          ${trainee.category_caste ? `<p><strong>${isHindi ? "श्रेणी/जाति" : "Category/Caste"}:</strong> ${prepareTextForLanguage(trainee.category_caste, isHindi)}</p>` : ''}
+          <p><strong>${isHindi ? "मोबाइल नंबर" : "Mobile Number"}:</strong> ${trainee.mobile_number}</p>
+          <p><strong>${isHindi ? "शिक्षा" : "Education"}:</strong> ${prepareTextForLanguage(trainee.education, isHindi)}</p>
+          <p><strong>${isHindi ? "जन्म तिथि" : "Date of Birth"}:</strong> ${new Date(trainee.date_of_birth).toLocaleDateString()}</p>
+          <p><strong>${isHindi ? "ज्वाइनिंग तिथि" : "Date of Joining"}:</strong> ${new Date(trainee.date_of_joining).toLocaleDateString()}</p>
+          <p><strong>${isHindi ? "आगमन तिथि" : "Arrival Date"}:</strong> ${new Date(trainee.arrival_date).toLocaleDateString()}</p>
+          ${trainee.arrival_date_rtc ? `<p><strong>${isHindi ? "आरटीसी आगमन तिथि" : "Arrival Date RTC"}:</strong> ${new Date(trainee.arrival_date_rtc).toLocaleDateString()}</p>` : ''}
+          <p><strong>${isHindi ? "प्रस्थान तिथि" : "Departure Date"}:</strong> ${new Date(trainee.departure_date).toLocaleDateString()}</p>
+        </div>
+        <div>
+          <p><strong>${isHindi ? "ब्लड ग्रुप" : "Blood Group"}:</strong> ${trainee.blood_group}</p>
+          <p><strong>${isHindi ? "नॉमिनी" : "Nominee"}:</strong> ${prepareTextForLanguage(trainee.nominee, isHindi)}</p>
+          <p><strong>${isHindi ? "वर्तमान पोस्टिंग जिला" : "Current Posting District"}:</strong> ${prepareTextForLanguage(trainee.current_posting_district, isHindi)}</p>
+          <p><strong>${isHindi ? "घर का पता" : "Home Address"}:</strong> ${prepareTextForLanguage(trainee.home_address, isHindi)}</p>
+          ${trainee.toli_no ? `<p><strong>${isHindi ? "टोली नंबर" : "Toli No"}:</strong> ${trainee.toli_no}</p>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>${title}</title>
+      <style>${styles}</style>
+    </head>
+    <body>
+      ${header}
+      <div class="content">
+        ${recordsHtml}
+      </div>
+      ${footer}
+    </body>
+    </html>
+  `;
+}
 
 export const generateTraineePrintPDF = (
   trainee: Trainee, 
   attendanceRecords: BasicAttendanceRecord[] = [], 
   leaveRecords: LeaveRecord[] = []
 ) => {
-  const pdf = new jsPDF();
-  
-  // Add header
-  pdf.setFontSize(20);
-  pdf.text('Trainee Information', 20, 20);
-  
-  // Add trainee details
-  pdf.setFontSize(12);
-  let yPosition = 40;
-  
-  pdf.text(`PNO: ${trainee.pno}`, 20, yPosition);
-  yPosition += 10;
-  pdf.text(`Name: ${trainee.name}`, 20, yPosition);
-  yPosition += 10;
-  pdf.text(`Father's Name: ${trainee.father_name}`, 20, yPosition);
-  yPosition += 10;
-  pdf.text(`Chest No: ${trainee.chest_no}`, 20, yPosition);
-  yPosition += 10;
-  pdf.text(`Rank: ${trainee.rank}`, 20, yPosition);
-  yPosition += 10;
-  
-  if (trainee.category_caste) {
-    pdf.text(`Category/Caste: ${trainee.category_caste}`, 20, yPosition);
-    yPosition += 10;
-  }
-  
-  pdf.text(`Mobile: ${trainee.mobile_number}`, 20, yPosition);
-  yPosition += 10;
-  pdf.text(`Education: ${trainee.education}`, 20, yPosition);
-  yPosition += 10;
-  pdf.text(`Blood Group: ${trainee.blood_group}`, 20, yPosition);
-  yPosition += 10;
-  pdf.text(`Date of Birth: ${new Date(trainee.date_of_birth).toLocaleDateString()}`, 20, yPosition);
-  yPosition += 10;
-  pdf.text(`Date of Joining: ${new Date(trainee.date_of_joining).toLocaleDateString()}`, 20, yPosition);
-  yPosition += 10;
-  pdf.text(`Arrival Date: ${new Date(trainee.arrival_date).toLocaleDateString()}`, 20, yPosition);
-  yPosition += 10;
-  
-  if (trainee.arrival_date_rtc) {
-    pdf.text(`Arrival Date RTC: ${new Date(trainee.arrival_date_rtc).toLocaleDateString()}`, 20, yPosition);
-    yPosition += 10;
-  }
-  
-  pdf.text(`Departure Date: ${new Date(trainee.departure_date).toLocaleDateString()}`, 20, yPosition);
-  yPosition += 10;
-  pdf.text(`Current Posting District: ${trainee.current_posting_district}`, 20, yPosition);
-  yPosition += 10;
-  pdf.text(`Nominee: ${trainee.nominee}`, 20, yPosition);
-  yPosition += 10;
-  
-  // Handle long address text
-  const addressLines = pdf.splitTextToSize(`Address: ${trainee.home_address}`, 170);
-  pdf.text(addressLines, 20, yPosition);
-  yPosition += addressLines.length * 5 + 10;
-  
-  // Add attendance summary if records exist
-  if (attendanceRecords.length > 0) {
-    pdf.setFontSize(14);
-    pdf.text('Attendance Summary', 20, yPosition);
-    yPosition += 15;
-    
-    pdf.setFontSize(10);
-    const presentCount = attendanceRecords.filter(r => r.status === 'present').length;
-    const absentCount = attendanceRecords.filter(r => r.status === 'absent').length;
-    
-    pdf.text(`Total Present: ${presentCount}`, 20, yPosition);
-    yPosition += 8;
-    pdf.text(`Total Absent: ${absentCount}`, 20, yPosition);
-    yPosition += 8;
-    pdf.text(`Total Records: ${attendanceRecords.length}`, 20, yPosition);
-  }
-  
-  return pdf;
+  // This function is deprecated in favor of createPrintContent
+  // Keeping for backward compatibility
+  return createPrintContent([trainee], false);
 };

@@ -7,7 +7,7 @@ export interface BasicAttendanceRecord {
   id: string;
   date: string;
   status: string;
-  approval_status: string;
+  approval_status: 'pending' | 'approved' | 'rejected';
   person_id: string;
   reason?: string;
   created_at: string;
@@ -26,15 +26,9 @@ export interface LeaveRecord {
   person_id: string;
 }
 
-export interface AttendanceRecord extends BasicAttendanceRecord {
-  person_type: PersonType;
-  attendance_type: string;
-  leave_type?: string | null;
-  start_date: string;
-  end_date: string;
-  created_by?: string;
-  approved_by?: string | null;
-  approved_at?: string | null;
+export interface PersonAttendanceData {
+  attendanceRecords: BasicAttendanceRecord[];
+  leaveRecords: LeaveRecord[];
 }
 
 export function useFetchAttendance() {
@@ -66,7 +60,7 @@ export function useFetchAttendance() {
         id: record.id,
         date: record.date,
         status: record.status,
-        approval_status: record.approval_status,
+        approval_status: record.approval_status as 'pending' | 'approved' | 'rejected',
         person_id: personId,
         reason: '', // Attendance records don't have reason field
         created_at: record.created_at,
@@ -128,4 +122,47 @@ export function useFetchAttendance() {
     fetchAttendanceRecords,
     fetchLeaveRecords,
   };
+}
+
+export function useFetchPersonAttendance(
+  personId: string,
+  personType: PersonType,
+  startDate?: string,
+  endDate?: string
+) {
+  const [data, setData] = useState<PersonAttendanceData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const { fetchAttendanceRecords, fetchLeaveRecords } = useFetchAttendance();
+
+  const fetchData = useCallback(async () => {
+    if (!personId) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const [attendanceRecords, leaveRecords] = await Promise.all([
+        fetchAttendanceRecords(personId, personType),
+        fetchLeaveRecords(personId, personType)
+      ]);
+
+      setData({
+        attendanceRecords,
+        leaveRecords
+      });
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [personId, personType, startDate, endDate, fetchAttendanceRecords, fetchLeaveRecords]);
+
+  // Fetch data when dependencies change
+  useState(() => {
+    fetchData();
+  });
+
+  return { data, isLoading, error, refetch: fetchData };
 }

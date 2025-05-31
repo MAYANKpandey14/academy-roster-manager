@@ -31,6 +31,9 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
   // Extract the base status without the reason
   const baseStatus = record.status;
 
+  // Ensure approval_status is properly typed
+  const approvalStatus = record.approval_status as 'pending' | 'approved' | 'rejected';
+
   return (
     <TableRow>
       <TableCell className="font-medium">{formattedDate}</TableCell>
@@ -47,14 +50,14 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
         )}
       </TableCell>
       <TableCell>
-        <ApprovalStatus status={record.approval_status} />
+        <ApprovalStatus status={approvalStatus} />
       </TableCell>
       <TableCell>
         <ApprovalActions
           recordId={record.id}
           recordType={getRecordType(baseStatus)}
           personType={personType}
-          currentStatus={record.approval_status}
+          currentStatus={approvalStatus}
           absenceType={baseStatus}
           personId={record.person_id}
         />
