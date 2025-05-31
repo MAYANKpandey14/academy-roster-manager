@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { AttendanceRecord, AttendanceFormData, PersonType, ApprovalStatus } from '../types/attendanceTypes';
@@ -72,8 +73,8 @@ export function useAttendanceManager() {
         end_date: formData.attendanceType === 'On Leave' ? formData.endDate : formData.startDate,
         reason: formData.reason,
         status: formData.attendanceType === 'On Leave' || formData.attendanceType === 'Resignation' 
-          ? 'Pending' as ApprovalStatus 
-          : 'Approved' as ApprovalStatus,
+          ? 'pending' as ApprovalStatus 
+          : 'approved' as ApprovalStatus,
         created_by: userId,
       };
 
@@ -101,14 +102,14 @@ export function useAttendanceManager() {
   // Update attendance status (approve/reject)
   const updateAttendanceStatus = useCallback(async (
     recordId: string,
-    status: 'Approved' | 'Rejected',
+    status: 'approved' | 'rejected',
     userId: string
   ): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     setError(null);
     
     try {
-const { error: updateError } = await getSupabase()
+      const { error: updateError } = await getSupabase()
         .from('attendance_records')
         .update({
           status,

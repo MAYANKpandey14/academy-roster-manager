@@ -3,11 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AttendanceTableRow } from "./AttendanceTableRow";
-import { type AttendanceRecord } from "./hooks/useFetchAttendance";
+import { type BasicAttendanceRecord } from "./hooks/useFetchAttendance";
 import { PersonType } from "./types/attendanceTypes";
 
 interface AttendanceTableProps {
-  attendanceRecords: AttendanceRecord[];
+  attendanceRecords: BasicAttendanceRecord[];
   personType: PersonType;
   personId?: string;
   personData?: any;

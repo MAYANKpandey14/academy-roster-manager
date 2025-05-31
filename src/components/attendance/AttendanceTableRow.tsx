@@ -5,11 +5,11 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { ApprovalStatus } from "./ApprovalStatus";
 import { ApprovalActions } from "./ApprovalActions";
 import { AttendanceStatus } from "./AttendanceStatus";
-import { type AttendanceRecord } from "./hooks/useFetchAttendance";
+import { type BasicAttendanceRecord } from "./hooks/useFetchAttendance";
 import { PersonType } from "./types/attendanceTypes";
 
 interface AttendanceTableRowProps {
-  record: AttendanceRecord;
+  record: BasicAttendanceRecord;
   personType: PersonType;
 }
 
