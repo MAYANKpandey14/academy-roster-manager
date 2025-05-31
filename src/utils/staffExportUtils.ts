@@ -52,62 +52,6 @@ export async function createStaffPrintContent(
         </div>
       </div>
       
-      ${staffAttendance.length > 0 || staffLeave.length > 0 ? `
-        <div style="margin-top: 2em; border-top: 1px solid #ddd; padding-top: 1em;">
-          <h4 style="margin-bottom: 1em; color: #333;">${isHindi ? "उपस्थिति और छुट्टी रिकॉर्ड" : "Attendance & Leave Records"}</h4>
-          
-          ${staffAttendance.length > 0 ? `
-            <div style="margin-bottom: 1em;">
-              <h5 style="margin-bottom: 0.5em; color: #555;">${isHindi ? "उपस्थिति रिकॉर्ड" : "Attendance Records"}</h5>
-              <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
-                <thead>
-                  <tr style="background-color: #f5f5f5;">
-                    <th style="border: 1px solid #ddd; padding: 0.5em; text-align: left;">${isHindi ? "दिनांक" : "Date"}</th>
-                    <th style="border: 1px solid #ddd; padding: 0.5em; text-align: left;">${isHindi ? "स्थिति" : "Status"}</th>
-                    <th style="border: 1px solid #ddd; padding: 0.5em; text-align: left;">${isHindi ? "अनुमोदन" : "Approval"}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${staffAttendance.slice(0, 10).map(record => `
-                    <tr>
-                      <td style="border: 1px solid #ddd; padding: 0.5em;">${new Date(record.date).toLocaleDateString()}</td>
-                      <td style="border: 1px solid #ddd; padding: 0.5em;">${record.status}</td>
-                      <td style="border: 1px solid #ddd; padding: 0.5em;">${record.approval_status}</td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
-          ` : ''}
-
-          ${staffLeave.length > 0 ? `
-            <div>
-              <h5 style="margin-bottom: 0.5em; color: #555;">${isHindi ? "छुट्टी रिकॉर्ड" : "Leave Records"}</h5>
-              <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
-                <thead>
-                  <tr style="background-color: #f5f5f5;">
-                    <th style="border: 1px solid #ddd; padding: 0.5em; text-align: left;">${isHindi ? "प्रारंभ तिथि" : "Start Date"}</th>
-                    <th style="border: 1px solid #ddd; padding: 0.5em; text-align: left;">${isHindi ? "समाप्ति तिथि" : "End Date"}</th>
-                    <th style="border: 1px solid #ddd; padding: 0.5em; text-align: left;">${isHindi ? "कारण" : "Reason"}</th>
-                    <th style="border: 1px solid #ddd; padding: 0.5em; text-align: left;">${isHindi ? "प्रकार" : "Type"}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${staffLeave.slice(0, 10).map(record => `
-                    <tr>
-                      <td style="border: 1px solid #ddd; padding: 0.5em;">${new Date(record.start_date).toLocaleDateString()}</td>
-                      <td style="border: 1px solid #ddd; padding: 0.5em;">${new Date(record.end_date).toLocaleDateString()}</td>
-                      <td style="border: 1px solid #ddd; padding: 0.5em;">${record.reason}</td>
-                      <td style="border: 1px solid #ddd; padding: 0.5em;">${record.leave_type || 'N/A'}</td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
-          ` : ''}
-        </div>
-      ` : ''}
-      
       ${'archived_at' in staff ? `
         <div style="margin-top: 1em; padding: 0.5em; background-color: #f0f9ff; border-radius: 4px;">
           <p style="margin: 0; font-size: 0.9em; color: #0369a1;">
@@ -117,6 +61,93 @@ export async function createStaffPrintContent(
       ` : ''}
     </div>
   `}).join('');
+
+  // Create comprehensive attendance and leave section just above the footer
+  const attendanceLeaveSection = `
+    <div style="margin-top: 3em; margin-bottom: 2em; padding: 1.5em; border: 2px solid #333; border-radius: 8px; background-color: #f9f9f9;">
+      <h2 style="margin-bottom: 1.5em; color: #333; text-align: center; border-bottom: 2px solid #333; padding-bottom: 0.5em;">
+        ${isHindi ? "उपस्थिति और छुट्टी रिकॉर्ड" : "Attendance & Leave Records"}
+      </h2>
+      
+      ${attendanceRecords.length > 0 ? `
+        <div style="margin-bottom: 2em;">
+          <h3 style="margin-bottom: 1em; color: #555; border-bottom: 1px solid #ccc; padding-bottom: 0.3em;">
+            ${isHindi ? "उपस्थिति रिकॉर्ड" : "Attendance Records"}
+          </h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.9em; margin-bottom: 1em;">
+            <thead>
+              <tr style="background-color: #e5e7eb;">
+                <th style="border: 1px solid #333; padding: 0.7em; text-align: left; font-weight: bold;">${isHindi ? "दिनांक" : "Date"}</th>
+                <th style="border: 1px solid #333; padding: 0.7em; text-align: left; font-weight: bold;">${isHindi ? "स्थिति" : "Status"}</th>
+                <th style="border: 1px solid #333; padding: 0.7em; text-align: left; font-weight: bold;">${isHindi ? "अनुमोदन स्थिति" : "Approval Status"}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${attendanceRecords.slice(0, 15).map(record => `
+                <tr>
+                  <td style="border: 1px solid #333; padding: 0.7em;">${new Date(record.date).toLocaleDateString()}</td>
+                  <td style="border: 1px solid #333; padding: 0.7em;">${record.status}</td>
+                  <td style="border: 1px solid #333; padding: 0.7em;">${record.approval_status}</td>
+                </tr>
+              `).join('')}
+              ${attendanceRecords.length > 15 ? `
+                <tr>
+                  <td colspan="3" style="border: 1px solid #333; padding: 0.7em; text-align: center; font-style: italic; color: #666;">
+                    ${isHindi ? `और ${attendanceRecords.length - 15} रिकॉर्ड...` : `And ${attendanceRecords.length - 15} more records...`}
+                  </td>
+                </tr>
+              ` : ''}
+            </tbody>
+          </table>
+        </div>
+      ` : ''}
+
+      ${leaveRecords.length > 0 ? `
+        <div>
+          <h3 style="margin-bottom: 1em; color: #555; border-bottom: 1px solid #ccc; padding-bottom: 0.3em;">
+            ${isHindi ? "छुट्टी रिकॉर्ड" : "Leave Records"}
+          </h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+            <thead>
+              <tr style="background-color: #e5e7eb;">
+                <th style="border: 1px solid #333; padding: 0.7em; text-align: left; font-weight: bold;">${isHindi ? "प्रारंभ तिथि" : "Start Date"}</th>
+                <th style="border: 1px solid #333; padding: 0.7em; text-align: left; font-weight: bold;">${isHindi ? "समाप्ति तिथि" : "End Date"}</th>
+                <th style="border: 1px solid #333; padding: 0.7em; text-align: left; font-weight: bold;">${isHindi ? "कारण" : "Reason"}</th>
+                <th style="border: 1px solid #333; padding: 0.7em; text-align: left; font-weight: bold;">${isHindi ? "प्रकार" : "Type"}</th>
+                <th style="border: 1px solid #333; padding: 0.7em; text-align: left; font-weight: bold;">${isHindi ? "स्थिति" : "Status"}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${leaveRecords.slice(0, 10).map(record => `
+                <tr>
+                  <td style="border: 1px solid #333; padding: 0.7em;">${new Date(record.start_date).toLocaleDateString()}</td>
+                  <td style="border: 1px solid #333; padding: 0.7em;">${new Date(record.end_date).toLocaleDateString()}</td>
+                  <td style="border: 1px solid #333; padding: 0.7em;">${record.reason || 'N/A'}</td>
+                  <td style="border: 1px solid #333; padding: 0.7em;">${record.leave_type || 'N/A'}</td>
+                  <td style="border: 1px solid #333; padding: 0.7em;">${record.status}</td>
+                </tr>
+              `).join('')}
+              ${leaveRecords.length > 10 ? `
+                <tr>
+                  <td colspan="5" style="border: 1px solid #333; padding: 0.7em; text-align: center; font-style: italic; color: #666;">
+                    ${isHindi ? `और ${leaveRecords.length - 10} रिकॉर्ड...` : `And ${leaveRecords.length - 10} more records...`}
+                  </td>
+                </tr>
+              ` : ''}
+            </tbody>
+          </table>
+        </div>
+      ` : ''}
+
+      ${attendanceRecords.length === 0 && leaveRecords.length === 0 ? `
+        <div style="text-align: center; padding: 2em; color: #666; font-style: italic;">
+          <p style="font-size: 1.1em;">
+            ${isHindi ? "कोई उपस्थिति या छुट्टी डेटा उपलब्ध नहीं है" : "No Attendance or Leave data available"}
+          </p>
+        </div>
+      ` : ''}
+    </div>
+  `;
 
   return `
     <!DOCTYPE html>
@@ -130,6 +161,7 @@ export async function createStaffPrintContent(
       ${header}
       <div class="content">
         ${recordsHtml}
+        ${attendanceLeaveSection}
       </div>
       ${footer}
     </body>
