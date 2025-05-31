@@ -56,7 +56,7 @@ export function useFetchAttendance() {
 
       if (fetchError) throw fetchError;
       
-      return (data || []).map(record => ({
+      const mappedData: BasicAttendanceRecord[] = (data || []).map(record => ({
         id: record.id,
         date: record.date,
         status: record.status,
@@ -66,6 +66,8 @@ export function useFetchAttendance() {
         created_at: record.created_at,
         updated_at: record.updated_at,
       }));
+      
+      return mappedData;
     } catch (err) {
       console.error('Error fetching attendance:', err);
       setError('Failed to fetch attendance records');
@@ -96,7 +98,7 @@ export function useFetchAttendance() {
 
       if (fetchError) throw fetchError;
       
-      return (data || []).map(record => ({
+      const mappedData: LeaveRecord[] = (data || []).map(record => ({
         id: record.id,
         start_date: record.start_date,
         end_date: record.end_date,
@@ -107,6 +109,8 @@ export function useFetchAttendance() {
         updated_at: record.updated_at,
         person_id: personId,
       }));
+      
+      return mappedData;
     } catch (err) {
       console.error('Error fetching leave records:', err);
       setError('Failed to fetch leave records');
@@ -143,10 +147,8 @@ export function useFetchPersonAttendance(
     setError(null);
 
     try {
-      const [attendanceRecords, leaveRecords] = await Promise.all([
-        fetchAttendanceRecords(personId, personType),
-        fetchLeaveRecords(personId, personType)
-      ]);
+      const attendanceRecords = await fetchAttendanceRecords(personId, personType);
+      const leaveRecords = await fetchLeaveRecords(personId, personType);
 
       setData({
         attendanceRecords,
