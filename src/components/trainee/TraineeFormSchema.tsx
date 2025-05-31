@@ -31,7 +31,6 @@ export const traineeFormSchema = z.object({
   toli_no: z.string().optional(),
   arrival_date: z.string().min(1, { message: "Arrival date is required" }),
   departure_date: z.string().min(1, { message: "Departure date is required" }),
-  arrival_date_rtc: z.string().optional(),
   category_caste: z.string().optional(),
   current_posting_district: z.string().min(1, { message: "Current posting district is required" }),
   mobile_number: z.string().min(10, { message: "Valid mobile number is required" }),

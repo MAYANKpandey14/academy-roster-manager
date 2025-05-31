@@ -104,7 +104,6 @@ serve(async (req) => {
       date_of_joining: formData.date_of_joining || new Date().toISOString(),
       arrival_date: formData.arrival_date || new Date().toISOString(),
       departure_date: formData.departure_date || new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString(),
-      arrival_date_rtc: formData.arrival_date_rtc || null,
       category_caste: formData.category_caste || null,
       blood_group: formData.blood_group || "Not specified",
       nominee: formData.nominee || "Not specified",

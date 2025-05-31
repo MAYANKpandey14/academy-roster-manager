@@ -140,11 +140,11 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
 
       <FormField
         control={form.control}
-        name="arrival_date_rtc"
+        name="arrival_date"
         render={({ field }) => (
           <FormItem>
             <FormLabel className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? 'आरटीसी आगमन की तारीख' : 'Arrival Date RTC'}
+              {isHindi ? 'आगमन की तारीख' : 'Arrival Date'}
             </FormLabel>
             <FormControl>
               <Input type="date" {...field} />

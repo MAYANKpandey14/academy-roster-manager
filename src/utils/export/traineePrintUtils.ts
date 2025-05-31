@@ -35,7 +35,6 @@ export async function createPrintContent(
           <p><strong>${isHindi ? "जन्म तिथि" : "Date of Birth"}:</strong> ${new Date(trainee.date_of_birth).toLocaleDateString()}</p>
           <p><strong>${isHindi ? "ज्वाइनिंग तिथि" : "Date of Joining"}:</strong> ${new Date(trainee.date_of_joining).toLocaleDateString()}</p>
           <p><strong>${isHindi ? "आगमन तिथि" : "Arrival Date"}:</strong> ${new Date(trainee.arrival_date).toLocaleDateString()}</p>
-          ${trainee.arrival_date_rtc ? `<p><strong>${isHindi ? "आरटीसी आगमन तिथि" : "Arrival Date RTC"}:</strong> ${new Date(trainee.arrival_date_rtc).toLocaleDateString()}</p>` : ''}
           <p><strong>${isHindi ? "प्रस्थान तिथि" : "Departure Date"}:</strong> ${new Date(trainee.departure_date).toLocaleDateString()}</p>
         </div>
         <div>

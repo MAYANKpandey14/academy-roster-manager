@@ -77,22 +77,6 @@ export function DateFields({ form }: DateFieldsProps) {
           </FormItem>
         )}
       />
-
-      <FormField
-        control={form.control}
-        name="arrival_date_rtc"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? 'आरटीसी आगमन की तारीख' : 'Arrival Date RTC'}
-            </FormLabel>
-            <FormControl>
-              <Input type="date" {...field} />
-            </FormControl>
-            <FormMessage className={isHindi ? 'font-hindi' : ''} />
-          </FormItem>
-        )}
-      />
     </>
   );
 }

@@ -102,7 +102,7 @@ serve(async (req) => {
       education: formData.education || "Not specified",
       date_of_birth: formData.date_of_birth || new Date("1990-01-01").toISOString(),
       date_of_joining: formData.date_of_joining || new Date().toISOString(),
-      arrival_date_rtc: formData.arrival_date_rtc || null,
+      arrival_date: formData.arrival_date || new Date().toISOString(),
       category_caste: formData.category_caste || null,
       blood_group: formData.blood_group || "Not specified",
       nominee: formData.nominee || "Not specified",

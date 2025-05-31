@@ -43,6 +43,7 @@ export type Database = {
         Row: {
           archived_at: string
           archived_by: string | null
+          arrival_date: string | null
           arrival_date_rtc: string | null
           blood_group: string
           category_caste: string | null
@@ -70,6 +71,7 @@ export type Database = {
         Insert: {
           archived_at?: string
           archived_by?: string | null
+          arrival_date?: string | null
           arrival_date_rtc?: string | null
           blood_group: string
           category_caste?: string | null
@@ -97,6 +99,7 @@ export type Database = {
         Update: {
           archived_at?: string
           archived_by?: string | null
+          arrival_date?: string | null
           arrival_date_rtc?: string | null
           blood_group?: string
           category_caste?: string | null
@@ -136,7 +139,6 @@ export type Database = {
           archived_at: string
           archived_by: string | null
           arrival_date: string
-          arrival_date_rtc: string | null
           blood_group: string
           category_caste: string | null
           chest_no: string
@@ -164,7 +166,6 @@ export type Database = {
           archived_at?: string
           archived_by?: string | null
           arrival_date: string
-          arrival_date_rtc?: string | null
           blood_group: string
           category_caste?: string | null
           chest_no: string
@@ -192,7 +193,6 @@ export type Database = {
           archived_at?: string
           archived_by?: string | null
           arrival_date?: string
-          arrival_date_rtc?: string | null
           blood_group?: string
           category_caste?: string | null
           chest_no?: string
@@ -252,6 +252,7 @@ export type Database = {
       }
       staff: {
         Row: {
+          arrival_date: string | null
           arrival_date_rtc: string | null
           blood_group: string
           category_caste: string | null
@@ -275,6 +276,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          arrival_date?: string | null
           arrival_date_rtc?: string | null
           blood_group: string
           category_caste?: string | null
@@ -298,6 +300,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          arrival_date?: string | null
           arrival_date_rtc?: string | null
           blood_group?: string
           category_caste?: string | null
@@ -489,7 +492,6 @@ export type Database = {
       trainees: {
         Row: {
           arrival_date: string
-          arrival_date_rtc: string | null
           blood_group: string
           category_caste: string | null
           chest_no: string
@@ -513,7 +515,6 @@ export type Database = {
         }
         Insert: {
           arrival_date: string
-          arrival_date_rtc?: string | null
           blood_group: string
           category_caste?: string | null
           chest_no: string
@@ -537,7 +538,6 @@ export type Database = {
         }
         Update: {
           arrival_date?: string
-          arrival_date_rtc?: string | null
           blood_group?: string
           category_caste?: string | null
           chest_no?: string

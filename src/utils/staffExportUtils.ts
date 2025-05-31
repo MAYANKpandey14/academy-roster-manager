@@ -24,7 +24,7 @@ export const generateStaffExportData = (
     'Blood Group': staff.blood_group,
     'Date of Birth': new Date(staff.date_of_birth).toLocaleDateString(),
     'Date of Joining': new Date(staff.date_of_joining).toLocaleDateString(),
-    'Arrival Date RTC': staff.arrival_date_rtc ? new Date(staff.arrival_date_rtc).toLocaleDateString() : 'Not specified',
+    'Arrival Date': new Date(staff.arrival_date).toLocaleDateString(),
     'Current Posting District': staff.current_posting_district,
     'Nominee': staff.nominee,
     'Home Address': staff.home_address,
@@ -67,7 +67,7 @@ export async function createStaffPrintContent(
           <p><strong>${isHindi ? "शिक्षा" : "Education"}:</strong> ${prepareTextForLanguage(staff.education, isHindi)}</p>
           <p><strong>${isHindi ? "जन्म तिथि" : "Date of Birth"}:</strong> ${new Date(staff.date_of_birth).toLocaleDateString()}</p>
           <p><strong>${isHindi ? "ज्वाइनिंग तिथि" : "Date of Joining"}:</strong> ${new Date(staff.date_of_joining).toLocaleDateString()}</p>
-          ${staff.arrival_date_rtc ? `<p><strong>${isHindi ? "आरटीसी आगमन तिथि" : "Arrival Date RTC"}:</strong> ${new Date(staff.arrival_date_rtc).toLocaleDateString()}</p>` : ''}
+          <p><strong>${isHindi ? "आगमन तिथि" : "Arrival Date"}:</strong> ${new Date(staff.arrival_date).toLocaleDateString()}</p>
         </div>
         <div>
           <p><strong>${isHindi ? "ब्लड ग्रुप" : "Blood Group"}:</strong> ${staff.blood_group}</p>
@@ -102,11 +102,11 @@ export async function createStaffPrintContent(
 export function createStaffCSVContent(staffList: Staff[], isHindi: boolean = false): string {
   const headers = isHindi ? [
     'पीएनओ', 'नाम', 'पिता का नाम', 'रैंक', 'श्रेणी/जाति', 'मोबाइल नंबर', 
-    'शिक्षा', 'जन्म तिथि', 'ज्वाइनिंग तिथि', 'आरटीसी आगमन तिथि',
+    'शिक्षा', 'जन्म तिथि', 'ज्वाइनिंग तिथि', 'आगमन तिथि',
     'वर्तमान पोस्टिंग जिला', 'ब्लड ग्रुप', 'नॉमिनी', 'घर का पता'
   ] : [
     'PNO', 'Name', 'Father Name', 'Rank', 'Category/Caste', 'Mobile Number',
-    'Education', 'Date of Birth', 'Date of Joining', 'Arrival Date RTC',
+    'Education', 'Date of Birth', 'Date of Joining', 'Arrival Date',
     'Current Posting District', 'Blood Group', 'Nominee', 'Home Address'
   ];
 
@@ -123,7 +123,7 @@ export function createStaffCSVContent(staffList: Staff[], isHindi: boolean = fal
       staff.education,
       new Date(staff.date_of_birth).toLocaleDateString(),
       new Date(staff.date_of_joining).toLocaleDateString(),
-      staff.arrival_date_rtc ? new Date(staff.arrival_date_rtc).toLocaleDateString() : '',
+      new Date(staff.arrival_date).toLocaleDateString(),
       staff.current_posting_district,
       staff.blood_group,
       staff.nominee,

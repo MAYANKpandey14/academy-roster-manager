@@ -42,6 +42,7 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
       education: "",
       date_of_birth: "",
       date_of_joining: "",
+      arrival_date: "",
       blood_group: undefined,
       nominee: "",
       home_address: "",
@@ -221,6 +222,22 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
 
           <FormField
             control={form.control}
+            name="arrival_date"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "आगमन की तारीख" : "Arrival Date"}
+                </FormLabel>
+                <FormControl>
+                  <Input {...field} type="date" />
+                </FormControl>
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="blood_group"
             render={({ field }) => (
               <FormItem>
@@ -269,6 +286,22 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
               <FormItem>
                 <FormLabel className={isHindi ? 'font-hindi' : ''}>
                   {isHindi ? "घर का पता" : "Home Address"}
+                </FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="category_caste"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "श्रेणी/जाति (वैकल्पिक)" : "Category/Caste (Optional)"}
                 </FormLabel>
                 <FormControl>
                   <Input {...field} />

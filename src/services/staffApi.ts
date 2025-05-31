@@ -1,4 +1,3 @@
-
 import { Staff, StaffFormValues } from "@/types/staff";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -73,9 +72,11 @@ export async function addStaff(staffData: StaffFormValues): Promise<{ data: Staf
         education: staffData.education,
         date_of_birth: staffData.date_of_birth,
         date_of_joining: staffData.date_of_joining,
+        arrival_date: staffData.arrival_date,
         blood_group: staffData.blood_group,
         nominee: staffData.nominee,
         home_address: staffData.home_address,
+        category_caste: staffData.category_caste,
         toli_no: staffData.toli_no,
         class_no: staffData.class_no,
         class_subject: staffData.class_subject,
@@ -126,9 +127,11 @@ export async function updateStaff(id: string, staffData: StaffFormValues): Promi
       education: staffData.education,
       date_of_birth: staffData.date_of_birth,
       date_of_joining: staffData.date_of_joining,
+      arrival_date: staffData.arrival_date,
       blood_group: staffData.blood_group,
       nominee: staffData.nominee,
       home_address: staffData.home_address,
+      category_caste: staffData.category_caste,
       toli_no: staffData.toli_no,
       class_no: staffData.class_no,
       class_subject: staffData.class_subject,
