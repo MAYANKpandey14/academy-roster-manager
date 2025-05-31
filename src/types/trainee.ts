@@ -12,6 +12,8 @@ export interface Trainee {
   toli_no?: string;
   arrival_date: string;
   departure_date: string;
+  arrival_date_rtc?: string;
+  category_caste?: string;
   current_posting_district: string;
   mobile_number: string;
   education: string;

@@ -43,7 +43,9 @@ export type Database = {
         Row: {
           archived_at: string
           archived_by: string | null
+          arrival_date_rtc: string | null
           blood_group: string
+          category_caste: string | null
           class_no: string | null
           class_subject: string | null
           created_at: string | null
@@ -68,7 +70,9 @@ export type Database = {
         Insert: {
           archived_at?: string
           archived_by?: string | null
+          arrival_date_rtc?: string | null
           blood_group: string
+          category_caste?: string | null
           class_no?: string | null
           class_subject?: string | null
           created_at?: string | null
@@ -93,7 +97,9 @@ export type Database = {
         Update: {
           archived_at?: string
           archived_by?: string | null
+          arrival_date_rtc?: string | null
           blood_group?: string
+          category_caste?: string | null
           class_no?: string | null
           class_subject?: string | null
           created_at?: string | null
@@ -130,7 +136,9 @@ export type Database = {
           archived_at: string
           archived_by: string | null
           arrival_date: string
+          arrival_date_rtc: string | null
           blood_group: string
+          category_caste: string | null
           chest_no: string
           created_at: string | null
           current_posting_district: string
@@ -156,7 +164,9 @@ export type Database = {
           archived_at?: string
           archived_by?: string | null
           arrival_date: string
+          arrival_date_rtc?: string | null
           blood_group: string
+          category_caste?: string | null
           chest_no: string
           created_at?: string | null
           current_posting_district: string
@@ -182,7 +192,9 @@ export type Database = {
           archived_at?: string
           archived_by?: string | null
           arrival_date?: string
+          arrival_date_rtc?: string | null
           blood_group?: string
+          category_caste?: string | null
           chest_no?: string
           created_at?: string | null
           current_posting_district?: string
@@ -240,7 +252,9 @@ export type Database = {
       }
       staff: {
         Row: {
+          arrival_date_rtc: string | null
           blood_group: string
+          category_caste: string | null
           class_no: string | null
           class_subject: string | null
           created_at: string | null
@@ -261,7 +275,9 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          arrival_date_rtc?: string | null
           blood_group: string
+          category_caste?: string | null
           class_no?: string | null
           class_subject?: string | null
           created_at?: string | null
@@ -282,7 +298,9 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          arrival_date_rtc?: string | null
           blood_group?: string
+          category_caste?: string | null
           class_no?: string | null
           class_subject?: string | null
           created_at?: string | null
@@ -471,7 +489,9 @@ export type Database = {
       trainees: {
         Row: {
           arrival_date: string
+          arrival_date_rtc: string | null
           blood_group: string
+          category_caste: string | null
           chest_no: string
           created_at: string | null
           current_posting_district: string
@@ -493,7 +513,9 @@ export type Database = {
         }
         Insert: {
           arrival_date: string
+          arrival_date_rtc?: string | null
           blood_group: string
+          category_caste?: string | null
           chest_no: string
           created_at?: string | null
           current_posting_district: string
@@ -515,7 +537,9 @@ export type Database = {
         }
         Update: {
           arrival_date?: string
+          arrival_date_rtc?: string | null
           blood_group?: string
+          category_caste?: string | null
           chest_no?: string
           created_at?: string | null
           current_posting_district?: string

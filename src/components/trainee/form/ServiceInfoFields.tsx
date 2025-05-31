@@ -1,9 +1,11 @@
+
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { TraineeFormValues, traineeRanks } from "@/components/trainee/TraineeFormSchema";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 interface ServiceInfoFieldsProps {
   form: UseFormReturn<TraineeFormValues>;
 }
@@ -61,7 +63,6 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
         )}
       />
 
-
       <FormField
         control={form.control}
         name="rank"
@@ -89,7 +90,6 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
         )}
       />
 
-
       <FormField
         control={form.control}
         name="current_posting_district"
@@ -113,6 +113,22 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
           <FormItem>
             <FormLabel className={isHindi ? 'font-hindi' : ''}>
               {isHindi ? 'शिक्षा' : 'Education'}
+            </FormLabel>
+            <FormControl>
+              <Input {...field} />
+            </FormControl>
+            <FormMessage className={isHindi ? 'font-hindi' : ''} />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="category_caste"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'श्रेणी/जाति' : 'Category/Caste'}
             </FormLabel>
             <FormControl>
               <Input {...field} />

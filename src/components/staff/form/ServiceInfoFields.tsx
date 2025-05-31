@@ -1,38 +1,27 @@
 
-import { useFormContext } from "react-hook-form";
-import { 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormControl, 
-  FormMessage 
-} from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { staffRanks } from "../StaffFormSchema";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UseFormReturn } from "react-hook-form";
+import { StaffFormValues, staffRanks } from "@/components/staff/StaffFormSchema";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-type ServiceInfoFieldsProps = {
-  isHindi: boolean;
-};
+interface ServiceInfoFieldsProps {
+  form: UseFormReturn<StaffFormValues>;
+}
 
-export function ServiceInfoFields({ isHindi }: ServiceInfoFieldsProps) {
-  const form = useFormContext();
+export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
+  const { isHindi } = useLanguage();
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <>
       <FormField
         control={form.control}
         name="pno"
         render={({ field }) => (
           <FormItem>
-            <FormLabel aria-required="true" className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? "पीएनओ/यूनिक आईडी" : "PNO/Unique ID"}
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'पीएनओ/ यूनिक आईडी' : 'PNO/ Unique ID'}
             </FormLabel>
             <FormControl>
               <Input maxLength={12} {...field} />
@@ -47,10 +36,10 @@ export function ServiceInfoFields({ isHindi }: ServiceInfoFieldsProps) {
         name="rank"
         render={({ field }) => (
           <FormItem>
-            <FormLabel aria-required="true" className={isHindi ? 'font-hindi' : ''}>
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
               {isHindi ? "रैंक" : "Rank"}
             </FormLabel>
-            <Select onValueChange={field.onChange} value={field.value}>
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder={isHindi ? "रैंक चुनें" : "Select rank"} />
@@ -71,11 +60,59 @@ export function ServiceInfoFields({ isHindi }: ServiceInfoFieldsProps) {
 
       <FormField
         control={form.control}
+        name="toli_no"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? "टोली नंबर" : "Toli No"}
+            </FormLabel>
+            <FormControl>
+              <Input maxLength={4} {...field} />
+            </FormControl>
+            <FormMessage className={isHindi ? 'font-hindi' : ''} />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
         name="current_posting_district"
         render={({ field }) => (
           <FormItem>
-            <FormLabel aria-required="true" className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? "वर्तमान पोस्टिंग जिला" : "Current Posting District"}
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'वर्तमान पोस्टिंग जिला' : 'Current Posting District'}
+            </FormLabel>
+            <FormControl>
+              <Input {...field} />
+            </FormControl>
+            <FormMessage className={isHindi ? 'font-hindi' : ''} />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="education"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'शिक्षा' : 'Education'}
+            </FormLabel>
+            <FormControl>
+              <Input {...field} />
+            </FormControl>
+            <FormMessage className={isHindi ? 'font-hindi' : ''} />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="category_caste"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'श्रेणी/जाति' : 'Category/Caste'}
             </FormLabel>
             <FormControl>
               <Input {...field} />
@@ -90,11 +127,11 @@ export function ServiceInfoFields({ isHindi }: ServiceInfoFieldsProps) {
         name="date_of_joining"
         render={({ field }) => (
           <FormItem>
-            <FormLabel aria-required="true" className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? "भर्ती तिथि" : "Date of Joining"}
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'नियुक्ति की तारीख' : 'Date of Joining'}
             </FormLabel>
             <FormControl>
-              <Input {...field} type="date" />
+              <Input type="date" {...field} />
             </FormControl>
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
@@ -103,51 +140,19 @@ export function ServiceInfoFields({ isHindi }: ServiceInfoFieldsProps) {
 
       <FormField
         control={form.control}
-        name="toli_no"
+        name="arrival_date_rtc"
         render={({ field }) => (
           <FormItem>
             <FormLabel className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? "टोली नंबर (वैकल्पिक)" : "Toli No (Optional)"}
+              {isHindi ? 'आरटीसी आगमन की तारीख' : 'Arrival Date RTC'}
             </FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input type="date" {...field} />
             </FormControl>
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
         )}
       />
-
-      <FormField
-        control={form.control}
-        name="class_no"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? "क्लास नंबर (वैकल्पिक)" : "Class No (Optional)"}
-            </FormLabel>
-            <FormControl>
-              <Input {...field} />
-            </FormControl>
-            <FormMessage className={isHindi ? 'font-hindi' : ''} />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="class_subject"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? "क्लास विषय (वैकल्पिक)" : "Class Subject (Optional)"}
-            </FormLabel>
-            <FormControl>
-              <Input {...field} />
-            </FormControl>
-            <FormMessage className={isHindi ? 'font-hindi' : ''} />
-          </FormItem>
-        )}
-      />
-    </div>
+    </>
   );
 }

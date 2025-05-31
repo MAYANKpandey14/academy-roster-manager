@@ -1,239 +1,131 @@
 
-import { useQuery } from '@tanstack/react-query';
+import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { PersonType } from '../types/attendanceTypes';
 
-// Simplified base interfaces to avoid deep type instantiation
 export interface BasicAttendanceRecord {
   id: string;
   date: string;
   status: string;
-  approval_status: 'approved' | 'pending' | 'rejected';
-  created_at: string;
-  updated_at: string;
+  approval_status: string;
   person_id: string;
   reason?: string;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface BasicLeaveRecord {
+export interface LeaveRecord {
   id: string;
   start_date: string;
   end_date: string;
   reason: string;
-  status: 'approved' | 'pending' | 'rejected';
-  leave_type: string;
+  status: string;
+  leave_type?: string;
   created_at: string;
   updated_at: string;
   person_id: string;
 }
 
-// Staff specific interfaces
-interface StaffAttendanceRecord extends BasicAttendanceRecord {
-  staff_id: string;
-  staff?: {
-    id: string;
-    name: string;
-    pno: string;
-    rank: string;
-  };
+export interface AttendanceRecord extends BasicAttendanceRecord {
+  person_type: PersonType;
+  attendance_type: string;
+  leave_type?: string | null;
+  start_date: string;
+  end_date: string;
+  created_by?: string;
+  approved_by?: string | null;
+  approved_at?: string | null;
 }
 
-// Trainee specific interfaces
-interface TraineeAttendanceRecord extends BasicAttendanceRecord {
-  trainee_id: string;
-  trainee?: {
-    id: string;
-    name: string;
-    pno: string;
-    chest_no: string;
-  };
-}
+export function useFetchAttendance() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-// Hook for fetching all attendance (used in management views)
-export const useFetchAttendance = () => {
-  const fetchStaffAttendance = useQuery({
-    queryKey: ['staff-attendance'],
-    queryFn: async (): Promise<StaffAttendanceRecord[]> => {
-      const { data, error } = await supabase
-        .from('staff_attendance')
-        .select(`
-          *,
-          staff (
-            id,
-            name,
-            pno,
-            rank
-          )
-        `)
-        .order('date', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching staff attendance:', error);
-        throw error;
-      }
-
-      return (data || []).map(record => ({
-        ...record,
-        person_id: record.staff_id,
-        approval_status: record.approval_status as 'approved' | 'pending' | 'rejected'
-      })) as StaffAttendanceRecord[];
-    },
-  });
-
-  const fetchTraineeAttendance = useQuery({
-    queryKey: ['trainee-attendance'],
-    queryFn: async (): Promise<TraineeAttendanceRecord[]> => {
-      const { data, error } = await supabase
-        .from('trainee_attendance')
-        .select(`
-          *,
-          trainee:trainees (
-            id,
-            name,
-            pno,
-            chest_no
-          )
-        `)
-        .order('date', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching trainee attendance:', error);
-        throw error;
-      }
-
-      return (data || []).map(record => ({
-        ...record,
-        person_id: record.trainee_id,
-        approval_status: record.approval_status as 'approved' | 'pending' | 'rejected'
-      })) as TraineeAttendanceRecord[];
-    },
-  });
-
-  return {
-    staffAttendance: fetchStaffAttendance.data || [],
-    traineeAttendance: fetchTraineeAttendance.data || [],
-    isLoadingStaff: fetchStaffAttendance.isLoading,
-    isLoadingTrainee: fetchTraineeAttendance.isLoading,
-    staffError: fetchStaffAttendance.error,
-    traineeError: fetchTraineeAttendance.error,
-    refetchStaff: fetchStaffAttendance.refetch,
-    refetchTrainee: fetchTraineeAttendance.refetch,
-  };
-};
-
-// Hook for fetching attendance for a specific person
-export const useFetchPersonAttendance = (personId: string, personType: 'staff' | 'trainee', startDate?: string, endDate?: string) => {
-  return useQuery({
-    queryKey: ['person-attendance', personId, personType, startDate, endDate],
-    queryFn: async () => {
-      const attendanceTable = personType === 'staff' ? 'staff_attendance' : 'trainee_attendance';
-      const idField = personType === 'staff' ? 'staff_id' : 'trainee_id';
+  const fetchAttendanceRecords = useCallback(async (
+    personId: string,
+    personType: PersonType
+  ): Promise<BasicAttendanceRecord[]> => {
+    if (!personId) return [];
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const tableName = personType === 'trainee' ? 'trainee_attendance' : 'staff_attendance';
+      const personIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
       
-      let attendanceQuery = supabase
-        .from(attendanceTable)
+      const { data, error: fetchError } = await supabase
+        .from(tableName)
         .select('*')
-        .eq(idField, personId)
+        .eq(personIdField, personId)
         .order('date', { ascending: false });
 
-      if (startDate) attendanceQuery = attendanceQuery.gte('date', startDate);
-      if (endDate) attendanceQuery = attendanceQuery.lte('date', endDate);
-
-      const { data: attendanceData, error: attendanceError } = await attendanceQuery;
+      if (fetchError) throw fetchError;
       
-      if (attendanceError) throw attendanceError;
-
-      const leaveTable = personType === 'staff' ? 'staff_leave' : 'trainee_leave';
-      
-      let leaveQuery = supabase
-        .from(leaveTable)
-        .select('*')
-        .eq(idField, personId)
-        .order('start_date', { ascending: false });
-
-      if (startDate) leaveQuery = leaveQuery.gte('start_date', startDate);
-      if (endDate) leaveQuery = leaveQuery.lte('end_date', endDate);
-
-      const { data: leaveData, error: leaveError } = await leaveQuery;
-      
-      if (leaveError) throw leaveError;
-
-      const attendanceRecords: BasicAttendanceRecord[] = (attendanceData || []).map(record => ({
+      return (data || []).map(record => ({
         id: record.id,
         date: record.date,
         status: record.status,
-        approval_status: record.approval_status as 'approved' | 'pending' | 'rejected',
+        approval_status: record.approval_status,
+        person_id: personId,
+        reason: '', // Attendance records don't have reason field
         created_at: record.created_at,
         updated_at: record.updated_at,
-        person_id: record[idField],
-        reason: record.reason
       }));
+    } catch (err) {
+      console.error('Error fetching attendance:', err);
+      setError('Failed to fetch attendance records');
+      return [];
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-      const leaveRecords: BasicLeaveRecord[] = (leaveData || []).map(record => ({
+  const fetchLeaveRecords = useCallback(async (
+    personId: string,
+    personType: PersonType
+  ): Promise<LeaveRecord[]> => {
+    if (!personId) return [];
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const tableName = personType === 'trainee' ? 'trainee_leave' : 'staff_leave';
+      const personIdField = personType === 'trainee' ? 'trainee_id' : 'staff_id';
+      
+      const { data, error: fetchError } = await supabase
+        .from(tableName)
+        .select('*')
+        .eq(personIdField, personId)
+        .order('start_date', { ascending: false });
+
+      if (fetchError) throw fetchError;
+      
+      return (data || []).map(record => ({
         id: record.id,
         start_date: record.start_date,
         end_date: record.end_date,
-        reason: record.reason,
-        status: record.status as 'approved' | 'pending' | 'rejected',
+        reason: record.reason || '',
+        status: record.status,
         leave_type: record.leave_type,
         created_at: record.created_at,
         updated_at: record.updated_at,
-        person_id: record[idField]
+        person_id: personId,
       }));
+    } catch (err) {
+      console.error('Error fetching leave records:', err);
+      setError('Failed to fetch leave records');
+      return [];
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-      return {
-        attendanceRecords,
-        leaveRecords
-      };
-    },
-    enabled: !!personId,
-  });
-};
-
-// Function for fetching attendance data for print functionality
-export const fetchAttendanceForPrint = async (personId: string, personType: 'staff' | 'trainee'): Promise<{ attendanceRecords: BasicAttendanceRecord[], leaveRecords: BasicLeaveRecord[] }> => {
-  const attendanceTable = personType === 'staff' ? 'staff_attendance' : 'trainee_attendance';
-  const leaveTable = personType === 'staff' ? 'staff_leave' : 'trainee_leave';
-  const idField = personType === 'staff' ? 'staff_id' : 'trainee_id';
-
-  const { data: attendanceData, error: attendanceError } = await supabase
-    .from(attendanceTable)
-    .select('*')
-    .eq(idField, personId)
-    .order('date', { ascending: false })
-    .limit(10);
-
-  if (attendanceError) throw attendanceError;
-
-  const { data: leaveData, error: leaveError } = await supabase
-    .from(leaveTable)
-    .select('*')
-    .eq(idField, personId)
-    .order('start_date', { ascending: false })
-    .limit(10);
-
-  if (leaveError) throw leaveError;
-
-  const attendanceRecords: BasicAttendanceRecord[] = (attendanceData || []).map(record => ({
-    id: record.id,
-    date: record.date,
-    status: record.status,
-    approval_status: record.approval_status as 'approved' | 'pending' | 'rejected',
-    created_at: record.created_at,
-    updated_at: record.updated_at,
-    person_id: record[idField],
-    reason: record.reason
-  }));
-
-  const leaveRecords: BasicLeaveRecord[] = (leaveData || []).map(record => ({
-    id: record.id,
-    start_date: record.start_date,
-    end_date: record.end_date,
-    reason: record.reason,
-    status: record.status as 'approved' | 'pending' | 'rejected',
-    leave_type: record.leave_type,
-    created_at: record.created_at,
-    updated_at: record.updated_at,
-    person_id: record[idField]
-  }));
-
-  return { attendanceRecords, leaveRecords };
-};
+  return {
+    isLoading,
+    error,
+    fetchAttendanceRecords,
+    fetchLeaveRecords,
+  };
+}
