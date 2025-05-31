@@ -6,17 +6,25 @@ import { createPrintContent } from "@/utils/export/traineePrintUtils";
 import { handlePrint as utilHandlePrint } from "@/utils/export/printUtils";
 import { exportTraineesToExcel } from "@/utils/export/traineeExcelUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useFetchAttendance } from "@/components/attendance/hooks/useFetchAttendance";
 
 export function useTraineePrintService(trainee: Trainee | null) {
   const [isLoading, setIsLoading] = useState(false);
   const { isHindi } = useLanguage();
+  const { fetchAttendanceRecords, fetchLeaveRecords } = useFetchAttendance();
 
   const handlePrint = async () => {
     if (!trainee) return;
     
     setIsLoading(true);
     try {
-      const content = await createPrintContent([trainee], isHindi);
+      // Fetch attendance and leave data for this trainee
+      const [attendanceRecords, leaveRecords] = await Promise.all([
+        fetchAttendanceRecords(trainee.id, 'trainee'),
+        fetchLeaveRecords(trainee.id, 'trainee')
+      ]);
+
+      const content = await createPrintContent([trainee], isHindi, attendanceRecords, leaveRecords);
       // Use the utility function and don't check its return value directly
       utilHandlePrint(content);
       

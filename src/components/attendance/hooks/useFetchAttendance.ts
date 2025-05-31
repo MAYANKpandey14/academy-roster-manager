@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { PersonType } from '../types/attendanceTypes';
 
@@ -159,10 +159,9 @@ export function useFetchPersonAttendance(
     }
   }, [personId, personType, startDate, endDate, fetchAttendanceRecords, fetchLeaveRecords]);
 
-  // Fetch data when dependencies change
-  useState(() => {
+  useEffect(() => {
     fetchData();
-  });
+  }, [fetchData]);
 
   return { data, isLoading, error, refetch: fetchData };
 }

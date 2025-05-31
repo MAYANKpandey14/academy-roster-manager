@@ -6,15 +6,22 @@ import { prepareTextForLanguage } from '../textUtils';
 
 export async function createPrintContent(
   traineeList: Trainee[],
-  isHindi: boolean = false
+  isHindi: boolean = false,
+  attendanceRecords: BasicAttendanceRecord[] = [],
+  leaveRecords: LeaveRecord[] = []
 ): Promise<string> {
-  const title = isHindi ? "प्रशिक्षु रिकॉर्ड" : "Trainee Records";
+  const title = isHindi ? "प्रशिक्षु नामांकन सूची" : "Trainee Nominal Roll";
   
   const styles = getPrintStyles(isHindi);
   const header = createPrintHeader(title, isHindi);
   const footer = createPrintFooter(isHindi);
 
-  const recordsHtml = traineeList.map(trainee => `
+  const recordsHtml = traineeList.map(trainee => {
+    // Filter attendance and leave records for this specific trainee
+    const traineeAttendance = attendanceRecords.filter(record => record.person_id === trainee.id);
+    const traineeLeave = leaveRecords.filter(record => record.person_id === trainee.id);
+
+    return `
     <div style="margin-bottom: 2em; padding: 1em; border: 1px solid #ddd; border-radius: 8px;">
       <div style="display: flex; align-items: center; margin-bottom: 1em;">
         ${trainee.photo_url ? `<img src="${trainee.photo_url}" alt="${trainee.name}" style="width: 80px; height: 80px; border-radius: 50%; margin-right: 1em; object-fit: cover;" />` : ''}
@@ -45,8 +52,64 @@ export async function createPrintContent(
           ${trainee.toli_no ? `<p><strong>${isHindi ? "टोली नंबर" : "Toli No"}:</strong> ${trainee.toli_no}</p>` : ''}
         </div>
       </div>
+
+      ${traineeAttendance.length > 0 || traineeLeave.length > 0 ? `
+        <div style="margin-top: 2em; border-top: 1px solid #ddd; padding-top: 1em;">
+          <h4 style="margin-bottom: 1em; color: #333;">${isHindi ? "उपस्थिति और छुट्टी रिकॉर्ड" : "Attendance & Leave Records"}</h4>
+          
+          ${traineeAttendance.length > 0 ? `
+            <div style="margin-bottom: 1em;">
+              <h5 style="margin-bottom: 0.5em; color: #555;">${isHindi ? "उपस्थिति रिकॉर्ड" : "Attendance Records"}</h5>
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+                <thead>
+                  <tr style="background-color: #f5f5f5;">
+                    <th style="border: 1px solid #ddd; padding: 0.5em; text-align: left;">${isHindi ? "दिनांक" : "Date"}</th>
+                    <th style="border: 1px solid #ddd; padding: 0.5em; text-align: left;">${isHindi ? "स्थिति" : "Status"}</th>
+                    <th style="border: 1px solid #ddd; padding: 0.5em; text-align: left;">${isHindi ? "अनुमोदन" : "Approval"}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${traineeAttendance.slice(0, 10).map(record => `
+                    <tr>
+                      <td style="border: 1px solid #ddd; padding: 0.5em;">${new Date(record.date).toLocaleDateString()}</td>
+                      <td style="border: 1px solid #ddd; padding: 0.5em;">${record.status}</td>
+                      <td style="border: 1px solid #ddd; padding: 0.5em;">${record.approval_status}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          ` : ''}
+
+          ${traineeLeave.length > 0 ? `
+            <div>
+              <h5 style="margin-bottom: 0.5em; color: #555;">${isHindi ? "छुट्टी रिकॉर्ड" : "Leave Records"}</h5>
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+                <thead>
+                  <tr style="background-color: #f5f5f5;">
+                    <th style="border: 1px solid #ddd; padding: 0.5em; text-align: left;">${isHindi ? "प्रारंभ तिथि" : "Start Date"}</th>
+                    <th style="border: 1px solid #ddd; padding: 0.5em; text-align: left;">${isHindi ? "समाप्ति तिथि" : "End Date"}</th>
+                    <th style="border: 1px solid #ddd; padding: 0.5em; text-align: left;">${isHindi ? "कारण" : "Reason"}</th>
+                    <th style="border: 1px solid #ddd; padding: 0.5em; text-align: left;">${isHindi ? "प्रकार" : "Type"}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${traineeLeave.slice(0, 10).map(record => `
+                    <tr>
+                      <td style="border: 1px solid #ddd; padding: 0.5em;">${new Date(record.start_date).toLocaleDateString()}</td>
+                      <td style="border: 1px solid #ddd; padding: 0.5em;">${new Date(record.end_date).toLocaleDateString()}</td>
+                      <td style="border: 1px solid #ddd; padding: 0.5em;">${record.reason}</td>
+                      <td style="border: 1px solid #ddd; padding: 0.5em;">${record.leave_type || 'N/A'}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          ` : ''}
+        </div>
+      ` : ''}
     </div>
-  `).join('');
+  `}).join('');
 
   return `
     <!DOCTYPE html>
@@ -74,5 +137,5 @@ export const generateTraineePrintPDF = (
 ) => {
   // This function is deprecated in favor of createPrintContent
   // Keeping for backward compatibility
-  return createPrintContent([trainee], false);
+  return createPrintContent([trainee], false, attendanceRecords, leaveRecords);
 };

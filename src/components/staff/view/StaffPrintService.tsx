@@ -4,6 +4,7 @@ import { createStaffPrintContent, createStaffCSVContent } from "@/utils/staffExp
 import { handlePrint, handleDownload, exportStaffToExcel } from "@/utils/export";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useFetchAttendance } from "@/components/attendance/hooks/useFetchAttendance";
 
 export interface StaffPrintServiceProps {
   staff: Staff;
@@ -11,8 +12,7 @@ export interface StaffPrintServiceProps {
 
 export function useStaffPrintService(staff: Staff) {
   const { isHindi } = useLanguage();
-  // Use isHindi directly to determine language
-  const currentLanguage = isHindi ? 'hi' : 'en';
+  const { fetchAttendanceRecords, fetchLeaveRecords } = useFetchAttendance();
 
   const handlePrintStaff = async () => {
     // Ensure the staff object has the photo_url property before printing
@@ -22,7 +22,13 @@ export function useStaffPrintService(staff: Staff) {
     };
     
     try {
-      const printContent = await createStaffPrintContent([staffWithPhoto], isHindi);
+      // Fetch attendance and leave data for this staff member
+      const [attendanceRecords, leaveRecords] = await Promise.all([
+        fetchAttendanceRecords(staff.id, 'staff'),
+        fetchLeaveRecords(staff.id, 'staff')
+      ]);
+
+      const printContent = await createStaffPrintContent([staffWithPhoto], isHindi, attendanceRecords, leaveRecords);
       const printSuccess = handlePrint(printContent);
       
       if (!printSuccess) {
