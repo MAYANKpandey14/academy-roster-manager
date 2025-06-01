@@ -56,29 +56,27 @@ export function useFetchAttendance() {
 
       if (fetchError) throw fetchError;
       
-      // Explicitly type the mapping to avoid deep type instantiation
       const records: BasicAttendanceRecord[] = [];
       
       if (data) {
-        for (const record of data) {
+        data.forEach(record => {
           const approvalStatus = record.approval_status || 'pending';
-          // Ensure approval_status is one of the allowed values
-          const validApprovalStatus: 'pending' | 'approved' | 'rejected' = 
+          const validApprovalStatus = 
             ['pending', 'approved', 'rejected'].includes(approvalStatus) 
-              ? approvalStatus as 'pending' | 'approved' | 'rejected'
+              ? approvalStatus 
               : 'pending';
               
           records.push({
             id: record.id,
             date: record.date,
             status: record.status,
-            approval_status: validApprovalStatus,
+            approval_status: validApprovalStatus as 'pending' | 'approved' | 'rejected',
             person_id: personId,
             reason: '',
             created_at: record.created_at,
             updated_at: record.updated_at,
           });
-        }
+        });
       }
       
       return records;
@@ -112,11 +110,10 @@ export function useFetchAttendance() {
 
       if (fetchError) throw fetchError;
       
-      // Explicitly type the mapping to avoid deep type instantiation
       const records: LeaveRecord[] = [];
       
       if (data) {
-        for (const record of data) {
+        data.forEach(record => {
           records.push({
             id: record.id,
             start_date: record.start_date,
@@ -128,7 +125,7 @@ export function useFetchAttendance() {
             updated_at: record.updated_at,
             person_id: personId,
           });
-        }
+        });
       }
       
       return records;
