@@ -57,30 +57,16 @@ export function useFetchAttendance() {
 
       if (fetchError) throw fetchError;
       
-      const records: BasicAttendanceRecord[] = [];
-      
-      if (data) {
-        data.forEach(record => {
-          const approvalStatus = record.approval_status || 'pending';
-          const validApprovalStatus = 
-            ['pending', 'approved', 'rejected'].includes(approvalStatus) 
-              ? approvalStatus 
-              : 'pending';
-              
-          records.push({
-            id: record.id,
-            date: record.date,
-            status: record.status,
-            approval_status: validApprovalStatus as 'pending' | 'approved' | 'rejected',
-            person_id: personId,
-            reason: '',
-            created_at: record.created_at,
-            updated_at: record.updated_at,
-          });
-        });
-      }
-      
-      return records;
+      return (data || []).map(record => ({
+        id: record.id,
+        date: record.date,
+        status: record.status,
+        approval_status: (record.approval_status || 'pending') as 'pending' | 'approved' | 'rejected',
+        person_id: personId,
+        reason: '',
+        created_at: record.created_at,
+        updated_at: record.updated_at,
+      }));
     } catch (err) {
       console.error('Error fetching attendance:', err);
       setError('Failed to fetch attendance records');
@@ -111,25 +97,17 @@ export function useFetchAttendance() {
 
       if (fetchError) throw fetchError;
       
-      const records: LeaveRecord[] = [];
-      
-      if (data) {
-        data.forEach(record => {
-          records.push({
-            id: record.id,
-            start_date: record.start_date,
-            end_date: record.end_date,
-            reason: record.reason || '',
-            status: record.status,
-            leave_type: record.leave_type,
-            created_at: record.created_at,
-            updated_at: record.updated_at,
-            person_id: personId,
-          });
-        });
-      }
-      
-      return records;
+      return (data || []).map(record => ({
+        id: record.id,
+        start_date: record.start_date,
+        end_date: record.end_date,
+        reason: record.reason || '',
+        status: record.status,
+        leave_type: record.leave_type,
+        created_at: record.created_at,
+        updated_at: record.updated_at,
+        person_id: personId,
+      }));
     } catch (err) {
       console.error('Error fetching leave records:', err);
       setError('Failed to fetch leave records');
