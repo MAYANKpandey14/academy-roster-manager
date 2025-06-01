@@ -56,12 +56,11 @@ export function useFetchAttendance() {
 
       if (fetchError) throw fetchError;
       
-      // Explicitly map the data to avoid type instantiation issues
-      const records = (data || []).map((record: any) => ({
+      const records: BasicAttendanceRecord[] = (data || []).map(record => ({
         id: record.id,
         date: record.date,
         status: record.status,
-        approval_status: record.approval_status,
+        approval_status: record.approval_status || 'pending',
         person_id: personId,
         reason: '',
         created_at: record.created_at,
@@ -99,8 +98,7 @@ export function useFetchAttendance() {
 
       if (fetchError) throw fetchError;
       
-      // Explicitly map the data to avoid type instantiation issues
-      const records = (data || []).map((record: any) => ({
+      const records: LeaveRecord[] = (data || []).map(record => ({
         id: record.id,
         start_date: record.start_date,
         end_date: record.end_date,
