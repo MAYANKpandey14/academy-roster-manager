@@ -52,7 +52,7 @@ export function DateFields({ form }: DateFieldsProps) {
         render={({ field }) => (
           <FormItem>
             <FormLabel className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? 'आगमन की तारीख' : 'Arrival Date'}
+              {isHindi ? 'आगमन की तारीख RTC' : 'Arrival Date RTC'}
             </FormLabel>
             <FormControl>
               <Input type="date" {...field} />
