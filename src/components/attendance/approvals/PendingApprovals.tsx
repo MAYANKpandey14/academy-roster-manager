@@ -26,6 +26,12 @@ interface PendingApproval {
   personnel_pno?: string;
 }
 
+interface PersonnelRecord {
+  id: string;
+  name: string;
+  pno: string;
+}
+
 export function PendingApprovals() {
   const { isHindi } = useLanguage();
   const [approvals, setApprovals] = useState<PendingApproval[]>([]);
@@ -65,18 +71,36 @@ export function PendingApprovals() {
           : { data: [], error: null }
       ]);
 
-      // Create lookup maps
-      const staffLookup = new Map(staffData.data?.map(s => [s.id, s]) || []);
-      const traineeLookup = new Map(traineeData.data?.map(t => [t.id, t]) || []);
+      // Create lookup maps with proper typing
+      const staffLookup = new Map<string, PersonnelRecord>();
+      const traineeLookup = new Map<string, PersonnelRecord>();
 
-      // Combine data
+      if (staffData.data) {
+        staffData.data.forEach(staff => staffLookup.set(staff.id, staff));
+      }
+
+      if (traineeData.data) {
+        traineeData.data.forEach(trainee => traineeLookup.set(trainee.id, trainee));
+      }
+
+      // Combine data with proper typing
       const formattedData: PendingApproval[] = records.map(record => {
         const personnel = record.personnel_type === 'staff' 
           ? staffLookup.get(record.personnel_id)
           : traineeLookup.get(record.personnel_id);
 
         return {
-          ...record,
+          id: record.id,
+          personnel_id: record.personnel_id,
+          personnel_type: record.personnel_type as 'staff' | 'trainee',
+          record_type: record.record_type,
+          status: record.status,
+          leave_type: record.leave_type,
+          record_date: record.record_date,
+          start_date: record.start_date,
+          end_date: record.end_date,
+          reason: record.reason,
+          created_at: record.created_at,
           personnel_name: personnel?.name || 'Unknown',
           personnel_pno: personnel?.pno || 'N/A',
         };

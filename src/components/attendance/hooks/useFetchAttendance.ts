@@ -32,6 +32,20 @@ export interface PersonAttendanceData {
   leaveRecords: LeaveRecord[];
 }
 
+// Define a simple database record interface
+interface DatabaseRecord {
+  id: string;
+  date?: string;
+  status: string;
+  approval_status?: string;
+  created_at: string;
+  updated_at: string;
+  start_date?: string;
+  end_date?: string;
+  reason?: string;
+  leave_type?: string;
+}
+
 export function useFetchAttendance() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,9 +71,9 @@ export function useFetchAttendance() {
 
       if (fetchError) throw fetchError;
       
-      return (data || []).map((record: any) => ({
+      return (data || []).map((record: DatabaseRecord) => ({
         id: record.id,
-        date: record.date,
+        date: record.date || '',
         status: record.status,
         approval_status: (record.approval_status || 'pending') as 'pending' | 'approved' | 'rejected',
         person_id: personId,
@@ -97,10 +111,10 @@ export function useFetchAttendance() {
 
       if (fetchError) throw fetchError;
       
-      return (data || []).map((record: any) => ({
+      return (data || []).map((record: DatabaseRecord) => ({
         id: record.id,
-        start_date: record.start_date,
-        end_date: record.end_date,
+        start_date: record.start_date || '',
+        end_date: record.end_date || '',
         reason: record.reason || '',
         status: record.status,
         leave_type: record.leave_type,
