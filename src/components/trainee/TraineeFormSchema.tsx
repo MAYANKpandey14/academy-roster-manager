@@ -8,6 +8,7 @@ export type TraineeRank =
   | "H.CONST"
   | "H.CONST/PTI"
   | "H.CONST/DRV"
+  | "HC/CP"
   | "ASI"
   | "ASI/PTI"
   | "ASI/DRV"
@@ -22,12 +23,24 @@ export const traineeRanks: TraineeRank[] = [
   "H.CONST",
   "H.CONST/PTI",
   "H.CONST/DRV",
+  "HC/CP",
   "ASI",
   "ASI/PTI",
   "ASI/DRV",
   "SI",
   "SI/PTI",
   "SI/DRV"
+];
+
+export const bloodGroups = [
+  "A+",
+  "A-",
+  "B+",
+  "B-",
+  "AB+",
+  "AB-",
+  "O+",
+  "O-"
 ];
 
 export const traineeFormSchema = z.object({
