@@ -57,7 +57,7 @@ export function useFetchAttendance() {
 
       if (fetchError) throw fetchError;
       
-      return (data || []).map(record => ({
+      return (data || []).map((record: any) => ({
         id: record.id,
         date: record.date,
         status: record.status,
@@ -97,7 +97,7 @@ export function useFetchAttendance() {
 
       if (fetchError) throw fetchError;
       
-      return (data || []).map(record => ({
+      return (data || []).map((record: any) => ({
         id: record.id,
         start_date: record.start_date,
         end_date: record.end_date,

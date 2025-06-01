@@ -38,27 +38,49 @@ export function PendingApprovals() {
   const fetchPendingApprovals = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      // First get all pending records
+      const { data: records, error } = await supabase
         .from('attendance_leave_records')
-        .select(`
-          *,
-          staff:staff(name, pno),
-          trainees:trainees(name, pno)
-        `)
+        .select('*')
         .eq('approval_status', 'pending')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      const formattedData = data?.map(record => ({
-        ...record,
-        personnel_name: record.personnel_type === 'staff' 
-          ? record.staff?.name 
-          : record.trainees?.name,
-        personnel_pno: record.personnel_type === 'staff' 
-          ? record.staff?.pno 
-          : record.trainees?.pno,
-      })) || [];
+      if (!records || records.length === 0) {
+        setApprovals([]);
+        return;
+      }
+
+      // Get staff and trainee names separately
+      const staffIds = records.filter(r => r.personnel_type === 'staff').map(r => r.personnel_id);
+      const traineeIds = records.filter(r => r.personnel_type === 'trainee').map(r => r.personnel_id);
+
+      const [staffData, traineeData] = await Promise.all([
+        staffIds.length > 0 
+          ? supabase.from('staff').select('id, name, pno').in('id', staffIds)
+          : { data: [], error: null },
+        traineeIds.length > 0 
+          ? supabase.from('trainees').select('id, name, pno').in('id', traineeIds)
+          : { data: [], error: null }
+      ]);
+
+      // Create lookup maps
+      const staffLookup = new Map(staffData.data?.map(s => [s.id, s]) || []);
+      const traineeLookup = new Map(traineeData.data?.map(t => [t.id, t]) || []);
+
+      // Combine data
+      const formattedData: PendingApproval[] = records.map(record => {
+        const personnel = record.personnel_type === 'staff' 
+          ? staffLookup.get(record.personnel_id)
+          : traineeLookup.get(record.personnel_id);
+
+        return {
+          ...record,
+          personnel_name: personnel?.name || 'Unknown',
+          personnel_pno: personnel?.pno || 'N/A',
+        };
+      });
 
       setApprovals(formattedData);
     } catch (error) {
