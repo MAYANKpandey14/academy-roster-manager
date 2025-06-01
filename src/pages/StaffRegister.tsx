@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -220,8 +221,8 @@ export default function StaffRegister() {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Service Info Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Service Info Section */}
               <div className="space-y-4">
                 <h3 className="font-semibold text-lg border-b pb-2">Service Information</h3>
                 
@@ -365,8 +366,8 @@ export default function StaffRegister() {
                       <FormMessage />
                     </FormItem>
                   )}
+                />
                 
-                  
                 <FormField
                   control={form.control}
                   name="arrival_date"
