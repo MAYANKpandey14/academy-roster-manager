@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { ArrowLeft, Home, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import Navigation from "./Navigation";
+import { Navigation } from "./Navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "../languageswitch/LanguageSwitcher";
 import {
@@ -23,6 +24,7 @@ export function Header() {
   const { isHindi } = useLanguage();
 
   useEffect(() => {
+    // Update date based on current language
     const updateDate = () => {
       const date = new Date();
       const options: Intl.DateTimeFormatOptions = {
@@ -35,8 +37,13 @@ export function Header() {
     };
 
     updateDate();
-    const intervalId = setInterval(updateDate, 60000);
-    return () => clearInterval(intervalId);
+
+    // Update date whenever language changes
+    const intervalId = setInterval(updateDate, 60000); // Update every minute
+
+    return () => {
+      clearInterval(intervalId);
+    };
   }, [isHindi]);
 
   const handleLogout = async () => {
@@ -52,6 +59,7 @@ export function Header() {
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
       <div className="container mx-auto px-4 py-2">
+        {/* Logo and title area - improved responsive layout */}
         <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
           <div className="flex items-center justify-center md:justify-start">
             <div className="flex-shrink-0 mr-2">
@@ -83,7 +91,7 @@ export function Header() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/trainees")}
                 className="animate-slide-in"
               >
                 <Home className="h-4 w-4 mr-1" />
@@ -109,6 +117,7 @@ export function Header() {
       </div>
       <Navigation />
 
+      {/* Mobile navigation buttons */}
       <div className="sm:hidden flex justify-center items-center gap-2 py-2 border-t border-gray-200">
         <Button
           variant="outline"
@@ -138,6 +147,7 @@ export function Header() {
         </Button>
       </div>
 
+      {/* Logout Confirmation Dialog - with improved animation classes */}
       <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
         <DialogContent className="sm:max-w-md animate-scale-in">
           <DialogHeader>

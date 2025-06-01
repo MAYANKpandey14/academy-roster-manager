@@ -1,3 +1,4 @@
+
 import { z } from "zod";
 import { BloodGroup, TraineeRank } from "@/types/trainee";
 
@@ -9,6 +10,7 @@ export const traineeRanks: TraineeRank[] = [
   "R/CONST", 
   "CONST", 
   "CONST/PTI",
+  "CONST/ITI",
   "HC/CP", 
   "HC/AP", 
   "HC-ITI", 

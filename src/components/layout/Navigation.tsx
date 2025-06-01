@@ -1,115 +1,56 @@
-import React, { useState } from 'react';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
-import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button"
-import { ModeToggle } from "@/components/ModeToggle";
-import { useLanguage } from '@/contexts/LanguageContext';
-import { CalendarCheck, CalendarDays, Users, UserPlus, Settings, Archive, FileText, UserCog, Home, GraduationCap } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
-const Navigation = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+import { Link, useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSwitcher from "@/components/languageswitch/LanguageSwitcher";
+
+export function Navigation() {
+  const location = useLocation();
   const { isHindi } = useLanguage();
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const navigationItems = [
+  
+  const routes = [
     { 
-      name: isHindi ? 'डैशबोर्ड' : 'Dashboard', 
-      href: '/', 
-      icon: Home 
+      name: isHindi ? "प्रशिक्षु" : "Trainees", 
+      path: "/trainees" 
     },
     { 
-      name: isHindi ? 'स्टाफ रजिस्टर' : 'Staff Register', 
-      href: '/staff-register', 
-      icon: UserPlus 
+      name: isHindi ? "स्टाफ" : "Staff", 
+      path: "/staff" 
     },
     { 
-      name: isHindi ? 'प्रशिक्षु रजिस्टर' : 'Trainee Register', 
-      href: '/trainee-register', 
-      icon: GraduationCap 
+      name: isHindi ? "उपस्थिति" : "Attendance",
+      path: "/attendance"
     },
     { 
-      name: isHindi ? 'स्टाफ' : 'Staff', 
-      href: '/staff', 
-      icon: Users 
-    },
-    { 
-      name: isHindi ? 'प्रशिक्षु' : 'Trainees', 
-      href: '/trainees', 
-      icon: Users 
-    },
-    { 
-      name: isHindi ? 'उपस्थिति प्रबंधन' : 'Attendance', 
-      href: '/attendance', 
-      icon: CalendarCheck 
-    },
-    { 
-      name: isHindi ? 'व्यापक उपस्थिति' : 'Comprehensive Attendance', 
-      href: '/comprehensive-attendance', 
-      icon: CalendarDays 
-    },
-    { 
-      name: isHindi ? 'पुरालेख' : 'Archive', 
-      href: '/archive', 
-      icon: Archive 
-    },
-    { 
-      name: isHindi ? 'उपयोगकर्ता भूमिकाएँ' : 'User Roles', 
-      href: '/user-roles', 
-      icon: UserCog 
-    },
-    { 
-      name: isHindi ? 'सेटिंग्स' : 'Settings', 
-      href: '/settings', 
-      icon: Settings 
-    },
-    { 
-      name: isHindi ? 'लॉग' : 'Logs', 
-      href: '/logs', 
-      icon: FileText 
+      name: isHindi ? "आर्काइव" : "Archive",
+      path: "/archive"
     },
   ];
 
   return (
-    <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" onClick={toggleMenu}>
-          <Menu className="h-5 w-5" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent className="w-full sm:w-64">
-        <SheetHeader>
-          <SheetTitle className={isHindi ? 'font-hindi' : ''}>
-            {isHindi ? 'नेविगेशन' : 'Navigation'}
-          </SheetTitle>
-          <SheetDescription className={isHindi ? 'font-hindi' : ''}>
-            {isHindi ? 'अपनी इच्छित कार्रवाई चुनें' : 'Choose what you want to do'}
-          </SheetDescription>
-        </SheetHeader>
-        <nav className="grid gap-6">
-          {navigationItems.map((item) => (
-            <Link key={item.href} to={item.href} className="flex items-center space-x-2">
-              {React.createElement(item.icon, { className: "h-4 w-4" })}
-              <span className={isHindi ? 'font-hindi' : ''}>{item.name}</span>
-            </Link>
+    <nav className="border-b bg-background">
+      <div className="container mx-auto px-4 py-2">
+        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-center md:justify-start space-x-2 md:space-x-4 overflow-x-auto">
+          <div className="flex flex-wrap gap-4">
+          {routes.map((route) => (
+            <Button
+              key={route.path}
+              variant={location.pathname.startsWith(route.path) ? "default" : "ghost"}
+              size="sm"
+              asChild
+              className={`whitespace-nowrap ${isHindi ? "font-mangal" : ""}`}
+            >
+              <Link to={route.path}>{route.name}</Link>
+            </Button>
           ))}
-        </nav>
-        <div className="absolute bottom-4 right-4">
-          <ModeToggle />
+          </div>
         </div>
-      </SheetContent>
-    </Sheet>
+        <div className="flex items-center justify-center md:justify-end">
+          <LanguageSwitcher />
+        </div>
+        </div>
+      </div>
+    </nav>
   );
-};
-
-export default Navigation;
+}
