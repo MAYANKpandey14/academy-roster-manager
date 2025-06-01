@@ -3,7 +3,7 @@ import { z } from "zod";
 import { BloodGroup, StaffRank } from "@/types/staff";
 
 export const bloodGroups: BloodGroup[] = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
-export const staffRanks: StaffRank[] = ["R/ CONST", "CONST", "CONST/ PTI", "HC/CP", "HC/AP", "HC-ITI", "HC-PTI", "SI/AP", "SI/CP", "RI", "RSI", "Inspector", "FALL", "Sweeper", "Barber", "Washerman", "Peon"];
+export const staffRanks: StaffRank[] = ["R/ CONST", "CONST", "CONST/ PTI","CONST/ ITI", "HC/CP", "HC/AP", "HC-ITI", "HC-PTI", "SI/AP", "SI/CP", "RI", "RSI", "Inspector", "FALL", "Sweeper", "Barber", "Washerman", "Peon"];
 
 export const staffFormSchema = z.object({
   pno: z.string().min(1, { message: "PNO is required" }),

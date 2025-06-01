@@ -9,7 +9,8 @@ export const bloodGroups: BloodGroup[] = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'A
 export const traineeRanks: TraineeRank[] = [
   "R/CONST", 
   "CONST", 
-  "CONST/PTI", 
+  "CONST/ PTI",
+  "CONST/ ITI",
   "HC/CP", 
   "HC/AP", 
   "HC-ITI", 
