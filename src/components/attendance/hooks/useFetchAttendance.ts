@@ -51,21 +51,14 @@ function parseStatusAndReason(statusField: string): { status: string; reason: st
   };
 }
 
-interface FetchAttendanceHook {
-  isLoading: boolean;
-  error: string | null;
-  fetchAttendanceRecords: (personId: string, personType: PersonType) => Promise<BasicAttendanceRecord[]>;
-  fetchLeaveRecords: (personId: string, personType: PersonType) => Promise<LeaveRecord[]>;
-}
-
-export function useFetchAttendance(): FetchAttendanceHook {
+export function useFetchAttendance() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchAttendanceRecords = useCallback(async (
     personId: string,
     personType: PersonType
-  ): Promise<BasicAttendanceRecord[]> => {
+  ) => {
     if (!personId) return [];
     
     setIsLoading(true);
@@ -122,7 +115,7 @@ export function useFetchAttendance(): FetchAttendanceHook {
   const fetchLeaveRecords = useCallback(async (
     personId: string,
     personType: PersonType
-  ): Promise<LeaveRecord[]> => {
+  ) => {
     if (!personId) return [];
     
     setIsLoading(true);
@@ -176,19 +169,12 @@ export function useFetchAttendance(): FetchAttendanceHook {
   };
 }
 
-interface FetchPersonAttendanceResult {
-  data: PersonAttendanceData | null;
-  isLoading: boolean;
-  error: Error | null;
-  refetch: () => Promise<void>;
-}
-
 export function useFetchPersonAttendance(
   personId: string,
   personType: PersonType,
   startDate?: string,
   endDate?: string
-): FetchPersonAttendanceResult {
+) {
   const [data, setData] = useState<PersonAttendanceData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);

@@ -2,34 +2,34 @@
 import { z } from "zod";
 
 export type TraineeRank = 
+  | "R/CONST"
   | "CONST"
   | "CONST/PTI"
-  | "CONST/DRV"
-  | "H.CONST"
-  | "H.CONST/PTI"
-  | "H.CONST/DRV"
+  | "CONST/ITI"
   | "HC/CP"
-  | "ASI"
-  | "ASI/PTI"
-  | "ASI/DRV"
-  | "SI"
-  | "SI/PTI"
-  | "SI/DRV";
+  | "HC/AP"
+  | "HC-ITI"
+  | "HC-PTI"
+  | "SI/AP"
+  | "SI/CP"
+  | "RI"
+  | "RSI"
+  | "Inspector";
 
 export const traineeRanks: TraineeRank[] = [
+  "R/CONST",
   "CONST",
   "CONST/PTI",
-  "CONST/DRV",
-  "H.CONST",
-  "H.CONST/PTI",
-  "H.CONST/DRV",
+  "CONST/ITI",
   "HC/CP",
-  "ASI",
-  "ASI/PTI",
-  "ASI/DRV",
-  "SI",
-  "SI/PTI",
-  "SI/DRV"
+  "HC/AP",
+  "HC-ITI",
+  "HC-PTI",
+  "SI/AP",
+  "SI/CP",
+  "RI",
+  "RSI",
+  "Inspector"
 ];
 
 export const bloodGroups = [
