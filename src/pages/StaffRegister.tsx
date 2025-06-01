@@ -22,6 +22,7 @@ const registerFormSchema = z.object({
   education: z.string().min(1, { message: "Education is required" }),
   date_of_birth: z.string().min(1, { message: "Date of birth is required" }),
   date_of_joining: z.string().min(1, { message: "Date of joining is required" }),
+  arrival_date: z.string().min(1, { message: "Arrival date is required" }),
   blood_group: z.string().min(1, { message: "Blood group is required" }),
   nominee: z.string().min(1, { message: "Nominee is required" }),
   home_address: z.string().min(1, { message: "Home address is required" }),
@@ -57,6 +58,7 @@ export default function StaffRegister() {
       education: "",
       date_of_birth: new Date().toISOString().split('T')[0],
       date_of_joining: new Date().toISOString().split('T')[0],
+      arrival_date: new Date().toISOString().split('T')[0],
       blood_group: "",
       nominee: "",
       home_address: "",
@@ -357,6 +359,20 @@ export default function StaffRegister() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel aria-required="true">Date of Joining</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                
+                  
+                <FormField
+                  control={form.control}
+                  name="arrival_date"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel aria-required="true">Arrival Date RTC</FormLabel>
                       <FormControl>
                         <Input type="date" {...field} />
                       </FormControl>

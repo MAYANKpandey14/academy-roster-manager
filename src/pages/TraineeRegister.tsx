@@ -396,7 +396,7 @@ export default function TraineeRegister() {
                   name="arrival_date"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel aria-required="true">Arrival Date for Training</FormLabel>
+                      <FormLabel aria-required="true">Arrival Date RTC</FormLabel>
                       <FormControl>
                         <Input type="date" {...field} />
                       </FormControl>
