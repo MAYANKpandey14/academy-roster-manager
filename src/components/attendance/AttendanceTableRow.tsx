@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { format, parseISO } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -24,6 +25,7 @@ const getRecordType = (status: string): 'attendance' | 'leave' => {
 
 export function AttendanceTableRow({ record, personType }: AttendanceTableRowProps) {
   const { isHindi } = useLanguage();
+  const [currentApprovalStatus, setCurrentApprovalStatus] = useState(record.approval_status);
   
   // Format the date
   const formattedDate = record.date ? format(parseISO(record.date), 'dd/MM/yyyy') : 'N/A';
@@ -31,8 +33,10 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
   // Use the parsed status directly
   const baseStatus = record.status;
 
-  // Ensure approval_status is properly typed
-  const approvalStatus = record.approval_status as 'pending' | 'approved' | 'rejected';
+  // Handle status update callback for instant UI updates
+  const handleStatusUpdate = (newStatus: 'approved' | 'rejected') => {
+    setCurrentApprovalStatus(newStatus);
+  };
 
   return (
     <TableRow>
@@ -50,16 +54,17 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
         )}
       </TableCell>
       <TableCell>
-        <ApprovalStatus status={approvalStatus} />
+        <ApprovalStatus status={currentApprovalStatus} />
       </TableCell>
       <TableCell>
         <ApprovalActions
           recordId={record.id}
           recordType={getRecordType(baseStatus)}
           personType={personType}
-          currentStatus={approvalStatus}
+          currentStatus={currentApprovalStatus}
           absenceType={baseStatus}
           personId={record.person_id}
+          onStatusUpdate={handleStatusUpdate}
         />
       </TableCell>
     </TableRow>

@@ -14,6 +14,7 @@ interface ApprovalActionsProps {
   currentStatus: string;
   absenceType: string;
   personId: string;
+  onStatusUpdate?: (newStatus: 'approved' | 'rejected') => void;
 }
 
 type TableName = 
@@ -28,7 +29,8 @@ export function ApprovalActions({
   personType,
   currentStatus,
   absenceType,
-  personId
+  personId,
+  onStatusUpdate
 }: ApprovalActionsProps) {
   const { isHindi } = useLanguage();
   const [isApproving, setIsApproving] = useState(false);
@@ -78,6 +80,11 @@ export function ApprovalActions({
       }
 
       console.log('Database update successful:', data);
+
+      // Call the callback to update UI instantly
+      if (onStatusUpdate) {
+        onStatusUpdate(status);
+      }
 
       // Invalidate and refetch the attendance data
       await queryClient.invalidateQueries({
