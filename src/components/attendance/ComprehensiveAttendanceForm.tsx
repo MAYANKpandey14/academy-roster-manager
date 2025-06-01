@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -10,7 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CalendarDays, XCircle, Calendar, AlertTriangle, UserX, Trash2, Info, Upload } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import { Personnel, AttendanceFormData } from '@/types/attendance';
+import { Personnel } from '@/types/attendance';
 
 interface ComprehensiveAttendanceFormProps {
   selectedPerson: Personnel | null;
@@ -26,7 +27,6 @@ export const ComprehensiveAttendanceForm: React.FC<ComprehensiveAttendanceFormPr
   const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
   const { toast } = useToast();
 
-  // Form states for different attendance types
   const [formData, setFormData] = useState<Record<string, any>>({
     absent: {
       date: new Date().toISOString().split('T')[0],
@@ -95,6 +95,12 @@ export const ComprehensiveAttendanceForm: React.FC<ComprehensiveAttendanceFormPr
     try {
       setIsLoading(true);
 
+      // Get current user session for created_by field
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) {
+        throw new Error('No authenticated user found');
+      }
+
       let attachmentUrl: string | null = null;
       if (attachmentFile) {
         attachmentUrl = await handleFileUpload(attachmentFile);
@@ -105,7 +111,7 @@ export const ComprehensiveAttendanceForm: React.FC<ComprehensiveAttendanceFormPr
 
       const currentFormData = formData[type];
       
-      let payload: AttendanceFormData;
+      let payload: any;
 
       switch (type) {
         case 'absent':
@@ -116,7 +122,8 @@ export const ComprehensiveAttendanceForm: React.FC<ComprehensiveAttendanceFormPr
             status: 'absent',
             record_date: currentFormData.date,
             reason: currentFormData.reason,
-            attachment_url: attachmentUrl
+            attachment_url: attachmentUrl,
+            created_by: session.user.id
           };
           break;
         case 'leave':
@@ -130,7 +137,8 @@ export const ComprehensiveAttendanceForm: React.FC<ComprehensiveAttendanceFormPr
             start_date: currentFormData.startDate,
             end_date: currentFormData.endDate,
             reason: currentFormData.reason,
-            attachment_url: attachmentUrl
+            attachment_url: attachmentUrl,
+            created_by: session.user.id
           };
           break;
         default:
@@ -141,13 +149,14 @@ export const ComprehensiveAttendanceForm: React.FC<ComprehensiveAttendanceFormPr
             status: type as 'suspension' | 'resignation' | 'termination',
             record_date: currentFormData.date,
             reason: currentFormData.reason,
-            attachment_url: attachmentUrl
+            attachment_url: attachmentUrl,
+            created_by: session.user.id
           };
       }
 
       const { data, error } = await supabase
         .from('attendance_leave_records')
-        .insert([payload])
+        .insert(payload)
         .select()
         .single();
 
@@ -158,11 +167,9 @@ export const ComprehensiveAttendanceForm: React.FC<ComprehensiveAttendanceFormPr
         description: `${type.charAt(0).toUpperCase() + type.slice(1)} recorded successfully`,
       });
 
-      // Reset form
       resetForm(type);
       setAttachmentFile(null);
       
-      // Notify parent component
       if (onRecordCreated) {
         onRecordCreated(data);
       }
@@ -237,7 +244,6 @@ export const ComprehensiveAttendanceForm: React.FC<ComprehensiveAttendanceFormPr
             </TabsTrigger>
           </TabsList>
 
-          {/* Absent Tab */}
           <TabsContent value="absent" className="space-y-4">
             <Alert>
               <Info className="h-4 w-4" />
@@ -278,7 +284,6 @@ export const ComprehensiveAttendanceForm: React.FC<ComprehensiveAttendanceFormPr
             </Button>
           </TabsContent>
 
-          {/* Leave Tab */}
           <TabsContent value="leave" className="space-y-4">
             <Alert>
               <Info className="h-4 w-4" />
@@ -365,7 +370,6 @@ export const ComprehensiveAttendanceForm: React.FC<ComprehensiveAttendanceFormPr
             </Button>
           </TabsContent>
 
-          {/* Other status tabs (suspension, resignation, termination) */}
           {['suspension', 'resignation', 'termination'].map((status) => (
             <TabsContent key={status} value={status} className="space-y-4">
               <Alert variant="destructive">

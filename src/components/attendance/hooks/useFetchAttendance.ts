@@ -1,7 +1,8 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { PersonType } from '../types/attendanceTypes';
+
+export type PersonType = "staff" | "trainee";
 
 export interface BasicAttendanceRecord {
   id: string;
