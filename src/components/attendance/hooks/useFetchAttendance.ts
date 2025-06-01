@@ -31,6 +31,26 @@ export interface PersonAttendanceData {
   leaveRecords: LeaveRecord[];
 }
 
+// Helper function to parse status and reason from combined status field
+function parseStatusAndReason(statusField: string): { status: string; reason: string } {
+  if (!statusField) return { status: 'present', reason: '' };
+  
+  // Check if the status contains a colon (indicating combined format)
+  if (statusField.includes(': ')) {
+    const [status, ...reasonParts] = statusField.split(': ');
+    return {
+      status: status.trim(),
+      reason: reasonParts.join(': ').trim()
+    };
+  }
+  
+  // If no colon, treat the entire field as status
+  return {
+    status: statusField.trim(),
+    reason: ''
+  };
+}
+
 export function useFetchAttendance() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,25 +76,26 @@ export function useFetchAttendance() {
 
       if (fetchError) throw fetchError;
       
-      // Explicitly type the mapping to avoid deep type instantiation
       const records: BasicAttendanceRecord[] = [];
       
       if (data) {
         for (const record of data) {
           const approvalStatus = record.approval_status || 'pending';
-          // Ensure approval_status is one of the allowed values
           const validApprovalStatus: 'pending' | 'approved' | 'rejected' = 
             ['pending', 'approved', 'rejected'].includes(approvalStatus) 
               ? approvalStatus as 'pending' | 'approved' | 'rejected'
               : 'pending';
               
+          // Parse the status field to extract status and reason
+          const { status, reason } = parseStatusAndReason(record.status);
+              
           records.push({
             id: record.id,
             date: record.date,
-            status: record.status,
+            status: status,
             approval_status: validApprovalStatus,
             person_id: personId,
-            reason: '',
+            reason: reason,
             created_at: record.created_at,
             updated_at: record.updated_at,
           });
@@ -112,7 +133,6 @@ export function useFetchAttendance() {
 
       if (fetchError) throw fetchError;
       
-      // Explicitly type the mapping to avoid deep type instantiation
       const records: LeaveRecord[] = [];
       
       if (data) {

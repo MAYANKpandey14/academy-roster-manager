@@ -15,7 +15,7 @@ interface AttendanceTableRowProps {
 
 // Determine record type based on status
 const getRecordType = (status: string): 'attendance' | 'leave' => {
-  if (status === 'absent' || status === 'present') {
+  if (status === 'absent' || status === 'present' || status === 'suspension' || status === 'resignation' || status === 'termination') {
     return 'attendance';
   } else {
     return 'leave';
@@ -28,7 +28,7 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
   // Format the date
   const formattedDate = record.date ? format(parseISO(record.date), 'dd/MM/yyyy') : 'N/A';
 
-  // Extract the base status without the reason
+  // Use the parsed status directly
   const baseStatus = record.status;
 
   // Ensure approval_status is properly typed
