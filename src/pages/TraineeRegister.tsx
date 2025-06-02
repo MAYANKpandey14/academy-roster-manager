@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -11,6 +10,7 @@ import { Check, AlertTriangle, Upload } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { bloodGroups, traineeRanks } from "@/components/trainee/TraineeFormSchema";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Form schema definition
 const registerFormSchema = z.object({
@@ -37,6 +37,7 @@ const registerFormSchema = z.object({
 type RegisterFormValues = z.infer<typeof registerFormSchema>;
 
 export default function TraineeRegister() {
+  const { isHindi } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -335,20 +336,20 @@ export default function TraineeRegister() {
                 />
 
                 <FormField
-            control={form.control}
-            name="category_caste"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className={isHindi ? 'font-hindi' : ''}>
-                  {isHindi ? "श्रेणी/जाति (वैकल्पिक)" : "Category/Caste (Optional)"}
-                </FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage className={isHindi ? 'font-hindi' : ''} />
-              </FormItem>
-            )}
-          />
+                  control={form.control}
+                  name="category_caste"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                        {isHindi ? "श्रेणी/जाति (वैकल्पिक)" : "Category/Caste (Optional)"}
+                      </FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage className={isHindi ? 'font-hindi' : ''} />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}

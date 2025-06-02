@@ -58,7 +58,7 @@ export function useFetchAttendance() {
   const fetchAttendanceRecords = useCallback(async (
     personId: string,
     personType: PersonType
-  ) => {
+  ): Promise<BasicAttendanceRecord[]> => {
     if (!personId) return [];
     
     setIsLoading(true);
@@ -115,7 +115,7 @@ export function useFetchAttendance() {
   const fetchLeaveRecords = useCallback(async (
     personId: string,
     personType: PersonType
-  ) => {
+  ): Promise<LeaveRecord[]> => {
     if (!personId) return [];
     
     setIsLoading(true);

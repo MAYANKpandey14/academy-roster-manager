@@ -9,53 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      approval_workflows: {
-        Row: {
-          approved_at: string | null
-          approver_id: string | null
-          approver_level: number
-          approver_type: string | null
-          comments: string | null
-          created_at: string | null
-          id: string
-          record_id: string
-          status: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          approved_at?: string | null
-          approver_id?: string | null
-          approver_level: number
-          approver_type?: string | null
-          comments?: string | null
-          created_at?: string | null
-          id?: string
-          record_id: string
-          status?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          approved_at?: string | null
-          approver_id?: string | null
-          approver_level?: number
-          approver_type?: string | null
-          comments?: string | null
-          created_at?: string | null
-          id?: string
-          record_id?: string
-          status?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "approval_workflows_record_id_fkey"
-            columns: ["record_id"]
-            isOneToOne: false
-            referencedRelation: "attendance_leave_records"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       archive_folders: {
         Row: {
           created_at: string | null
@@ -330,45 +283,6 @@ export type Database = {
           start_date?: string | null
           status?: string
           updated_at?: string | null
-        }
-        Relationships: []
-      }
-      audit_logs: {
-        Row: {
-          action: string
-          changed_at: string | null
-          changed_by: string
-          id: string
-          ip_address: unknown | null
-          new_values: Json | null
-          old_values: Json | null
-          record_id: string
-          table_name: string
-          user_agent: string | null
-        }
-        Insert: {
-          action: string
-          changed_at?: string | null
-          changed_by: string
-          id?: string
-          ip_address?: unknown | null
-          new_values?: Json | null
-          old_values?: Json | null
-          record_id: string
-          table_name: string
-          user_agent?: string | null
-        }
-        Update: {
-          action?: string
-          changed_at?: string | null
-          changed_by?: string
-          id?: string
-          ip_address?: unknown | null
-          new_values?: Json | null
-          old_values?: Json | null
-          record_id?: string
-          table_name?: string
-          user_agent?: string | null
         }
         Relationships: []
       }
