@@ -18,6 +18,7 @@ const registerFormSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   father_name: z.string().min(1, { message: "Father's name is required" }),
   rank: z.string().min(1, { message: "Rank is required" }),
+  category_caste: z.string().optional(),
   current_posting_district: z.string().min(1, { message: "Current posting district is required" }),
   mobile_number: z.string().min(10, { message: "Valid mobile number is required" }),
   education: z.string().min(1, { message: "Education is required" }),
@@ -353,6 +354,21 @@ export default function StaffRegister() {
                     </FormItem>
                   )}
                 />
+                <FormField
+            control={form.control}
+            name="category_caste"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "श्रेणी/जाति (वैकल्पिक)" : "Category/Caste (Optional)"}
+                </FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
+              </FormItem>
+            )}
+          />
 
                 <FormField
                   control={form.control}

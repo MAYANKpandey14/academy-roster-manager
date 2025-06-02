@@ -19,6 +19,7 @@ const registerFormSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   father_name: z.string().min(1, { message: "Father's name is required" }),
   rank: z.string().optional(),
+  category_caste: z.string().optional(),
   toli_no: z.string().optional(),
   mobile_number: z.string().min(10, { message: "Valid mobile number is required" }),
   current_posting_district: z.string().min(1, { message: "Current posting district is required" }),
@@ -332,6 +333,22 @@ export default function TraineeRegister() {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+            control={form.control}
+            name="category_caste"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "श्रेणी/जाति (वैकल्पिक)" : "Category/Caste (Optional)"}
+                </FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
+              </FormItem>
+            )}
+          />
 
                 <FormField
                   control={form.control}
