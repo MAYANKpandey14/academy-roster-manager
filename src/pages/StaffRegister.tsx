@@ -18,7 +18,7 @@ const registerFormSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   father_name: z.string().min(1, { message: "Father's name is required" }),
   rank: z.string().min(1, { message: "Rank is required" }),
-  category_caste: z.string().required(),
+  category_caste: z.string().min(1, { message: "Category/Caste is required" }),
   current_posting_district: z.string().min(1, { message: "Current posting district is required" }),
   mobile_number: z.string().min(10, { message: "Valid mobile number is required" }),
   education: z.string().min(1, { message: "Education is required" }),
