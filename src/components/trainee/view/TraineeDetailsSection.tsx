@@ -74,6 +74,12 @@ export function TraineeDetailsSection({ trainee }: TraineeDetailsSectionProps) {
             label={isHindi ? "पिता का नाम" : "Father's Name"} 
             value={trainee.father_name} 
           />
+
+          <TraineeInfoField 
+            label={isHindi ? "श्रेणी/जाति" : "Category/Caste"} 
+            value={trainee.category_caste} 
+            isMultilingual={true}
+          />
           
           <TraineeInfoField 
             label={isHindi ? "शिक्षा" : "Education"} 
@@ -108,7 +114,7 @@ export function TraineeDetailsSection({ trainee }: TraineeDetailsSectionProps) {
           />
           
           <TraineeInfoField 
-            label={isHindi ? "प्रशिक्षण आगमन तिथि" : "Training Arrival Date"} 
+            label={isHindi ? "आरटीसी आगमन तिथि" : "Arrival Date RTC"} 
             value={formattedArrival} 
           />
           

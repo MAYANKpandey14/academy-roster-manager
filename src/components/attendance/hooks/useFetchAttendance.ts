@@ -78,8 +78,8 @@ export function useFetchAttendance() {
       
       const records: BasicAttendanceRecord[] = [];
       
-      if (data && Array.isArray(data)) {
-        data.forEach((record) => {
+      if (data) {
+        data.map((record: any) => {
           const approvalStatus = record.approval_status || 'pending';
           const validApprovalStatus: 'pending' | 'approved' | 'rejected' = 
             ['pending', 'approved', 'rejected'].includes(approvalStatus) 
@@ -135,8 +135,8 @@ export function useFetchAttendance() {
       
       const records: LeaveRecord[] = [];
       
-      if (data && Array.isArray(data)) {
-        data.forEach((record) => {
+      if (data) {
+        data.map((record: any) => {
           records.push({
             id: record.id,
             start_date: record.start_date,

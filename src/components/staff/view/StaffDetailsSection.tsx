@@ -21,6 +21,10 @@ export function StaffDetailsSection({ staff }: StaffDetailsSectionProps) {
     ? format(new Date(staff.date_of_joining), "dd/MM/yyyy")
     : "";
 
+  const formattedArrivalDateRTC = staff.arrival_date 
+    ? format(new Date(staff.arrival_date), "dd/MM/yyyy")
+    : "";
+
   return (
     <div className="mt-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -62,6 +66,12 @@ export function StaffDetailsSection({ staff }: StaffDetailsSectionProps) {
             value={staff.father_name} 
             isMultilingual={true}
           />
+
+          <StaffInfoField 
+            label={isHindi ? "श्रेणी/जाति" : "Category/Caste"} 
+            value={staff.category_caste} 
+            isMultilingual={true}
+          />
           
           <StaffInfoField 
             label={isHindi ? "शिक्षा" : "Education"} 
@@ -95,6 +105,11 @@ export function StaffDetailsSection({ staff }: StaffDetailsSectionProps) {
           <StaffInfoField 
             label={isHindi ? "भर्ती की तारीख" : "Date of Joining"} 
             value={formattedDOJ} 
+          />
+
+          <StaffInfoField 
+            label={isHindi ? "आरटीसी आगमन तिथि" : "Arrival Date RTC"} 
+            value={formattedArrivalDateRTC} 
           />
           
           {staff.class_no && (
