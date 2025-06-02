@@ -226,7 +226,7 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
             render={({ field }) => (
               <FormItem>
                 <FormLabel className={isHindi ? 'font-hindi' : ''}>
-                  {isHindi ? "आगमन की तारीख" : "Arrival Date"}
+                  {isHindi ? "आगमन की तारीख RTC" : "Arrival Date RTC"}
                 </FormLabel>
                 <FormControl>
                   <Input {...field} type="date" />
