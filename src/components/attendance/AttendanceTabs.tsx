@@ -5,7 +5,7 @@ import { AttendanceTable } from "./AttendanceTable";
 import { LeaveHistoryTable } from "./components/LeaveHistoryTable";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PersonData, PersonType } from "./types/attendanceTypes";
-import { useFetchPersonAttendance } from "./hooks/useFetchAttendance";
+import { useFetchAttendance } from "./hooks/useFetchAttendance";
 
 interface AttendanceTabsProps {
   personId: string;
@@ -17,7 +17,7 @@ interface AttendanceTabsProps {
 export const AttendanceTabs = ({ personId, personType, personData }: AttendanceTabsProps) => {
   const [activeTab, setActiveTab] = useState("attendance");
   const { isHindi } = useLanguage();
-  const { data } = useFetchPersonAttendance(personId, personType);
+  const { data } = useFetchAttendance(personId, personType);
 
   useEffect(() => {
     // Reset to attendance tab when person changes
@@ -38,7 +38,7 @@ export const AttendanceTabs = ({ personId, personType, personData }: AttendanceT
       <TabsContent value="attendance" className="mt-4">
         <AttendanceTable 
           key={`attendance-${personId}`}
-          attendanceRecords={data?.attendanceRecords || []} 
+          attendanceRecords={data?.attendance || []} 
           personType={personType}
         />
       </TabsContent>

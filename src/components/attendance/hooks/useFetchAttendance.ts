@@ -2,12 +2,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-// Simple, non-recursive types
+// Simple types to prevent infinite recursion
 export interface AttendanceRecord {
   id: string;
   date: string;
   status: string;
-  approval_status: "approved" | "rejected" | "pending";
+  approval_status: string;
   reason?: string;
   person_id?: string;
 }
@@ -19,7 +19,7 @@ export interface LeaveRecord {
   reason: string;
   status: string;
   leave_type?: string;
-  approval_status?: "approved" | "rejected" | "pending";
+  approval_status?: string;
   person_id?: string;
 }
 
@@ -28,11 +28,10 @@ export interface AttendanceData {
   leave: LeaveRecord[];
 }
 
-// Single hook implementation
 export function useFetchAttendance(personId: string, personType: "staff" | "trainee") {
   return useQuery({
     queryKey: ["attendance", personId, personType],
-    queryFn: async () => {
+    queryFn: async (): Promise<AttendanceData> => {
       try {
         console.log(`Fetching attendance for ${personType} ID: ${personId}`);
 
@@ -81,7 +80,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
             ...record,
             status: actualStatus, // Use the parsed status
             person_id: personId,
-            approval_status: record.approval_status as "approved" | "rejected" | "pending",
+            approval_status: record.approval_status || "pending",
             reason: reason
           };
         });
@@ -90,7 +89,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         const processedLeave: LeaveRecord[] = (leaveData || []).map(record => ({
           ...record,
           person_id: personId,
-          approval_status: (record.status || 'approved') as "approved" | "rejected" | "pending"
+          approval_status: record.status || "approved"
         }));
 
         console.log("Processed attendance data:", processedAttendance);
@@ -99,7 +98,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         return {
           attendance: processedAttendance,
           leave: processedLeave
-        } as AttendanceData;
+        };
       } catch (error) {
         console.error("Error in useFetchAttendance:", error);
         throw error;
@@ -108,6 +107,3 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
     enabled: !!personId,
   });
 }
-
-// Export types for backward compatibility
-export type BasicAttendanceRecord = AttendanceRecord;

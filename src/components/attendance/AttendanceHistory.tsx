@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useFetchPersonAttendance } from './hooks/useFetchAttendance';
+import { useFetchAttendance } from './hooks/useFetchAttendance';
 import { PersonType } from './types/attendanceTypes';
 import { AttendanceTable } from './AttendanceTable';
 import { LeaveHistoryTable } from './components/LeaveHistoryTable';
@@ -19,7 +19,7 @@ export const AttendanceHistory = ({ personId, personType }: AttendanceHistoryPro
   const { isHindi } = useLanguage();
   const [activeTab, setActiveTab] = useState<'attendance' | 'leave'>('attendance');
 
-  const { data, isLoading, error } = useFetchPersonAttendance(personId, personType);
+  const { data, isLoading, error } = useFetchAttendance(personId, personType);
 
   if (isLoading) {
     return (
@@ -41,7 +41,7 @@ export const AttendanceHistory = ({ personId, personType }: AttendanceHistoryPro
     );
   }
 
-  const { attendanceRecords, leaveRecords } = data;
+  const { attendance, leave } = data || { attendance: [], leave: [] };
 
   return (
     <div>
@@ -57,7 +57,7 @@ export const AttendanceHistory = ({ personId, personType }: AttendanceHistoryPro
 
         <TabsContent value="attendance" className="mt-0">
           <AttendanceTable 
-            attendanceRecords={attendanceRecords} 
+            attendanceRecords={attendance} 
             personType={personType} 
           />
         </TabsContent>
