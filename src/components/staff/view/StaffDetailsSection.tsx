@@ -26,6 +26,10 @@ export function StaffDetailsSection({ staff }: StaffDetailsSectionProps) {
     ? format(new Date(staff.arrival_date), "dd/MM/yyyy")
     : "";
 
+  const formattedDepartureDate = staff.departure_date 
+    ? format(new Date(staff.departure_date), "dd/MM/yyyy")
+    : "";
+
   return (
     <div className="mt-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -114,6 +118,13 @@ export function StaffDetailsSection({ staff }: StaffDetailsSectionProps) {
             label={isHindi ? "आगमन की तारीख RTC" : "Arrival Date RTC"} 
             value={formattedArrivalDateRTC} 
           />
+          
+          {formattedDepartureDate && (
+            <StaffInfoField 
+              label={isHindi ? "प्रस्थान की तारीख" : "Date of Departure"} 
+              value={formattedDepartureDate} 
+            />
+          )}
           
           {staff.toli_no && (
             <StaffInfoField 

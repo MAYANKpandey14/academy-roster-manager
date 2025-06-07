@@ -57,7 +57,8 @@ serve(async (req) => {
         ...staffData,
         folder_id: folder_id || null,
         archived_at: new Date().toISOString(),
-        archived_by: user.id
+        archived_by: user.id,
+        status: 'archived'
       })
 
     if (insertError) {

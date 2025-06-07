@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 export async function archiveStaff(staffId: string, folderId?: string): Promise<{ error: Error | null }> {

@@ -34,7 +34,7 @@ export type BasicAttendanceRecord = AttendanceRecord;
 export function useFetchAttendance(personId: string, personType: "staff" | "trainee") {
   return useQuery({
     queryKey: ["attendance", personId, personType],
-    queryFn: async (): Promise<AttendanceData> => {
+    queryFn: async () => {
       try {
         console.log(`Fetching attendance for ${personType} ID: ${personId}`);
 
@@ -68,7 +68,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         }
 
         // Process attendance records - parse reason from status field
-        const processedAttendance: AttendanceRecord[] = (attendanceData || []).map(record => {
+        const processedAttendance = (attendanceData || []).map(record => {
           // Parse status and reason from the status field format: "status: reason"
           let actualStatus = record.status;
           let reason = undefined;
@@ -89,7 +89,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         });
 
         // Process leave records
-        const processedLeave: LeaveRecord[] = (leaveData || []).map(record => ({
+        const processedLeave = (leaveData || []).map(record => ({
           ...record,
           person_id: personId,
           approval_status: record.status || "approved"

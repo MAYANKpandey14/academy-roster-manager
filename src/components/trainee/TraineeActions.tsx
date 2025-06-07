@@ -14,7 +14,9 @@ import { useFetchAttendance } from "@/components/attendance/hooks/useFetchAttend
 import { createPrintContent } from "@/utils/export/traineePrintUtils";
 import { handlePrint } from "@/utils/export/printUtils";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
+import { ArchiveConfirmationDialog } from "@/components/archive/ArchiveConfirmationDialog";
 import { deleteTrainee } from "@/services/traineeApi";
+import { archiveTrainee } from "@/services/archiveApi";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -23,23 +25,31 @@ interface TraineeActionsProps {
   onArchive?: (trainee: Trainee) => void;
   onDelete?: () => void;
   onExport?: (trainee: Trainee) => void;
+  onArchiveSuccess?: () => void;
 }
 
-export const TraineeActions = ({ trainee, onArchive, onDelete, onExport }: TraineeActionsProps) => {
+export const TraineeActions = ({ 
+  trainee, 
+  onArchive, 
+  onDelete, 
+  onExport,
+  onArchiveSuccess 
+}: TraineeActionsProps) => {
   const navigate = useNavigate();
   const { isHindi } = useLanguage();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showArchiveDialog, setShowArchiveDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   
   // Fetch attendance and leave data for printing
   const { data: attendanceData } = useFetchAttendance(trainee.id, "trainee");
 
   const handleView = () => {
-    navigate(`/trainee/${trainee.id}`);
+    navigate(`/trainees/${trainee.id}`);
   };
 
   const handleEdit = () => {
-    navigate(`/trainee/${trainee.id}/edit`);
+    navigate(`/trainees/${trainee.id}/edit`);
   };
 
   const handlePrintAction = async () => {
@@ -55,6 +65,33 @@ export const TraineeActions = ({ trainee, onArchive, onDelete, onExport }: Train
       // Print without attendance data if not loaded
       const printContent = await createPrintContent([trainee], false, [], []);
       handlePrint(printContent);
+    }
+  };
+
+  const handleArchiveClick = () => {
+    setShowArchiveDialog(true);
+  };
+
+  const handleArchiveConfirm = async (folderId: string) => {
+    try {
+      const { error } = await archiveTrainee(trainee.id, folderId);
+      
+      if (error) throw error;
+      
+      toast.success(isHindi ? 
+        'प्रशिक्षु सफलतापूर्वक आर्काइव कर दिया गया' : 
+        'Trainee archived successfully'
+      );
+      
+      if (onArchiveSuccess) onArchiveSuccess();
+      if (onArchive) onArchive(trainee);
+      setShowArchiveDialog(false);
+    } catch (error) {
+      console.error("Error archiving trainee:", error);
+      toast.error(isHindi ? 
+        'प्रशिक्षु आर्काइव करने में विफल' : 
+        'Failed to archive trainee'
+      );
     }
   };
 
@@ -115,12 +152,10 @@ export const TraineeActions = ({ trainee, onArchive, onDelete, onExport }: Train
               {isHindi ? "एक्सपोर्ट करें" : "Export"}
             </DropdownMenuItem>
           )}
-          {onArchive && (
-            <DropdownMenuItem onClick={() => onArchive(trainee)}>
-              <Archive className="mr-2 h-4 w-4" />
-              {isHindi ? "आर्काइव करें" : "Archive"}
-            </DropdownMenuItem>
-          )}
+          <DropdownMenuItem onClick={handleArchiveClick}>
+            <Archive className="mr-2 h-4 w-4" />
+            {isHindi ? "आर्काइव करें" : "Archive"}
+          </DropdownMenuItem>
           <DropdownMenuItem 
             onClick={handleDeleteClick}
             className="text-red-600 focus:text-red-600"
@@ -137,6 +172,14 @@ export const TraineeActions = ({ trainee, onArchive, onDelete, onExport }: Train
         onConfirm={handleDeleteConfirm}
         itemName={trainee.name}
         isLoading={isDeleting}
+      />
+
+      <ArchiveConfirmationDialog
+        isOpen={showArchiveDialog}
+        onClose={() => setShowArchiveDialog(false)}
+        onConfirm={handleArchiveConfirm}
+        selectedRecords={[trainee]}
+        recordType="trainee"
       />
     </>
   );
