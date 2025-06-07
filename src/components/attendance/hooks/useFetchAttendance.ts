@@ -65,7 +65,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         }
 
         // Process attendance records - parse reason from status field
-        const processedAttendance = (attendanceData || []).map(record => {
+        const processedAttendance = (attendanceData || []).map((record: any) => {
           // Parse status and reason from the status field format: "status: reason"
           let actualStatus = record.status;
           let reason = undefined;
@@ -87,7 +87,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         });
 
         // Process leave records
-        const processedLeave = (leaveData || []).map(record => ({
+        const processedLeave = (leaveData || []).map((record: any) => ({
           id: record.id,
           start_date: record.start_date,
           end_date: record.end_date,
