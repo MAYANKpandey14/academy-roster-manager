@@ -25,7 +25,9 @@ const getRecordType = (status: string): 'attendance' | 'leave' => {
 
 export function AttendanceTableRow({ record, personType }: AttendanceTableRowProps) {
   const { isHindi } = useLanguage();
-  const [currentApprovalStatus, setCurrentApprovalStatus] = useState(record.approval_status);
+  const [currentApprovalStatus, setCurrentApprovalStatus] = useState<"approved" | "rejected" | "pending">(
+    record.approval_status as "approved" | "rejected" | "pending"
+  );
   
   // Format the date
   const formattedDate = record.date ? format(parseISO(record.date), 'dd/MM/yyyy') : 'N/A';
@@ -63,7 +65,7 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
           personType={personType}
           currentStatus={currentApprovalStatus}
           absenceType={baseStatus}
-          personId={record.person_id}
+          personId={record.person_id || ""}
           onStatusUpdate={handleStatusUpdate}
         />
       </TableCell>

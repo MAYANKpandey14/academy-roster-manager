@@ -1,7 +1,7 @@
 
 import { Staff } from "@/types/staff";
-import { createStaffPrintContent, createStaffCSVContent } from "@/utils/staffExportUtils";
-import { handlePrint, handleDownload, exportStaffToExcel } from "@/utils/export";
+import { createStaffPrintContent, createStaffCSVContent, exportStaffToExcel } from "@/utils/staffExportUtils";
+import { handlePrint as utilHandlePrint, handleDownload } from "@/utils/export/printUtils";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useFetchAttendance } from "@/components/attendance/hooks/useFetchAttendance";
@@ -12,7 +12,7 @@ export interface StaffPrintServiceProps {
 
 export function useStaffPrintService(staff: Staff) {
   const { isHindi } = useLanguage();
-  const { fetchAttendanceRecords, fetchLeaveRecords } = useFetchAttendance();
+  const { data: attendanceData } = useFetchAttendance(staff.id, 'staff');
 
   const handlePrintStaff = async () => {
     // Ensure the staff object has the photo_url property before printing
@@ -22,20 +22,13 @@ export function useStaffPrintService(staff: Staff) {
     };
     
     try {
-      // Fetch attendance and leave data for this staff member
-      const [attendanceRecords, leaveRecords] = await Promise.all([
-        fetchAttendanceRecords(staff.id, 'staff'),
-        fetchLeaveRecords(staff.id, 'staff')
-      ]);
+      const attendanceRecords = attendanceData?.attendance || [];
+      const leaveRecords = attendanceData?.leave || [];
 
       const printContent = await createStaffPrintContent([staffWithPhoto], isHindi, attendanceRecords, leaveRecords);
-      const printSuccess = handlePrint(printContent);
+      utilHandlePrint(printContent);
       
-      if (!printSuccess) {
-        toast.error(isHindi ? "प्रिंट विंडो खोलने में विफल" : "Failed to open print window. Please check your pop-up blocker settings.");
-      } else {
-        toast.success(isHindi ? "स्टाफ विवरण प्रिंट हो रहा है..." : "Printing staff details");
-      }
+      toast.success(isHindi ? "प्रिंट विंडो खोल दी गई है" : "Print window opened");
     } catch (error) {
       console.error("Error printing staff:", error);
       toast.error(isHindi ? "प्रिंट करते समय त्रुटि हुई" : "Error while printing");

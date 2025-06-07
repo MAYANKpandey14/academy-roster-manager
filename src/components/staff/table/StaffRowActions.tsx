@@ -10,7 +10,8 @@ import {
 import { Staff } from "@/types/staff";
 import { useNavigate } from "react-router-dom";
 import { useFetchAttendance } from "@/components/attendance/hooks/useFetchAttendance";
-import { printStaffRecord } from "@/utils/export/staffPrintUtils";
+import { createStaffPrintContent } from "@/utils/export/staffPrintUtils";
+import { handlePrint } from "@/utils/export/printUtils";
 
 interface StaffRowActionsProps {
   staff: Staff;
@@ -33,12 +34,19 @@ export const StaffRowActions = ({ staff, onArchive, onDelete, onExport }: StaffR
     navigate(`/staff/${staff.id}/edit`);
   };
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     if (attendanceData) {
-      printStaffRecord(staff, attendanceData.attendance, attendanceData.leave);
+      const printContent = await createStaffPrintContent(
+        [staff], 
+        false, 
+        attendanceData.attendance, 
+        attendanceData.leave
+      );
+      handlePrint(printContent);
     } else {
       // Print without attendance data if not loaded
-      printStaffRecord(staff, [], []);
+      const printContent = await createStaffPrintContent([staff], false, [], []);
+      handlePrint(printContent);
     }
   };
 

@@ -10,7 +10,8 @@ import {
 import { Trainee } from "@/types/trainee";
 import { useNavigate } from "react-router-dom";
 import { useFetchAttendance } from "@/components/attendance/hooks/useFetchAttendance";
-import { printTraineeRecord } from "@/utils/export/traineePrintUtils";
+import { createPrintContent } from "@/utils/export/traineePrintUtils";
+import { handlePrint } from "@/utils/export/printUtils";
 
 interface TraineeActionsProps {
   trainee: Trainee;
@@ -33,12 +34,19 @@ export const TraineeActions = ({ trainee, onArchive, onDelete, onExport }: Train
     navigate(`/trainee/${trainee.id}/edit`);
   };
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     if (attendanceData) {
-      printTraineeRecord(trainee, attendanceData.attendance, attendanceData.leave);
+      const printContent = await createPrintContent(
+        [trainee], 
+        false, 
+        attendanceData.attendance, 
+        attendanceData.leave
+      );
+      handlePrint(printContent);
     } else {
       // Print without attendance data if not loaded
-      printTraineeRecord(trainee, [], []);
+      const printContent = await createPrintContent([trainee], false, [], []);
+      handlePrint(printContent);
     }
   };
 

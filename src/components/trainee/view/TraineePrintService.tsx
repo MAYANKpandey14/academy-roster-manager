@@ -11,24 +11,19 @@ import { useFetchAttendance } from "@/components/attendance/hooks/useFetchAttend
 export function useTraineePrintService(trainee: Trainee | null) {
   const [isLoading, setIsLoading] = useState(false);
   const { isHindi } = useLanguage();
-  const { fetchAttendanceRecords, fetchLeaveRecords } = useFetchAttendance();
+  const { data: attendanceData } = useFetchAttendance(trainee?.id || '', 'trainee');
 
   const handlePrint = async () => {
     if (!trainee) return;
     
     setIsLoading(true);
     try {
-      // Fetch attendance and leave data for this trainee
-      const [attendanceRecords, leaveRecords] = await Promise.all([
-        fetchAttendanceRecords(trainee.id, 'trainee'),
-        fetchLeaveRecords(trainee.id, 'trainee')
-      ]);
+      const attendanceRecords = attendanceData?.attendance || [];
+      const leaveRecords = attendanceData?.leave || [];
 
       const content = await createPrintContent([trainee], isHindi, attendanceRecords, leaveRecords);
-      // Use the utility function and don't check its return value directly
       utilHandlePrint(content);
       
-      // Just show success toast - the utility function handles opening the print dialog
       toast.success(isHindi ? "प्रिंट विंडो खोल दी गई है" : "Print window opened");
     } catch (error) {
       console.error("Error printing:", error);

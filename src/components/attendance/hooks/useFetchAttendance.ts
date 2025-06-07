@@ -7,8 +7,9 @@ export interface AttendanceRecord {
   id: string;
   date: string;
   status: string;
-  approval_status: string;
+  approval_status: "approved" | "rejected" | "pending";
   reason?: string;
+  person_id?: string;
 }
 
 export interface LeaveRecord {
@@ -18,7 +19,8 @@ export interface LeaveRecord {
   reason: string;
   status: string;
   leave_type?: string;
-  approval_status?: string;
+  approval_status?: "approved" | "rejected" | "pending";
+  person_id?: string;
 }
 
 export interface AttendanceData {
@@ -68,13 +70,16 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         // Extract reason from attendance status if it contains ": "
         const processedAttendance: AttendanceRecord[] = (attendanceData || []).map(record => ({
           ...record,
+          person_id: personId,
+          approval_status: record.approval_status as "approved" | "rejected" | "pending",
           reason: record.status.includes(": ") ? record.status.split(": ")[1] : undefined
         }));
 
         // Add approval_status to leave records (default to 'approved' if missing)
         const processedLeave: LeaveRecord[] = (leaveData || []).map(record => ({
           ...record,
-          approval_status: record.status || 'approved'
+          person_id: personId,
+          approval_status: (record.status || 'approved') as "approved" | "rejected" | "pending"
         }));
 
         console.log("Processed attendance data:", processedAttendance);
@@ -88,6 +93,32 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         console.error("Error in useFetchAttendance:", error);
         throw error;
       }
+    },
+    enabled: !!personId,
+  });
+}
+
+// Export for backward compatibility
+export const useFetchPersonAttendance = useFetchAttendance;
+
+// Enhanced interface for person attendance with separate arrays
+export interface PersonAttendanceData {
+  attendanceRecords: AttendanceRecord[];
+  leaveRecords: LeaveRecord[];
+}
+
+export function useFetchPersonAttendance(personId: string, personType: "staff" | "trainee", startDate?: string, endDate?: string) {
+  return useQuery({
+    queryKey: ["personAttendance", personId, personType, startDate, endDate],
+    queryFn: async (): Promise<PersonAttendanceData> => {
+      const data = await useFetchAttendance(personId, personType).queryFn?.();
+      if (data) {
+        return {
+          attendanceRecords: data.attendance,
+          leaveRecords: data.leave
+        };
+      }
+      return { attendanceRecords: [], leaveRecords: [] };
     },
     enabled: !!personId,
   });
