@@ -22,9 +22,6 @@ const ViewStaff = () => {
   // Apply language inputs hook
   useLanguageInputs();
 
-  // Get print and download functions
-  const { handlePrintStaff, handleDownloadStaff, handleExcelExport } = useStaffPrintService(staff);
-
   useEffect(() => {
     const fetchStaff = async () => {
       if (!id) return;
@@ -46,6 +43,9 @@ const ViewStaff = () => {
 
     fetchStaff();
   }, [id, isHindi]);
+
+  // Get print and download functions - now safely handles null staff
+  const { handlePrintStaff, handleDownloadStaff, handleExcelExport } = useStaffPrintService(staff);
 
   if (isLoading) {
     return <StaffLoadingState />;

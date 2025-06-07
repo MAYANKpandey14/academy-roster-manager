@@ -7,14 +7,24 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useFetchAttendance } from "@/components/attendance/hooks/useFetchAttendance";
 
 export interface StaffPrintServiceProps {
-  staff: Staff;
+  staff: Staff | null;
 }
 
-export function useStaffPrintService(staff: Staff) {
+export function useStaffPrintService(staff: Staff | null) {
   const { isHindi } = useLanguage();
-  const { data: attendanceData } = useFetchAttendance(staff.id, 'staff');
+  
+  // Only fetch attendance data if staff is available
+  const { data: attendanceData } = useFetchAttendance(
+    staff?.id || '', 
+    'staff'
+  );
 
   const handlePrintStaff = async () => {
+    if (!staff) {
+      toast.error(isHindi ? "स्टाफ डेटा लोड नहीं हुआ है" : "Staff data not loaded");
+      return;
+    }
+
     // Ensure the staff object has the photo_url property before printing
     const staffWithPhoto = {
       ...staff,
@@ -36,6 +46,11 @@ export function useStaffPrintService(staff: Staff) {
   };
 
   const handleDownloadStaff = () => {
+    if (!staff) {
+      toast.error(isHindi ? "स्टाफ डेटा लोड नहीं हुआ है" : "Staff data not loaded");
+      return;
+    }
+
     const csvContent = createStaffCSVContent([staff], isHindi);
     handleDownload(
       csvContent, 
@@ -45,6 +60,11 @@ export function useStaffPrintService(staff: Staff) {
   };
 
   const handleExcelExport = () => {
+    if (!staff) {
+      toast.error(isHindi ? "स्टाफ डेटा लोड नहीं हुआ है" : "Staff data not loaded");
+      return;
+    }
+
     const success = exportStaffToExcel([staff], isHindi);
     
     if (success) {

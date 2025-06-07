@@ -352,7 +352,6 @@ export type Database = {
       staff: {
         Row: {
           arrival_date: string | null
-          arrival_date_rtc: string | null
           blood_group: string
           category_caste: string | null
           class_no: string | null
@@ -361,6 +360,7 @@ export type Database = {
           current_posting_district: string
           date_of_birth: string
           date_of_joining: string
+          departure_date: string | null
           education: string
           father_name: string
           home_address: string
@@ -376,7 +376,6 @@ export type Database = {
         }
         Insert: {
           arrival_date?: string | null
-          arrival_date_rtc?: string | null
           blood_group: string
           category_caste?: string | null
           class_no?: string | null
@@ -385,6 +384,7 @@ export type Database = {
           current_posting_district: string
           date_of_birth: string
           date_of_joining: string
+          departure_date?: string | null
           education: string
           father_name: string
           home_address: string
@@ -400,7 +400,6 @@ export type Database = {
         }
         Update: {
           arrival_date?: string | null
-          arrival_date_rtc?: string | null
           blood_group?: string
           category_caste?: string | null
           class_no?: string | null
@@ -409,6 +408,7 @@ export type Database = {
           current_posting_district?: string
           date_of_birth?: string
           date_of_joining?: string
+          departure_date?: string | null
           education?: string
           father_name?: string
           home_address?: string
