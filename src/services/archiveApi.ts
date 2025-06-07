@@ -19,12 +19,12 @@ export async function archiveStaff(staffId: string, folderId?: string): Promise<
     
     console.log("Request body being sent:", requestBody);
     
-    const response = await fetch(`${supabase.supabaseUrl}/functions/v1/archive-staff`, {
+    const response = await fetch(`https://zjgphamebgrclivvkhmw.supabase.co/functions/v1/archive-staff`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${session.access_token}`,
         'Content-Type': 'application/json',
-        'apikey': supabase.supabaseKey
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZ3BoYW1lYmdyY2xpdnZraG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU2OTM2NDcsImV4cCI6MjA2MTI2OTY0N30.1SmOoYa7R4iybW0nCIuc-FrbYML-EP9yC2ykJ6kpUTo'
       },
       body: requestBody
     });
