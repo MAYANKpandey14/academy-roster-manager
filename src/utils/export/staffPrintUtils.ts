@@ -1,14 +1,13 @@
-
 import { ArchivedStaff } from "@/types/archive";
 import { Staff } from "@/types/staff";
-import { BasicAttendanceRecord, LeaveRecord } from "@/components/attendance/hooks/useFetchAttendance";
+import { AttendanceRecord, LeaveRecord } from "@/components/attendance/hooks/useFetchAttendance";
 import { getPrintStyles, createPrintHeader, createPrintFooter } from "./printUtils";
 import { prepareTextForLanguage } from "../textUtils";
 
 export async function createStaffPrintContent(
   staffList: (Staff | ArchivedStaff)[],
   isHindi: boolean = false,
-  attendanceRecords: BasicAttendanceRecord[] = [],
+  attendanceRecords: AttendanceRecord[] = [],
   leaveRecords: LeaveRecord[] = []
 ): Promise<string> {
   const title = isHindi ? "स्टाफ रिकॉर्ड" : "Staff Records";

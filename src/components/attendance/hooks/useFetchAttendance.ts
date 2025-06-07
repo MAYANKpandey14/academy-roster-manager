@@ -28,6 +28,9 @@ export interface AttendanceData {
   leave: LeaveRecord[];
 }
 
+// Add this export for backward compatibility
+export type BasicAttendanceRecord = AttendanceRecord;
+
 export function useFetchAttendance(personId: string, personType: "staff" | "trainee") {
   return useQuery({
     queryKey: ["attendance", personId, personType],

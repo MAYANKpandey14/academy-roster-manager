@@ -1,14 +1,13 @@
-
 import jsPDF from 'jspdf';
 import { Trainee } from '@/types/trainee';
-import { BasicAttendanceRecord, LeaveRecord } from '@/components/attendance/hooks/useFetchAttendance';
+import { AttendanceRecord, LeaveRecord } from '@/components/attendance/hooks/useFetchAttendance';
 import { getPrintStyles, createPrintHeader, createPrintFooter } from './printUtils';
 import { prepareTextForLanguage } from '../textUtils';
 
 export async function createPrintContent(
   traineeList: Trainee[],
   isHindi: boolean = false,
-  attendanceRecords: BasicAttendanceRecord[] = [],
+  attendanceRecords: AttendanceRecord[] = [],
   leaveRecords: LeaveRecord[] = []
 ): Promise<string> {
   const title = isHindi ? "प्रशिक्षु नामांकन सूची" : "Trainee Nominal Roll";
@@ -166,7 +165,7 @@ export async function createPrintContent(
 
 export const generateTraineePrintPDF = (
   trainee: Trainee, 
-  attendanceRecords: BasicAttendanceRecord[] = [], 
+  attendanceRecords: AttendanceRecord[] = [], 
   leaveRecords: LeaveRecord[] = []
 ) => {
   // This function is deprecated in favor of createPrintContent

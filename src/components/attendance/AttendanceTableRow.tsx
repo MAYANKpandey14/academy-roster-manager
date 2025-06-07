@@ -6,17 +6,17 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { ApprovalStatus } from "./ApprovalStatus";
 import { ApprovalActions } from "./ApprovalActions";
 import { AttendanceStatus } from "./AttendanceStatus";
-import { type BasicAttendanceRecord } from "./hooks/useFetchAttendance";
+import { type AttendanceRecord } from "./hooks/useFetchAttendance";
 import { PersonType } from "./types/attendanceTypes";
 
 interface AttendanceTableRowProps {
-  record: BasicAttendanceRecord;
+  record: AttendanceRecord;
   personType: PersonType;
 }
 
 // Determine record type based on status
 const getRecordType = (status: string): 'attendance' | 'leave' => {
-  if (status === 'absent' || status === 'present' || status === 'suspension' || status === 'resignation' || status === 'termination') {
+  if (status === 'absent' || status === 'present' || status === 'suspension' || status === 'resignation' || status === 'termination' || status === 'return_to_unit') {
     return 'attendance';
   } else {
     return 'leave';
