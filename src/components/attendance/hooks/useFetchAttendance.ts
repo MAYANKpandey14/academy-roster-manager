@@ -34,7 +34,7 @@ export type BasicAttendanceRecord = AttendanceRecord;
 export function useFetchAttendance(personId: string, personType: "staff" | "trainee") {
   return useQuery({
     queryKey: ["attendance", personId, personType],
-    queryFn: async (): Promise<AttendanceData> => {
+    queryFn: async () => {
       try {
         console.log(`Fetching attendance for ${personType} ID: ${personId}`);
 

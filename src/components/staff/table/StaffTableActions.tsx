@@ -1,15 +1,17 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, Printer, RefreshCw, FileSpreadsheet, Archive } from "lucide-react";
+import { Download, Printer, RefreshCw, FileSpreadsheet, Archive, Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Staff } from "@/types/staff";
 import { toast } from "sonner";
 import { createStaffPrintContent, createStaffCSVContent } from "@/utils/staffExportUtils";
 import { handlePrint, handleDownload, exportStaffToExcel } from "@/utils/export";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useState } from "react";
 import { ArchiveConfirmationDialog } from "@/components/archive/ArchiveConfirmationDialog";
+import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
 import { archiveAllStaff } from "@/services/archiveApi";
+import { deleteStaff } from "@/services/staffApi";
 
 interface StaffTableActionsProps {
   staff: Staff[];
@@ -29,6 +31,8 @@ export function StaffTableActions({
   const isMobile = useIsMobile();
   const { isHindi } = useLanguage();
   const [showArchiveAllDialog, setShowArchiveAllDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   async function handlePrintAction() {
     const selectedStaff = getSelectedStaff();
@@ -88,6 +92,46 @@ export function StaffTableActions({
     }
   };
 
+  const handleDeleteSelected = () => {
+    const selectedStaff = getSelectedStaff();
+    
+    if (selectedStaff.length === 0) {
+      toast.error(isHindi ? "कृपया कम से कम एक स्टाफ सदस्य चुनें" : "Please select at least one staff member to delete");
+      return;
+    }
+    
+    setShowDeleteDialog(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    const selectedStaff = getSelectedStaff();
+    setIsDeleting(true);
+    
+    try {
+      // Delete each selected staff member
+      for (const staff of selectedStaff) {
+        const { error } = await deleteStaff(staff.id);
+        if (error) throw error;
+      }
+      
+      toast.success(isHindi ? 
+        `${selectedStaff.length} स्टाफ सदस्य सफलतापूर्वक डिलीट कर दिए गए` : 
+        `${selectedStaff.length} staff member(s) deleted successfully`
+      );
+      
+      setShowDeleteDialog(false);
+      if (onRefresh) onRefresh();
+    } catch (error) {
+      console.error("Error deleting staff:", error);
+      toast.error(isHindi ? 
+        'स्टाफ डिलीट करने में विफल' : 
+        'Failed to delete staff'
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <>
       <div className="flex flex-wrap gap-2 justify-end">
@@ -101,6 +145,19 @@ export function StaffTableActions({
           <Archive className="h-4 w-4" />
           {!isMobile && <span className={`ml-2 dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
             {isHindi ? "सभी आर्काइव करें" : "Archive All"} ({staff.length})
+          </span>}
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleDeleteSelected}
+          disabled={isLoading || selectedCount === 0}
+          className="animate-slide-in text-red-600 hover:text-red-700"
+        >
+          <Trash2 className="h-4 w-4" />
+          {!isMobile && <span className={`ml-2 dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+            {isHindi ? "चयनित डिलीट करें" : "Delete Selected"} ({selectedCount})
           </span>}
         </Button>
         
@@ -150,6 +207,18 @@ export function StaffTableActions({
         onConfirm={handleArchiveAll}
         selectedRecords={staff}
         recordType="staff"
+      />
+
+      <DeleteConfirmationDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={handleDeleteConfirm}
+        title={isHindi ? "चयनित स्टाफ डिलीट करें" : "Delete Selected Staff"}
+        description={isHindi ? 
+          `क्या आप वाकई ${selectedCount} स्टाफ सदस्यों को डिलीट करना चाहते हैं? यह कार्रवाई पूर्ववत नहीं की जा सकती।` :
+          `Are you sure you want to delete ${selectedCount} staff member(s)? This action cannot be undone.`
+        }
+        isLoading={isDeleting}
       />
     </>
   );

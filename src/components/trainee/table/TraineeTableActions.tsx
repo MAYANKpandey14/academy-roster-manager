@@ -1,15 +1,17 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, Printer, RefreshCw, FileSpreadsheet, Archive } from "lucide-react";
+import { Download, Printer, RefreshCw, FileSpreadsheet, Archive, Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Trainee } from "@/types/trainee";
 import { toast } from "sonner";
 import { createPrintContent, createCSVContent, exportTraineesToExcel } from "@/utils/export";
 import { handlePrint, handleDownload } from "@/utils/export";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useState } from "react";
 import { ArchiveConfirmationDialog } from "@/components/archive/ArchiveConfirmationDialog";
+import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
 import { archiveAllTrainees } from "@/services/archiveApi";
+import { deleteTrainee } from "@/services/traineeApi";
 
 interface TraineeTableActionsProps {
   trainees: Trainee[];
@@ -33,6 +35,8 @@ export function TraineeTableActions({
   const isMobile = useIsMobile();
   const { isHindi } = useLanguage();
   const [showArchiveAllDialog, setShowArchiveAllDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   async function handlePrintAction() {
     const selectedTrainees = getSelectedTrainees();
@@ -104,6 +108,46 @@ export function TraineeTableActions({
     }
   };
 
+  const handleDeleteSelected = () => {
+    const selectedTrainees = getSelectedTrainees();
+    
+    if (selectedTrainees.length === 0) {
+      toast.error(isHindi ? "कृपया कम से कम एक प्रशिक्षानिवेशी चुनें" : "Please select at least one trainee to delete");
+      return;
+    }
+    
+    setShowDeleteDialog(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    const selectedTrainees = getSelectedTrainees();
+    setIsDeleting(true);
+    
+    try {
+      // Delete each selected trainee
+      for (const trainee of selectedTrainees) {
+        const { error } = await deleteTrainee(trainee.id);
+        if (error) throw error;
+      }
+      
+      toast.success(isHindi ? 
+        `${selectedTrainees.length} प्रशिक्षानिवेशी सफलतापूर्वक डिलीट कर दिए गए` : 
+        `${selectedTrainees.length} trainee(s) deleted successfully`
+      );
+      
+      setShowDeleteDialog(false);
+      if (onRefresh) onRefresh();
+    } catch (error) {
+      console.error("Error deleting trainees:", error);
+      toast.error(isHindi ? 
+        'प्रशिक्षानिवेशी डिलीट करने में विफल' : 
+        'Failed to delete trainee(s)'
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <>
       <div className="flex flex-wrap gap-2 justify-end">
@@ -117,6 +161,19 @@ export function TraineeTableActions({
           <Archive className="h-4 w-4" />
           {!isMobile && <span className={`ml-2 dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
             {isHindi ? "सभी आर्काइव करें" : "Archive All"} ({trainees.length})
+          </span>}
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleDeleteSelected}
+          disabled={isLoading || selectedCount === 0}
+          className="animate-slide-in text-red-600 hover:text-red-700"
+        >
+          <Trash2 className="h-4 w-4" />
+          {!isMobile && <span className={`ml-2 dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+            {isHindi ? "चयनित डिलीट करें" : "Delete Selected"} ({selectedCount})
           </span>}
         </Button>
         
@@ -181,6 +238,18 @@ export function TraineeTableActions({
         onConfirm={handleArchiveAll}
         selectedRecords={trainees}
         recordType="trainee"
+      />
+
+      <DeleteConfirmationDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={handleDeleteConfirm}
+        title={isHindi ? "चयनित प्रशिक्षानिवेशी डिलीट करें" : "Delete Selected Trainees"}
+        description={isHindi ? 
+          `क्या आप वाकई ${selectedCount} प्रशिक्षानिवेशी को डिलीट करना चाहते हैं? यह कार्रवाई पूर्ववत नहीं की जा सकती।` :
+          `Are you sure you want to delete ${selectedCount} trainee(s)? This action cannot be undone.`
+        }
+        isLoading={isDeleting}
       />
     </>
   );
