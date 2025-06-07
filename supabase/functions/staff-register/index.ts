@@ -16,6 +16,9 @@ serve(async (req) => {
   }
 
   try {
+    // Get authorization header for user context (if available)
+    const authHeader = req.headers.get('Authorization');
+    
     // Create a Supabase client with service role key to bypass RLS for admin operations
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
