@@ -13,17 +13,28 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Archive staff function called');
+    
+    // Get authorization header
+    const authHeader = req.headers.get('Authorization');
+    console.log('Auth header present:', !!authHeader);
+    
+    if (!authHeader) {
+      throw new Error('Missing authorization header');
+    }
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
         global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
+          headers: { Authorization: authHeader },
         },
       }
     )
 
     const { id, folder_id } = await req.json()
+    console.log('Request body:', { id, folder_id });
 
     if (!id) {
       throw new Error('Staff ID is required')
@@ -31,6 +42,8 @@ serve(async (req) => {
 
     // Get the current user for audit trail
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
+    console.log('User check:', { user: !!user, error: userError });
+    
     if (userError || !user) {
       throw new Error('Authentication required')
     }
@@ -42,6 +55,8 @@ serve(async (req) => {
       .eq('id', id)
       .single()
 
+    console.log('Staff fetch result:', { data: !!staffData, error: fetchError });
+
     if (fetchError) {
       throw new Error(`Failed to fetch staff: ${fetchError.message}`)
     }
@@ -51,17 +66,41 @@ serve(async (req) => {
     }
 
     // Insert into archived_staff table with folder_id and archived_by
+    const archiveData = {
+      id: staffData.id,
+      pno: staffData.pno,
+      name: staffData.name,
+      father_name: staffData.father_name,
+      rank: staffData.rank,
+      current_posting_district: staffData.current_posting_district,
+      mobile_number: staffData.mobile_number,
+      education: staffData.education,
+      date_of_birth: staffData.date_of_birth,
+      date_of_joining: staffData.date_of_joining,
+      arrival_date: staffData.arrival_date,
+      departure_date: staffData.departure_date,
+      category_caste: staffData.category_caste,
+      blood_group: staffData.blood_group,
+      nominee: staffData.nominee,
+      home_address: staffData.home_address,
+      toli_no: staffData.toli_no,
+      class_no: staffData.class_no,
+      class_subject: staffData.class_subject,
+      photo_url: staffData.photo_url,
+      folder_id: folder_id || null,
+      archived_at: new Date().toISOString(),
+      archived_by: user.id,
+      status: 'archived'
+    };
+
+    console.log('Inserting archive data:', { ...archiveData, archived_by: 'user_id' });
+
     const { error: insertError } = await supabaseClient
       .from('archived_staff')
-      .insert({
-        ...staffData,
-        folder_id: folder_id || null,
-        archived_at: new Date().toISOString(),
-        archived_by: user.id,
-        status: 'archived'
-      })
+      .insert(archiveData)
 
     if (insertError) {
+      console.error('Insert error:', insertError);
       throw new Error(`Failed to archive staff: ${insertError.message}`)
     }
 
@@ -72,6 +111,7 @@ serve(async (req) => {
       .eq('id', id)
 
     if (deleteError) {
+      console.error('Delete error:', deleteError);
       // If deletion fails, we should clean up the archived record
       await supabaseClient
         .from('archived_staff')
@@ -80,6 +120,8 @@ serve(async (req) => {
       
       throw new Error(`Failed to remove staff from active list: ${deleteError.message}`)
     }
+
+    console.log('Staff archived successfully');
 
     return new Response(
       JSON.stringify({ 

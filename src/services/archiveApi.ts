@@ -9,13 +9,16 @@ export async function archiveStaff(staffId: string, folderId?: string): Promise<
       throw new Error("No active session. Please log in again.");
     }
     
-    const { error } = await supabase.functions.invoke('archive-staff', {
+    console.log("Archiving staff with session:", !!session);
+    
+    const { data, error } = await supabase.functions.invoke('archive-staff', {
       body: { 
         id: staffId,
         folder_id: folderId
       },
       headers: {
-        Authorization: `Bearer ${session.access_token}`
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json'
       }
     });
     
@@ -24,6 +27,7 @@ export async function archiveStaff(staffId: string, folderId?: string): Promise<
       throw error;
     }
     
+    console.log("Staff archived successfully:", data);
     return { error: null };
   } catch (error) {
     console.error('Error archiving staff:', error);
@@ -41,13 +45,16 @@ export async function archiveTrainee(traineeId: string, folderId?: string): Prom
       throw new Error("No active session. Please log in again.");
     }
     
-    const { error } = await supabase.functions.invoke('archive-trainee', {
+    console.log("Archiving trainee with session:", !!session);
+    
+    const { data, error } = await supabase.functions.invoke('archive-trainee', {
       body: { 
         id: traineeId,
         folder_id: folderId
       },
       headers: {
-        Authorization: `Bearer ${session.access_token}`
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json'
       }
     });
     
@@ -56,6 +63,7 @@ export async function archiveTrainee(traineeId: string, folderId?: string): Prom
       throw error;
     }
     
+    console.log("Trainee archived successfully:", data);
     return { error: null };
   } catch (error) {
     console.error('Error archiving trainee:', error);
@@ -73,13 +81,16 @@ export async function archiveAllStaff(staffIds: string[], folderId?: string): Pr
       throw new Error("No active session. Please log in again.");
     }
     
-    const { error } = await supabase.functions.invoke('archive-all-staff', {
+    console.log("Archiving all staff with session:", !!session);
+    
+    const { data, error } = await supabase.functions.invoke('archive-all-staff', {
       body: { 
         staff_ids: staffIds,
         folder_id: folderId
       },
       headers: {
-        Authorization: `Bearer ${session.access_token}`
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json'
       }
     });
     
@@ -88,6 +99,7 @@ export async function archiveAllStaff(staffIds: string[], folderId?: string): Pr
       throw error;
     }
     
+    console.log("All staff archived successfully:", data);
     return { error: null };
   } catch (error) {
     console.error('Error archiving all staff:', error);
@@ -105,13 +117,16 @@ export async function archiveAllTrainees(traineeIds: string[], folderId?: string
       throw new Error("No active session. Please log in again.");
     }
     
-    const { error } = await supabase.functions.invoke('archive-all-trainees', {
+    console.log("Archiving all trainees with session:", !!session);
+    
+    const { data, error } = await supabase.functions.invoke('archive-all-trainees', {
       body: { 
         trainee_ids: traineeIds,
         folder_id: folderId
       },
       headers: {
-        Authorization: `Bearer ${session.access_token}`
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json'
       }
     });
     
@@ -120,6 +135,7 @@ export async function archiveAllTrainees(traineeIds: string[], folderId?: string
       throw error;
     }
     
+    console.log("All trainees archived successfully:", data);
     return { error: null };
   } catch (error) {
     console.error('Error archiving all trainees:', error);
