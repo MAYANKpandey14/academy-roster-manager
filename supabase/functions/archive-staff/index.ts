@@ -33,11 +33,27 @@ serve(async (req) => {
       }
     )
 
-    const { id, folder_id } = await req.json()
-    console.log('Request body:', { id, folder_id });
+    // Parse request body with error handling
+    let requestBody;
+    try {
+      const bodyText = await req.text();
+      console.log('Request body text:', bodyText);
+      
+      if (!bodyText || bodyText.trim() === '') {
+        throw new Error('Request body is empty');
+      }
+      
+      requestBody = JSON.parse(bodyText);
+      console.log('Parsed request body:', requestBody);
+    } catch (parseError) {
+      console.error('Error parsing request body:', parseError);
+      throw new Error(`Invalid JSON in request body: ${parseError.message}`);
+    }
+
+    const { id, folder_id } = requestBody;
 
     if (!id) {
-      throw new Error('Staff ID is required')
+      throw new Error('Staff ID is required');
     }
 
     // Get the current user for audit trail
@@ -45,7 +61,7 @@ serve(async (req) => {
     console.log('User check:', { user: !!user, error: userError });
     
     if (userError || !user) {
-      throw new Error('Authentication required')
+      throw new Error('Authentication required');
     }
 
     // Get the staff record first

@@ -53,6 +53,7 @@ export type Database = {
           current_posting_district: string
           date_of_birth: string
           date_of_joining: string
+          departure_date: string | null
           education: string
           father_name: string
           folder_id: string | null
@@ -81,6 +82,7 @@ export type Database = {
           current_posting_district: string
           date_of_birth: string
           date_of_joining: string
+          departure_date?: string | null
           education: string
           father_name: string
           folder_id?: string | null
@@ -109,6 +111,7 @@ export type Database = {
           current_posting_district?: string
           date_of_birth?: string
           date_of_joining?: string
+          departure_date?: string | null
           education?: string
           father_name?: string
           folder_id?: string | null

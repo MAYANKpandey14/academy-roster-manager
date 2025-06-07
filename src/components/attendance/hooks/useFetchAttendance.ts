@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 // Simple interface definitions to prevent recursion
-interface SimpleAttendanceRecord {
+interface AttendanceRecord {
   id: string;
   date: string;
   status: string;
@@ -12,7 +12,7 @@ interface SimpleAttendanceRecord {
   person_id?: string;
 }
 
-interface SimpleLeaveRecord {
+interface LeaveRecord {
   id: string;
   start_date: string;
   end_date: string;
@@ -23,20 +23,18 @@ interface SimpleLeaveRecord {
   person_id?: string;
 }
 
-interface SimpleAttendanceData {
-  attendance: SimpleAttendanceRecord[];
-  leave: SimpleLeaveRecord[];
+interface AttendanceData {
+  attendance: AttendanceRecord[];
+  leave: LeaveRecord[];
 }
 
-// Export the simple types
-export type AttendanceRecord = SimpleAttendanceRecord;
-export type LeaveRecord = SimpleLeaveRecord;
-export type AttendanceData = SimpleAttendanceData;
+// Export the types
+export type { AttendanceRecord, LeaveRecord, AttendanceData };
 
 export function useFetchAttendance(personId: string, personType: "staff" | "trainee") {
   return useQuery({
     queryKey: ["attendance", personId, personType],
-    queryFn: async (): Promise<SimpleAttendanceData> => {
+    queryFn: async (): Promise<AttendanceData> => {
       try {
         console.log(`Fetching attendance for ${personType} ID: ${personId}`);
 
@@ -70,7 +68,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         }
 
         // Process attendance records - parse reason from status field
-        const processedAttendance: SimpleAttendanceRecord[] = (attendanceData || []).map(record => {
+        const processedAttendance: AttendanceRecord[] = (attendanceData || []).map(record => {
           // Parse status and reason from the status field format: "status: reason"
           let actualStatus = record.status;
           let reason = undefined;
@@ -92,7 +90,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         });
 
         // Process leave records
-        const processedLeave: SimpleLeaveRecord[] = (leaveData || []).map(record => ({
+        const processedLeave: LeaveRecord[] = (leaveData || []).map(record => ({
           id: record.id,
           start_date: record.start_date,
           end_date: record.end_date,

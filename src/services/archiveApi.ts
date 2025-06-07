@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export async function archiveStaff(staffId: string, folderId?: string): Promise<{ error: Error | null }> {
@@ -10,12 +9,17 @@ export async function archiveStaff(staffId: string, folderId?: string): Promise<
     }
     
     console.log("Archiving staff with session:", !!session);
+    console.log("Staff ID:", staffId, "Folder ID:", folderId);
+    
+    const requestBody = { 
+      id: staffId,
+      folder_id: folderId
+    };
+    
+    console.log("Request body being sent:", requestBody);
     
     const { data, error } = await supabase.functions.invoke('archive-staff', {
-      body: { 
-        id: staffId,
-        folder_id: folderId
-      },
+      body: requestBody,
       headers: {
         'Authorization': `Bearer ${session.access_token}`,
         'Content-Type': 'application/json'
