@@ -2,8 +2,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-// Simple type definitions to avoid infinite type instantiation
-interface AttendanceRecord {
+// Export types for use in other components
+export interface AttendanceRecord {
   id: string;
   date: string;
   status: string;
@@ -11,7 +11,7 @@ interface AttendanceRecord {
   reason?: string;
 }
 
-interface LeaveRecord {
+export interface LeaveRecord {
   id: string;
   start_date: string;
   end_date: string;
@@ -21,10 +21,13 @@ interface LeaveRecord {
   approval_status?: string;
 }
 
-interface AttendanceData {
+export interface AttendanceData {
   attendance: AttendanceRecord[];
   leave: LeaveRecord[];
 }
+
+// Also export as BasicAttendanceRecord for backward compatibility
+export type BasicAttendanceRecord = AttendanceRecord;
 
 export function useFetchAttendance(personId: string, personType: "staff" | "trainee") {
   return useQuery({

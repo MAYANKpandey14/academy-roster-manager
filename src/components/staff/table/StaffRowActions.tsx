@@ -1,225 +1,90 @@
 
-import { Staff } from "@/types/staff";
-import { 
-  MoreHorizontal, 
-  Edit,
-  Eye,
-  Download,
-  Printer,
-  FileSpreadsheet,
-  Trash2,
-  Archive
-} from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, Eye, Archive, Download, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { useState } from "react";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { ArchiveConfirmationDialog } from "@/components/archive/ArchiveConfirmationDialog";
-import { deleteStaff } from "@/services/staffApi";
-import { archiveStaff } from "@/services/archiveApi";
-import { toast } from "sonner";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Staff } from "@/types/staff";
+import { useNavigate } from "react-router-dom";
 import { useFetchAttendance } from "@/components/attendance/hooks/useFetchAttendance";
-import { createStaffPrintContent } from "@/utils/export/staffPrintUtils";
-import { handlePrint } from "@/utils/export/printUtils";
+import { printStaffRecord } from "@/utils/export/staffPrintUtils";
 
-export interface StaffRowActionsProps {
+interface StaffRowActionsProps {
   staff: Staff;
-  handlePrintAction?: (staffId: string) => void;
-  handleDownloadAction?: (staffId: string) => void;
-  handleExcelExport?: (staff: Staff) => void;
-  onDelete?: () => void;
-  onArchive?: () => void;
+  onArchive?: (staff: Staff) => void;
+  onDelete?: (staff: Staff) => void;
+  onExport?: (staff: Staff) => void;
 }
 
-export function StaffRowActions({ 
-  staff, 
-  handlePrintAction, 
-  handleDownloadAction, 
-  handleExcelExport,
-  onDelete,
-  onArchive
-}: StaffRowActionsProps) {
+export const StaffRowActions = ({ staff, onArchive, onDelete, onExport }: StaffRowActionsProps) => {
   const navigate = useNavigate();
-  const { isHindi } = useLanguage();
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [showArchiveDialog, setShowArchiveDialog] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isPrinting, setIsPrinting] = useState(false);
-  const { fetchAttendanceRecords, fetchLeaveRecords } = useFetchAttendance();
-
-  const handleDeleteClick = () => {
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleArchiveClick = () => {
-    setShowArchiveDialog(true);
-  };
-
-  const handlePrintClick = async () => {
-    setIsPrinting(true);
-    try {
-      // Fetch attendance and leave data for this staff member
-      const [attendanceRecords, leaveRecords] = await Promise.all([
-        fetchAttendanceRecords(staff.id, 'staff'),
-        fetchLeaveRecords(staff.id, 'staff')
-      ]);
-
-      const printContent = await createStaffPrintContent([staff], isHindi, attendanceRecords, leaveRecords);
-      const printSuccess = handlePrint(printContent);
-      
-      if (!printSuccess) {
-        toast.error(isHindi ? "प्रिंट विंडो खोलने में विफल" : "Failed to open print window. Please check your pop-up blocker settings.");
-      } else {
-        toast.success(isHindi ? "स्टाफ विवरण प्रिंट हो रहा है..." : "Printing staff details");
-      }
-    } catch (error) {
-      console.error("Error printing staff:", error);
-      toast.error(isHindi ? "प्रिंट करते समय त्रुटि हुई" : "Error while printing");
-    } finally {
-      setIsPrinting(false);
-    }
-  };
-
-  const handleConfirmDelete = async () => {
-    try {
-      setIsDeleting(true);
-      const { error } = await deleteStaff(staff.id);
-      
-      if (error) throw error;
-      
-      toast.success(isHindi ? "स्टाफ सफलतापूर्वक हटा दिया गया" : "Staff deleted successfully");
-      setIsDeleteDialogOpen(false);
-      
-      if (onDelete) onDelete();
-    } catch (error) {
-      console.error("Error deleting staff:", error);
-      toast.error(isHindi ? "स्टाफ हटाने में विफल" : "Failed to delete staff");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  const handleArchiveConfirm = async (folderId: string) => {
-    try {
-      const { error } = await archiveStaff(staff.id, folderId);
-      
-      if (error) throw error;
-      
-      toast.success(isHindi ? "स्टाफ सफलतापूर्वक आर्काइव कर दिया गया" : "Staff archived successfully");
-      setShowArchiveDialog(false);
-      
-      if (onArchive) onArchive();
-    } catch (error) {
-      console.error("Error archiving staff:", error);
-      toast.error(isHindi ? "स्टाफ आर्काइव करने में विफल" : "Failed to archive staff");
-    }
-  };
   
+  // Fetch attendance and leave data for printing
+  const { data: attendanceData } = useFetchAttendance(staff.id, "staff");
+
+  const handleView = () => {
+    navigate(`/staff/${staff.id}`);
+  };
+
+  const handleEdit = () => {
+    navigate(`/staff/${staff.id}/edit`);
+  };
+
+  const handlePrint = () => {
+    if (attendanceData) {
+      printStaffRecord(staff, attendanceData.attendance, attendanceData.leave);
+    } else {
+      // Print without attendance data if not loaded
+      printStaffRecord(staff, [], []);
+    }
+  };
+
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => navigate(`/staff/${staff.id}`)}>
-            <Eye className="mr-2 h-4 w-4" />
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "देखें" : "View"}
-            </span>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Open menu</span>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={handleView}>
+          <Eye className="mr-2 h-4 w-4" />
+          View
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleEdit}>
+          <Edit className="mr-2 h-4 w-4" />
+          Edit
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handlePrint}>
+          <Printer className="mr-2 h-4 w-4" />
+          Print
+        </DropdownMenuItem>
+        {onExport && (
+          <DropdownMenuItem onClick={() => onExport(staff)}>
+            <Download className="mr-2 h-4 w-4" />
+            Export
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => navigate(`/staff/${staff.id}/edit`)}>
-            <Edit className="mr-2 h-4 w-4" />
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "संपादित करें" : "Edit"}
-            </span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handlePrintClick} disabled={isPrinting}>
-            <Printer className="mr-2 h-4 w-4" />
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isPrinting ? (isHindi ? "प्रिंट हो रहा है..." : "Printing...") : (isHindi ? "प्रिंट करें" : "Print")}
-            </span>
-          </DropdownMenuItem>
-          {handleExcelExport && (
-            <DropdownMenuItem onClick={() => handleExcelExport(staff)}>
-              <FileSpreadsheet className="mr-2 h-4 w-4" /> 
-              <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-                {isHindi ? "एक्सेल" : "Excel"}
-              </span>
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleArchiveClick} className="text-orange-600 focus:text-orange-600">
+        )}
+        {onArchive && (
+          <DropdownMenuItem onClick={() => onArchive(staff)}>
             <Archive className="mr-2 h-4 w-4" />
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "आर्काइव करें" : "Archive"}
-            </span>
+            Archive
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDeleteClick} className="text-destructive focus:text-destructive">
+        )}
+        {onDelete && (
+          <DropdownMenuItem 
+            onClick={() => onDelete(staff)}
+            className="text-red-600 focus:text-red-600"
+          >
             <Trash2 className="mr-2 h-4 w-4" />
-            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? "हटाएं" : "Delete"}
-            </span>
+            Delete
           </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <ArchiveConfirmationDialog
-        isOpen={showArchiveDialog}
-        onClose={() => setShowArchiveDialog(false)}
-        onConfirm={handleArchiveConfirm}
-        selectedRecords={[staff]}
-        recordType="staff"
-      />
-
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? "स्टाफ हटाने की पुष्टि करें" : "Confirm Delete Staff"}
-            </AlertDialogTitle>
-            <AlertDialogDescription className={isHindi ? 'font-hindi' : ''}>
-              {isHindi
-                ? `क्या आप वाकई स्टाफ सदस्य "${staff.name}" को हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।`
-                : `Are you sure you want to delete staff member "${staff.name}"? This action cannot be undone.`}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting} className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? "रद्द करें" : "Cancel"}
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleConfirmDelete}
-              disabled={isDeleting}
-              className="bg-destructive hover:bg-destructive/90"
-            >
-              {isDeleting ? 
-                (isHindi ? "हटा रहा है..." : "Deleting...") : 
-                (isHindi ? "हटाएं" : "Delete")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
-}
+};

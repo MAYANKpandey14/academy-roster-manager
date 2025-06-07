@@ -25,12 +25,18 @@ export const staffRanks: StaffRank[] = [
 ];
 
 export const staffFormSchema = z.object({
-  pno: z.string().min(1, { message: "PNO is required" }),
+  pno: z.string()
+    .min(9, { message: "PNO must be at least 9 characters" })
+    .max(12, { message: "PNO must be at most 12 characters" })
+    .regex(/^[a-zA-Z0-9]+$/, { message: "PNO can only contain letters and numbers" }),
   name: z.string().min(1, { message: "Name is required" }),
   father_name: z.string().min(1, { message: "Father's Name is required" }),
   rank: z.string({ required_error: "Rank is required" }),
   current_posting_district: z.string().min(1, { message: "Current Posting District is required" }),
-  mobile_number: z.string().min(10, { message: "Mobile Number must be at least 10 digits" }),
+  mobile_number: z.string()
+    .min(10, { message: "Mobile Number must be exactly 10 digits" })
+    .max(10, { message: "Mobile Number must be exactly 10 digits" })
+    .regex(/^\d{10}$/, { message: "Mobile Number must contain only 10 digits" }),
   education: z.string().min(1, { message: "Education is required" }),
   date_of_birth: z.string().min(1, { message: "Date of Birth is required" }),
   date_of_joining: z.string().min(1, { message: "Date of Joining is required" }),
