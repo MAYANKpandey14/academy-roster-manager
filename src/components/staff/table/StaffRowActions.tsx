@@ -34,7 +34,7 @@ export const StaffRowActions = ({ staff, onArchive, onDelete, onExport }: StaffR
     navigate(`/staff/${staff.id}/edit`);
   };
 
-  const handlePrint = async () => {
+  const handlePrintAction = async () => {
     if (attendanceData) {
       const printContent = await createStaffPrintContent(
         [staff], 
@@ -67,7 +67,7 @@ export const StaffRowActions = ({ staff, onArchive, onDelete, onExport }: StaffR
           <Edit className="mr-2 h-4 w-4" />
           Edit
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handlePrint}>
+        <DropdownMenuItem onClick={handlePrintAction}>
           <Printer className="mr-2 h-4 w-4" />
           Print
         </DropdownMenuItem>

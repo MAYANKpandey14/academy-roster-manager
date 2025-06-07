@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-// Export types for use in other components
+// Simple, non-recursive types
 export interface AttendanceRecord {
   id: string;
   date: string;
@@ -28,9 +28,7 @@ export interface AttendanceData {
   leave: LeaveRecord[];
 }
 
-// Also export as BasicAttendanceRecord for backward compatibility
-export type BasicAttendanceRecord = AttendanceRecord;
-
+// Single hook implementation
 export function useFetchAttendance(personId: string, personType: "staff" | "trainee") {
   return useQuery({
     queryKey: ["attendance", personId, personType],
@@ -67,7 +65,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
           throw leaveError;
         }
 
-        // Extract reason from attendance status if it contains ": "
+        // Process attendance records
         const processedAttendance: AttendanceRecord[] = (attendanceData || []).map(record => ({
           ...record,
           person_id: personId,
@@ -75,7 +73,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
           reason: record.status.includes(": ") ? record.status.split(": ")[1] : undefined
         }));
 
-        // Add approval_status to leave records (default to 'approved' if missing)
+        // Process leave records
         const processedLeave: LeaveRecord[] = (leaveData || []).map(record => ({
           ...record,
           person_id: personId,
@@ -98,28 +96,8 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
   });
 }
 
-// Export for backward compatibility
+// Alias for backward compatibility
 export const useFetchPersonAttendance = useFetchAttendance;
 
-// Enhanced interface for person attendance with separate arrays
-export interface PersonAttendanceData {
-  attendanceRecords: AttendanceRecord[];
-  leaveRecords: LeaveRecord[];
-}
-
-export function useFetchPersonAttendance(personId: string, personType: "staff" | "trainee", startDate?: string, endDate?: string) {
-  return useQuery({
-    queryKey: ["personAttendance", personId, personType, startDate, endDate],
-    queryFn: async (): Promise<PersonAttendanceData> => {
-      const data = await useFetchAttendance(personId, personType).queryFn?.();
-      if (data) {
-        return {
-          attendanceRecords: data.attendance,
-          leaveRecords: data.leave
-        };
-      }
-      return { attendanceRecords: [], leaveRecords: [] };
-    },
-    enabled: !!personId,
-  });
-}
+// Export types for backward compatibility
+export type BasicAttendanceRecord = AttendanceRecord;

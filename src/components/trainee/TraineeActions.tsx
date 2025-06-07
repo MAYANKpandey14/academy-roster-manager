@@ -34,7 +34,7 @@ export const TraineeActions = ({ trainee, onArchive, onDelete, onExport }: Train
     navigate(`/trainee/${trainee.id}/edit`);
   };
 
-  const handlePrint = async () => {
+  const handlePrintAction = async () => {
     if (attendanceData) {
       const printContent = await createPrintContent(
         [trainee], 
@@ -67,7 +67,7 @@ export const TraineeActions = ({ trainee, onArchive, onDelete, onExport }: Train
           <Edit className="mr-2 h-4 w-4" />
           Edit
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handlePrint}>
+        <DropdownMenuItem onClick={handlePrintAction}>
           <Printer className="mr-2 h-4 w-4" />
           Print
         </DropdownMenuItem>

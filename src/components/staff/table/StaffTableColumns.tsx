@@ -93,9 +93,6 @@ export const getStaffColumns = (
       return (
         <StaffRowActions
           staff={staff}
-          handlePrintAction={handlePrint}
-          handleDownloadAction={handleDownload}
-          handleExcelExport={handleExcelExport ? () => handleExcelExport(staff) : undefined}
           onDelete={onDelete}
           onArchive={onArchive}
         />
