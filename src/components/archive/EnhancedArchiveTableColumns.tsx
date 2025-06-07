@@ -14,15 +14,18 @@ const formatDate = (dateString: string) => {
   }
 };
 
+// Use generic type for better compatibility
+type ArchiveRecord = ArchivedStaff | ArchivedTrainee;
+
 // Unified function that returns appropriate columns based on record type
 export function getEnhancedArchiveTableColumns(
   recordType: 'staff' | 'trainee',
   isHindi: boolean,
-  onView: (record: ArchivedStaff | ArchivedTrainee) => void,
-  onPrint: (record: ArchivedStaff | ArchivedTrainee) => void,
-  onExport: (record: ArchivedStaff | ArchivedTrainee) => void,
-  onUnarchive: (record: ArchivedStaff | ArchivedTrainee) => void
-): ColumnDef<ArchivedStaff | ArchivedTrainee>[] {
+  onView: (record: ArchiveRecord) => void,
+  onPrint: (record: ArchiveRecord) => void,
+  onExport: (record: ArchiveRecord) => void,
+  onUnarchive: (record: ArchiveRecord) => void
+): ColumnDef<ArchiveRecord>[] {
   if (recordType === 'staff') {
     return getEnhancedArchivedStaffColumns(isHindi, onView, onPrint, onExport, onUnarchive);
   } else {
@@ -32,11 +35,11 @@ export function getEnhancedArchiveTableColumns(
 
 export function getEnhancedArchivedStaffColumns(
   isHindi: boolean,
-  onView: (record: ArchivedStaff | ArchivedTrainee) => void,
-  onPrint: (record: ArchivedStaff | ArchivedTrainee) => void,
-  onExport: (record: ArchivedStaff | ArchivedTrainee) => void,
-  onUnarchive: (record: ArchivedStaff | ArchivedTrainee) => void
-): ColumnDef<ArchivedStaff>[] {
+  onView: (record: ArchiveRecord) => void,
+  onPrint: (record: ArchiveRecord) => void,
+  onExport: (record: ArchiveRecord) => void,
+  onUnarchive: (record: ArchiveRecord) => void
+): ColumnDef<ArchiveRecord>[] {
   return [
     {
       id: "select",
@@ -62,10 +65,11 @@ export function getEnhancedArchivedStaffColumns(
       header: isHindi ? "फोटो" : "Photo",
       cell: ({ row }) => {
         const photoUrl = row.getValue("photo_url") as string;
+        const record = row.original as ArchivedStaff;
         return photoUrl ? (
           <img 
             src={photoUrl} 
-            alt={row.original.name}
+            alt={record.name}
             className="w-10 h-10 rounded-full object-cover border"
           />
         ) : (
@@ -87,12 +91,15 @@ export function getEnhancedArchivedStaffColumns(
     {
       accessorKey: "name",
       header: isHindi ? "नाम" : "Name",
-      cell: ({ row }) => (
-        <div>
-          <div className="font-medium">{row.getValue("name")}</div>
-          <div className="text-sm text-gray-500">{row.original.father_name}</div>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const record = row.original as ArchivedStaff;
+        return (
+          <div>
+            <div className="font-medium">{row.getValue("name")}</div>
+            <div className="text-sm text-gray-500">{record.father_name}</div>
+          </div>
+        );
+      },
     },
     {
       accessorKey: "rank",
@@ -135,11 +142,11 @@ export function getEnhancedArchivedStaffColumns(
 
 export function getEnhancedArchivedTraineeColumns(
   isHindi: boolean,
-  onView: (record: ArchivedStaff | ArchivedTrainee) => void,
-  onPrint: (record: ArchivedStaff | ArchivedTrainee) => void,
-  onExport: (record: ArchivedStaff | ArchivedTrainee) => void,
-  onUnarchive: (record: ArchivedStaff | ArchivedTrainee) => void
-): ColumnDef<ArchivedTrainee>[] {
+  onView: (record: ArchiveRecord) => void,
+  onPrint: (record: ArchiveRecord) => void,
+  onExport: (record: ArchiveRecord) => void,
+  onUnarchive: (record: ArchiveRecord) => void
+): ColumnDef<ArchiveRecord>[] {
   return [
     {
       id: "select",
@@ -165,10 +172,11 @@ export function getEnhancedArchivedTraineeColumns(
       header: isHindi ? "फोटो" : "Photo",
       cell: ({ row }) => {
         const photoUrl = row.getValue("photo_url") as string;
+        const record = row.original as ArchivedTrainee;
         return photoUrl ? (
           <img 
             src={photoUrl} 
-            alt={row.original.name}
+            alt={record.name}
             className="w-10 h-10 rounded-full object-cover border"
           />
         ) : (
@@ -199,12 +207,15 @@ export function getEnhancedArchivedTraineeColumns(
     {
       accessorKey: "name",
       header: isHindi ? "नाम" : "Name",
-      cell: ({ row }) => (
-        <div>
-          <div className="font-medium">{row.getValue("name")}</div>
-          <div className="text-sm text-gray-500">{row.original.father_name}</div>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const record = row.original as ArchivedTrainee;
+        return (
+          <div>
+            <div className="font-medium">{row.getValue("name")}</div>
+            <div className="text-sm text-gray-500">{record.father_name}</div>
+          </div>
+        );
+      },
     },
     {
       accessorKey: "current_posting_district",

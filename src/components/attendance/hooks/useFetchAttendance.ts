@@ -38,29 +38,35 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         const leaveTable = personType === "staff" ? "staff_leave" : "trainee_leave";
         const idColumn = personType === "staff" ? "staff_id" : "trainee_id";
 
-        const { data: attendanceData, error: attendanceError } = await supabase
+        // Use simple query without complex type inference
+        const attendanceQuery = supabase
           .from(attendanceTable)
           .select("id, date, status, approval_status")
           .eq(idColumn, personId)
           .order("date", { ascending: false });
 
-        if (attendanceError) {
-          console.error("Error fetching attendance:", attendanceError);
-          throw attendanceError;
-        }
-
-        const { data: leaveData, error: leaveError } = await supabase
+        const leaveQuery = supabase
           .from(leaveTable)
           .select("id, start_date, end_date, reason, status, leave_type")
           .eq(idColumn, personId)
           .order("start_date", { ascending: false });
 
-        if (leaveError) {
-          console.error("Error fetching leave:", leaveError);
-          throw leaveError;
+        const [attendanceResult, leaveResult] = await Promise.all([
+          attendanceQuery,
+          leaveQuery
+        ]);
+
+        if (attendanceResult.error) {
+          console.error("Error fetching attendance:", attendanceResult.error);
+          throw attendanceResult.error;
         }
 
-        const processedAttendance: AttendanceRecord[] = (attendanceData || []).map((record) => {
+        if (leaveResult.error) {
+          console.error("Error fetching leave:", leaveResult.error);
+          throw leaveResult.error;
+        }
+
+        const processedAttendance: AttendanceRecord[] = (attendanceResult.data || []).map((record: any) => {
           let actualStatus = record.status;
           let reason = undefined;
           
@@ -80,7 +86,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
           };
         });
 
-        const processedLeave: LeaveRecord[] = (leaveData || []).map((record) => ({
+        const processedLeave: LeaveRecord[] = (leaveResult.data || []).map((record: any) => ({
           id: record.id,
           start_date: record.start_date,
           end_date: record.end_date,
