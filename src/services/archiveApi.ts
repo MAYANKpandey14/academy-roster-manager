@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 export async function archiveStaff(staffId: string, folderId?: string): Promise<{ error: Error | null }> {
@@ -11,26 +12,30 @@ export async function archiveStaff(staffId: string, folderId?: string): Promise<
     console.log("Archiving staff with session:", !!session);
     console.log("Staff ID:", staffId, "Folder ID:", folderId);
     
-    const requestBody = { 
+    const requestBody = JSON.stringify({ 
       id: staffId,
       folder_id: folderId
-    };
+    });
     
     console.log("Request body being sent:", requestBody);
     
-    const { data, error } = await supabase.functions.invoke('archive-staff', {
-      body: requestBody,
+    const response = await fetch(`${supabase.supabaseUrl}/functions/v1/archive-staff`, {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${session.access_token}`,
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+        'apikey': supabase.supabaseKey
+      },
+      body: requestBody
     });
     
-    if (error) {
-      console.error("Error archiving staff:", error);
-      throw error;
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Archive response error:", errorText);
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
     }
     
+    const data = await response.json();
     console.log("Staff archived successfully:", data);
     return { error: null };
   } catch (error) {

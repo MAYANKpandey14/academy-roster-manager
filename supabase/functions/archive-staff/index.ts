@@ -37,6 +37,7 @@ serve(async (req) => {
     let requestBody;
     try {
       const bodyText = await req.text();
+      console.log('Request body text length:', bodyText.length);
       console.log('Request body text:', bodyText);
       
       if (!bodyText || bodyText.trim() === '') {
@@ -55,6 +56,8 @@ serve(async (req) => {
     if (!id) {
       throw new Error('Staff ID is required');
     }
+
+    console.log('Processing archive for staff ID:', id);
 
     // Get the current user for audit trail
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
@@ -109,7 +112,7 @@ serve(async (req) => {
       status: 'archived'
     };
 
-    console.log('Inserting archive data:', { ...archiveData, archived_by: 'user_id' });
+    console.log('Inserting archive data for staff:', staffData.name);
 
     const { error: insertError } = await supabaseClient
       .from('archived_staff')

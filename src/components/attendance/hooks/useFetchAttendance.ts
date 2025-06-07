@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 // Simple interface definitions to prevent recursion
-interface AttendanceRecord {
+export interface AttendanceRecord {
   id: string;
   date: string;
   status: string;
@@ -12,7 +12,7 @@ interface AttendanceRecord {
   person_id?: string;
 }
 
-interface LeaveRecord {
+export interface LeaveRecord {
   id: string;
   start_date: string;
   end_date: string;
@@ -23,13 +23,10 @@ interface LeaveRecord {
   person_id?: string;
 }
 
-interface AttendanceData {
+export interface AttendanceData {
   attendance: AttendanceRecord[];
   leave: LeaveRecord[];
 }
-
-// Export the types
-export type { AttendanceRecord, LeaveRecord, AttendanceData };
 
 export function useFetchAttendance(personId: string, personType: "staff" | "trainee") {
   return useQuery({
