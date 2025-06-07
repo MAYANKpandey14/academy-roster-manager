@@ -62,6 +62,7 @@ export async function createStaffPrintContent(
                   <tr style="background-color: #e5e7eb;">
                     <th style="border: 1px solid #ccc; padding: 0.5em; text-align: left;">${isHindi ? "दिनांक" : "Date"}</th>
                     <th style="border: 1px solid #ccc; padding: 0.5em; text-align: left;">${isHindi ? "स्थिति" : "Status"}</th>
+                    <th style="border: 1px solid #ccc; padding: 0.5em; text-align: left;">${isHindi ? "कारण" : "Reason"}</th>
                     <th style="border: 1px solid #ccc; padding: 0.5em; text-align: left;">${isHindi ? "अनुमोदन" : "Approval"}</th>
                   </tr>
                 </thead>
@@ -70,6 +71,7 @@ export async function createStaffPrintContent(
                     <tr>
                       <td style="border: 1px solid #ccc; padding: 0.5em;">${new Date(record.date).toLocaleDateString()}</td>
                       <td style="border: 1px solid #ccc; padding: 0.5em;">${record.status}</td>
+                      <td style="border: 1px solid #ccc; padding: 0.5em;">${record.reason || 'N/A'}</td>
                       <td style="border: 1px solid #ccc; padding: 0.5em;">${record.approval_status}</td>
                     </tr>
                   `).join('')}

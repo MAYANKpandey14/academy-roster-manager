@@ -1,3 +1,4 @@
+
 import jsPDF from 'jspdf';
 import { Trainee } from '@/types/trainee';
 import { BasicAttendanceRecord, LeaveRecord } from '@/components/attendance/hooks/useFetchAttendance';
@@ -71,6 +72,7 @@ export async function createPrintContent(
               <tr style="background-color: #e5e7eb;">
                 <th style="border: 1px solid #333; padding: 0.7em; text-align: left; font-weight: bold;">${isHindi ? "दिनांक" : "Date"}</th>
                 <th style="border: 1px solid #333; padding: 0.7em; text-align: left; font-weight: bold;">${isHindi ? "स्थिति" : "Status"}</th>
+                <th style="border: 1px solid #333; padding: 0.7em; text-align: left; font-weight: bold;">${isHindi ? "कारण" : "Reason"}</th>
                 <th style="border: 1px solid #333; padding: 0.7em; text-align: left; font-weight: bold;">${isHindi ? "अनुमोदन स्थिति" : "Approval Status"}</th>
               </tr>
             </thead>
@@ -79,12 +81,13 @@ export async function createPrintContent(
                 <tr>
                   <td style="border: 1px solid #333; padding: 0.7em;">${new Date(record.date).toLocaleDateString()}</td>
                   <td style="border: 1px solid #333; padding: 0.7em;">${record.status}</td>
+                  <td style="border: 1px solid #333; padding: 0.7em;">${record.reason || 'N/A'}</td>
                   <td style="border: 1px solid #333; padding: 0.7em;">${record.approval_status}</td>
                 </tr>
               `).join('')}
               ${attendanceRecords.length > 15 ? `
                 <tr>
-                  <td colspan="3" style="border: 1px solid #333; padding: 0.7em; text-align: center; font-style: italic; color: #666;">
+                  <td colspan="4" style="border: 1px solid #333; padding: 0.7em; text-align: center; font-style: italic; color: #666;">
                     ${isHindi ? `और ${attendanceRecords.length - 15} रिकॉर्ड...` : `And ${attendanceRecords.length - 15} more records...`}
                   </td>
                 </tr>

@@ -37,6 +37,17 @@ export const AttendanceStatus = memo(function AttendanceStatus({ status, type }:
     );
   }
   
+  // Return to Unit status (purple badge)
+  if (statusValue === 'return_to_unit') {
+    return (
+      <Badge variant="outline" className="font-normal bg-purple-100 text-purple-800 border-purple-200 transition-colors duration-200">
+        <span className={isHindi ? "font-hindi" : ""}>
+          {isHindi ? "यूनिट वापसी" : "Return to Unit"}
+        </span>
+      </Badge>
+    );
+  }
+  
   // Suspension status (yellow badge)
   if (statusValue === 'suspension') {
     return (

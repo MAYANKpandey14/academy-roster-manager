@@ -28,12 +28,6 @@ export interface AttendanceData {
   leave: LeaveRecord[];
 }
 
-// For backward compatibility with components expecting different property names
-export interface PersonAttendanceData {
-  attendanceRecords: AttendanceRecord[];
-  leaveRecords: LeaveRecord[];
-}
-
 // Single hook implementation
 export function useFetchAttendance(personId: string, personType: "staff" | "trainee") {
   return useQuery({
@@ -71,13 +65,26 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
           throw leaveError;
         }
 
-        // Process attendance records
-        const processedAttendance: AttendanceRecord[] = (attendanceData || []).map(record => ({
-          ...record,
-          person_id: personId,
-          approval_status: record.approval_status as "approved" | "rejected" | "pending",
-          reason: record.status.includes(": ") ? record.status.split(": ")[1] : undefined
-        }));
+        // Process attendance records - parse reason from status field
+        const processedAttendance: AttendanceRecord[] = (attendanceData || []).map(record => {
+          // Parse status and reason from the status field format: "status: reason"
+          let actualStatus = record.status;
+          let reason = undefined;
+          
+          if (record.status && record.status.includes(": ")) {
+            const parts = record.status.split(": ");
+            actualStatus = parts[0];
+            reason = parts.slice(1).join(": "); // In case reason contains colons
+          }
+          
+          return {
+            ...record,
+            status: actualStatus, // Use the parsed status
+            person_id: personId,
+            approval_status: record.approval_status as "approved" | "rejected" | "pending",
+            reason: reason
+          };
+        });
 
         // Process leave records
         const processedLeave: LeaveRecord[] = (leaveData || []).map(record => ({
@@ -92,7 +99,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         return {
           attendance: processedAttendance,
           leave: processedLeave
-        };
+        } as AttendanceData;
       } catch (error) {
         console.error("Error in useFetchAttendance:", error);
         throw error;
@@ -100,20 +107,6 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
     },
     enabled: !!personId,
   });
-}
-
-// Backward compatibility hook that returns data in the expected format
-export function useFetchPersonAttendance(personId: string, personType: "staff" | "trainee") {
-  const { data, isLoading, error } = useFetchAttendance(personId, personType);
-  
-  return {
-    data: data ? {
-      attendanceRecords: data.attendance,
-      leaveRecords: data.leave
-    } : { attendanceRecords: [], leaveRecords: [] },
-    isLoading,
-    error
-  };
 }
 
 // Export types for backward compatibility
