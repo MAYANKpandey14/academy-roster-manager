@@ -14,7 +14,9 @@ import { useFetchAttendance } from "@/components/attendance/hooks/useFetchAttend
 import { createStaffPrintContent } from "@/utils/export/staffPrintUtils";
 import { handlePrint } from "@/utils/export/printUtils";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
+import { ArchiveConfirmationDialog } from "@/components/archive/ArchiveConfirmationDialog";
 import { deleteStaff } from "@/services/staffApi";
+import { archiveStaff } from "@/services/archiveApi";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -23,12 +25,20 @@ interface StaffRowActionsProps {
   onArchive?: (staff: Staff) => void;
   onDelete?: () => void;
   onExport?: (staff: Staff) => void;
+  onArchiveSuccess?: () => void;
 }
 
-export const StaffRowActions = ({ staff, onArchive, onDelete, onExport }: StaffRowActionsProps) => {
+export const StaffRowActions = ({ 
+  staff, 
+  onArchive, 
+  onDelete, 
+  onExport,
+  onArchiveSuccess 
+}: StaffRowActionsProps) => {
   const navigate = useNavigate();
   const { isHindi } = useLanguage();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showArchiveDialog, setShowArchiveDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   
   // Fetch attendance and leave data for printing
@@ -55,6 +65,33 @@ export const StaffRowActions = ({ staff, onArchive, onDelete, onExport }: StaffR
       // Print without attendance data if not loaded
       const printContent = await createStaffPrintContent([staff], false, [], []);
       handlePrint(printContent);
+    }
+  };
+
+  const handleArchiveClick = () => {
+    setShowArchiveDialog(true);
+  };
+
+  const handleArchiveConfirm = async (folderId: string) => {
+    try {
+      const { error } = await archiveStaff(staff.id, folderId);
+      
+      if (error) throw error;
+      
+      toast.success(isHindi ? 
+        'स्टाफ सफलतापूर्वक आर्काइव कर दिया गया' : 
+        'Staff archived successfully'
+      );
+      
+      if (onArchiveSuccess) onArchiveSuccess();
+      if (onArchive) onArchive(staff);
+      setShowArchiveDialog(false);
+    } catch (error) {
+      console.error("Error archiving staff:", error);
+      toast.error(isHindi ? 
+        'स्टाफ आर्काइव करने में विफल' : 
+        'Failed to archive staff'
+      );
     }
   };
 
@@ -115,12 +152,10 @@ export const StaffRowActions = ({ staff, onArchive, onDelete, onExport }: StaffR
               {isHindi ? "एक्सपोर्ट करें" : "Export"}
             </DropdownMenuItem>
           )}
-          {onArchive && (
-            <DropdownMenuItem onClick={() => onArchive(staff)}>
-              <Archive className="mr-2 h-4 w-4" />
-              {isHindi ? "आर्काइव करें" : "Archive"}
-            </DropdownMenuItem>
-          )}
+          <DropdownMenuItem onClick={handleArchiveClick}>
+            <Archive className="mr-2 h-4 w-4" />
+            {isHindi ? "आर्काइव करें" : "Archive"}
+          </DropdownMenuItem>
           <DropdownMenuItem 
             onClick={handleDeleteClick}
             className="text-red-600 focus:text-red-600"
@@ -137,6 +172,14 @@ export const StaffRowActions = ({ staff, onArchive, onDelete, onExport }: StaffR
         onConfirm={handleDeleteConfirm}
         itemName={staff.name}
         isLoading={isDeleting}
+      />
+
+      <ArchiveConfirmationDialog
+        isOpen={showArchiveDialog}
+        onClose={() => setShowArchiveDialog(false)}
+        onConfirm={handleArchiveConfirm}
+        selectedRecords={[staff]}
+        recordType="staff"
       />
     </>
   );
