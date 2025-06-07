@@ -2,7 +2,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-// Simple interface definitions to prevent recursion
 export interface AttendanceRecord {
   id: string;
   date: string;
@@ -31,16 +30,14 @@ export interface AttendanceData {
 export function useFetchAttendance(personId: string, personType: "staff" | "trainee") {
   return useQuery({
     queryKey: ["attendance", personId, personType],
-    queryFn: async () => {
+    queryFn: async (): Promise<AttendanceData> => {
       try {
         console.log(`Fetching attendance for ${personType} ID: ${personId}`);
 
-        // Determine table names based on person type
         const attendanceTable = personType === "staff" ? "staff_attendance" : "trainee_attendance";
         const leaveTable = personType === "staff" ? "staff_leave" : "trainee_leave";
         const idColumn = personType === "staff" ? "staff_id" : "trainee_id";
 
-        // Fetch attendance records
         const { data: attendanceData, error: attendanceError } = await supabase
           .from(attendanceTable)
           .select("id, date, status, approval_status")
@@ -52,7 +49,6 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
           throw attendanceError;
         }
 
-        // Fetch leave records
         const { data: leaveData, error: leaveError } = await supabase
           .from(leaveTable)
           .select("id, start_date, end_date, reason, status, leave_type")
@@ -64,16 +60,14 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
           throw leaveError;
         }
 
-        // Process attendance records - parse reason from status field
-        const processedAttendance = (attendanceData || []).map((record: any) => {
-          // Parse status and reason from the status field format: "status: reason"
+        const processedAttendance: AttendanceRecord[] = (attendanceData || []).map((record) => {
           let actualStatus = record.status;
           let reason = undefined;
           
           if (record.status && record.status.includes(": ")) {
             const parts = record.status.split(": ");
             actualStatus = parts[0];
-            reason = parts.slice(1).join(": "); // In case reason contains colons
+            reason = parts.slice(1).join(": ");
           }
           
           return {
@@ -86,8 +80,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
           };
         });
 
-        // Process leave records
-        const processedLeave = (leaveData || []).map((record: any) => ({
+        const processedLeave: LeaveRecord[] = (leaveData || []).map((record) => ({
           id: record.id,
           start_date: record.start_date,
           end_date: record.end_date,

@@ -14,12 +14,28 @@ const formatDate = (dateString: string) => {
   }
 };
 
+// Unified function that returns appropriate columns based on record type
+export function getEnhancedArchiveTableColumns(
+  recordType: 'staff' | 'trainee',
+  isHindi: boolean,
+  onView: (record: ArchivedStaff | ArchivedTrainee) => void,
+  onPrint: (record: ArchivedStaff | ArchivedTrainee) => void,
+  onExport: (record: ArchivedStaff | ArchivedTrainee) => void,
+  onUnarchive: (record: ArchivedStaff | ArchivedTrainee) => void
+): ColumnDef<ArchivedStaff | ArchivedTrainee>[] {
+  if (recordType === 'staff') {
+    return getEnhancedArchivedStaffColumns(isHindi, onView, onPrint, onExport, onUnarchive);
+  } else {
+    return getEnhancedArchivedTraineeColumns(isHindi, onView, onPrint, onExport, onUnarchive);
+  }
+}
+
 export function getEnhancedArchivedStaffColumns(
   isHindi: boolean,
-  onView: (record: ArchivedStaff) => void,
-  onPrint: (record: ArchivedStaff) => void,
-  onExport: (record: ArchivedStaff) => void,
-  onUnarchive: (record: ArchivedStaff) => void
+  onView: (record: ArchivedStaff | ArchivedTrainee) => void,
+  onPrint: (record: ArchivedStaff | ArchivedTrainee) => void,
+  onExport: (record: ArchivedStaff | ArchivedTrainee) => void,
+  onUnarchive: (record: ArchivedStaff | ArchivedTrainee) => void
 ): ColumnDef<ArchivedStaff>[] {
   return [
     {
@@ -119,10 +135,10 @@ export function getEnhancedArchivedStaffColumns(
 
 export function getEnhancedArchivedTraineeColumns(
   isHindi: boolean,
-  onView: (record: ArchivedTrainee) => void,
-  onPrint: (record: ArchivedTrainee) => void,
-  onExport: (record: ArchivedTrainee) => void,
-  onUnarchive: (record: ArchivedTrainee) => void
+  onView: (record: ArchivedStaff | ArchivedTrainee) => void,
+  onPrint: (record: ArchivedStaff | ArchivedTrainee) => void,
+  onExport: (record: ArchivedStaff | ArchivedTrainee) => void,
+  onUnarchive: (record: ArchivedStaff | ArchivedTrainee) => void
 ): ColumnDef<ArchivedTrainee>[] {
   return [
     {

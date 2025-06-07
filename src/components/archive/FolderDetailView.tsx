@@ -19,9 +19,9 @@ interface FolderDetailViewProps {
 
 export function FolderDetailView({ folder, recordType, onBack }: FolderDetailViewProps) {
   const { isHindi } = useLanguage();
-  const [records, setRecords] = useState<(ArchivedStaff | ArchivedTrainee)[]>([]);
+  const [records, setRecords] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<ArchivedStaff | ArchivedTrainee | null>(null);
+  const [selectedRecord, setSelectedRecord] = useState<any | null>(null);
   const [showViewModal, setShowViewModal] = useState(false);
 
   const fetchRecords = async () => {
@@ -50,22 +50,22 @@ export function FolderDetailView({ folder, recordType, onBack }: FolderDetailVie
     fetchRecords();
   }, [folder.id, recordType]);
 
-  const handleView = (record: ArchivedStaff | ArchivedTrainee) => {
+  const handleView = (record: any) => {
     setSelectedRecord(record);
     setShowViewModal(true);
   };
 
-  const handlePrint = (record: ArchivedStaff | ArchivedTrainee) => {
+  const handlePrint = (record: any) => {
     // Implement print functionality
     console.log('Print record:', record);
   };
 
-  const handleExport = (record: ArchivedStaff | ArchivedTrainee) => {
+  const handleExport = (record: any) => {
     // Implement export functionality
     console.log('Export record:', record);
   };
 
-  const handleUnarchive = (record: ArchivedStaff | ArchivedTrainee) => {
+  const handleUnarchive = (record: any) => {
     // Refresh records after unarchive
     fetchRecords();
   };
