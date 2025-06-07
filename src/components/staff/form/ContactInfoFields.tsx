@@ -27,7 +27,7 @@ export function ContactInfoFields({ isHindi }: ContactInfoFieldsProps) {
               {isHindi ? "मोबाइल नंबर" : "Mobile Number"}
             </FormLabel>
             <FormControl>
-              <Input maxLength={11} {...field} type="tel" />
+              <Input maxLength={10} {...field} type="tel" />
             </FormControl>
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
