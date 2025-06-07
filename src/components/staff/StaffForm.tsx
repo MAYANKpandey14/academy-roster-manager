@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -43,6 +42,7 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
       date_of_birth: "",
       date_of_joining: "",
       arrival_date: "",
+      departure_date: "",
       blood_group: undefined,
       nominee: "",
       home_address: "",
@@ -227,6 +227,22 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
               <FormItem>
                 <FormLabel className={isHindi ? 'font-hindi' : ''}>
                   {isHindi ? "आगमन की तारीख RTC" : "Arrival Date RTC"}
+                </FormLabel>
+                <FormControl>
+                  <Input {...field} type="date" />
+                </FormControl>
+                <FormMessage className={isHindi ? 'font-hindi' : ''} />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="departure_date"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                  {isHindi ? "प्रस्थान की तारीख" : "Departure Date"}
                 </FormLabel>
                 <FormControl>
                   <Input {...field} type="date" />

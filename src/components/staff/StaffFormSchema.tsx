@@ -35,6 +35,7 @@ export const staffFormSchema = z.object({
   date_of_birth: z.string().min(1, { message: "Date of Birth is required" }),
   date_of_joining: z.string().min(1, { message: "Date of Joining is required" }),
   arrival_date: z.string().min(1, { message: "Arrival date is required" }),
+  departure_date: z.string().optional(),
   category_caste: z.string().optional(),
   blood_group: z.string({ required_error: "Blood Group is required" }),
   nominee: z.string().min(1, { message: "Nominee is required" }),

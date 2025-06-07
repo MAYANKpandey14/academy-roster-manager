@@ -1,7 +1,8 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { PersonType } from '../types/attendanceTypes';
+
+export type PersonType = 'trainee' | 'staff';
 
 export interface BasicAttendanceRecord {
   id: string;
@@ -79,7 +80,7 @@ export function useFetchAttendance() {
       const records: BasicAttendanceRecord[] = [];
       
       if (data) {
-        data.map((record: any) => {
+        data.forEach((record: any) => {
           const approvalStatus = record.approval_status || 'pending';
           const validApprovalStatus: 'pending' | 'approved' | 'rejected' = 
             ['pending', 'approved', 'rejected'].includes(approvalStatus) 
@@ -136,7 +137,7 @@ export function useFetchAttendance() {
       const records: LeaveRecord[] = [];
       
       if (data) {
-        data.map((record: any) => {
+        data.forEach((record: any) => {
           records.push({
             id: record.id,
             start_date: record.start_date,

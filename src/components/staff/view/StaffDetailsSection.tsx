@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Staff } from "@/types/staff";
 import { StaffInfoField } from "./StaffInfoField";
 import { ImageLoader } from "@/components/common/ImageLoader";
+import { AttendanceHistory } from "@/components/attendance/AttendanceHistory";
 
 interface StaffDetailsSectionProps {
   staff: Staff;
@@ -64,7 +65,6 @@ export function StaffDetailsSection({ staff }: StaffDetailsSectionProps) {
           <StaffInfoField 
             label={isHindi ? "पिता का नाम" : "Father's Name"} 
             value={staff.father_name} 
-            isMultilingual={true}
           />
 
           <StaffInfoField 
@@ -76,7 +76,6 @@ export function StaffDetailsSection({ staff }: StaffDetailsSectionProps) {
           <StaffInfoField 
             label={isHindi ? "शिक्षा" : "Education"} 
             value={staff.education} 
-            isMultilingual={true}
           />
           
           <StaffInfoField 
@@ -97,35 +96,24 @@ export function StaffDetailsSection({ staff }: StaffDetailsSectionProps) {
           </h3>
           
           <StaffInfoField 
+            label={isHindi ? "रैंक" : "Rank"} 
+            value={staff.rank} 
+          />
+          
+          <StaffInfoField 
             label={isHindi ? "वर्तमान पोस्टिंग जिला" : "Current Posting District"} 
             value={staff.current_posting_district} 
-            isMultilingual={true}
           />
           
           <StaffInfoField 
             label={isHindi ? "भर्ती की तारीख" : "Date of Joining"} 
             value={formattedDOJ} 
           />
-
+          
           <StaffInfoField 
-            label={isHindi ? "आरटीसी आगमन तिथि" : "Arrival Date RTC"} 
+            label={isHindi ? "आगमन की तारीख RTC" : "Arrival Date RTC"} 
             value={formattedArrivalDateRTC} 
           />
-          
-          {staff.class_no && (
-            <StaffInfoField 
-              label={isHindi ? "क्लास नंबर" : "Class Number"} 
-              value={staff.class_no} 
-            />
-          )}
-          
-          {staff.class_subject && (
-            <StaffInfoField 
-              label={isHindi ? "क्लास विषय" : "Class Subject"} 
-              value={staff.class_subject} 
-              isMultilingual={true}
-            />
-          )}
           
           {staff.toli_no && (
             <StaffInfoField 
@@ -151,15 +139,25 @@ export function StaffDetailsSection({ staff }: StaffDetailsSectionProps) {
           <StaffInfoField 
             label={isHindi ? "घर का पता" : "Home Address"} 
             value={staff.home_address} 
-            isMultilingual={true}
           />
           
           <StaffInfoField 
             label={isHindi ? "नामित व्यक्ति" : "Nominee"} 
             value={staff.nominee} 
-            isMultilingual={true}
           />
         </div>
+      </div>
+
+      {/* Attendance and Leave History */}
+      <div className="mt-6 space-y-4">
+        <h3 className="text-lg font-semibold border-b pb-2 dynamic-text">
+          {isHindi ? "उपस्थिति और छुट्टी का इतिहास" : "Attendance & Leave History"}
+        </h3>
+        
+        <AttendanceHistory 
+          personId={staff.id} 
+          personType="staff"
+        />
       </div>
     </div>
   );

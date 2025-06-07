@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { TraineeInfoField } from "./TraineeInfoField";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ImageLoader } from "@/components/common/ImageLoader";
+import { AttendanceHistory } from "@/components/attendance/AttendanceHistory";
 
 interface TraineeDetailsSectionProps {
   trainee: Trainee;
@@ -154,6 +155,18 @@ export function TraineeDetailsSection({ trainee }: TraineeDetailsSectionProps) {
             value={trainee.nominee} 
           />
         </div>
+      </div>
+
+      {/* Attendance and Leave History */}
+      <div className="mt-6 space-y-4">
+        <h3 className="text-lg font-semibold border-b pb-2 dynamic-text">
+          {isHindi ? "उपस्थिति और छुट्टी का इतिहास" : "Attendance & Leave History"}
+        </h3>
+        
+        <AttendanceHistory 
+          personId={trainee.id} 
+          personType="trainee"
+        />
       </div>
     </div>
   );

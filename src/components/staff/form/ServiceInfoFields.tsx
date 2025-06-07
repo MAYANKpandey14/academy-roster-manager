@@ -153,6 +153,22 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
           </FormItem>
         )}
       />
+
+      <FormField
+        control={form.control}
+        name="departure_date"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'प्रस्थान की तारीख' : 'Departure Date'}
+            </FormLabel>
+            <FormControl>
+              <Input type="date" {...field} />
+            </FormControl>
+            <FormMessage className={isHindi ? 'font-hindi' : ''} />
+          </FormItem>
+        )}
+      />
     </>
   );
 }
