@@ -14,6 +14,7 @@ export interface Staff {
   date_of_birth: string;
   date_of_joining: string;
   arrival_date: string;
+  departure_date?: string;
   category_caste?: string;
   blood_group: BloodGroup;
   nominee: string;

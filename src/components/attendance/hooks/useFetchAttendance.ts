@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-// Simple types to prevent infinite recursion
+// Simplified types to prevent infinite recursion
 export interface AttendanceRecord {
   id: string;
   date: string;
@@ -28,13 +28,10 @@ export interface AttendanceData {
   leave: LeaveRecord[];
 }
 
-// Add this export for backward compatibility
-export type BasicAttendanceRecord = AttendanceRecord;
-
 export function useFetchAttendance(personId: string, personType: "staff" | "trainee") {
   return useQuery({
     queryKey: ["attendance", personId, personType],
-    queryFn: async () => {
+    queryFn: async (): Promise<AttendanceData> => {
       try {
         console.log(`Fetching attendance for ${personType} ID: ${personId}`);
 
@@ -68,7 +65,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         }
 
         // Process attendance records - parse reason from status field
-        const processedAttendance = (attendanceData || []).map(record => {
+        const processedAttendance: AttendanceRecord[] = (attendanceData || []).map(record => {
           // Parse status and reason from the status field format: "status: reason"
           let actualStatus = record.status;
           let reason = undefined;
@@ -80,19 +77,25 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
           }
           
           return {
-            ...record,
-            status: actualStatus, // Use the parsed status
-            person_id: personId,
+            id: record.id,
+            date: record.date,
+            status: actualStatus,
             approval_status: record.approval_status || "pending",
+            person_id: personId,
             reason: reason
           };
         });
 
         // Process leave records
-        const processedLeave = (leaveData || []).map(record => ({
-          ...record,
-          person_id: personId,
-          approval_status: record.status || "approved"
+        const processedLeave: LeaveRecord[] = (leaveData || []).map(record => ({
+          id: record.id,
+          start_date: record.start_date,
+          end_date: record.end_date,
+          reason: record.reason,
+          status: record.status,
+          leave_type: record.leave_type,
+          approval_status: record.status || "approved",
+          person_id: personId
         }));
 
         console.log("Processed attendance data:", processedAttendance);
