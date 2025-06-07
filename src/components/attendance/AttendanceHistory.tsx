@@ -15,11 +15,11 @@ interface AttendanceHistoryProps {
   endDate?: string;
 }
 
-export const AttendanceHistory = ({ personId, personType, startDate, endDate }: AttendanceHistoryProps) => {
+export const AttendanceHistory = ({ personId, personType }: AttendanceHistoryProps) => {
   const { isHindi } = useLanguage();
   const [activeTab, setActiveTab] = useState<'attendance' | 'leave'>('attendance');
 
-  const { data, isLoading, error } = useFetchPersonAttendance(personId, personType, startDate, endDate);
+  const { data, isLoading, error } = useFetchPersonAttendance(personId, personType);
 
   if (isLoading) {
     return (
@@ -41,7 +41,7 @@ export const AttendanceHistory = ({ personId, personType, startDate, endDate }: 
     );
   }
 
-  const { attendanceRecords, leaveRecords } = data || { attendanceRecords: [], leaveRecords: [] };
+  const { attendanceRecords, leaveRecords } = data;
 
   return (
     <div>

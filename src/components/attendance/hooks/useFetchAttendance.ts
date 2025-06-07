@@ -28,6 +28,12 @@ export interface AttendanceData {
   leave: LeaveRecord[];
 }
 
+// For backward compatibility with components expecting different property names
+export interface PersonAttendanceData {
+  attendanceRecords: AttendanceRecord[];
+  leaveRecords: LeaveRecord[];
+}
+
 // Single hook implementation
 export function useFetchAttendance(personId: string, personType: "staff" | "trainee") {
   return useQuery({
@@ -96,8 +102,19 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
   });
 }
 
-// Alias for backward compatibility
-export const useFetchPersonAttendance = useFetchAttendance;
+// Backward compatibility hook that returns data in the expected format
+export function useFetchPersonAttendance(personId: string, personType: "staff" | "trainee") {
+  const { data, isLoading, error } = useFetchAttendance(personId, personType);
+  
+  return {
+    data: data ? {
+      attendanceRecords: data.attendance,
+      leaveRecords: data.leave
+    } : { attendanceRecords: [], leaveRecords: [] },
+    isLoading,
+    error
+  };
+}
 
 // Export types for backward compatibility
 export type BasicAttendanceRecord = AttendanceRecord;
