@@ -26,6 +26,7 @@ import { deleteTrainee } from "@/services/traineeApi";
 import { toast } from "sonner";
 import { createPrintContent, exportTraineesToExcel } from "@/utils/export";
 import { handlePrint } from "@/utils/export";
+import { useFetchAttendance } from "@/components/attendance/hooks/useFetchAttendance";
 
 interface TraineeActionsProps {
   trainee: Trainee;
@@ -37,6 +38,8 @@ export function TraineeActions({ trainee, onDelete, onArchive }: TraineeActionsP
   const { isHindi } = useLanguage();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
+  const { fetchAttendanceRecords, fetchLeaveRecords } = useFetchAttendance();
 
   const handleDeleteConfirm = async () => {
     setIsDeleting(true);
@@ -63,8 +66,15 @@ export function TraineeActions({ trainee, onDelete, onArchive }: TraineeActionsP
   };
 
   const handlePrintTrainee = async () => {
+    setIsPrinting(true);
     try {
-      const content = await createPrintContent([trainee], isHindi);
+      // Fetch attendance and leave data for this trainee
+      const [attendanceRecords, leaveRecords] = await Promise.all([
+        fetchAttendanceRecords(trainee.id, 'trainee'),
+        fetchLeaveRecords(trainee.id, 'trainee')
+      ]);
+
+      const content = await createPrintContent([trainee], isHindi, attendanceRecords, leaveRecords);
       const success = handlePrint(content);
       
       if (success) {
@@ -75,6 +85,8 @@ export function TraineeActions({ trainee, onDelete, onArchive }: TraineeActionsP
     } catch (error) {
       console.error('Error printing trainee:', error);
       toast.error(isHindi ? 'प्रिंट करने में त्रुटि' : 'Error printing trainee');
+    } finally {
+      setIsPrinting(false);
     }
   };
 
@@ -116,10 +128,10 @@ export function TraineeActions({ trainee, onDelete, onArchive }: TraineeActionsP
             </Link>
           </DropdownMenuItem>
           
-          <DropdownMenuItem onClick={handlePrintTrainee}>
+          <DropdownMenuItem onClick={handlePrintTrainee} disabled={isPrinting}>
             <Printer className="mr-2 h-4 w-4" />
             <span className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? 'प्रिंट करें' : 'Print'}
+              {isPrinting ? (isHindi ? 'प्रिंट हो रहा है...' : 'Printing...') : (isHindi ? 'प्रिंट करें' : 'Print')}
             </span>
           </DropdownMenuItem>
           

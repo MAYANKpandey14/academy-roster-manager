@@ -35,6 +35,9 @@ import { ArchiveConfirmationDialog } from "@/components/archive/ArchiveConfirmat
 import { deleteStaff } from "@/services/staffApi";
 import { archiveStaff } from "@/services/archiveApi";
 import { toast } from "sonner";
+import { useFetchAttendance } from "@/components/attendance/hooks/useFetchAttendance";
+import { createStaffPrintContent } from "@/utils/export/staffPrintUtils";
+import { handlePrint } from "@/utils/export/printUtils";
 
 export interface StaffRowActionsProps {
   staff: Staff;
@@ -58,6 +61,8 @@ export function StaffRowActions({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
+  const { fetchAttendanceRecords, fetchLeaveRecords } = useFetchAttendance();
 
   const handleDeleteClick = () => {
     setIsDeleteDialogOpen(true);
@@ -65,6 +70,31 @@ export function StaffRowActions({
 
   const handleArchiveClick = () => {
     setShowArchiveDialog(true);
+  };
+
+  const handlePrintClick = async () => {
+    setIsPrinting(true);
+    try {
+      // Fetch attendance and leave data for this staff member
+      const [attendanceRecords, leaveRecords] = await Promise.all([
+        fetchAttendanceRecords(staff.id, 'staff'),
+        fetchLeaveRecords(staff.id, 'staff')
+      ]);
+
+      const printContent = await createStaffPrintContent([staff], isHindi, attendanceRecords, leaveRecords);
+      const printSuccess = handlePrint(printContent);
+      
+      if (!printSuccess) {
+        toast.error(isHindi ? "प्रिंट विंडो खोलने में विफल" : "Failed to open print window. Please check your pop-up blocker settings.");
+      } else {
+        toast.success(isHindi ? "स्टाफ विवरण प्रिंट हो रहा है..." : "Printing staff details");
+      }
+    } catch (error) {
+      console.error("Error printing staff:", error);
+      toast.error(isHindi ? "प्रिंट करते समय त्रुटि हुई" : "Error while printing");
+    } finally {
+      setIsPrinting(false);
+    }
   };
 
   const handleConfirmDelete = async () => {
@@ -124,14 +154,12 @@ export function StaffRowActions({
               {isHindi ? "संपादित करें" : "Edit"}
             </span>
           </DropdownMenuItem>
-          {handlePrintAction && (
-            <DropdownMenuItem onClick={() => handlePrintAction(staff.id)}>
-              <Printer className="mr-2 h-4 w-4" />
-              <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
-                {isHindi ? "प्रिंट करें" : "Print"}
-              </span>
-            </DropdownMenuItem>
-          )}
+          <DropdownMenuItem onClick={handlePrintClick} disabled={isPrinting}>
+            <Printer className="mr-2 h-4 w-4" />
+            <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>
+              {isPrinting ? (isHindi ? "प्रिंट हो रहा है..." : "Printing...") : (isHindi ? "प्रिंट करें" : "Print")}
+            </span>
+          </DropdownMenuItem>
           {handleExcelExport && (
             <DropdownMenuItem onClick={() => handleExcelExport(staff)}>
               <FileSpreadsheet className="mr-2 h-4 w-4" /> 
