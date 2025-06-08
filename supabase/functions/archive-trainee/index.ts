@@ -23,21 +23,37 @@ serve(async (req) => {
       }
     )
 
-    // More robust JSON parsing with error handling
+    // Handle request body more robustly
     let requestBody;
     try {
-      const text = await req.text();
-      console.log("Request body text:", text);
+      const contentType = req.headers.get('content-type') || '';
+      console.log("Content-Type:", contentType);
       
-      if (!text || text.trim() === '') {
-        throw new Error('Empty request body');
+      if (contentType.includes('application/json')) {
+        const text = await req.text();
+        console.log("Request body text:", text);
+        
+        if (!text || text.trim() === '') {
+          throw new Error('Request body is empty');
+        }
+        
+        requestBody = JSON.parse(text);
+        console.log("Parsed request body:", requestBody);
+      } else {
+        // Try to read as JSON anyway
+        const text = await req.text();
+        console.log("Request body text (non-JSON content-type):", text);
+        
+        if (!text || text.trim() === '') {
+          throw new Error('Request body is empty');
+        }
+        
+        requestBody = JSON.parse(text);
+        console.log("Parsed request body:", requestBody);
       }
-      
-      requestBody = JSON.parse(text);
-      console.log("Parsed request body:", requestBody);
     } catch (parseError) {
-      console.error("JSON parsing error:", parseError);
-      throw new Error(`Invalid JSON in request body: ${parseError.message}`);
+      console.error("Request parsing error:", parseError);
+      throw new Error(`Invalid request format: ${parseError.message}`);
     }
 
     const { id, folder_id } = requestBody;

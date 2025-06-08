@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 export async function archiveStaff(staffId: string, folderId?: string): Promise<{ error: Error | null }> {
@@ -11,11 +12,15 @@ export async function archiveStaff(staffId: string, folderId?: string): Promise<
     console.log("Archiving staff with session:", !!session);
     console.log("Staff ID:", staffId, "Folder ID:", folderId);
     
+    const requestBody = { 
+      id: staffId,
+      folder_id: folderId
+    };
+    
+    console.log("Sending request body:", JSON.stringify(requestBody));
+    
     const { data, error } = await supabase.functions.invoke('archive-staff', {
-      body: { 
-        id: staffId,
-        folder_id: folderId
-      },
+      body: requestBody,
       headers: {
         'Authorization': `Bearer ${session.access_token}`,
         'Content-Type': 'application/json'
@@ -48,11 +53,15 @@ export async function archiveTrainee(traineeId: string, folderId?: string): Prom
     console.log("Archiving trainee with session:", !!session);
     console.log("Trainee ID:", traineeId, "Folder ID:", folderId);
     
+    const requestBody = { 
+      id: traineeId,
+      folder_id: folderId
+    };
+    
+    console.log("Sending request body:", JSON.stringify(requestBody));
+    
     const { data, error } = await supabase.functions.invoke('archive-trainee', {
-      body: { 
-        id: traineeId,
-        folder_id: folderId
-      },
+      body: requestBody,
       headers: {
         'Authorization': `Bearer ${session.access_token}`,
         'Content-Type': 'application/json'
