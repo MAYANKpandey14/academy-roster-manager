@@ -28,9 +28,9 @@ export interface AttendanceData {
 }
 
 export function useFetchAttendance(personId: string, personType: "staff" | "trainee") {
-  return useQuery({
+  return useQuery<AttendanceData>({
     queryKey: ["attendance", personId, personType],
-    queryFn: async (): Promise<AttendanceData> => {
+    queryFn: async () => {
       try {
         console.log(`Fetching attendance for ${personType} ID: ${personId}`);
 
@@ -66,7 +66,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         console.log("Raw leave data:", leaveData);
 
         // Process attendance data - handle "status: reason" format
-        const processedAttendance: AttendanceRecord[] = (attendanceData || []).map((record) => {
+        const processedAttendance: AttendanceRecord[] = (attendanceData || []).map((record: any) => {
           let actualStatus = record.status || 'present';
           let reason: string | undefined = undefined;
           
@@ -87,7 +87,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         });
 
         // Process leave data
-        const processedLeave: LeaveRecord[] = (leaveData || []).map((record) => ({
+        const processedLeave: LeaveRecord[] = (leaveData || []).map((record: any) => ({
           id: record.id,
           start_date: record.start_date,
           end_date: record.end_date,

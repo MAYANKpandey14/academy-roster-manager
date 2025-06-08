@@ -23,43 +23,39 @@ serve(async (req) => {
       }
     )
 
-    // Handle request body more robustly
+    // Get and parse request body
     let requestBody;
     try {
-      const contentType = req.headers.get('content-type') || '';
-      console.log("Content-Type:", contentType);
+      const bodyText = await req.text();
+      console.log("Raw request body:", bodyText);
       
-      if (contentType.includes('application/json')) {
-        const text = await req.text();
-        console.log("Request body text:", text);
-        
-        if (!text || text.trim() === '') {
-          throw new Error('Request body is empty');
-        }
-        
-        requestBody = JSON.parse(text);
-        console.log("Parsed request body:", requestBody);
-      } else {
-        // Try to read as JSON anyway
-        const text = await req.text();
-        console.log("Request body text (non-JSON content-type):", text);
-        
-        if (!text || text.trim() === '') {
-          throw new Error('Request body is empty');
-        }
-        
-        requestBody = JSON.parse(text);
-        console.log("Parsed request body:", requestBody);
+      if (!bodyText || bodyText.trim() === '') {
+        throw new Error('Request body is empty');
       }
+      
+      requestBody = JSON.parse(bodyText);
+      console.log("Parsed request body:", requestBody);
     } catch (parseError) {
       console.error("Request parsing error:", parseError);
-      throw new Error(`Invalid request format: ${parseError.message}`);
+      return new Response(
+        JSON.stringify({ error: `Invalid JSON in request body: ${parseError.message}` }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      );
     }
 
     const { id, folder_id } = requestBody;
 
     if (!id) {
-      throw new Error('Trainee ID is required')
+      return new Response(
+        JSON.stringify({ error: 'Trainee ID is required' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      );
     }
 
     console.log(`Processing archive for trainee ID: ${id}, folder_id: ${folder_id}`);
@@ -68,7 +64,13 @@ serve(async (req) => {
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
     if (userError || !user) {
       console.error("User authentication error:", userError);
-      throw new Error('Authentication required')
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 401 
+        }
+      );
     }
 
     console.log("User authenticated:", !!user);
@@ -82,11 +84,23 @@ serve(async (req) => {
 
     if (fetchError) {
       console.error("Error fetching trainee:", fetchError);
-      throw new Error(`Failed to fetch trainee: ${fetchError.message}`)
+      return new Response(
+        JSON.stringify({ error: `Failed to fetch trainee: ${fetchError.message}` }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      );
     }
 
     if (!traineeData) {
-      throw new Error('Trainee record not found')
+      return new Response(
+        JSON.stringify({ error: 'Trainee record not found' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 404 
+        }
+      );
     }
 
     console.log("Trainee data retrieved:", traineeData.name);
@@ -108,7 +122,13 @@ serve(async (req) => {
 
     if (insertError) {
       console.error("Error inserting to archive:", insertError);
-      throw new Error(`Failed to archive trainee: ${insertError.message}`)
+      return new Response(
+        JSON.stringify({ error: `Failed to archive trainee: ${insertError.message}` }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500 
+        }
+      );
     }
 
     // Delete from trainees table
@@ -125,7 +145,13 @@ serve(async (req) => {
         .delete()
         .eq('id', id)
       
-      throw new Error(`Failed to remove trainee from active list: ${deleteError.message}`)
+      return new Response(
+        JSON.stringify({ error: `Failed to remove trainee from active list: ${deleteError.message}` }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500 
+        }
+      );
     }
 
     console.log("Trainee archived successfully");
@@ -147,7 +173,7 @@ serve(async (req) => {
       JSON.stringify({ error: error.message }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400 
+        status: 500 
       }
     )
   }

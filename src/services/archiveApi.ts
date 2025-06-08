@@ -14,13 +14,13 @@ export async function archiveStaff(staffId: string, folderId?: string): Promise<
     
     const requestBody = { 
       id: staffId,
-      folder_id: folderId
+      folder_id: folderId || null
     };
     
     console.log("Sending request body:", JSON.stringify(requestBody));
     
     const { data, error } = await supabase.functions.invoke('archive-staff', {
-      body: requestBody,
+      body: JSON.stringify(requestBody),
       headers: {
         'Authorization': `Bearer ${session.access_token}`,
         'Content-Type': 'application/json'
@@ -55,13 +55,13 @@ export async function archiveTrainee(traineeId: string, folderId?: string): Prom
     
     const requestBody = { 
       id: traineeId,
-      folder_id: folderId
+      folder_id: folderId || null
     };
     
     console.log("Sending request body:", JSON.stringify(requestBody));
     
     const { data, error } = await supabase.functions.invoke('archive-trainee', {
-      body: requestBody,
+      body: JSON.stringify(requestBody),
       headers: {
         'Authorization': `Bearer ${session.access_token}`,
         'Content-Type': 'application/json'
