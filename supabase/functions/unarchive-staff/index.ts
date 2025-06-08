@@ -40,13 +40,20 @@ serve(async (req) => {
       throw new Error(`Failed to fetch archived staff: ${fetchError.message}`)
     }
 
-    // Remove archive-specific fields
-    const { archived_at, archived_by, folder_id, status, ...staffData } = archivedData
+    // Remove archive-specific fields and map columns correctly
+    const { archived_at, archived_by, folder_id, status, arrival_date_rtc, ...staffData } = archivedData
+
+    // Prepare data for staff table - ensure column names match
+    const restoredStaffData = {
+      ...staffData,
+      // Use arrival_date instead of arrival_date_rtc for staff table
+      arrival_date: archivedData.arrival_date || archivedData.arrival_date_rtc
+    }
 
     // Insert back into staff table
     const { error: insertError } = await supabaseClient
       .from('staff')
-      .insert(staffData)
+      .insert(restoredStaffData)
 
     if (insertError) {
       throw new Error(`Failed to restore staff to active table: ${insertError.message}`)

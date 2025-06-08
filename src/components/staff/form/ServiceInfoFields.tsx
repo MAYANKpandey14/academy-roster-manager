@@ -1,11 +1,10 @@
-
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
 import { StaffFormValues, staffRanks } from "@/components/staff/StaffFormSchema";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface ServiceInfoFieldsProps {
   form: UseFormReturn<StaffFormValues>;
@@ -16,11 +15,27 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
   const [selectedRank, setSelectedRank] = useState<string>("");
   const [customRankInput, setCustomRankInput] = useState<string>("");
 
+  // Initialize selected rank from form value
+  useEffect(() => {
+    const currentRank = form.getValues("rank");
+    if (currentRank) {
+      if (staffRanks.includes(currentRank as any)) {
+        setSelectedRank(currentRank);
+      } else {
+        setSelectedRank("Other");
+        setCustomRankInput(currentRank);
+      }
+    }
+  }, [form]);
+
   const handleRankChange = (value: string) => {
     setSelectedRank(value);
     if (value !== "Other") {
       form.setValue("rank", value);
       setCustomRankInput("");
+    } else {
+      // Clear the rank value when Other is selected until custom input is provided
+      form.setValue("rank", "");
     }
   };
 
@@ -57,7 +72,7 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
             <FormLabel className={isHindi ? 'font-hindi' : ''}>
               {isHindi ? "रैंक" : "Rank"}
             </FormLabel>
-            <Select onValueChange={handleRankChange} defaultValue={selectedRank}>
+            <Select onValueChange={handleRankChange} value={selectedRank}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder={isHindi ? "रैंक चुनें" : "Select rank"} />

@@ -5,8 +5,7 @@ import { UseFormReturn } from "react-hook-form";
 import { TraineeFormValues, traineeRanks } from "@/components/trainee/TraineeFormSchema";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useWatch } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface ServiceInfoFieldsProps {
   form: UseFormReturn<TraineeFormValues>;
@@ -17,11 +16,27 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
   const [selectedRank, setSelectedRank] = useState<string>("");
   const [customRankInput, setCustomRankInput] = useState<string>("");
 
+  // Initialize selected rank from form value
+  useEffect(() => {
+    const currentRank = form.getValues("rank");
+    if (currentRank) {
+      if (traineeRanks.includes(currentRank as any)) {
+        setSelectedRank(currentRank);
+      } else {
+        setSelectedRank("Other");
+        setCustomRankInput(currentRank);
+      }
+    }
+  }, [form]);
+
   const handleRankChange = (value: string) => {
     setSelectedRank(value);
     if (value !== "Other") {
       form.setValue("rank", value);
       setCustomRankInput("");
+    } else {
+      // Clear the rank value when Other is selected until custom input is provided
+      form.setValue("rank", "");
     }
   };
 
@@ -90,7 +105,7 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
             <FormLabel className={isHindi ? 'font-hindi' : ''}>
               {isHindi ? "रैंक" : "Rank"}
             </FormLabel>
-            <Select onValueChange={handleRankChange} defaultValue={selectedRank}>
+            <Select onValueChange={handleRankChange} value={selectedRank}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder={isHindi ? "रैंक चुनें" : "Select rank"} />
