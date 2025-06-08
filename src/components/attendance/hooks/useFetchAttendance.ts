@@ -30,7 +30,7 @@ export interface AttendanceData {
 export function useFetchAttendance(personId: string, personType: "staff" | "trainee") {
   return useQuery({
     queryKey: ["attendance", personId, personType],
-    queryFn: async (): Promise<AttendanceData> => {
+    queryFn: async () => {
       try {
         console.log(`Fetching attendance for ${personType} ID: ${personId}`);
 
@@ -62,7 +62,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
           throw leaveResult.error;
         }
 
-        const processedAttendance: AttendanceRecord[] = (attendanceResult.data || []).map((record: any) => {
+        const processedAttendance = (attendanceResult.data || []).map((record) => {
           let actualStatus = record.status;
           let reason = undefined;
           
@@ -82,7 +82,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
           };
         });
 
-        const processedLeave: LeaveRecord[] = (leaveResult.data || []).map((record: any) => ({
+        const processedLeave = (leaveResult.data || []).map((record) => ({
           id: record.id,
           start_date: record.start_date,
           end_date: record.end_date,

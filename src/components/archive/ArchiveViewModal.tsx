@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { useFetchAttendance } from "@/components/attendance/hooks/useFetchAttendance";
 import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ArchiveViewModalProps {
   record: ArchivedStaff | ArchivedTrainee | null;
@@ -207,63 +208,84 @@ export function ArchiveViewModal({ record, type, isOpen, onClose }: ArchiveViewM
 
           <Separator />
 
-          {/* Attendance & Leave Information */}
+          {/* Complete Attendance & Leave Information */}
           <div className="space-y-4">
             <h3 className={`font-semibold text-lg ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? 'उपस्थिति और छुट्टी रिकॉर्ड' : 'Attendance & Leave Records'}
+              {isHindi ? 'उपस्थिति और छुट्टी रिकॉर्ड (पूर्ण विवरण)' : 'Attendance & Leave Records (Complete Details)'}
             </h3>
             
             {attendanceLoading ? (
               <p className="text-gray-500">{isHindi ? 'लोड हो रहा है...' : 'Loading...'}</p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Recent Attendance */}
+              <div className="grid grid-cols-1 gap-6">
+                {/* Complete Attendance Records */}
                 <div>
                   <h4 className={`font-medium mb-3 ${isHindi ? 'font-hindi' : ''}`}>
-                    {isHindi ? 'हाल की उपस्थिति (अंतिम 10)' : 'Recent Attendance (Last 10)'}
+                    {isHindi ? `उपस्थिति रिकॉर्ड (कुल: ${attendanceData?.attendance.length || 0})` : `Attendance Records (Total: ${attendanceData?.attendance.length || 0})`}
                   </h4>
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {attendanceData?.attendance.slice(0, 10).map((att, index) => (
-                      <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded text-sm">
-                        <span>{formatDate(att.date)}</span>
-                        <Badge variant={att.status === 'present' ? 'default' : 'destructive'}>
-                          {att.status}
-                        </Badge>
-                        <span className="text-xs text-gray-500">{att.approval_status}</span>
+                  <ScrollArea className="h-64 border rounded-lg">
+                    {attendanceData?.attendance && attendanceData.attendance.length > 0 ? (
+                      <div className="space-y-2 p-4">
+                        {attendanceData.attendance.map((att, index) => (
+                          <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded text-sm">
+                            <span className="font-medium">{formatDate(att.date)}</span>
+                            <div className="flex items-center space-x-2">
+                              <Badge variant={att.status === 'present' ? 'default' : 'destructive'}>
+                                {att.status}
+                              </Badge>
+                              <span className="text-xs text-gray-500">{att.approval_status}</span>
+                            </div>
+                            {att.reason && (
+                              <span className="text-xs text-blue-600">
+                                {isHindi ? 'कारण: ' : 'Reason: '}{att.reason}
+                              </span>
+                            )}
+                          </div>
+                        ))}
                       </div>
-                    )) || (
-                      <p className="text-gray-500 text-sm">
+                    ) : (
+                      <p className="text-gray-500 text-sm p-4">
                         {isHindi ? 'कोई उपस्थिति रिकॉर्ड नहीं मिला' : 'No attendance records found'}
                       </p>
                     )}
-                  </div>
+                  </ScrollArea>
                 </div>
 
-                {/* Recent Leave */}
+                {/* Complete Leave Records */}
                 <div>
                   <h4 className={`font-medium mb-3 ${isHindi ? 'font-hindi' : ''}`}>
-                    {isHindi ? 'हाल की छुट्टी (अंतिम 5)' : 'Recent Leave (Last 5)'}
+                    {isHindi ? `छुट्टी रिकॉर्ड (कुल: ${attendanceData?.leave.length || 0})` : `Leave Records (Total: ${attendanceData?.leave.length || 0})`}
                   </h4>
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {attendanceData?.leave.slice(0, 5).map((leave, index) => (
-                      <div key={index} className="p-2 bg-gray-50 rounded text-sm">
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium">
-                            {formatDate(leave.start_date)} - {formatDate(leave.end_date)}
-                          </span>
-                          <Badge variant="outline">{leave.status}</Badge>
-                        </div>
-                        <p className="text-xs text-gray-600 mt-1">{leave.reason}</p>
-                        {leave.leave_type && (
-                          <p className="text-xs text-blue-600">Type: {leave.leave_type}</p>
-                        )}
+                  <ScrollArea className="h-64 border rounded-lg">
+                    {attendanceData?.leave && attendanceData.leave.length > 0 ? (
+                      <div className="space-y-3 p-4">
+                        {attendanceData.leave.map((leave, index) => (
+                          <div key={index} className="p-3 bg-gray-50 rounded text-sm border">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="font-medium">
+                                {formatDate(leave.start_date)} - {formatDate(leave.end_date)}
+                              </span>
+                              <div className="flex items-center space-x-2">
+                                {leave.leave_type && (
+                                  <Badge variant="outline">{leave.leave_type}</Badge>
+                                )}
+                                <Badge variant={leave.status === 'approved' ? 'default' : 'secondary'}>
+                                  {leave.status}
+                                </Badge>
+                              </div>
+                            </div>
+                            <p className="text-xs text-gray-700">
+                              <strong>{isHindi ? 'कारण: ' : 'Reason: '}</strong>{leave.reason}
+                            </p>
+                          </div>
+                        ))}
                       </div>
-                    )) || (
-                      <p className="text-gray-500 text-sm">
+                    ) : (
+                      <p className="text-gray-500 text-sm p-4">
                         {isHindi ? 'कोई छुट्टी रिकॉर्ड नहीं मिला' : 'No leave records found'}
                       </p>
                     )}
-                  </div>
+                  </ScrollArea>
                 </div>
               </div>
             )}
