@@ -45,7 +45,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
           .eq(idColumn, personId)
           .order("date", { ascending: false });
 
-        // Fetch leave data
+        // Fetch leave data  
         const { data: leaveData, error: leaveError } = await supabase
           .from(leaveTable)
           .select("id, start_date, end_date, reason, status, leave_type")
@@ -66,7 +66,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         console.log("Raw leave data:", leaveData);
 
         // Process attendance data - handle "status: reason" format
-        const processedAttendance: AttendanceRecord[] = (attendanceData || []).map(record => {
+        const processedAttendance = (attendanceData || []).map((record: any) => {
           let actualStatus = record.status || 'present';
           let reason: string | undefined = undefined;
           
@@ -83,11 +83,11 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
             approval_status: record.approval_status || "pending",
             person_id: personId,
             reason: reason
-          };
+          } as AttendanceRecord;
         });
 
         // Process leave data
-        const processedLeave: LeaveRecord[] = (leaveData || []).map(record => ({
+        const processedLeave = (leaveData || []).map((record: any) => ({
           id: record.id,
           start_date: record.start_date,
           end_date: record.end_date,
@@ -96,17 +96,15 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
           leave_type: record.leave_type,
           approval_status: record.status || "pending",
           person_id: personId
-        }));
+        } as LeaveRecord));
 
         console.log("Processed attendance data:", processedAttendance);
         console.log("Processed leave data:", processedLeave);
 
-        const result: AttendanceData = {
+        return {
           attendance: processedAttendance,
           leave: processedLeave
         };
-
-        return result;
       } catch (error) {
         console.error("Error in useFetchAttendance:", error);
         throw error;
