@@ -38,23 +38,19 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         const leaveTable = personType === "staff" ? "staff_leave" : "trainee_leave";
         const idColumn = personType === "staff" ? "staff_id" : "trainee_id";
 
-        // Separate the Promise.all to avoid complex typing
-        const attendancePromise = supabase
+        // Fetch attendance data
+        const attendanceResult = await supabase
           .from(attendanceTable)
           .select("id, date, status, approval_status")
           .eq(idColumn, personId)
           .order("date", { ascending: false });
 
-        const leavePromise = supabase
+        // Fetch leave data
+        const leaveResult = await supabase
           .from(leaveTable)
           .select("id, start_date, end_date, reason, status, leave_type")
           .eq(idColumn, personId)
           .order("start_date", { ascending: false });
-
-        const [attendanceResult, leaveResult] = await Promise.all([
-          attendancePromise,
-          leavePromise
-        ]);
 
         if (attendanceResult.error) {
           console.error("Error fetching attendance:", attendanceResult.error);

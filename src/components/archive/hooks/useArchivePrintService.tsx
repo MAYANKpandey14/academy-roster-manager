@@ -3,7 +3,6 @@ import { useState } from "react";
 import { ArchivedStaff, ArchivedTrainee } from "@/types/archive";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useFetchAttendance } from "@/components/attendance/hooks/useFetchAttendance";
 import { createStaffPrintContent } from "@/utils/export/staffPrintUtils";
 import { createPrintContent } from "@/utils/export/traineePrintUtils";
 import { handlePrint } from "@/utils/export/printUtils";
@@ -18,13 +17,10 @@ export function useArchivePrintService() {
   ) => {
     setIsLoading(true);
     try {
-      // Fetch attendance data for this record
-      const response = await fetch(`/api/attendance/${record.id}/${type}`);
-      let attendanceData = { attendance: [], leave: [] };
-      
-      if (response.ok) {
-        attendanceData = await response.json();
-      }
+      console.log("Printing archive record:", record, "Type:", type);
+
+      // Create empty attendance data as fallback
+      const attendanceData = { attendance: [], leave: [] };
 
       let content = '';
       
@@ -43,6 +39,8 @@ export function useArchivePrintService() {
           attendanceData.leave || []
         );
       }
+      
+      console.log("Generated print content length:", content.length);
       
       const success = handlePrint(content);
       

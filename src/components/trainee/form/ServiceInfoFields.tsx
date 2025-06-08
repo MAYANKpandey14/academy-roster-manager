@@ -6,6 +6,7 @@ import { TraineeFormValues, traineeRanks } from "@/components/trainee/TraineeFor
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useWatch } from "react-hook-form";
+import { useState } from "react";
 
 interface ServiceInfoFieldsProps {
   form: UseFormReturn<TraineeFormValues>;
@@ -13,7 +14,23 @@ interface ServiceInfoFieldsProps {
 
 export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
   const { isHindi } = useLanguage();
-  const watchRank = useWatch({ control: form.control, name: "rank" });
+  const [selectedRank, setSelectedRank] = useState<string>("");
+  const [customRankInput, setCustomRankInput] = useState<string>("");
+
+  const handleRankChange = (value: string) => {
+    setSelectedRank(value);
+    if (value !== "Other") {
+      form.setValue("rank", value);
+      setCustomRankInput("");
+    }
+  };
+
+  const handleCustomRankChange = (value: string) => {
+    setCustomRankInput(value);
+    if (selectedRank === "Other" && value.trim()) {
+      form.setValue("rank", value.trim());
+    }
+  };
 
   return (
     <>
@@ -73,7 +90,7 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
             <FormLabel className={isHindi ? 'font-hindi' : ''}>
               {isHindi ? "रैंक" : "Rank"}
             </FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <Select onValueChange={handleRankChange} defaultValue={selectedRank}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder={isHindi ? "रैंक चुनें" : "Select rank"} />
@@ -92,22 +109,18 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
         )}
       />
 
-      {watchRank === "Other" && (
-        <FormField
-          control={form.control}
-          name="custom_rank"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className={isHindi ? 'font-hindi' : ''}>
-                {isHindi ? "कस्टम रैंक" : "Custom Rank"}
-              </FormLabel>
-              <FormControl>
-                <Input placeholder={isHindi ? "कस्टम रैंक दर्ज करें" : "Enter custom rank"} {...field} />
-              </FormControl>
-              <FormMessage className={isHindi ? 'font-hindi' : ''} />
-            </FormItem>
-          )}
-        />
+      {selectedRank === "Other" && (
+        <div className="col-span-1 md:col-span-2">
+          <FormLabel className={isHindi ? 'font-hindi' : ''}>
+            {isHindi ? "कस्टम रैंक" : "Custom Rank"}
+          </FormLabel>
+          <Input 
+            placeholder={isHindi ? "अन्य रैंक यहाँ लिखें" : "Write Other rank here"} 
+            value={customRankInput}
+            onChange={(e) => handleCustomRankChange(e.target.value)}
+            className="mt-2"
+          />
+        </div>
       )}
 
       <FormField
