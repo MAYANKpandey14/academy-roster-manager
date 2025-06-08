@@ -46,7 +46,7 @@ export const AttendanceTabs = ({ personId, personType, personData }: AttendanceT
       <TabsContent value="history" className="mt-4">
         <LeaveHistoryTable 
           key={`history-${personId}`}
-          personId={personId} 
+          leaveRecords={data?.leave || []}
           personType={personType} 
         />
       </TabsContent>

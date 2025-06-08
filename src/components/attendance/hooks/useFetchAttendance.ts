@@ -62,29 +62,18 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
           throw leaveError;
         }
 
-        // Process attendance data - handle "status: reason" format
-        const processedAttendance: AttendanceRecord[] = (attendanceData || []).map(record => {
-          let actualStatus = record.status || 'present';
-          let reason: string | undefined = undefined;
-          
-          if (record.status && record.status.includes(": ")) {
-            const parts = record.status.split(": ");
-            actualStatus = parts[0];
-            reason = parts.slice(1).join(": ");
-          }
-          
-          return {
-            id: record.id,
-            date: record.date,
-            status: actualStatus,
-            approval_status: record.approval_status || "pending",
-            person_id: personId,
-            reason: reason
-          };
-        });
+        // Process attendance data
+        const processedAttendance: AttendanceRecord[] = (attendanceData || []).map((record: any) => ({
+          id: record.id,
+          date: record.date,
+          status: record.status || 'present',
+          approval_status: record.approval_status || "pending",
+          person_id: personId,
+          reason: undefined
+        }));
 
-        // Process leave data with explicit type conversion
-        const processedLeave: LeaveRecord[] = (leaveData || []).map(record => ({
+        // Process leave data
+        const processedLeave: LeaveRecord[] = (leaveData || []).map((record: any) => ({
           id: record.id,
           start_date: record.start_date,
           end_date: record.end_date,
