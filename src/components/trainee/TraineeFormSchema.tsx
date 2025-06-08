@@ -14,7 +14,8 @@ export type TraineeRank =
   | "SI/CP"
   | "RI"
   | "RSI"
-  | "Inspector";
+  | "Inspector"
+  | "Other";
 
 export const traineeRanks: TraineeRank[] = [
   "R/CONST",
@@ -29,7 +30,8 @@ export const traineeRanks: TraineeRank[] = [
   "SI/CP",
   "RI",
   "RSI",
-  "Inspector"
+  "Inspector",
+  "Other"
 ];
 
 export const bloodGroups = [
@@ -49,6 +51,7 @@ export const traineeFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   father_name: z.string().min(1, "Father's name is required"),
   rank: z.enum(traineeRanks as [TraineeRank, ...TraineeRank[]]),
+  custom_rank: z.string().optional(),
   category_caste: z.string().optional(),
   mobile_number: z.string().min(10, "Valid mobile number is required"),
   education: z.string().min(1, "Education is required"),
@@ -62,6 +65,14 @@ export const traineeFormSchema = z.object({
   home_address: z.string().min(1, "Home address is required"),
   toli_no: z.string().optional(),
   photo_url: z.string().optional(),
+}).refine((data) => {
+  if (data.rank === "Other") {
+    return data.custom_rank && data.custom_rank.trim().length > 0;
+  }
+  return true;
+}, {
+  message: "Custom rank is required when 'Other' is selected",
+  path: ["custom_rank"],
 });
 
 export type TraineeFormValues = z.infer<typeof traineeFormSchema>;

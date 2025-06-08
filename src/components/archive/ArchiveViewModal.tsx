@@ -9,6 +9,8 @@ import { ArchivedStaff, ArchivedTrainee } from "@/types/archive";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { useFetchAttendance } from "@/components/attendance/hooks/useFetchAttendance";
+import { Separator } from "@/components/ui/separator";
 
 interface ArchiveViewModalProps {
   record: ArchivedStaff | ArchivedTrainee | null;
@@ -19,6 +21,10 @@ interface ArchiveViewModalProps {
 
 export function ArchiveViewModal({ record, type, isOpen, onClose }: ArchiveViewModalProps) {
   const { isHindi } = useLanguage();
+  const { data: attendanceData, isLoading: attendanceLoading } = useFetchAttendance(
+    record?.id || '', 
+    type
+  );
 
   if (!record) return null;
 
@@ -40,7 +46,7 @@ export function ArchiveViewModal({ record, type, isOpen, onClose }: ArchiveViewM
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className={`text-xl ${isHindi ? 'font-hindi' : ''}`}>
             {isHindi ? 
@@ -78,8 +84,8 @@ export function ArchiveViewModal({ record, type, isOpen, onClose }: ArchiveViewM
             </div>
           </div>
 
-          {/* Personal Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Personal Information */}
             <div className="space-y-3">
               <h3 className={`font-semibold text-lg ${isHindi ? 'font-hindi' : ''}`}>
                 {isHindi ? 'व्यक्तिगत जानकारी' : 'Personal Information'}
@@ -105,9 +111,19 @@ export function ArchiveViewModal({ record, type, isOpen, onClose }: ArchiveViewM
                   {isHindi ? 'मोबाइल:' : 'Mobile:'}
                 </span>
                 <span>{record.mobile_number}</span>
+
+                {record.category_caste && (
+                  <>
+                    <span className={`font-medium ${isHindi ? 'font-hindi' : ''}`}>
+                      {isHindi ? 'श्रेणी/जाति:' : 'Category/Caste:'}
+                    </span>
+                    <span>{record.category_caste}</span>
+                  </>
+                )}
               </div>
             </div>
 
+            {/* Service Information */}
             <div className="space-y-3">
               <h3 className={`font-semibold text-lg ${isHindi ? 'font-hindi' : ''}`}>
                 {isHindi ? 'सेवा जानकारी' : 'Service Information'}
@@ -142,14 +158,34 @@ export function ArchiveViewModal({ record, type, isOpen, onClose }: ArchiveViewM
                     <span>{formatDate(record.departure_date)}</span>
                   </>
                 )}
+
+                {isStaff(record) && record.arrival_date && (
+                  <>
+                    <span className={`font-medium ${isHindi ? 'font-hindi' : ''}`}>
+                      {isHindi ? 'आगमन तिथि RTC:' : 'Arrival Date RTC:'}
+                    </span>
+                    <span>{formatDate(record.arrival_date)}</span>
+                  </>
+                )}
+
+                {record.toli_no && (
+                  <>
+                    <span className={`font-medium ${isHindi ? 'font-hindi' : ''}`}>
+                      {isHindi ? 'टोली नं:' : 'Toli No:'}
+                    </span>
+                    <span>{record.toli_no}</span>
+                  </>
+                )}
               </div>
             </div>
           </div>
 
+          <Separator />
+
           {/* Address and Additional Info */}
           <div className="space-y-3">
             <h3 className={`font-semibold text-lg ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? 'पता और अतिरिक्त जानकारी' : 'Address & Additional Information'}
+              {isHindi ? 'संपर्क जानकारी' : 'Contact Information'}
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -166,26 +202,74 @@ export function ArchiveViewModal({ record, type, isOpen, onClose }: ArchiveViewM
                 </span>
                 <p className="mt-1">{record.nominee}</p>
               </div>
-              
-              {record.toli_no && (
-                <div>
-                  <span className={`font-medium ${isHindi ? 'font-hindi' : ''}`}>
-                    {isHindi ? 'टोली नं:' : 'Toli No:'}
-                  </span>
-                  <p className="mt-1">{record.toli_no}</p>
-                </div>
-              )}
-              
-              {isStaff(record) && record.class_no && (
-                <div>
-                  <span className={`font-medium ${isHindi ? 'font-hindi' : ''}`}>
-                    {isHindi ? 'क्लास नं:' : 'Class No:'}
-                  </span>
-                  <p className="mt-1">{record.class_no}</p>
-                </div>
-              )}
             </div>
           </div>
+
+          <Separator />
+
+          {/* Attendance & Leave Information */}
+          <div className="space-y-4">
+            <h3 className={`font-semibold text-lg ${isHindi ? 'font-hindi' : ''}`}>
+              {isHindi ? 'उपस्थिति और छुट्टी रिकॉर्ड' : 'Attendance & Leave Records'}
+            </h3>
+            
+            {attendanceLoading ? (
+              <p className="text-gray-500">{isHindi ? 'लोड हो रहा है...' : 'Loading...'}</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Recent Attendance */}
+                <div>
+                  <h4 className={`font-medium mb-3 ${isHindi ? 'font-hindi' : ''}`}>
+                    {isHindi ? 'हाल की उपस्थिति (अंतिम 10)' : 'Recent Attendance (Last 10)'}
+                  </h4>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {attendanceData?.attendance.slice(0, 10).map((att, index) => (
+                      <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded text-sm">
+                        <span>{formatDate(att.date)}</span>
+                        <Badge variant={att.status === 'present' ? 'default' : 'destructive'}>
+                          {att.status}
+                        </Badge>
+                        <span className="text-xs text-gray-500">{att.approval_status}</span>
+                      </div>
+                    )) || (
+                      <p className="text-gray-500 text-sm">
+                        {isHindi ? 'कोई उपस्थिति रिकॉर्ड नहीं मिला' : 'No attendance records found'}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Recent Leave */}
+                <div>
+                  <h4 className={`font-medium mb-3 ${isHindi ? 'font-hindi' : ''}`}>
+                    {isHindi ? 'हाल की छुट्टी (अंतिम 5)' : 'Recent Leave (Last 5)'}
+                  </h4>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {attendanceData?.leave.slice(0, 5).map((leave, index) => (
+                      <div key={index} className="p-2 bg-gray-50 rounded text-sm">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium">
+                            {formatDate(leave.start_date)} - {formatDate(leave.end_date)}
+                          </span>
+                          <Badge variant="outline">{leave.status}</Badge>
+                        </div>
+                        <p className="text-xs text-gray-600 mt-1">{leave.reason}</p>
+                        {leave.leave_type && (
+                          <p className="text-xs text-blue-600">Type: {leave.leave_type}</p>
+                        )}
+                      </div>
+                    )) || (
+                      <p className="text-gray-500 text-sm">
+                        {isHindi ? 'कोई छुट्टी रिकॉर्ड नहीं मिला' : 'No leave records found'}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <Separator />
 
           {/* Archive Information */}
           <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">

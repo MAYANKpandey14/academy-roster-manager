@@ -21,7 +21,8 @@ export const staffRanks: StaffRank[] = [
   "Sweeper", 
   "Barber", 
   "Washerman", 
-  "Peon"
+  "Peon",
+  "Other"
 ];
 
 export const staffFormSchema = z.object({
@@ -32,6 +33,7 @@ export const staffFormSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   father_name: z.string().min(1, { message: "Father's Name is required" }),
   rank: z.string({ required_error: "Rank is required" }),
+  custom_rank: z.string().optional(),
   current_posting_district: z.string().min(1, { message: "Current Posting District is required" }),
   mobile_number: z.string()
     .min(10, { message: "Mobile Number must be exactly 10 digits" })
@@ -50,6 +52,14 @@ export const staffFormSchema = z.object({
   class_no: z.string().optional(),
   class_subject: z.string().optional(),
   photo_url: z.string().optional(),
+}).refine((data) => {
+  if (data.rank === "Other") {
+    return data.custom_rank && data.custom_rank.trim().length > 0;
+  }
+  return true;
+}, {
+  message: "Custom rank is required when 'Other' is selected",
+  path: ["custom_rank"],
 });
 
 export type StaffFormValues = z.infer<typeof staffFormSchema>;

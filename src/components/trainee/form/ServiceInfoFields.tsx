@@ -5,6 +5,7 @@ import { UseFormReturn } from "react-hook-form";
 import { TraineeFormValues, traineeRanks } from "@/components/trainee/TraineeFormSchema";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useWatch } from "react-hook-form";
 
 interface ServiceInfoFieldsProps {
   form: UseFormReturn<TraineeFormValues>;
@@ -12,6 +13,7 @@ interface ServiceInfoFieldsProps {
 
 export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
   const { isHindi } = useLanguage();
+  const watchRank = useWatch({ control: form.control, name: "rank" });
 
   return (
     <>
@@ -80,7 +82,7 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
               <SelectContent>
                 {traineeRanks.map((rank) => (
                   <SelectItem key={rank} value={rank}>
-                    {rank}
+                    {rank === "Other" ? (isHindi ? "अन्य" : "Other") : rank}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -89,6 +91,24 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
           </FormItem>
         )}
       />
+
+      {watchRank === "Other" && (
+        <FormField
+          control={form.control}
+          name="custom_rank"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? "कस्टम रैंक" : "Custom Rank"}
+              </FormLabel>
+              <FormControl>
+                <Input placeholder={isHindi ? "कस्टम रैंक दर्ज करें" : "Enter custom rank"} {...field} />
+              </FormControl>
+              <FormMessage className={isHindi ? 'font-hindi' : ''} />
+            </FormItem>
+          )}
+        />
+      )}
 
       <FormField
         control={form.control}
