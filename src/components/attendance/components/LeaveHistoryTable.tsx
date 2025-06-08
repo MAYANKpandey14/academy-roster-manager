@@ -27,16 +27,20 @@ export const LeaveHistoryTable = ({ personId, personType }: LeaveHistoryTablePro
   }
 
   if (error) {
+    console.error("Error loading leave history:", error);
     return (
       <Card>
         <CardContent className="p-6 text-center bg-red-50">
           <p className="text-red-600">
-            {error.message}
+            {isHindi ? 'डेटा लोड करने में त्रुटि' : 'Error loading data'}
           </p>
         </CardContent>
       </Card>
     );
   }
 
-  return <LeaveHistoryTableContent leaveRecords={data?.leave || []} personType={personType} />;
+  const leaveRecords = data?.leave || [];
+  console.log("Leave records for display:", leaveRecords);
+
+  return <LeaveHistoryTableContent leaveRecords={leaveRecords} personType={personType} />;
 };

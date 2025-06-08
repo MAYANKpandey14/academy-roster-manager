@@ -8,7 +8,7 @@ export interface AttendanceRecord {
   status: string;
   approval_status: string;
   reason?: string;
-  person_id?: string;
+  person_id: string;
 }
 
 export interface LeaveRecord {
@@ -18,8 +18,8 @@ export interface LeaveRecord {
   reason: string;
   status: string;
   leave_type?: string;
-  approval_status?: string;
-  person_id?: string;
+  approval_status: string;
+  person_id: string;
 }
 
 export interface AttendanceData {
@@ -38,34 +38,34 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         const leaveTable = personType === "staff" ? "staff_leave" : "trainee_leave";
         const idColumn = personType === "staff" ? "staff_id" : "trainee_id";
 
-        // Fetch attendance data with explicit type
-        const attendanceResult = await supabase
+        // Fetch attendance data
+        const { data: attendanceData, error: attendanceError } = await supabase
           .from(attendanceTable)
           .select("id, date, status, approval_status")
           .eq(idColumn, personId)
           .order("date", { ascending: false });
 
-        // Fetch leave data with explicit type
-        const leaveResult = await supabase
+        // Fetch leave data
+        const { data: leaveData, error: leaveError } = await supabase
           .from(leaveTable)
           .select("id, start_date, end_date, reason, status, leave_type")
           .eq(idColumn, personId)
           .order("start_date", { ascending: false });
 
-        if (attendanceResult.error) {
-          console.error("Error fetching attendance:", attendanceResult.error);
-          throw attendanceResult.error;
+        if (attendanceError) {
+          console.error("Error fetching attendance:", attendanceError);
+          throw attendanceError;
         }
 
-        if (leaveResult.error) {
-          console.error("Error fetching leave:", leaveResult.error);
-          throw leaveResult.error;
+        if (leaveError) {
+          console.error("Error fetching leave:", leaveError);
+          throw leaveError;
         }
 
         // Process attendance data - handle "status: reason" format
-        const processedAttendance: AttendanceRecord[] = (attendanceResult.data || []).map((record: any) => {
-          let actualStatus = record.status;
-          let reason = undefined;
+        const processedAttendance: AttendanceRecord[] = (attendanceData || []).map(record => {
+          let actualStatus = record.status || 'present';
+          let reason: string | undefined = undefined;
           
           if (record.status && record.status.includes(": ")) {
             const parts = record.status.split(": ");
@@ -84,12 +84,12 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         });
 
         // Process leave data
-        const processedLeave: LeaveRecord[] = (leaveResult.data || []).map((record: any) => ({
+        const processedLeave: LeaveRecord[] = (leaveData || []).map(record => ({
           id: record.id,
           start_date: record.start_date,
           end_date: record.end_date,
-          reason: record.reason,
-          status: record.status,
+          reason: record.reason || '',
+          status: record.status || 'pending',
           leave_type: record.leave_type,
           approval_status: record.status || "pending",
           person_id: personId

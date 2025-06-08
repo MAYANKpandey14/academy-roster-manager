@@ -11,8 +11,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 interface AttendanceHistoryProps {
   personId: string;
   personType: PersonType;
-  startDate?: string;
-  endDate?: string;
 }
 
 export const AttendanceHistory = ({ personId, personType }: AttendanceHistoryProps) => {
@@ -20,6 +18,10 @@ export const AttendanceHistory = ({ personId, personType }: AttendanceHistoryPro
   const [activeTab, setActiveTab] = useState<'attendance' | 'leave'>('attendance');
 
   const { data, isLoading, error } = useFetchAttendance(personId, personType);
+
+  console.log("AttendanceHistory data:", data);
+  console.log("AttendanceHistory loading:", isLoading);
+  console.log("AttendanceHistory error:", error);
 
   if (isLoading) {
     return (
@@ -32,26 +34,27 @@ export const AttendanceHistory = ({ personId, personType }: AttendanceHistoryPro
   }
 
   if (error) {
+    console.error("Error in AttendanceHistory:", error);
     return (
       <Card className="p-6 text-center bg-red-50">
         <p className="text-red-600">
-          {error.message}
+          {isHindi ? 'डेटा लोड करने में त्रुटि' : 'Error loading data'}
         </p>
       </Card>
     );
   }
 
-  const { attendance, leave } = data || { attendance: [], leave: [] };
+  const { attendance = [], leave = [] } = data || {};
 
   return (
     <div>
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'attendance' | 'leave')}>
         <TabsList className="grid w-full grid-cols-2 mb-4">
           <TabsTrigger value="attendance" className={isHindi ? 'font-hindi' : ''}>
-            {isHindi ? 'उपस्थिति' : 'Attendance'}
+            {isHindi ? 'उपस्थिति' : 'Attendance'} ({attendance.length})
           </TabsTrigger>
           <TabsTrigger value="leave" className={isHindi ? 'font-hindi' : ''}>
-            {isHindi ? 'छुट्टी' : 'Leave'}
+            {isHindi ? 'छुट्टी' : 'Leave'} ({leave.length})
           </TabsTrigger>
         </TabsList>
 

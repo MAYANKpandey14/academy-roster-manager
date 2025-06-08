@@ -9,14 +9,14 @@ import { PersonType } from "./types/attendanceTypes";
 interface AttendanceTableProps {
   attendanceRecords: AttendanceRecord[];
   personType: PersonType;
-  personId?: string;
-  personData?: any;
 }
 
 export const AttendanceTable = ({ attendanceRecords, personType }: AttendanceTableProps) => {
   const { isHindi } = useLanguage();
 
-  if (attendanceRecords.length === 0) {
+  console.log("AttendanceTable received records:", attendanceRecords);
+
+  if (!attendanceRecords || attendanceRecords.length === 0) {
     return (
       <Card>
         <CardHeader>
