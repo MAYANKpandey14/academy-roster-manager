@@ -45,23 +45,37 @@ export function useAttendanceSubmit({ personType, personId, onSuccess }: UseAtte
       }
 
       if (status === "on_leave" && leaveType && startDate && endDate) {
-        // Submit leave record
-        const leaveTable = personType === "staff" ? "staff_leave" : "trainee_leave";
-        const idColumn = personType === "staff" ? "staff_id" : "trainee_id";
-        
-        const { error: leaveError } = await supabase
-          .from(leaveTable)
-          .insert({
-            [idColumn]: personId,
-            start_date: startDate,
-            end_date: endDate,
-            reason,
-            leave_type: leaveType,
-            status: "pending"
-          });
+        // Submit leave record with proper typing
+        if (personType === "staff") {
+          const { error: leaveError } = await supabase
+            .from("staff_leave")
+            .insert({
+              staff_id: personId,
+              start_date: startDate,
+              end_date: endDate,
+              reason,
+              leave_type: leaveType,
+              status: "pending"
+            });
 
-        if (leaveError) {
-          throw leaveError;
+          if (leaveError) {
+            throw leaveError;
+          }
+        } else {
+          const { error: leaveError } = await supabase
+            .from("trainee_leave")
+            .insert({
+              trainee_id: personId,
+              start_date: startDate,
+              end_date: endDate,
+              reason,
+              leave_type: leaveType,
+              status: "pending"
+            });
+
+          if (leaveError) {
+            throw leaveError;
+          }
         }
 
         toast.success(
@@ -70,21 +84,33 @@ export function useAttendanceSubmit({ personType, personId, onSuccess }: UseAtte
             : "Leave application submitted successfully"
         );
       } else {
-        // Submit attendance record
-        const attendanceTable = personType === "staff" ? "staff_attendance" : "trainee_attendance";
-        const idColumn = personType === "staff" ? "staff_id" : "trainee_id";
-        
-        const { error: attendanceError } = await supabase
-          .from(attendanceTable)
-          .insert({
-            [idColumn]: personId,
-            date: startDate,
-            status: formattedStatus,
-            approval_status: approvalStatus
-          });
+        // Submit attendance record with proper typing
+        if (personType === "staff") {
+          const { error: attendanceError } = await supabase
+            .from("staff_attendance")
+            .insert({
+              staff_id: personId,
+              date: startDate,
+              status: formattedStatus,
+              approval_status: approvalStatus
+            });
 
-        if (attendanceError) {
-          throw attendanceError;
+          if (attendanceError) {
+            throw attendanceError;
+          }
+        } else {
+          const { error: attendanceError } = await supabase
+            .from("trainee_attendance")
+            .insert({
+              trainee_id: personId,
+              date: startDate,
+              status: formattedStatus,
+              approval_status: approvalStatus
+            });
+
+          if (attendanceError) {
+            throw attendanceError;
+          }
         }
 
         const statusMessage = ['duty', 'training'].includes(status) 

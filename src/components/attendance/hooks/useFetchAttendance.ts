@@ -34,23 +34,35 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
       try {
         console.log(`Fetching attendance for ${personType} ID: ${personId}`);
 
-        const attendanceTable = personType === "staff" ? "staff_attendance" : "trainee_attendance";
-        const leaveTable = personType === "staff" ? "staff_leave" : "trainee_leave";
-        const idColumn = personType === "staff" ? "staff_id" : "trainee_id";
+        let attendanceResult;
+        let leaveResult;
 
-        // Fetch attendance data
-        const attendanceResult = await supabase
-          .from(attendanceTable)
-          .select("id, date, status, approval_status")
-          .eq(idColumn, personId)
-          .order("date", { ascending: false });
+        // Fetch attendance data with proper typing
+        if (personType === "staff") {
+          attendanceResult = await supabase
+            .from("staff_attendance")
+            .select("id, date, status, approval_status")
+            .eq("staff_id", personId)
+            .order("date", { ascending: false });
 
-        // Fetch leave data
-        const leaveResult = await supabase
-          .from(leaveTable)
-          .select("id, start_date, end_date, reason, status, leave_type")
-          .eq(idColumn, personId)
-          .order("start_date", { ascending: false });
+          leaveResult = await supabase
+            .from("staff_leave")
+            .select("id, start_date, end_date, reason, status, leave_type")
+            .eq("staff_id", personId)
+            .order("start_date", { ascending: false });
+        } else {
+          attendanceResult = await supabase
+            .from("trainee_attendance")
+            .select("id, date, status, approval_status")
+            .eq("trainee_id", personId)
+            .order("date", { ascending: false });
+
+          leaveResult = await supabase
+            .from("trainee_leave")
+            .select("id, start_date, end_date, reason, status, leave_type")
+            .eq("trainee_id", personId)
+            .order("start_date", { ascending: false });
+        }
 
         if (attendanceResult.error) {
           console.error("Error fetching attendance:", attendanceResult.error);
