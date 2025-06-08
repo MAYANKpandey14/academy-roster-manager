@@ -14,7 +14,7 @@ interface UseAttendanceSubmitProps {
 
 // Form schema with better validation
 export const attendanceFormSchema = z.object({
-  status: z.enum(["absent", "on_leave", "return_to_unit", "suspension", "resignation", "termination"]),
+  status: z.enum(["absent", "duty", "training", "on_leave", "return_to_unit", "suspension", "resignation", "termination"]),
   leaveType: z.string().optional(),
   startDate: z.string({
     required_error: "Start date is required",
@@ -59,7 +59,7 @@ export function useAttendanceSubmit({ personType, personId, onSuccess }: UseAtte
       
       // Determine if auto-approval applies based on status
       const requiresApproval = ['on_leave', 'resignation'].includes(values.status);
-      // Return to Unit is pre-approved as per requirement
+      // duty, training, return_to_unit, absent, suspension, termination are auto-approved
       console.log(`Status: ${values.status}, Requires Approval: ${requiresApproval}`);
       console.log(`Reason provided: ${values.reason}`); // Debug log
       

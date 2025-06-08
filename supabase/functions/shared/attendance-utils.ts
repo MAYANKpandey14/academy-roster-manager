@@ -3,7 +3,7 @@
 export interface AttendanceRequest {
   traineeId?: string;
   staffId?: string;
-  status: "absent" | "on_leave" | "return_to_unit" | "suspension" | "resignation" | "termination";
+  status: "absent" | "duty" | "training" | "on_leave" | "return_to_unit" | "suspension" | "resignation" | "termination";
   date: string;
   endDate?: string;
   reason: string;
@@ -17,8 +17,8 @@ export interface DatabaseResult {
 
 // Helper function to determine approval status based on absence type
 export function getApprovalStatus(status: string): string {
-  // Based on requirements: No approval required for absent, suspension, termination, return_to_unit
-  if (['absent', 'suspension', 'termination', 'return_to_unit'].includes(status)) {
+  // Based on requirements: No approval required for absent, duty, training, suspension, termination, return_to_unit
+  if (['absent', 'duty', 'training', 'suspension', 'termination', 'return_to_unit'].includes(status)) {
     return 'approved';
   }
   // Approval required for on_leave and resignation
