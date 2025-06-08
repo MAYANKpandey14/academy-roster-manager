@@ -62,7 +62,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
           throw leaveResult.error;
         }
 
-        const processedAttendance: AttendanceRecord[] = (attendanceResult.data || []).map((record) => {
+        const processedAttendance = (attendanceResult.data || []).map((record: any): AttendanceRecord => {
           let actualStatus = record.status;
           let reason = undefined;
           
@@ -82,7 +82,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
           };
         });
 
-        const processedLeave: LeaveRecord[] = (leaveResult.data || []).map((record) => ({
+        const processedLeave = (leaveResult.data || []).map((record: any): LeaveRecord => ({
           id: record.id,
           start_date: record.start_date,
           end_date: record.end_date,

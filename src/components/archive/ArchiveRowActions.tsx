@@ -12,6 +12,9 @@ import {
 import { ArchivedStaff, ArchivedTrainee } from "@/types/archive";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useArchivePrintService } from "./hooks/useArchivePrintService";
+import { unarchiveStaff, unarchiveTrainee } from "@/services/unarchiveApi";
+import { toast } from "sonner";
+import { useState } from "react";
 
 interface ArchiveRowActionsProps {
   record: ArchivedStaff | ArchivedTrainee;
@@ -19,7 +22,7 @@ interface ArchiveRowActionsProps {
   onView: (record: ArchivedStaff | ArchivedTrainee) => void;
   onPrint: (record: ArchivedStaff | ArchivedTrainee) => void;
   onExport: (record: ArchivedStaff | ArchivedTrainee) => void;
-  onUnarchive: (record: ArchivedStaff | ArchivedTrainee) => void;
+  onUnarchive?: (record: ArchivedStaff | ArchivedTrainee) => void;
 }
 
 export function ArchiveRowActions({
@@ -31,10 +34,54 @@ export function ArchiveRowActions({
   onUnarchive,
 }: ArchiveRowActionsProps) {
   const { isHindi } = useLanguage();
-  const { handlePrintArchiveRecord, isLoading } = useArchivePrintService();
+  const { handlePrintArchiveRecord, isLoading: isPrintLoading } = useArchivePrintService();
+  const [isUnarchiving, setIsUnarchiving] = useState(false);
 
   const handlePrintClick = async () => {
     await handlePrintArchiveRecord(record, type);
+  };
+
+  const handleUnarchiveClick = async () => {
+    setIsUnarchiving(true);
+    try {
+      console.log(`Unarchiving ${type}:`, record.id);
+      
+      let result;
+      if (type === 'staff') {
+        result = await unarchiveStaff(record.id);
+      } else {
+        result = await unarchiveTrainee(record.id);
+      }
+
+      if (result.error) {
+        console.error(`Error unarchiving ${type}:`, result.error);
+        toast.error(
+          isHindi 
+            ? `${type === 'staff' ? 'स्टाफ' : 'प्रशिक्षु'} को अनआर्काइव करने में त्रुटि हुई` 
+            : `Error unarchiving ${type}`
+        );
+      } else {
+        toast.success(
+          isHindi 
+            ? `${type === 'staff' ? 'स्टाफ' : 'प्रशिक्षु'} सफलतापूर्वक अनआर्काइव हो गया` 
+            : `${type === 'staff' ? 'Staff' : 'Trainee'} unarchived successfully`
+        );
+        
+        // Call the onUnarchive callback if provided
+        if (onUnarchive) {
+          onUnarchive(record);
+        }
+      }
+    } catch (error) {
+      console.error(`Error unarchiving ${type}:`, error);
+      toast.error(
+        isHindi 
+          ? `${type === 'staff' ? 'स्टाफ' : 'प्रशिक्षु'} को अनआर्काइव करने में त्रुटि हुई` 
+          : `Error unarchiving ${type}`
+      );
+    } finally {
+      setIsUnarchiving(false);
+    }
   };
 
   return (
@@ -60,12 +107,12 @@ export function ArchiveRowActions({
         
         <DropdownMenuItem 
           onClick={handlePrintClick} 
-          disabled={isLoading}
+          disabled={isPrintLoading}
           className="cursor-pointer"
         >
           <Printer className="mr-2 h-4 w-4" />
           <span className={isHindi ? 'font-hindi' : ''}>
-            {isLoading 
+            {isPrintLoading 
               ? (isHindi ? 'प्रिंट हो रहा है...' : 'Printing...') 
               : (isHindi ? 'प्रिंट करें' : 'Print')
             }
@@ -81,10 +128,17 @@ export function ArchiveRowActions({
         
         <DropdownMenuSeparator />
         
-        <DropdownMenuItem onClick={() => onUnarchive(record)} className="cursor-pointer">
+        <DropdownMenuItem 
+          onClick={handleUnarchiveClick} 
+          disabled={isUnarchiving}
+          className="cursor-pointer"
+        >
           <RotateCcw className="mr-2 h-4 w-4" />
           <span className={isHindi ? 'font-hindi' : ''}>
-            {isHindi ? 'अनआर्काइव करें' : 'Unarchive'}
+            {isUnarchiving
+              ? (isHindi ? 'अनआर्काइव हो रहा है...' : 'Unarchiving...')
+              : (isHindi ? 'अनआर्काइव करें' : 'Unarchive')
+            }
           </span>
         </DropdownMenuItem>
       </DropdownMenuContent>
