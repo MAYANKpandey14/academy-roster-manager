@@ -26,6 +26,28 @@ export const AttendanceStatus = memo(function AttendanceStatus({ status, type }:
     );
   }
   
+  // Duty status (blue badge)
+  if (statusValue === 'duty') {
+    return (
+      <Badge variant="outline" className="font-normal bg-blue-100 text-blue-800 border-blue-200 transition-colors duration-200">
+        <span className={isHindi ? "font-hindi" : ""}>
+          {isHindi ? "ड्यूटी" : "Duty"}
+        </span>
+      </Badge>
+    );
+  }
+  
+  // Training status (teal badge)
+  if (statusValue === 'training') {
+    return (
+      <Badge variant="outline" className="font-normal bg-teal-100 text-teal-800 border-teal-200 transition-colors duration-200">
+        <span className={isHindi ? "font-hindi" : ""}>
+          {isHindi ? "प्रशिक्षण" : "Training"}
+        </span>
+      </Badge>
+    );
+  }
+  
   // Leave status (outlined blue badge)
   if (statusValue === 'leave' || statusValue === 'on_leave') {
     return (

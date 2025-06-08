@@ -83,7 +83,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
           };
         });
 
-        // Process leave data
+        // Process leave data with explicit type conversion
         const processedLeave: LeaveRecord[] = (leaveData || []).map(record => ({
           id: record.id,
           start_date: record.start_date,
