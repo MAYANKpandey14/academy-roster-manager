@@ -50,6 +50,16 @@ export function FormStatusField() {
                   {isHindi ? "अवकाश पर" : "On Leave"} *
                 </span>
               </SelectItem>
+              <SelectItem value="duty">
+                <span className={isHindi ? "font-mangal" : ""}>
+                  {isHindi ? "ड्यूटी" : "Duty"}
+                </span>
+              </SelectItem>
+              <SelectItem value="training">
+                <span className={isHindi ? "font-mangal" : ""}>
+                  {isHindi ? "प्रशिक्षण" : "Training"}
+                </span>
+              </SelectItem>
               <SelectItem value="return_to_unit">
                 <span className={isHindi ? "font-mangal" : ""}>
                   {isHindi ? "यूनिट वापसी" : "Return to Unit"}

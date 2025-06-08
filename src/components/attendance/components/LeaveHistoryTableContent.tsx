@@ -42,7 +42,7 @@ export function LeaveHistoryTableContent({ leave }: LeaveHistoryTableContentProp
               {isHindi ? 'स्थिति' : 'Status'}
             </th>
             <th className={`text-left p-3 font-medium ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? 'विवरण' : 'Details'}
+              {isHindi ? 'कारण' : 'Reason'}
             </th>
           </tr>
         </thead>
@@ -50,7 +50,9 @@ export function LeaveHistoryTableContent({ leave }: LeaveHistoryTableContentProp
           {leave.map((record, index) => (
             <tr key={index} className="border-b hover:bg-gray-50">
               <td className="p-3">
-                {formatDate(record.start_date)} - {formatDate(record.end_date)}
+                <div className="font-medium">
+                  {formatDate(record.start_date)} - {formatDate(record.end_date)}
+                </div>
               </td>
               <td className="p-3">
                 <Badge variant="outline">
@@ -65,9 +67,12 @@ export function LeaveHistoryTableContent({ leave }: LeaveHistoryTableContentProp
                 </Badge>
               </td>
               <td className="p-3">
-                <span className="text-sm text-gray-600">
-                  {isHindi ? 'कारण: ' : 'Reason: '}{record.reason}
-                </span>
+                <div className="text-sm">
+                  <span className="font-medium">
+                    {isHindi ? 'कारण: ' : 'Reason: '}
+                  </span>
+                  <span className="text-gray-700">{record.reason}</span>
+                </div>
               </td>
             </tr>
           ))}

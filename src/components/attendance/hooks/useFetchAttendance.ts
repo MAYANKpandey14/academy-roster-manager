@@ -30,7 +30,7 @@ export interface AttendanceData {
 export function useFetchAttendance(personId: string, personType: "staff" | "trainee") {
   return useQuery({
     queryKey: ["attendance", personId, personType],
-    queryFn: async () => {
+    queryFn: async (): Promise<AttendanceData> => {
       try {
         console.log(`Fetching attendance for ${personType} ID: ${personId}`);
 
@@ -62,44 +62,52 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
           throw leaveResult.error;
         }
 
-        const processedAttendance = (attendanceResult.data || []).map((record) => {
-          let actualStatus = record.status;
-          let reason = undefined;
-          
-          if (record.status && record.status.includes(": ")) {
-            const parts = record.status.split(": ");
-            actualStatus = parts[0];
-            reason = parts.slice(1).join(": ");
+        const attendanceRecords: AttendanceRecord[] = [];
+        if (attendanceResult.data) {
+          for (const record of attendanceResult.data) {
+            let actualStatus = record.status;
+            let reason = undefined;
+            
+            if (record.status && record.status.includes(": ")) {
+              const parts = record.status.split(": ");
+              actualStatus = parts[0];
+              reason = parts.slice(1).join(": ");
+            }
+            
+            attendanceRecords.push({
+              id: record.id,
+              date: record.date,
+              status: actualStatus,
+              approval_status: record.approval_status || "pending",
+              person_id: personId,
+              reason: reason
+            });
           }
-          
-          return {
-            id: record.id,
-            date: record.date,
-            status: actualStatus,
-            approval_status: record.approval_status || "pending",
-            person_id: personId,
-            reason: reason
-          };
-        });
+        }
 
-        const processedLeave = (leaveResult.data || []).map((record) => ({
-          id: record.id,
-          start_date: record.start_date,
-          end_date: record.end_date,
-          reason: record.reason,
-          status: record.status,
-          leave_type: record.leave_type,
-          approval_status: record.status || "approved",
-          person_id: personId
-        }));
+        const leaveRecords: LeaveRecord[] = [];
+        if (leaveResult.data) {
+          for (const record of leaveResult.data) {
+            leaveRecords.push({
+              id: record.id,
+              start_date: record.start_date,
+              end_date: record.end_date,
+              reason: record.reason,
+              status: record.status,
+              leave_type: record.leave_type,
+              approval_status: record.status || "approved",
+              person_id: personId
+            });
+          }
+        }
 
-        console.log("Processed attendance data:", processedAttendance);
-        console.log("Processed leave data:", processedLeave);
+        console.log("Processed attendance data:", attendanceRecords);
+        console.log("Processed leave data:", leaveRecords);
 
         return {
-          attendance: processedAttendance,
-          leave: processedLeave
-        } as AttendanceData;
+          attendance: attendanceRecords,
+          leave: leaveRecords
+        };
       } catch (error) {
         console.error("Error in useFetchAttendance:", error);
         throw error;
