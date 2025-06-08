@@ -38,31 +38,32 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         const leaveTable = personType === "staff" ? "staff_leave" : "trainee_leave";
         const idColumn = personType === "staff" ? "staff_id" : "trainee_id";
 
-        // Fetch attendance data
-        const { data: attendanceData, error: attendanceError } = await supabase
+        // Fetch attendance data with explicit type
+        const attendanceResult = await supabase
           .from(attendanceTable)
           .select("id, date, status, approval_status")
           .eq(idColumn, personId)
           .order("date", { ascending: false });
 
-        // Fetch leave data
-        const { data: leaveData, error: leaveError } = await supabase
+        // Fetch leave data with explicit type
+        const leaveResult = await supabase
           .from(leaveTable)
           .select("id, start_date, end_date, reason, status, leave_type")
           .eq(idColumn, personId)
           .order("start_date", { ascending: false });
 
-        if (attendanceError) {
-          console.error("Error fetching attendance:", attendanceError);
-          throw attendanceError;
+        if (attendanceResult.error) {
+          console.error("Error fetching attendance:", attendanceResult.error);
+          throw attendanceResult.error;
         }
 
-        if (leaveError) {
-          console.error("Error fetching leave:", leaveError);
-          throw leaveError;
+        if (leaveResult.error) {
+          console.error("Error fetching leave:", leaveResult.error);
+          throw leaveResult.error;
         }
 
-        const processedAttendance: AttendanceRecord[] = (attendanceData || []).map((record) => {
+        // Process attendance data - handle "status: reason" format
+        const processedAttendance: AttendanceRecord[] = (attendanceResult.data || []).map((record: any) => {
           let actualStatus = record.status;
           let reason = undefined;
           
@@ -82,14 +83,15 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
           };
         });
 
-        const processedLeave: LeaveRecord[] = (leaveData || []).map((record) => ({
+        // Process leave data
+        const processedLeave: LeaveRecord[] = (leaveResult.data || []).map((record: any) => ({
           id: record.id,
           start_date: record.start_date,
           end_date: record.end_date,
           reason: record.reason,
           status: record.status,
           leave_type: record.leave_type,
-          approval_status: record.status || "approved",
+          approval_status: record.status || "pending",
           person_id: personId
         }));
 

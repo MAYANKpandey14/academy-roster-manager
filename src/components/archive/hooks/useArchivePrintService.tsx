@@ -18,6 +18,8 @@ export function useArchivePrintService() {
       const leaveTable = personType === "staff" ? "staff_leave" : "trainee_leave";
       const idColumn = personType === "staff" ? "staff_id" : "trainee_id";
 
+      console.log(`Fetching archive attendance data for ${personType} ID: ${personId}`);
+
       // Fetch attendance data
       const attendanceResult = await supabase
         .from(attendanceTable)
@@ -32,6 +34,10 @@ export function useArchivePrintService() {
         .eq(idColumn, personId)
         .order("start_date", { ascending: false });
 
+      console.log("Archive attendance result:", attendanceResult);
+      console.log("Archive leave result:", leaveResult);
+
+      // Process attendance records with proper status parsing
       const attendanceRecords = (attendanceResult.data || []).map((record: any) => {
         let actualStatus = record.status;
         let reason = undefined;
@@ -52,6 +58,7 @@ export function useArchivePrintService() {
         };
       });
 
+      // Process leave records
       const leaveRecords = (leaveResult.data || []).map((record: any) => ({
         id: record.id,
         start_date: record.start_date,
@@ -59,16 +66,19 @@ export function useArchivePrintService() {
         reason: record.reason,
         status: record.status,
         leave_type: record.leave_type,
-        approval_status: record.status || "approved",
+        approval_status: record.status || "pending",
         person_id: personId
       }));
+
+      console.log("Processed archive attendance records:", attendanceRecords);
+      console.log("Processed archive leave records:", leaveRecords);
 
       return {
         attendance: attendanceRecords,
         leave: leaveRecords
       };
     } catch (error) {
-      console.error("Error fetching attendance data:", error);
+      console.error("Error fetching archive attendance data:", error);
       return { attendance: [], leave: [] };
     }
   };
@@ -81,7 +91,7 @@ export function useArchivePrintService() {
     try {
       console.log("Printing archive record:", record, "Type:", type);
 
-      // Fetch complete attendance and leave data
+      // Fetch complete attendance and leave data for the archived record
       const attendanceData = await fetchAttendanceData(record.id, type);
 
       let content = '';

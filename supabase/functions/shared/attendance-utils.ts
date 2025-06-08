@@ -17,7 +17,7 @@ export interface DatabaseResult {
 
 // Helper function to determine approval status based on absence type
 export function getApprovalStatus(status: string): string {
-  // Based on requirements: No approval required for absent, duty, training, suspension, termination, return_to_unit
+  // Auto-approved statuses: absent, duty, training, suspension, termination, return_to_unit
   if (['absent', 'duty', 'training', 'suspension', 'termination', 'return_to_unit'].includes(status)) {
     return 'approved';
   }

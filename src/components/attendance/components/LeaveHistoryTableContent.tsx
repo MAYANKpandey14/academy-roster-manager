@@ -1,78 +1,105 @@
 
-import { LeaveRecord } from "@/components/attendance/hooks/useFetchAttendance";
-import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { format, parseISO } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ApprovalStatus } from "../ApprovalStatus";
+import { ApprovalActions } from "../ApprovalActions";
+import { type LeaveRecord } from "../hooks/useFetchAttendance";
+import { PersonType } from "../types/attendanceTypes";
 
 interface LeaveHistoryTableContentProps {
-  leave: LeaveRecord[];
+  leaveRecords: LeaveRecord[];
+  personType: PersonType;
 }
 
-export function LeaveHistoryTableContent({ leave }: LeaveHistoryTableContentProps) {
+export const LeaveHistoryTableContent = ({ leaveRecords, personType }: LeaveHistoryTableContentProps) => {
   const { isHindi } = useLanguage();
 
-  const formatDate = (dateString: string) => {
-    try {
-      return format(new Date(dateString), 'dd/MM/yyyy');
-    } catch {
-      return dateString;
-    }
-  };
-
-  if (leave.length === 0) {
+  if (leaveRecords.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
-        <p>{isHindi ? 'कोई छुट्टी रिकॉर्ड नहीं मिला' : 'No leave records found'}</p>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className={isHindi ? 'font-hindi' : ''}>
+            {isHindi ? 'छुट्टी का इतिहास' : 'Leave History'}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 text-center">
+          <p className={`text-muted-foreground ${isHindi ? 'font-hindi' : ''}`}>
+            {isHindi ? 'कोई छुट्टी का रिकॉर्ड उपलब्ध नहीं है' : 'No leave records available'}
+          </p>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="border-b bg-gray-50">
-            <th className={`text-left p-3 font-medium ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? 'तारीख रेंज' : 'Date Range'}
-            </th>
-            <th className={`text-left p-3 font-medium ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? 'प्रकार' : 'Type'}
-            </th>
-            <th className={`text-left p-3 font-medium ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? 'स्थिति' : 'Status'}
-            </th>
-            <th className={`text-left p-3 font-medium ${isHindi ? 'font-hindi' : ''}`}>
-              {isHindi ? 'विवरण' : 'Details'}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {leave.map((record, index) => (
-            <tr key={index} className="border-b hover:bg-gray-50">
-              <td className="p-3">
-                {formatDate(record.start_date)} - {formatDate(record.end_date)}
-              </td>
-              <td className="p-3">
-                <Badge variant="outline">
-                  {record.leave_type || 'N/A'}
-                </Badge>
-              </td>
-              <td className="p-3">
-                <Badge 
-                  variant={record.status === 'approved' ? 'default' : 'secondary'}
-                >
-                  {record.status}
-                </Badge>
-              </td>
-              <td className="p-3">
-                <span className="text-sm text-gray-600">
-                  {isHindi ? 'कारण: ' : 'Reason: '}{record.reason}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className={isHindi ? 'font-hindi' : ''}>
+          {isHindi ? 'छुट्टी का इतिहास' : 'Leave History'}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? 'प्रारंभ दिनांक' : 'Start Date'}
+              </TableHead>
+              <TableHead className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? 'समाप्ति दिनांक' : 'End Date'}
+              </TableHead>
+              <TableHead className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? 'छुट्टी का प्रकार' : 'Leave Type'}
+              </TableHead>
+              <TableHead className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? 'कारण' : 'Reason'}
+              </TableHead>
+              <TableHead className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? 'अनुमोदन स्थिति' : 'Approval Status'}
+              </TableHead>
+              <TableHead className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? 'कार्रवाई' : 'Actions'}
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {leaveRecords.map((record) => (
+              <TableRow key={record.id}>
+                <TableCell className="font-medium">
+                  {format(parseISO(record.start_date), 'dd/MM/yyyy')}
+                </TableCell>
+                <TableCell>
+                  {format(parseISO(record.end_date), 'dd/MM/yyyy')}
+                </TableCell>
+                <TableCell>
+                  <span className="capitalize">
+                    {record.leave_type || (isHindi ? 'सामान्य' : 'General')}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <span className="text-sm">{record.reason}</span>
+                </TableCell>
+                <TableCell>
+                  <ApprovalStatus status={record.approval_status as "approved" | "rejected" | "pending"} />
+                </TableCell>
+                <TableCell>
+                  <ApprovalActions
+                    recordId={record.id}
+                    recordType="leave"
+                    personType={personType}
+                    currentStatus={record.approval_status as "approved" | "rejected" | "pending"}
+                    absenceType="on_leave"
+                    personId={record.person_id || ""}
+                    onStatusUpdate={() => {}}
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
-}
+};
