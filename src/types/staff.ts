@@ -1,6 +1,5 @@
-
 export type BloodGroup = "A+" | "A-" | "B+" | "B-" | "O+" | "O-" | "AB+" | "AB-";
-export type StaffRank = "R/CONST" | "CONST" | "CONST/PTI" | "CONST/ITI" | "HC/CP" | "HC/AP" | "HC-ITI" | "HC-PTI" | "SI/AP" | "SI/CP" | "RI" | "RSI" | "Inspector" | "FALL" | "Sweeper" | "Barber" | "Washerman" | "Peon";
+export type StaffRank = "R/CONST" | "CONST" | "CONST/PTI" | "CONST/ITI" | "HC/CP" | "HC/AP" | "HC-ITI" | "HC-PTI" | "SI/AP" | "SI/CP" | "RI" | "RSI" | "Inspector" | "FALL" | "Sweeper" | "Barber" | "Washerman" | "Peon" | "Other";
 
 export interface Staff {
   id: string;
