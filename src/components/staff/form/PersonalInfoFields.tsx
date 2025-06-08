@@ -1,37 +1,26 @@
 
-import { useFormContext } from "react-hook-form";
-import { 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormControl, 
-  FormMessage 
-} from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { bloodGroups } from "../StaffFormSchema";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UseFormReturn } from "react-hook-form";
+import { StaffFormValues, bloodGroups } from "@/components/staff/StaffFormSchema";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-type PersonalInfoFieldsProps = {
-  isHindi: boolean;
-};
+interface PersonalInfoFieldsProps {
+  form: UseFormReturn<StaffFormValues>;
+}
 
-export function PersonalInfoFields({ isHindi }: PersonalInfoFieldsProps) {
-  const form = useFormContext();
+export function PersonalInfoFields({ form }: PersonalInfoFieldsProps) {
+  const { isHindi } = useLanguage();
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <>
       <FormField
         control={form.control}
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel aria-required="true" className={isHindi ? 'font-hindi' : ''}>
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
               {isHindi ? "नाम" : "Name"}
             </FormLabel>
             <FormControl>
@@ -47,7 +36,7 @@ export function PersonalInfoFields({ isHindi }: PersonalInfoFieldsProps) {
         name="father_name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel aria-required="true" className={isHindi ? 'font-hindi' : ''}>
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
               {isHindi ? "पिता का नाम" : "Father's Name"}
             </FormLabel>
             <FormControl>
@@ -63,7 +52,7 @@ export function PersonalInfoFields({ isHindi }: PersonalInfoFieldsProps) {
         name="date_of_birth"
         render={({ field }) => (
           <FormItem>
-            <FormLabel aria-required="true" className={isHindi ? 'font-hindi' : ''}>
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
               {isHindi ? "जन्म तिथि" : "Date of Birth"}
             </FormLabel>
             <FormControl>
@@ -79,7 +68,7 @@ export function PersonalInfoFields({ isHindi }: PersonalInfoFieldsProps) {
         name="blood_group"
         render={({ field }) => (
           <FormItem>
-            <FormLabel aria-required="true" className={isHindi ? 'font-hindi' : ''}>
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
               {isHindi ? "रक्त समूह" : "Blood Group"}
             </FormLabel>
             <Select onValueChange={field.onChange} value={field.value}>
@@ -103,11 +92,11 @@ export function PersonalInfoFields({ isHindi }: PersonalInfoFieldsProps) {
 
       <FormField
         control={form.control}
-        name="education"
+        name="nominee"
         render={({ field }) => (
           <FormItem>
-            <FormLabel aria-required="true" className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? "शिक्षा" : "Education"}
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? "नॉमिनी" : "Nominee"}
             </FormLabel>
             <FormControl>
               <Input {...field} />
@@ -119,11 +108,11 @@ export function PersonalInfoFields({ isHindi }: PersonalInfoFieldsProps) {
 
       <FormField
         control={form.control}
-        name="nominee"
+        name="home_address"
         render={({ field }) => (
           <FormItem>
-            <FormLabel aria-required="true" className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? "नॉमिनी" : "Nominee"}
+            <FormLabel className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? "घर का पता" : "Home Address"}
             </FormLabel>
             <FormControl>
               <Input {...field} />
@@ -132,6 +121,6 @@ export function PersonalInfoFields({ isHindi }: PersonalInfoFieldsProps) {
           </FormItem>
         )}
       />
-    </div>
+    </>
   );
 }

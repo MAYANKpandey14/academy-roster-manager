@@ -59,6 +59,9 @@ serve(async (req) => {
       throw new Error(`Failed to restore staff to active table: ${insertError.message}`)
     }
 
+    // Note: We deliberately DO NOT delete attendance and leave data during archiving/unarchiving
+    // This preserves historical records which is important for audit trails
+    
     // Delete from archived_staff table
     const { error: deleteError } = await supabaseClient
       .from('archived_staff')
