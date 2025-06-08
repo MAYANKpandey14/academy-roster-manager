@@ -23,17 +23,39 @@ serve(async (req) => {
       }
     )
 
-    const { id, folder_id } = await req.json()
+    // More robust JSON parsing with error handling
+    let requestBody;
+    try {
+      const text = await req.text();
+      console.log("Request body text:", text);
+      
+      if (!text || text.trim() === '') {
+        throw new Error('Empty request body');
+      }
+      
+      requestBody = JSON.parse(text);
+      console.log("Parsed request body:", requestBody);
+    } catch (parseError) {
+      console.error("JSON parsing error:", parseError);
+      throw new Error(`Invalid JSON in request body: ${parseError.message}`);
+    }
+
+    const { id, folder_id } = requestBody;
 
     if (!id) {
       throw new Error('Trainee ID is required')
     }
 
+    console.log(`Processing archive for trainee ID: ${id}, folder_id: ${folder_id}`);
+
     // Get the current user for audit trail
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
     if (userError || !user) {
+      console.error("User authentication error:", userError);
       throw new Error('Authentication required')
     }
+
+    console.log("User authenticated:", !!user);
 
     // Get the trainee record first
     const { data: traineeData, error: fetchError } = await supabaseClient
@@ -43,6 +65,7 @@ serve(async (req) => {
       .single()
 
     if (fetchError) {
+      console.error("Error fetching trainee:", fetchError);
       throw new Error(`Failed to fetch trainee: ${fetchError.message}`)
     }
 
@@ -50,17 +73,25 @@ serve(async (req) => {
       throw new Error('Trainee record not found')
     }
 
+    console.log("Trainee data retrieved:", traineeData.name);
+
     // Insert into archived_trainees table with folder_id and archived_by
+    const archiveData = {
+      ...traineeData,
+      folder_id: folder_id || null,
+      archived_at: new Date().toISOString(),
+      archived_by: user.id,
+      status: 'archived'
+    };
+
+    console.log("Inserting archive data for trainee:", traineeData.name);
+
     const { error: insertError } = await supabaseClient
       .from('archived_trainees')
-      .insert({
-        ...traineeData,
-        folder_id: folder_id || null,
-        archived_at: new Date().toISOString(),
-        archived_by: user.id
-      })
+      .insert(archiveData)
 
     if (insertError) {
+      console.error("Error inserting to archive:", insertError);
       throw new Error(`Failed to archive trainee: ${insertError.message}`)
     }
 
@@ -71,6 +102,7 @@ serve(async (req) => {
       .eq('id', id)
 
     if (deleteError) {
+      console.error("Error deleting trainee:", deleteError);
       // If deletion fails, we should clean up the archived record
       await supabaseClient
         .from('archived_trainees')
@@ -79,6 +111,8 @@ serve(async (req) => {
       
       throw new Error(`Failed to remove trainee from active list: ${deleteError.message}`)
     }
+
+    console.log("Trainee archived successfully");
 
     return new Response(
       JSON.stringify({ 

@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export async function archiveStaff(staffId: string, folderId?: string): Promise<{ error: Error | null }> {
@@ -12,30 +11,22 @@ export async function archiveStaff(staffId: string, folderId?: string): Promise<
     console.log("Archiving staff with session:", !!session);
     console.log("Staff ID:", staffId, "Folder ID:", folderId);
     
-    const requestBody = JSON.stringify({ 
-      id: staffId,
-      folder_id: folderId
-    });
-    
-    console.log("Request body being sent:", requestBody);
-    
-    const response = await fetch(`https://zjgphamebgrclivvkhmw.supabase.co/functions/v1/archive-staff`, {
-      method: 'POST',
+    const { data, error } = await supabase.functions.invoke('archive-staff', {
+      body: { 
+        id: staffId,
+        folder_id: folderId
+      },
       headers: {
         'Authorization': `Bearer ${session.access_token}`,
-        'Content-Type': 'application/json',
-        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZ3BoYW1lYmdyY2xpdnZraG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU2OTM2NDcsImV4cCI6MjA2MTI2OTY0N30.1SmOoYa7R4iybW0nCIuc-FrbYML-EP9yC2ykJ6kpUTo'
-      },
-      body: requestBody
+        'Content-Type': 'application/json'
+      }
     });
     
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Archive response error:", errorText);
-      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    if (error) {
+      console.error("Error archiving staff:", error);
+      throw error;
     }
     
-    const data = await response.json();
     console.log("Staff archived successfully:", data);
     return { error: null };
   } catch (error) {
@@ -55,6 +46,7 @@ export async function archiveTrainee(traineeId: string, folderId?: string): Prom
     }
     
     console.log("Archiving trainee with session:", !!session);
+    console.log("Trainee ID:", traineeId, "Folder ID:", folderId);
     
     const { data, error } = await supabase.functions.invoke('archive-trainee', {
       body: { 
