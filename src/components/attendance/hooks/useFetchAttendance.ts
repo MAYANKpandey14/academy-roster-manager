@@ -65,8 +65,8 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         console.log("Raw attendance data:", attendanceData);
         console.log("Raw leave data:", leaveData);
 
-        // Process attendance data - handle "status: reason" format
-        const processedAttendance: AttendanceRecord[] = (attendanceData || []).map((record: any) => {
+        // Process attendance data with explicit typing
+        const processedAttendance: AttendanceRecord[] = (attendanceData || []).map((record: any): AttendanceRecord => {
           let actualStatus = record.status || 'present';
           let reason: string | undefined = undefined;
           
@@ -86,8 +86,8 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
           };
         });
 
-        // Process leave data
-        const processedLeave: LeaveRecord[] = (leaveData || []).map((record: any) => ({
+        // Process leave data with explicit typing
+        const processedLeave: LeaveRecord[] = (leaveData || []).map((record: any): LeaveRecord => ({
           id: record.id,
           start_date: record.start_date,
           end_date: record.end_date,

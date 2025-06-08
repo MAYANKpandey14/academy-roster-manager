@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export async function archiveStaff(staffId: string, folderId?: string): Promise<{ error: Error | null }> {
@@ -17,14 +16,10 @@ export async function archiveStaff(staffId: string, folderId?: string): Promise<
       folder_id: folderId || null
     };
     
-    console.log("Sending request body:", JSON.stringify(requestBody));
+    console.log("Sending request body:", requestBody);
     
     const { data, error } = await supabase.functions.invoke('archive-staff', {
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Authorization': `Bearer ${session.access_token}`,
-        'Content-Type': 'application/json'
-      }
+      body: requestBody
     });
     
     if (error) {
@@ -58,14 +53,10 @@ export async function archiveTrainee(traineeId: string, folderId?: string): Prom
       folder_id: folderId || null
     };
     
-    console.log("Sending request body:", JSON.stringify(requestBody));
+    console.log("Sending request body:", requestBody);
     
     const { data, error } = await supabase.functions.invoke('archive-trainee', {
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Authorization': `Bearer ${session.access_token}`,
-        'Content-Type': 'application/json'
-      }
+      body: requestBody
     });
     
     if (error) {
@@ -97,10 +88,6 @@ export async function archiveAllStaff(staffIds: string[], folderId?: string): Pr
       body: { 
         staff_ids: staffIds,
         folder_id: folderId
-      },
-      headers: {
-        'Authorization': `Bearer ${session.access_token}`,
-        'Content-Type': 'application/json'
       }
     });
     
@@ -133,10 +120,6 @@ export async function archiveAllTrainees(traineeIds: string[], folderId?: string
       body: { 
         trainee_ids: traineeIds,
         folder_id: folderId
-      },
-      headers: {
-        'Authorization': `Bearer ${session.access_token}`,
-        'Content-Type': 'application/json'
       }
     });
     
