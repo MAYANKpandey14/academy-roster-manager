@@ -1,18 +1,22 @@
 
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/layout/Header";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AttendanceHistory } from "@/components/attendance/AttendanceHistory";
+import { AttendanceForm } from "@/components/attendance/AttendanceForm";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function StaffAttendancePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { isHindi } = useLanguage();
+  const [showAttendanceForm, setShowAttendanceForm] = useState(false);
 
   const { data: staff, isLoading, error } = useQuery({
     queryKey: ["staff", id],
@@ -61,22 +65,36 @@ export default function StaffAttendancePage() {
     );
   }
 
+  const handleAttendanceSuccess = () => {
+    setShowAttendanceForm(false);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
       <main className="container mx-auto py-6 px-4">
-        <div className="mb-6 flex items-center gap-4">
-          <Button
-            variant="outline"
-            onClick={() => navigate("/staff")}
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              onClick={() => navigate("/staff")}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              {isHindi ? "वापस" : "Back"}
+            </Button>
+            <h1 className={`text-2xl font-semibold ${isHindi ? "font-hindi" : ""}`}>
+              {isHindi ? "स्टाफ उपस्थिति" : "Staff Attendance"}
+            </h1>
+          </div>
+          
+          <Button 
+            onClick={() => setShowAttendanceForm(true)}
             className="flex items-center gap-2"
           >
-            <ArrowLeft className="h-4 w-4" />
-            {isHindi ? "वापस" : "Back"}
+            <Plus className="h-4 w-4" />
+            {isHindi ? "उपस्थिति/छुट्टी दर्ज करें" : "Mark Attendance/Leave"}
           </Button>
-          <h1 className={`text-2xl font-semibold ${isHindi ? "font-hindi" : ""}`}>
-            {isHindi ? "स्टाफ उपस्थिति" : "Staff Attendance"}
-          </h1>
         </div>
 
         <Card className="mb-6">
@@ -110,6 +128,22 @@ export default function StaffAttendancePage() {
         </Card>
 
         <AttendanceHistory personId={staff.id} personType="staff" />
+
+        <Dialog open={showAttendanceForm} onOpenChange={setShowAttendanceForm}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className={isHindi ? 'font-hindi' : ''}>
+                {isHindi ? "उपस्थिति/छुट्टी दर्ज करें" : "Mark Attendance/Leave"}
+              </DialogTitle>
+            </DialogHeader>
+            <AttendanceForm
+              personType="staff"
+              personId={staff.id}
+              pno={staff.pno}
+              onSuccess={handleAttendanceSuccess}
+            />
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );

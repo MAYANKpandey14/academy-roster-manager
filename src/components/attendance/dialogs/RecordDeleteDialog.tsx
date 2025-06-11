@@ -31,6 +31,8 @@ export function RecordDeleteDialog({
   const handleDelete = async () => {
     setIsLoading(true);
     try {
+      console.log("Deleting record:", { record, recordType, personType });
+      
       let tableName: "staff_attendance" | "trainee_attendance" | "staff_leave" | "trainee_leave";
       
       if (recordType === "attendance") {
@@ -39,13 +41,20 @@ export function RecordDeleteDialog({
         tableName = personType === "staff" ? "staff_leave" : "trainee_leave";
       }
       
+      console.log("Using table:", tableName, "for record ID:", record.id);
+      
       const { error } = await supabase
         .from(tableName)
         .delete()
         .eq("id", record.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Delete error:", error);
+        throw error;
+      }
 
+      console.log("Delete successful");
+      
       toast.success(isHindi ? 
         `${recordType === "attendance" ? "उपस्थिति" : "छुट्टी"} रिकॉर्ड डिलीट हो गया` : 
         `${recordType === "attendance" ? "Attendance" : "Leave"} record deleted successfully`

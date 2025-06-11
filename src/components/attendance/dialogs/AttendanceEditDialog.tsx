@@ -23,19 +23,21 @@ export function AttendanceEditDialog({ isOpen, onClose, record, personType }: At
   const { isHindi } = useLanguage();
   const [status, setStatus] = useState(record.status);
   const [reason, setReason] = useState(record.reason || "");
+  const [date, setDate] = useState(record.date);
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
 
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      const table = personType === "staff" ? "staff_attendance" : "trainee_attendance";
+      const tableName = personType === "staff" ? "staff_attendance" : "trainee_attendance";
       const statusWithReason = reason ? `${status}: ${reason}` : status;
       
       const { error } = await supabase
-        .from(table)
+        .from(tableName)
         .update({ 
           status: statusWithReason,
+          date: date,
           approval_status: "pending" // Reset approval status when edited
         })
         .eq("id", record.id);
@@ -72,6 +74,17 @@ export function AttendanceEditDialog({ isOpen, onClose, record, personType }: At
         </DialogHeader>
         
         <div className="space-y-4">
+          <div>
+            <Label className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'दिनांक' : 'Date'}
+            </Label>
+            <Input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+          </div>
+
           <div>
             <Label className={isHindi ? 'font-hindi' : ''}>
               {isHindi ? 'स्थिति' : 'Status'}
