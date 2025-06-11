@@ -18,13 +18,17 @@ interface AttendanceTableRowProps {
   personType: PersonType;
 }
 
-// Determine record type based on status
+// Improved record type determination
 const getRecordType = (status: string): 'attendance' | 'leave' => {
-  if (status === 'absent' || status === 'present' || status === 'suspension' || status === 'resignation' || status === 'termination' || status === 'return_to_unit') {
-    return 'attendance';
-  } else {
+  const normalizedStatus = status.toLowerCase();
+  
+  // Leave-related statuses
+  if (normalizedStatus === 'on_leave' || normalizedStatus === 'leave') {
     return 'leave';
   }
+  
+  // All other statuses are considered attendance
+  return 'attendance';
 };
 
 export function AttendanceTableRow({ record, personType }: AttendanceTableRowProps) {

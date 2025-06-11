@@ -36,6 +36,7 @@ export function FormStatusField() {
                 <SelectItem value="absent">{isHindi ? "अनुपस्थित" : "Absent"}</SelectItem>
                 <SelectItem value="duty">{isHindi ? "ड्यूटी" : "Duty"}</SelectItem>
                 <SelectItem value="training">{isHindi ? "प्रशिक्षण" : "Training"}</SelectItem>
+                <SelectItem value="teaching">{isHindi ? "शिक्षण" : "Teaching"}</SelectItem>
                 <SelectItem value="on_leave">{isHindi ? "छुट्टी पर" : "On Leave"}</SelectItem>
                 <SelectItem value="return_to_unit">{isHindi ? "यूनिट वापसी" : "Return to Unit"}</SelectItem>
                 <SelectItem value="suspension">{isHindi ? "निलंबन" : "Suspension"}</SelectItem>

@@ -81,35 +81,43 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         console.log("Raw attendance data:", attendanceData);
         console.log("Raw leave data:", leaveData);
 
-        // Process attendance data
+        // Process attendance data with explicit typing
         const processedAttendance: AttendanceRecord[] = [];
-        if (attendanceData) {
-          attendanceData.forEach((record: RawAttendanceRecord) => {
+        if (attendanceData && Array.isArray(attendanceData)) {
+          for (let i = 0; i < attendanceData.length; i++) {
+            const record = attendanceData[i] as RawAttendanceRecord;
             let actualStatus = record.status || 'present';
             let reason: string | undefined = undefined;
             
+            // Improved status parsing - only split on first occurrence of ": "
             if (record.status && record.status.includes(": ")) {
-              const parts = record.status.split(": ");
-              actualStatus = parts[0];
-              reason = parts.slice(1).join(": ");
+              const firstColonIndex = record.status.indexOf(": ");
+              if (firstColonIndex !== -1) {
+                actualStatus = record.status.substring(0, firstColonIndex);
+                reason = record.status.substring(firstColonIndex + 2);
+              }
             }
             
-            processedAttendance.push({
+            const processedRecord: AttendanceRecord = {
               id: record.id,
               date: record.date,
               status: actualStatus,
               approval_status: record.approval_status || "pending",
               person_id: personId,
               reason: reason
-            });
-          });
+            };
+            
+            processedAttendance.push(processedRecord);
+          }
         }
 
-        // Process leave data
+        // Process leave data with explicit typing
         const processedLeave: LeaveRecord[] = [];
-        if (leaveData) {
-          leaveData.forEach((record: RawLeaveRecord) => {
-            processedLeave.push({
+        if (leaveData && Array.isArray(leaveData)) {
+          for (let i = 0; i < leaveData.length; i++) {
+            const record = leaveData[i] as RawLeaveRecord;
+            
+            const processedRecord: LeaveRecord = {
               id: record.id,
               start_date: record.start_date,
               end_date: record.end_date,
@@ -118,8 +126,10 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
               leave_type: record.leave_type,
               approval_status: record.status || "pending",
               person_id: personId
-            });
-          });
+            };
+            
+            processedLeave.push(processedRecord);
+          }
         }
 
         console.log("Processed attendance data:", processedAttendance);

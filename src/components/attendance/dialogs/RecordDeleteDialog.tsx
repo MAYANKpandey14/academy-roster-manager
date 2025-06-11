@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -17,6 +17,11 @@ interface RecordDeleteDialogProps {
   personType: PersonType;
 }
 
+interface PersonDetails {
+  name: string;
+  pno: string;
+}
+
 type TableName = "staff_attendance" | "trainee_attendance" | "staff_leave" | "trainee_leave";
 
 export function RecordDeleteDialog({ 
@@ -28,7 +33,44 @@ export function RecordDeleteDialog({
 }: RecordDeleteDialogProps) {
   const { isHindi } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
+  const [personDetails, setPersonDetails] = useState<PersonDetails | null>(null);
+  const [loadingPersonDetails, setLoadingPersonDetails] = useState(false);
   const queryClient = useQueryClient();
+
+  // Fetch person details when dialog opens
+  useEffect(() => {
+    if (isOpen && record.person_id) {
+      const fetchPersonDetails = async () => {
+        setLoadingPersonDetails(true);
+        try {
+          const table = personType === "staff" ? "staff" : "trainees";
+          const { data, error } = await supabase
+            .from(table)
+            .select("name, pno")
+            .eq("id", record.person_id)
+            .single();
+
+          if (error) {
+            console.error("Error fetching person details:", error);
+            return;
+          }
+
+          if (data) {
+            setPersonDetails({
+              name: data.name,
+              pno: data.pno
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching person details:", error);
+        } finally {
+          setLoadingPersonDetails(false);
+        }
+      };
+
+      fetchPersonDetails();
+    }
+  }, [isOpen, record.person_id, personType]);
 
   const handleDelete = async () => {
     setIsLoading(true);
@@ -67,7 +109,7 @@ export function RecordDeleteDialog({
       );
 
       // Add a small delay to ensure database operation completes
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 200));
 
       // Invalidate and refetch queries to refresh data
       console.log("Invalidating queries for person_id:", record.person_id);
@@ -115,20 +157,35 @@ export function RecordDeleteDialog({
           </p>
 
           <div className="bg-gray-50 p-3 rounded">
-            <p className="text-sm">
-              <strong>Record ID:</strong> {record.id}
-            </p>
-            <p className="text-sm">
-              <strong>Person ID:</strong> {record.person_id}
-            </p>
+            {loadingPersonDetails ? (
+              <p className="text-sm">Loading person details...</p>
+            ) : personDetails ? (
+              <>
+                <p className="text-sm">
+                  <strong>{isHindi ? 'नाम:' : 'Name:'}</strong> {personDetails.name}
+                </p>
+                <p className="text-sm">
+                  <strong>{isHindi ? 'पी.नं.:' : 'P.No:'}</strong> {personDetails.pno}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm">
+                  <strong>Record ID:</strong> {record.id}
+                </p>
+                <p className="text-sm">
+                  <strong>Person ID:</strong> {record.person_id}
+                </p>
+              </>
+            )}
             {'date' in record && (
               <p className="text-sm">
-                <strong>Date:</strong> {record.date}
+                <strong>{isHindi ? 'दिनांक:' : 'Date:'}</strong> {record.date}
               </p>
             )}
             {'start_date' in record && (
               <p className="text-sm">
-                <strong>Start Date:</strong> {record.start_date}
+                <strong>{isHindi ? 'प्रारंभ दिनांक:' : 'Start Date:'}</strong> {record.start_date}
               </p>
             )}
           </div>
