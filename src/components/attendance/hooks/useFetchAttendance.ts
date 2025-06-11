@@ -65,10 +65,10 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         console.log("Raw attendance data:", attendanceData);
         console.log("Raw leave data:", leaveData);
 
-        // Process attendance data - simplified type handling
+        // Process attendance data - simplified processing
         const processedAttendance: AttendanceRecord[] = [];
         if (attendanceData) {
-          for (const record of attendanceData) {
+          attendanceData.forEach((record) => {
             let actualStatus = record.status || 'present';
             let reason: string | undefined = undefined;
             
@@ -86,13 +86,13 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
               person_id: personId,
               reason: reason
             });
-          }
+          });
         }
 
-        // Process leave data - simplified type handling
+        // Process leave data - simplified processing
         const processedLeave: LeaveRecord[] = [];
         if (leaveData) {
-          for (const record of leaveData) {
+          leaveData.forEach((record) => {
             processedLeave.push({
               id: record.id,
               start_date: record.start_date,
@@ -103,7 +103,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
               approval_status: record.status || "pending",
               person_id: personId
             });
-          }
+          });
         }
 
         console.log("Processed attendance data:", processedAttendance);

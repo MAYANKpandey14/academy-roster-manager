@@ -31,16 +31,16 @@ export function RecordDeleteDialog({
   const handleDelete = async () => {
     setIsLoading(true);
     try {
-      let table: string;
+      let tableName: "staff_attendance" | "trainee_attendance" | "staff_leave" | "trainee_leave";
       
       if (recordType === "attendance") {
-        table = personType === "staff" ? "staff_attendance" : "trainee_attendance";
+        tableName = personType === "staff" ? "staff_attendance" : "trainee_attendance";
       } else {
-        table = personType === "staff" ? "staff_leave" : "trainee_leave";
+        tableName = personType === "staff" ? "staff_leave" : "trainee_leave";
       }
       
       const { error } = await supabase
-        .from(table)
+        .from(tableName)
         .delete()
         .eq("id", record.id);
 
