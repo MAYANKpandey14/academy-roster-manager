@@ -15,6 +15,8 @@ export const AttendanceStatus = memo(function AttendanceStatus({ status, type }:
   // Determine which prop to use (for backward compatibility)
   const statusValue = type || status || 'present';
   
+  console.log("AttendanceStatus received:", { status, type, statusValue });
+  
   // Absent (red badge)
   if (statusValue === 'absent') {
     return (
@@ -102,12 +104,23 @@ export const AttendanceStatus = memo(function AttendanceStatus({ status, type }:
       </Badge>
     );
   }
+
+  // Present status (green badge)
+  if (statusValue === 'present') {
+    return (
+      <Badge variant="default" className="font-normal bg-green-500 transition-colors duration-200">
+        <span className={isHindi ? "font-hindi" : ""}>
+          {isHindi ? "उपस्थित" : "Present"}
+        </span>
+      </Badge>
+    );
+  }
   
-  // Present (default - green badge)
+  // Custom status (orange badge) - for any status not matching the predefined ones
   return (
-    <Badge variant="default" className="font-normal bg-green-500 transition-colors duration-200">
+    <Badge variant="outline" className="font-normal bg-orange-100 text-orange-800 border-orange-200 transition-colors duration-200">
       <span className={isHindi ? "font-hindi" : ""}>
-        {isHindi ? "उपस्थित" : "Present"}
+        {statusValue}
       </span>
     </Badge>
   );

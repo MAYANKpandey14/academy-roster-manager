@@ -17,6 +17,8 @@ interface RecordDeleteDialogProps {
   personType: PersonType;
 }
 
+type TableName = "staff_attendance" | "trainee_attendance" | "staff_leave" | "trainee_leave";
+
 export function RecordDeleteDialog({ 
   isOpen, 
   onClose, 
@@ -33,7 +35,7 @@ export function RecordDeleteDialog({
     try {
       console.log("Deleting record:", { record, recordType, personType });
       
-      let tableName: "staff_attendance" | "trainee_attendance" | "staff_leave" | "trainee_leave";
+      let tableName: TableName;
       
       if (recordType === "attendance") {
         tableName = personType === "staff" ? "staff_attendance" : "trainee_attendance";
@@ -43,17 +45,20 @@ export function RecordDeleteDialog({
       
       console.log("Using table:", tableName, "for record ID:", record.id);
       
-      const { error } = await supabase
+      const { error, data } = await supabase
         .from(tableName)
         .delete()
-        .eq("id", record.id);
+        .eq("id", record.id)
+        .select();
+
+      console.log("Delete operation result:", { error, data });
 
       if (error) {
         console.error("Delete error:", error);
         throw error;
       }
 
-      console.log("Delete successful");
+      console.log("Delete successful, deleted records:", data);
       
       toast.success(isHindi ? 
         `${recordType === "attendance" ? "उपस्थिति" : "छुट्टी"} रिकॉर्ड डिलीट हो गया` : 
@@ -94,6 +99,22 @@ export function RecordDeleteDialog({
               'Are you sure you want to delete this record? This action cannot be undone.'
             }
           </p>
+
+          <div className="bg-gray-50 p-3 rounded">
+            <p className="text-sm">
+              <strong>Record ID:</strong> {record.id}
+            </p>
+            {'date' in record && (
+              <p className="text-sm">
+                <strong>Date:</strong> {record.date}
+              </p>
+            )}
+            {'start_date' in record && (
+              <p className="text-sm">
+                <strong>Start Date:</strong> {record.start_date}
+              </p>
+            )}
+          </div>
 
           <div className="flex justify-end space-x-2">
             <Button variant="outline" onClick={onClose} disabled={isLoading}>

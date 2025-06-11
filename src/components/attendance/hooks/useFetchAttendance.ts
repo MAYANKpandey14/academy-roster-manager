@@ -38,65 +38,73 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         const leaveTable = personType === "staff" ? "staff_leave" : "trainee_leave";
         const idColumn = personType === "staff" ? "staff_id" : "trainee_id";
 
-        // Fetch attendance data
-        const { data: attendanceData, error: attendanceError } = await supabase
+        // Fetch attendance data with explicit typing
+        const attendanceQuery = await supabase
           .from(attendanceTable)
           .select("id, date, status, approval_status")
           .eq(idColumn, personId)
           .order("date", { ascending: false });
 
-        // Fetch leave data
-        const { data: leaveData, error: leaveError } = await supabase
+        // Fetch leave data with explicit typing
+        const leaveQuery = await supabase
           .from(leaveTable)
           .select("id, start_date, end_date, reason, status, leave_type")
           .eq(idColumn, personId)
           .order("start_date", { ascending: false });
 
-        if (attendanceError) {
-          console.error("Error fetching attendance:", attendanceError);
-          throw attendanceError;
+        if (attendanceQuery.error) {
+          console.error("Error fetching attendance:", attendanceQuery.error);
+          throw attendanceQuery.error;
         }
 
-        if (leaveError) {
-          console.error("Error fetching leave:", leaveError);
-          throw leaveError;
+        if (leaveQuery.error) {
+          console.error("Error fetching leave:", leaveQuery.error);
+          throw leaveQuery.error;
         }
 
-        console.log("Raw attendance data:", attendanceData);
-        console.log("Raw leave data:", leaveData);
+        console.log("Raw attendance data:", attendanceQuery.data);
+        console.log("Raw leave data:", leaveQuery.data);
 
-        // Process attendance data
-        const processedAttendance: AttendanceRecord[] = (attendanceData || []).map(record => {
-          let actualStatus = record.status || 'present';
-          let reason: string | undefined = undefined;
-          
-          if (record.status && record.status.includes(": ")) {
-            const parts = record.status.split(": ");
-            actualStatus = parts[0];
-            reason = parts.slice(1).join(": ");
+        // Process attendance data with explicit type handling
+        const processedAttendance: AttendanceRecord[] = [];
+        if (attendanceQuery.data) {
+          for (const record of attendanceQuery.data) {
+            let actualStatus = record.status || 'present';
+            let reason: string | undefined = undefined;
+            
+            if (record.status && record.status.includes(": ")) {
+              const parts = record.status.split(": ");
+              actualStatus = parts[0];
+              reason = parts.slice(1).join(": ");
+            }
+            
+            processedAttendance.push({
+              id: record.id,
+              date: record.date,
+              status: actualStatus,
+              approval_status: record.approval_status || "pending",
+              person_id: personId,
+              reason: reason
+            });
           }
-          
-          return {
-            id: record.id,
-            date: record.date,
-            status: actualStatus,
-            approval_status: record.approval_status || "pending",
-            person_id: personId,
-            reason: reason
-          };
-        });
+        }
 
-        // Process leave data
-        const processedLeave: LeaveRecord[] = (leaveData || []).map(record => ({
-          id: record.id,
-          start_date: record.start_date,
-          end_date: record.end_date,
-          reason: record.reason || '',
-          status: record.status || 'pending',
-          leave_type: record.leave_type,
-          approval_status: record.status || "pending",
-          person_id: personId
-        }));
+        // Process leave data with explicit type handling
+        const processedLeave: LeaveRecord[] = [];
+        if (leaveQuery.data) {
+          for (const record of leaveQuery.data) {
+            processedLeave.push({
+              id: record.id,
+              start_date: record.start_date,
+              end_date: record.end_date,
+              reason: record.reason || '',
+              status: record.status || 'pending',
+              leave_type: record.leave_type,
+              approval_status: record.status || "pending",
+              person_id: personId
+            });
+          }
+        }
 
         console.log("Processed attendance data:", processedAttendance);
         console.log("Processed leave data:", processedLeave);
