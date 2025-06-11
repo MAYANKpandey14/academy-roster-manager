@@ -34,6 +34,7 @@ export function RecordDeleteDialog({
     setIsLoading(true);
     try {
       console.log("Deleting record:", { record, recordType, personType });
+      console.log("Record person_id:", record.person_id);
       
       let tableName: TableName;
       
@@ -65,8 +66,21 @@ export function RecordDeleteDialog({
         `${recordType === "attendance" ? "Attendance" : "Leave"} record deleted successfully`
       );
 
-      // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ["attendance", record.person_id, personType] });
+      // Add a small delay to ensure database operation completes
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Invalidate and refetch queries to refresh data
+      console.log("Invalidating queries for person_id:", record.person_id);
+      await queryClient.invalidateQueries({ 
+        queryKey: ["attendance", record.person_id, personType] 
+      });
+      
+      // Force refetch
+      await queryClient.refetchQueries({ 
+        queryKey: ["attendance", record.person_id, personType] 
+      });
+      
+      console.log("Queries invalidated and refetched");
       
       onClose();
     } catch (error) {
@@ -103,6 +117,9 @@ export function RecordDeleteDialog({
           <div className="bg-gray-50 p-3 rounded">
             <p className="text-sm">
               <strong>Record ID:</strong> {record.id}
+            </p>
+            <p className="text-sm">
+              <strong>Person ID:</strong> {record.person_id}
             </p>
             {'date' in record && (
               <p className="text-sm">

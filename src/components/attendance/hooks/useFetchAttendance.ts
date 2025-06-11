@@ -27,10 +27,26 @@ export interface AttendanceData {
   leave: LeaveRecord[];
 }
 
+interface RawAttendanceRecord {
+  id: string;
+  date: string;
+  status: string;
+  approval_status: string;
+}
+
+interface RawLeaveRecord {
+  id: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  status: string;
+  leave_type?: string;
+}
+
 export function useFetchAttendance(personId: string, personType: "staff" | "trainee") {
   return useQuery<AttendanceData>({
     queryKey: ["attendance", personId, personType],
-    queryFn: async () => {
+    queryFn: async (): Promise<AttendanceData> => {
       try {
         console.log(`Fetching attendance for ${personType} ID: ${personId}`);
 
@@ -38,37 +54,37 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         const leaveTable = personType === "staff" ? "staff_leave" : "trainee_leave";
         const idColumn = personType === "staff" ? "staff_id" : "trainee_id";
 
-        // Fetch attendance data with explicit typing
-        const attendanceQuery = await supabase
+        // Fetch attendance data
+        const { data: attendanceData, error: attendanceError } = await supabase
           .from(attendanceTable)
           .select("id, date, status, approval_status")
           .eq(idColumn, personId)
           .order("date", { ascending: false });
 
-        // Fetch leave data with explicit typing
-        const leaveQuery = await supabase
+        // Fetch leave data
+        const { data: leaveData, error: leaveError } = await supabase
           .from(leaveTable)
           .select("id, start_date, end_date, reason, status, leave_type")
           .eq(idColumn, personId)
           .order("start_date", { ascending: false });
 
-        if (attendanceQuery.error) {
-          console.error("Error fetching attendance:", attendanceQuery.error);
-          throw attendanceQuery.error;
+        if (attendanceError) {
+          console.error("Error fetching attendance:", attendanceError);
+          throw attendanceError;
         }
 
-        if (leaveQuery.error) {
-          console.error("Error fetching leave:", leaveQuery.error);
-          throw leaveQuery.error;
+        if (leaveError) {
+          console.error("Error fetching leave:", leaveError);
+          throw leaveError;
         }
 
-        console.log("Raw attendance data:", attendanceQuery.data);
-        console.log("Raw leave data:", leaveQuery.data);
+        console.log("Raw attendance data:", attendanceData);
+        console.log("Raw leave data:", leaveData);
 
-        // Process attendance data with explicit type handling
+        // Process attendance data
         const processedAttendance: AttendanceRecord[] = [];
-        if (attendanceQuery.data) {
-          for (const record of attendanceQuery.data) {
+        if (attendanceData) {
+          attendanceData.forEach((record: RawAttendanceRecord) => {
             let actualStatus = record.status || 'present';
             let reason: string | undefined = undefined;
             
@@ -86,13 +102,13 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
               person_id: personId,
               reason: reason
             });
-          }
+          });
         }
 
-        // Process leave data with explicit type handling
+        // Process leave data
         const processedLeave: LeaveRecord[] = [];
-        if (leaveQuery.data) {
-          for (const record of leaveQuery.data) {
+        if (leaveData) {
+          leaveData.forEach((record: RawLeaveRecord) => {
             processedLeave.push({
               id: record.id,
               start_date: record.start_date,
@@ -103,7 +119,7 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
               approval_status: record.status || "pending",
               person_id: personId
             });
-          }
+          });
         }
 
         console.log("Processed attendance data:", processedAttendance);
