@@ -65,38 +65,46 @@ export function useFetchAttendance(personId: string, personType: "staff" | "trai
         console.log("Raw attendance data:", attendanceData);
         console.log("Raw leave data:", leaveData);
 
-        // Process attendance data with explicit typing
-        const processedAttendance: AttendanceRecord[] = (attendanceData || []).map((record: any): AttendanceRecord => {
-          let actualStatus = record.status || 'present';
-          let reason: string | undefined = undefined;
-          
-          if (record.status && record.status.includes(": ")) {
-            const parts = record.status.split(": ");
-            actualStatus = parts[0];
-            reason = parts.slice(1).join(": ");
+        // Process attendance data - simplified type handling
+        const processedAttendance: AttendanceRecord[] = [];
+        if (attendanceData) {
+          for (const record of attendanceData) {
+            let actualStatus = record.status || 'present';
+            let reason: string | undefined = undefined;
+            
+            if (record.status && record.status.includes(": ")) {
+              const parts = record.status.split(": ");
+              actualStatus = parts[0];
+              reason = parts.slice(1).join(": ");
+            }
+            
+            processedAttendance.push({
+              id: record.id,
+              date: record.date,
+              status: actualStatus,
+              approval_status: record.approval_status || "pending",
+              person_id: personId,
+              reason: reason
+            });
           }
-          
-          return {
-            id: record.id,
-            date: record.date,
-            status: actualStatus,
-            approval_status: record.approval_status || "pending",
-            person_id: personId,
-            reason: reason
-          };
-        });
+        }
 
-        // Process leave data with explicit typing
-        const processedLeave: LeaveRecord[] = (leaveData || []).map((record: any): LeaveRecord => ({
-          id: record.id,
-          start_date: record.start_date,
-          end_date: record.end_date,
-          reason: record.reason || '',
-          status: record.status || 'pending',
-          leave_type: record.leave_type,
-          approval_status: record.status || "pending",
-          person_id: personId
-        }));
+        // Process leave data - simplified type handling
+        const processedLeave: LeaveRecord[] = [];
+        if (leaveData) {
+          for (const record of leaveData) {
+            processedLeave.push({
+              id: record.id,
+              start_date: record.start_date,
+              end_date: record.end_date,
+              reason: record.reason || '',
+              status: record.status || 'pending',
+              leave_type: record.leave_type,
+              approval_status: record.status || "pending",
+              person_id: personId
+            });
+          }
+        }
 
         console.log("Processed attendance data:", processedAttendance);
         console.log("Processed leave data:", processedLeave);

@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FormProvider } from "react-hook-form";
 import { format } from "date-fns";
+import { useQueryClient } from "@tanstack/react-query";
 import { 
   Form,
 } from "@/components/ui/form";
@@ -23,6 +24,7 @@ interface AttendanceFormProps {
 
 export function AttendanceForm({ personType, personId, pno, onSuccess }: AttendanceFormProps) {
   const { isHindi } = useLanguage();
+  const queryClient = useQueryClient();
   
   // Setup form with default values
   const form = useForm<AttendanceFormValues>({
@@ -33,11 +35,23 @@ export function AttendanceForm({ personType, personId, pno, onSuccess }: Attenda
       startDate: format(new Date(), "yyyy-MM-dd"),
       endDate: undefined,
       reason: "",
+      customStatus: "",
     },
   });
   
   const watchStatus = useWatch({ control: form.control, name: "status" });
-  const { isSubmitting, handleSubmit } = useAttendanceSubmit({ personType, personId, onSuccess });
+  
+  const handleSuccessWithRefresh = () => {
+    // Invalidate queries to refresh attendance data immediately
+    queryClient.invalidateQueries({ queryKey: ["attendance", personId, personType] });
+    onSuccess();
+  };
+  
+  const { isSubmitting, handleSubmit } = useAttendanceSubmit({ 
+    personType, 
+    personId, 
+    onSuccess: handleSuccessWithRefresh 
+  });
 
   return (
     <FormProvider {...form}>

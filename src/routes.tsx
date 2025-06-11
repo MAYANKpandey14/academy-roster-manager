@@ -10,10 +10,12 @@ import StaffPage from "@/pages/StaffPage";
 import AddStaff from "@/pages/AddStaff";
 import EditStaff from "@/pages/EditStaff";
 import ViewStaff from "@/pages/ViewStaff";
+import StaffAttendancePage from "@/pages/StaffAttendancePage";
 import TraineesPage from "@/pages/TraineesPage";
 import AddTrainee from "@/pages/AddTrainee";
 import EditTrainee from "@/pages/EditTrainee";
 import ViewTrainee from "@/pages/ViewTrainee";
+import TraineeAttendancePage from "@/pages/TraineeAttendancePage";
 import AttendancePage from "@/pages/AttendancePage";
 import LeavePage from "@/pages/LeavePage";
 import Welcome from "@/pages/Welcome";
@@ -56,6 +58,10 @@ const router = createBrowserRouter([
     element: <ProtectedRoute><EditStaff /></ProtectedRoute>,
   },
   {
+    path: "staff/:id/attendance",
+    element: <ProtectedRoute><StaffAttendancePage /></ProtectedRoute>,
+  },
+  {
     path: "staff/:id",
     element: <ProtectedRoute><ViewStaff /></ProtectedRoute>,
   },
@@ -70,6 +76,10 @@ const router = createBrowserRouter([
   {
     path: "trainees/:id/edit",
     element: <ProtectedRoute><EditTrainee /></ProtectedRoute>,
+  },
+  {
+    path: "trainees/:id/attendance",
+    element: <ProtectedRoute><TraineeAttendancePage /></ProtectedRoute>,
   },
   {
     path: "trainees/:id",

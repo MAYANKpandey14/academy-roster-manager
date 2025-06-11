@@ -1,10 +1,20 @@
 
 import { useState } from "react";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+export const attendanceFormSchema = z.object({
+  status: z.enum(["absent", "duty", "training", "on_leave", "return_to_unit", "suspension", "resignation", "termination", "other"]),
+  customStatus: z.string().optional(),
+  leaveType: z.string().optional(),
+  startDate: z.string().min(1, "Start date is required"),
+  endDate: z.string().optional(),
+  reason: z.string().min(1, "Reason is required"),
+});
+
+export type AttendanceFormValues = z.infer<typeof attendanceFormSchema>;
 
 interface UseAttendanceSubmitProps {
   personType: 'trainee' | 'staff';
@@ -12,113 +22,55 @@ interface UseAttendanceSubmitProps {
   onSuccess: () => void;
 }
 
-// Form schema with better validation
-export const attendanceFormSchema = z.object({
-  status: z.enum(["absent", "duty", "training", "on_leave", "return_to_unit", "suspension", "resignation", "termination"]),
-  leaveType: z.string().optional(),
-  startDate: z.string({
-    required_error: "Start date is required",
-  }),
-  endDate: z.string().optional(),
-  reason: z.string().min(3, {
-    message: "Reason must be at least 3 characters",
-  }),
-}).refine(data => {
-  // If end date is provided, it should be on or after start date
-  if (data.endDate) {
-    return new Date(data.endDate) >= new Date(data.startDate);
-  }
-  return true;
-}, {
-  message: "End date must be on or after start date",
-  path: ["endDate"],
-});
-
-export type AttendanceFormValues = z.infer<typeof attendanceFormSchema>;
-
 export function useAttendanceSubmit({ personType, personId, onSuccess }: UseAttendanceSubmitProps) {
-  const { isHindi } = useLanguage();
-  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const handleSubmit = async (values: AttendanceFormValues) => {
+  const { isHindi } = useLanguage();
+
+  const handleSubmit = async (data: AttendanceFormValues) => {
     setIsSubmitting(true);
     
     try {
-      // Get the current session to include auth token
-      const { data: { session } } = await supabase.auth.getSession();
+      console.log("Submitting attendance data:", data);
       
-      if (!session?.access_token) {
-        console.error("No active session found for attendance submission");
-        toast.error(isHindi 
-          ? "सत्र समाप्त हो गया है। कृपया पुनः लॉगिन करें" 
-          : "Session expired. Please log in again");
-        setIsSubmitting(false);
-        return;
-      }
+      // Use custom status if "other" is selected
+      const finalStatus = data.status === "other" ? data.customStatus || "other" : data.status;
       
-      // Determine if auto-approval applies based on status
-      // duty, training, return_to_unit, absent, suspension, termination are auto-approved
-      // on_leave and resignation require approval
-      const requiresApproval = ['on_leave', 'resignation'].includes(values.status);
-      console.log(`Status: ${values.status}, Requires Approval: ${requiresApproval}`);
-      console.log(`Reason provided: ${values.reason}`);
-      
-      // Prepare the request data
-      const requestData = {
-        ...(personType === 'trainee' ? { traineeId: personId } : { staffId: personId }),
-        status: values.status,
-        date: values.startDate,
-        endDate: values.endDate || values.startDate,
-        reason: values.reason,
-        leaveType: values.leaveType
-      };
-      
-      // Call the appropriate edge function based on person type
       const functionName = personType === 'trainee' ? 'trainee-attendance-add' : 'staff-attendance-add';
       
-      console.log(`Submitting ${personType} attendance/leave data:`, requestData);
+      const requestData = {
+        [`${personType}Id`]: personId,
+        status: finalStatus,
+        date: data.startDate,
+        endDate: data.endDate,
+        reason: data.reason,
+        leaveType: data.leaveType
+      };
       
-      const { data, error } = await supabase.functions.invoke(functionName, {
-        body: requestData,
-        headers: {
-          Authorization: `Bearer ${session.access_token}`
-        }
+      console.log("Calling function:", functionName, "with data:", requestData);
+      
+      const { data: result, error } = await supabase.functions.invoke(functionName, {
+        body: requestData
       });
       
       if (error) {
-        console.error(`Error from ${functionName} function:`, error);
+        console.error("Function error:", error);
         throw error;
       }
       
-      console.log(`${personType} attendance/leave record added:`, data);
+      console.log("Function result:", result);
       
-      // Show different messages based on whether the request requires approval
-      if (requiresApproval) {
-        toast.success(isHindi 
-          ? "अनुरोध सफलतापूर्वक जमा किया गया और अनुमोदन के लिए लंबित है" 
-          : "Request submitted successfully and pending approval");
-      } else {
-        toast.success(isHindi 
-          ? "रिकॉर्ड सफलतापूर्वक जोड़ा गया और स्वचालित रूप से अनुमोदित किया गया" 
-          : "Record added successfully and automatically approved");
-      }
-        
-      // Invalidate all relevant queries to refresh the data
-      queryClient.invalidateQueries({ 
-        predicate: (query) => {
-          const key = Array.isArray(query.queryKey) ? query.queryKey[0] : null;
-          return ['absences', 'leaves', 'attendance'].includes(String(key));
-        }
-      });
+      toast.success(isHindi ? 
+        'उपस्थिति/छुट्टी सफलतापूर्वक दर्ज की गई' : 
+        'Attendance/Leave recorded successfully'
+      );
       
       onSuccess();
-      
     } catch (error) {
-      console.error("Error submitting record:", error);
-      toast.error(isHindi 
-        ? "रिकॉर्ड जोड़ने में त्रुटि" 
-        : "Error adding record");
+      console.error("Error submitting attendance:", error);
+      toast.error(isHindi ? 
+        'उपस्थिति/छुट्टी दर्ज करने में विफल' : 
+        'Failed to record attendance/leave'
+      );
     } finally {
       setIsSubmitting(false);
     }

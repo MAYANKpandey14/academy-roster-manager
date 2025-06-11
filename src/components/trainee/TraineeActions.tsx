@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { MoreHorizontal, Edit, Trash2, Eye, Archive, Download, Printer } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, Eye, Archive, Download, Printer, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -50,6 +50,10 @@ export const TraineeActions = ({
 
   const handleEdit = () => {
     navigate(`/trainees/${trainee.id}/edit`);
+  };
+
+  const handleAttendance = () => {
+    navigate(`/trainees/${trainee.id}/attendance`);
   };
 
   const handlePrintAction = async () => {
@@ -141,6 +145,10 @@ export const TraineeActions = ({
           <DropdownMenuItem onClick={handleEdit}>
             <Edit className="mr-2 h-4 w-4" />
             {isHindi ? "संपादित करें" : "Edit"}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleAttendance}>
+            <Users className="mr-2 h-4 w-4" />
+            {isHindi ? "उपस्थिति" : "Attendance"}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handlePrintAction}>
             <Printer className="mr-2 h-4 w-4" />
