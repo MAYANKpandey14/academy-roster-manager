@@ -9,8 +9,16 @@ export interface AttendanceRecord {
   reason?: string;
   approval_status: string;
   person_id: string;
-  start_date?: string;
-  end_date?: string;
+}
+
+export interface LeaveRecord {
+  id: string;
+  start_date: string;
+  end_date: string;
+  status: string;
+  reason: string;
+  approval_status: string;
+  person_id: string;
   leave_type?: string;
 }
 
@@ -21,11 +29,18 @@ export interface PersonInfo {
   father_name?: string;
 }
 
+export interface FetchAttendanceResponse {
+  attendance: AttendanceRecord[];
+  leave: LeaveRecord[];
+}
+
 export function useFetchAttendance(personId: string, personType: 'trainee' | 'staff') {
   return useQuery({
     queryKey: ['attendance', personId, personType],
-    queryFn: async (): Promise<AttendanceRecord[]> => {
-      if (!personId) return [];
+    queryFn: async (): Promise<FetchAttendanceResponse> => {
+      if (!personId) {
+        return { attendance: [], leave: [] };
+      }
 
       try {
         const tableName = personType === 'trainee' ? 'trainee_attendance' : 'staff_attendance';
@@ -66,30 +81,41 @@ export function useFetchAttendance(personId: string, personType: 'trainee' | 'st
         }
 
         // Process leave records
+        const processedLeave: LeaveRecord[] = [];
+        
         if (leaveData) {
           leaveData.forEach((record: any) => {
-            processedAttendance.push({
+            processedLeave.push({
               id: record.id,
-              date: record.start_date,
-              status: 'on_leave',
+              start_date: record.start_date,
+              end_date: record.end_date,
+              status: record.status || 'pending',
               reason: record.reason,
               approval_status: record.approval_status || record.status || 'pending',
               person_id: record[`${personType}_id`] || personId,
-              start_date: record.start_date,
-              end_date: record.end_date,
               leave_type: record.leave_type
             });
           });
         }
 
-        // Sort by date (most recent first)
+        // Sort attendance by date (most recent first)
         processedAttendance.sort((a, b) => {
           const dateA = new Date(a.date).getTime();
           const dateB = new Date(b.date).getTime();
           return dateB - dateA;
         });
 
-        return processedAttendance;
+        // Sort leave by start_date (most recent first)
+        processedLeave.sort((a, b) => {
+          const dateA = new Date(a.start_date).getTime();
+          const dateB = new Date(b.start_date).getTime();
+          return dateB - dateA;
+        });
+
+        return {
+          attendance: processedAttendance,
+          leave: processedLeave
+        };
       } catch (error) {
         console.error('Error fetching attendance:', error);
         throw error;

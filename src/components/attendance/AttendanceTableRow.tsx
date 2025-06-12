@@ -18,19 +18,6 @@ interface AttendanceTableRowProps {
   personType: PersonType;
 }
 
-// Improved record type determination
-const getRecordType = (status: string): 'attendance' | 'leave' => {
-  const normalizedStatus = status.toLowerCase();
-  
-  // Leave-related statuses
-  if (normalizedStatus === 'on_leave' || normalizedStatus === 'leave') {
-    return 'leave';
-  }
-  
-  // All other statuses are considered attendance
-  return 'attendance';
-};
-
 export function AttendanceTableRow({ record, personType }: AttendanceTableRowProps) {
   const { isHindi } = useLanguage();
   const [currentApprovalStatus, setCurrentApprovalStatus] = useState<"approved" | "rejected" | "pending">(
@@ -48,6 +35,19 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
   // Handle status update callback for instant UI updates
   const handleStatusUpdate = (newStatus: 'approved' | 'rejected') => {
     setCurrentApprovalStatus(newStatus);
+  };
+
+  // Improved record type determination
+  const getRecordType = (status: string): 'attendance' | 'leave' => {
+    const normalizedStatus = status.toLowerCase();
+    
+    // Leave-related statuses
+    if (normalizedStatus === 'on_leave' || normalizedStatus === 'leave') {
+      return 'leave';
+    }
+    
+    // All other statuses are considered attendance
+    return 'attendance';
   };
 
   return (
