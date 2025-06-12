@@ -6,141 +6,92 @@ export interface AttendanceRecord {
   id: string;
   date: string;
   status: string;
-  approval_status: string;
   reason?: string;
-  person_id: string;
-}
-
-export interface LeaveRecord {
-  id: string;
-  start_date: string;
-  end_date: string;
-  reason: string;
-  status: string;
-  leave_type?: string;
   approval_status: string;
   person_id: string;
-}
-
-export interface AttendanceData {
-  attendance: AttendanceRecord[];
-  leave: LeaveRecord[];
-}
-
-interface RawAttendanceRecord {
-  id: string;
-  date: string;
-  status: string;
-  approval_status: string;
-}
-
-interface RawLeaveRecord {
-  id: string;
-  start_date: string;
-  end_date: string;
-  reason: string;
-  status: string;
+  start_date?: string;
+  end_date?: string;
   leave_type?: string;
 }
 
-export function useFetchAttendance(personId: string, personType: "staff" | "trainee") {
-  return useQuery<AttendanceData>({
-    queryKey: ["attendance", personId, personType],
-    queryFn: async (): Promise<AttendanceData> => {
+export interface PersonInfo {
+  id: string;
+  pno: string;
+  name: string;
+  father_name?: string;
+}
+
+export function useFetchAttendance(personId: string, personType: 'trainee' | 'staff') {
+  return useQuery({
+    queryKey: ['attendance', personId, personType],
+    queryFn: async (): Promise<AttendanceRecord[]> => {
+      if (!personId) return [];
+
       try {
-        console.log(`Fetching attendance for ${personType} ID: ${personId}`);
-
-        const attendanceTable = personType === "staff" ? "staff_attendance" : "trainee_attendance";
-        const leaveTable = personType === "staff" ? "staff_leave" : "trainee_leave";
-        const idColumn = personType === "staff" ? "staff_id" : "trainee_id";
-
-        // Fetch attendance data
+        const tableName = personType === 'trainee' ? 'trainee_attendance' : 'staff_attendance';
+        const leaveTableName = personType === 'trainee' ? 'trainee_leave' : 'staff_leave';
+        
+        // Fetch attendance records
         const { data: attendanceData, error: attendanceError } = await supabase
-          .from(attendanceTable)
-          .select("id, date, status, approval_status")
-          .eq(idColumn, personId)
-          .order("date", { ascending: false });
+          .from(tableName)
+          .select('*')
+          .eq(`${personType}_id`, personId)
+          .order('date', { ascending: false });
 
-        // Fetch leave data
+        if (attendanceError) throw attendanceError;
+
+        // Fetch leave records  
         const { data: leaveData, error: leaveError } = await supabase
-          .from(leaveTable)
-          .select("id, start_date, end_date, reason, status, leave_type")
-          .eq(idColumn, personId)
-          .order("start_date", { ascending: false });
+          .from(leaveTableName)
+          .select('*')
+          .eq(`${personType}_id`, personId)
+          .order('start_date', { ascending: false });
 
-        if (attendanceError) {
-          console.error("Error fetching attendance:", attendanceError);
-          throw attendanceError;
-        }
+        if (leaveError) throw leaveError;
 
-        if (leaveError) {
-          console.error("Error fetching leave:", leaveError);
-          throw leaveError;
-        }
-
-        console.log("Raw attendance data:", attendanceData);
-        console.log("Raw leave data:", leaveData);
-
-        // Process attendance data with explicit typing
+        // Process attendance records
         const processedAttendance: AttendanceRecord[] = [];
-        if (attendanceData && Array.isArray(attendanceData)) {
-          for (let i = 0; i < attendanceData.length; i++) {
-            const record = attendanceData[i] as RawAttendanceRecord;
-            let actualStatus = record.status || 'present';
-            let reason: string | undefined = undefined;
-            
-            // Improved status parsing - only split on first occurrence of ": "
-            if (record.status && record.status.includes(": ")) {
-              const firstColonIndex = record.status.indexOf(": ");
-              if (firstColonIndex !== -1) {
-                actualStatus = record.status.substring(0, firstColonIndex);
-                reason = record.status.substring(firstColonIndex + 2);
-              }
-            }
-            
-            const processedRecord: AttendanceRecord = {
+        
+        if (attendanceData) {
+          attendanceData.forEach((record: any) => {
+            processedAttendance.push({
               id: record.id,
               date: record.date,
-              status: actualStatus,
-              approval_status: record.approval_status || "pending",
-              person_id: personId,
-              reason: reason
-            };
-            
-            processedAttendance.push(processedRecord);
-          }
+              status: record.status || 'absent',
+              reason: record.reason,
+              approval_status: record.approval_status || 'pending',
+              person_id: record[`${personType}_id`] || personId
+            });
+          });
         }
 
-        // Process leave data with explicit typing
-        const processedLeave: LeaveRecord[] = [];
-        if (leaveData && Array.isArray(leaveData)) {
-          for (let i = 0; i < leaveData.length; i++) {
-            const record = leaveData[i] as RawLeaveRecord;
-            
-            const processedRecord: LeaveRecord = {
+        // Process leave records
+        if (leaveData) {
+          leaveData.forEach((record: any) => {
+            processedAttendance.push({
               id: record.id,
+              date: record.start_date,
+              status: 'on_leave',
+              reason: record.reason,
+              approval_status: record.approval_status || record.status || 'pending',
+              person_id: record[`${personType}_id`] || personId,
               start_date: record.start_date,
               end_date: record.end_date,
-              reason: record.reason || '',
-              status: record.status || 'pending',
-              leave_type: record.leave_type,
-              approval_status: record.status || "pending",
-              person_id: personId
-            };
-            
-            processedLeave.push(processedRecord);
-          }
+              leave_type: record.leave_type
+            });
+          });
         }
 
-        console.log("Processed attendance data:", processedAttendance);
-        console.log("Processed leave data:", processedLeave);
+        // Sort by date (most recent first)
+        processedAttendance.sort((a, b) => {
+          const dateA = new Date(a.date).getTime();
+          const dateB = new Date(b.date).getTime();
+          return dateB - dateA;
+        });
 
-        return {
-          attendance: processedAttendance,
-          leave: processedLeave
-        };
+        return processedAttendance;
       } catch (error) {
-        console.error("Error in useFetchAttendance:", error);
+        console.error('Error fetching attendance:', error);
         throw error;
       }
     },

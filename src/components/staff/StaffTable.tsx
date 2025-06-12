@@ -1,9 +1,10 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Staff } from "@/types/staff";
 import { DataTable } from "@/components/ui/data-table";
 import { getStaffColumns } from "./table/StaffTableColumns";
 import { StaffTableActions } from "./table/StaffTableActions";
+import { StaffSortBy } from "./table/StaffSortBy";
 import { useStaffTable } from "./table/useStaffTable";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { exportStaffToExcel } from "@/utils/export";
@@ -19,6 +20,7 @@ interface StaffTableProps {
 
 export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTableProps) => {
   const { isHindi } = useLanguage();
+  const [sortBy, setSortBy] = useState("name");
   
   const {
     rowSelection,
@@ -29,6 +31,33 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
     getSelectedStaff
   } = useStaffTable(staff, onRefresh);
 
+  // Sort staff based on selected sort option
+  const sortedStaff = useMemo(() => {
+    const staffCopy = [...staff];
+    
+    if (sortBy.startsWith("rank:")) {
+      const targetRank = sortBy.replace("rank:", "");
+      return staffCopy.filter(s => s.rank === targetRank);
+    }
+    
+    return staffCopy.sort((a, b) => {
+      switch (sortBy) {
+        case "name":
+          return a.name.localeCompare(b.name);
+        case "pno":
+          return a.pno.localeCompare(b.pno);
+        case "rank":
+          return a.rank.localeCompare(b.rank);
+        case "district":
+          return a.current_posting_district.localeCompare(b.current_posting_district);
+        case "mobile":
+          return a.mobile_number.localeCompare(b.mobile_number);
+        default:
+          return 0;
+      }
+    });
+  }, [staff, sortBy]);
+
   const handleExcelExport = (staffMember: Staff) => {
     if (!staffMember) return;
     exportStaffToExcel([staffMember], isHindi);
@@ -36,14 +65,14 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
   
   // Adapter functions to convert between types for print/download actions
   const handlePrintStaff = (staffId: string) => {
-    const staffToPrint = staff.find(s => s.id === staffId);
+    const staffToPrint = sortedStaff.find(s => s.id === staffId);
     if (staffToPrint) {
       handlePrintAction([staffToPrint]);
     }
   };
 
   const handleDownloadStaff = (staffId: string) => {
-    const staffToDownload = staff.find(s => s.id === staffId);
+    const staffToDownload = sortedStaff.find(s => s.id === staffId);
     if (staffToDownload) {
       handleDownloadAction([staffToDownload]);
     }
@@ -61,17 +90,21 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
 
   return (
     <div className="space-y-4">
-      <StaffTableActions
-        staff={staff}
-        selectedCount={selectedCount}
-        getSelectedStaff={getSelectedStaff}
-        isLoading={isLoading}
-        onRefresh={onRefresh}
-      />
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <StaffSortBy onSortChange={setSortBy} currentSort={sortBy} />
+        
+        <StaffTableActions
+          staff={sortedStaff}
+          selectedCount={selectedCount}
+          getSelectedStaff={getSelectedStaff}
+          isLoading={isLoading}
+          onRefresh={onRefresh}
+        />
+      </div>
       
       <DataTable
         columns={columns}
-        data={staff}
+        data={sortedStaff}
         filterColumn="name"
         filterPlaceholder={isHindi ? "नाम से खोजें..." : "Search by name..."}
         isLoading={isLoading}
