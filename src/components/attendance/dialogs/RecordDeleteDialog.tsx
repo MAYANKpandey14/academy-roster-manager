@@ -24,12 +24,12 @@ interface PersonDetails {
 type TableName = "staff_attendance" | "trainee_attendance" | "staff_leave" | "trainee_leave";
 
 // Helper type-guards
-function isLeaveRecord(record: any): record is LeaveRecord {
-  return "start_date" in record && "end_date" in record;
-}
-function isAttendanceRecord(record: any): record is AttendanceRecord {
-  return "date" in record && "status" in record;
-}
+// function isLeaveRecord(record: any): record is LeaveRecord {
+//   return "start_date" in record && "end_date" in record;
+// }
+// function isAttendanceRecord(record: any): record is AttendanceRecord {
+//   return "date" in record && "status" in record;
+// }
 
 export function RecordDeleteDialog({ 
   isOpen, 
@@ -40,7 +40,7 @@ export function RecordDeleteDialog({
 }: RecordDeleteDialogProps) {
   const { isHindi } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
-  const [personDetails, setPersonDetails] = useState<PersonDetails | null>(null);
+  const [personDetails, setPersonDetails] = useState<{ name: string; pno: string } | null>(null);
   const [loadingPersonDetails, setLoadingPersonDetails] = useState(false);
   const queryClient = useQueryClient();
 
@@ -52,7 +52,7 @@ export function RecordDeleteDialog({
         try {
           const table =
             personType === "staff" ? "staff" : "trainees";
-          const idCol = personType === "staff" ? "id" : "id"; // Both tables use "id" PK
+          const idCol = "id"; // Both tables use "id" PK
           const targetId =
             personType === "staff"
               ? record.staff_id
@@ -102,7 +102,7 @@ export function RecordDeleteDialog({
       } else if (recordType === "leave") {
         tableName =
           personType === "staff" ? "staff_leave" : "trainee_leave";
-        keyColumn = "id"; // always delete by row id!
+        keyColumn = "id";
       } else {
         throw new Error("Invalid record type for delete.");
       }
@@ -131,6 +131,7 @@ export function RecordDeleteDialog({
         console.error("Delete error:", error);
         throw error;
       }
+
       if (!Array.isArray(data) || data.length === 0) {
         console.warn("Delete succeeded but returned no deleted records.", data);
       }

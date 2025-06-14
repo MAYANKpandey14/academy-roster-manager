@@ -57,7 +57,8 @@ async function fetchAttendance(
 
   if (leaveError) throw leaveError;
 
-  const processedAttendance: AttendanceRecord[] = Array.isArray(attendanceData)
+  // Remove explicit type annotations in local arrays to avoid deep instantiation
+  const processedAttendance = Array.isArray(attendanceData)
     ? attendanceData.map((item: any) => ({
         id: item.id,
         date: item.date,
@@ -69,7 +70,7 @@ async function fetchAttendance(
       }))
     : [];
 
-  const processedLeave: LeaveRecord[] = Array.isArray(leaveData)
+  const processedLeave = Array.isArray(leaveData)
     ? leaveData.map((item: any) => ({
         id: item.id,
         start_date: item.start_date,
@@ -90,6 +91,7 @@ async function fetchAttendance(
     (a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
   );
 
+  // Return with inline type annotation (not forcing TS to recursively check local arrays)
   return { attendance: processedAttendance, leave: processedLeave };
 }
 
