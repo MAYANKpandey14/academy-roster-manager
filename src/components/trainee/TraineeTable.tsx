@@ -6,15 +6,7 @@ import { Trainee } from "@/types/trainee";
 import { TraineeTableActions } from "./table/TraineeTableActions";
 import { getTraineeTableColumns } from "./table/TraineeTableColumns";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { 
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
-import { SortAsc } from "lucide-react";
+import { EnhancedTraineeSortBy } from "./table/EnhancedTraineeSortBy";
 
 interface TraineeTableProps {
   trainees: Trainee[];
@@ -38,11 +30,17 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
     setSelectedCount(Object.keys(rowSelection).length);
   }, [rowSelection]);
 
-  // Update sorted trainees when original trainees array or sort option changes
+  // Enhanced update sorted trainees when original trainees array or sort option changes
   useEffect(() => {
     let sorted = [...trainees]; // Create a copy to avoid mutating props
     
-    if (sortBy === "toli_no") {
+    if (sortBy.startsWith("rank:")) {
+      const targetRank = sortBy.replace("rank:", "");
+      sorted = sorted.filter(t => 
+        t.rank.toLowerCase().includes(targetRank.toLowerCase()) ||
+        t.rank === targetRank
+      );
+    } else if (sortBy === "toli_no") {
       sorted = sorted.sort((a, b) => {
         // Handle null/undefined toli_no values
         if (!a.toli_no) return 1;
@@ -53,6 +51,10 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
       sorted = sorted.sort((a, b) => {
         return a.chest_no.localeCompare(b.chest_no, undefined, { numeric: true });
       });
+    } else if (sortBy === "name") {
+      sorted = sorted.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortBy === "rank") {
+      sorted = sorted.sort((a, b) => a.rank.localeCompare(b.rank));
     }
     
     setSortedTrainees(sorted);
@@ -66,32 +68,7 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
   return (
     <div className="space-y-4 animate-fade-in">
       <div className="flex justify-between items-center">
-        <div className="flex items-center">
-          <span className="mr-2 text-sm text-gray-600">
-            {isHindi ? "इसके अनुसार क्रमबद्ध करें:" : "Sort by:"}
-          </span>
-          <Select 
-            value={sortBy}
-            onValueChange={(value) => setSortBy(value)}
-          >
-            <SelectTrigger className="w-[160px] h-9">
-              <SelectValue placeholder={isHindi ? "क्रमबद्ध करें" : "Sort by"} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="none">
-                  {isHindi ? "कोई क्रम नहीं" : "None"}
-                </SelectItem>
-                <SelectItem value="toli_no">
-                  {isHindi ? "टोली नंबर" : "Toli No"}
-                </SelectItem>
-                <SelectItem value="chest_no">
-                  {isHindi ? "चेस्ट नंबर" : "Chest No"}
-                </SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
+        <EnhancedTraineeSortBy onSortChange={setSortBy} currentSort={sortBy} />
         
         <TraineeTableActions
           trainees={trainees}

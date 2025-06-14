@@ -4,7 +4,7 @@ import { Staff } from "@/types/staff";
 import { DataTable } from "@/components/ui/data-table";
 import { getStaffColumns } from "./table/StaffTableColumns";
 import { StaffTableActions } from "./table/StaffTableActions";
-import { StaffSortBy } from "./table/StaffSortBy";
+import { EnhancedStaffSortBy } from "./table/EnhancedStaffSortBy";
 import { useStaffTable } from "./table/useStaffTable";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { exportStaffToExcel } from "@/utils/export";
@@ -31,13 +31,16 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
     getSelectedStaff
   } = useStaffTable(staff, onRefresh);
 
-  // Sort staff based on selected sort option
+  // Enhanced sort staff based on selected sort option
   const sortedStaff = useMemo(() => {
     const staffCopy = [...staff];
     
     if (sortBy.startsWith("rank:")) {
       const targetRank = sortBy.replace("rank:", "");
-      return staffCopy.filter(s => s.rank === targetRank);
+      return staffCopy.filter(s => 
+        s.rank.toLowerCase().includes(targetRank.toLowerCase()) ||
+        s.rank === targetRank
+      );
     }
     
     return staffCopy.sort((a, b) => {
@@ -91,7 +94,7 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <StaffSortBy onSortChange={setSortBy} currentSort={sortBy} />
+        <EnhancedStaffSortBy onSortChange={setSortBy} currentSort={sortBy} />
         
         <StaffTableActions
           staff={sortedStaff}

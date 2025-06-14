@@ -8,7 +8,8 @@ export interface AttendanceRecord {
   status: string;
   reason?: string;
   approval_status: string;
-  person_id: string;
+  trainee_id?: string;
+  staff_id?: string;
 }
 
 export interface LeaveRecord {
@@ -18,7 +19,8 @@ export interface LeaveRecord {
   status: string;
   reason: string;
   approval_status: string;
-  person_id: string;
+  trainee_id?: string;
+  staff_id?: string;
   leave_type?: string;
 }
 
@@ -62,23 +64,25 @@ async function fetchAttendance(personId: string, personType: 'trainee' | 'staff'
 
     if (leaveError) throw leaveError;
 
-    const processedAttendance: AttendanceRecord[] = (attendanceData || []).map((record: any) => ({
+    const processedAttendance: AttendanceRecord[] = (attendanceData || []).map((record) => ({
       id: record.id,
       date: record.date,
       status: record.status || 'absent',
       reason: record.reason,
       approval_status: record.approval_status || 'pending',
-      person_id: record[`${personType}_id`] || personId
+      trainee_id: personType === 'trainee' ? personId : undefined,
+      staff_id: personType === 'staff' ? personId : undefined
     }));
 
-    const processedLeave: LeaveRecord[] = (leaveData || []).map((record: any) => ({
+    const processedLeave: LeaveRecord[] = (leaveData || []).map((record) => ({
       id: record.id,
       start_date: record.start_date,
       end_date: record.end_date,
       status: record.status || 'pending',
       reason: record.reason,
       approval_status: record.approval_status || record.status || 'pending',
-      person_id: record[`${personType}_id`] || personId,
+      trainee_id: personType === 'trainee' ? personId : undefined,
+      staff_id: personType === 'staff' ? personId : undefined,
       leave_type: record.leave_type
     }));
 
@@ -97,10 +101,9 @@ async function fetchAttendance(personId: string, personType: 'trainee' | 'staff'
 }
 
 export function useFetchAttendance(personId: string, personType: 'trainee' | 'staff') {
-  return useQuery<FetchAttendanceResponse>({
+  return useQuery({
     queryKey: ['attendance', personId, personType],
     queryFn: () => fetchAttendance(personId, personType),
     enabled: !!personId,
   });
 }
-
