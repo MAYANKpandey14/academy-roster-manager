@@ -22,7 +22,6 @@ interface AttendanceEditDialogProps {
 export function AttendanceEditDialog({ isOpen, onClose, record, personType }: AttendanceEditDialogProps) {
   const { isHindi } = useLanguage();
   const [status, setStatus] = useState(record.status);
-  const [reason, setReason] = useState(record.reason || "");
   const [date, setDate] = useState(record.date);
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
@@ -31,12 +30,11 @@ export function AttendanceEditDialog({ isOpen, onClose, record, personType }: At
     setIsLoading(true);
     try {
       const tableName = personType === "staff" ? "staff_attendance" : "trainee_attendance";
-      const statusWithReason = reason ? `${status}: ${reason}` : status;
       
       const { error } = await supabase
         .from(tableName)
         .update({ 
-          status: statusWithReason,
+          status: status,
           date: date,
           approval_status: "pending" // Reset approval status when edited
         })
@@ -50,7 +48,8 @@ export function AttendanceEditDialog({ isOpen, onClose, record, personType }: At
       );
 
       // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ["attendance", record.person_id, personType] });
+      const personId = record.trainee_id || record.staff_id || "";
+      queryClient.invalidateQueries({ queryKey: ["attendance", personId, personType] });
       
       onClose();
     } catch (error) {
@@ -103,17 +102,6 @@ export function AttendanceEditDialog({ isOpen, onClose, record, personType }: At
                 <SelectItem value="return_to_unit">{isHindi ? "यूनिट वापसी" : "Return to Unit"}</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-
-          <div>
-            <Label className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? 'कारण' : 'Reason'}
-            </Label>
-            <Input
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              placeholder={isHindi ? "कारण दर्ज करें..." : "Enter reason..."}
-            />
           </div>
 
           <div className="flex justify-end space-x-2">

@@ -37,9 +37,12 @@ export function RecordDeleteDialog({
   const [loadingPersonDetails, setLoadingPersonDetails] = useState(false);
   const queryClient = useQueryClient();
 
+  // Get person ID from record
+  const personId = record.trainee_id || record.staff_id || "";
+
   // Fetch person details when dialog opens
   useEffect(() => {
-    if (isOpen && record.person_id) {
+    if (isOpen && personId) {
       const fetchPersonDetails = async () => {
         setLoadingPersonDetails(true);
         try {
@@ -47,7 +50,7 @@ export function RecordDeleteDialog({
           const { data, error } = await supabase
             .from(table)
             .select("name, pno")
-            .eq("id", record.person_id)
+            .eq("id", personId)
             .single();
 
           if (error) {
@@ -70,13 +73,13 @@ export function RecordDeleteDialog({
 
       fetchPersonDetails();
     }
-  }, [isOpen, record.person_id, personType]);
+  }, [isOpen, personId, personType]);
 
   const handleDelete = async () => {
     setIsLoading(true);
     try {
       console.log("Deleting record:", { record, recordType, personType });
-      console.log("Record person_id:", record.person_id);
+      console.log("Record person_id:", personId);
       
       let tableName: TableName;
       
@@ -112,14 +115,14 @@ export function RecordDeleteDialog({
       await new Promise(resolve => setTimeout(resolve, 200));
 
       // Invalidate and refetch queries to refresh data
-      console.log("Invalidating queries for person_id:", record.person_id);
+      console.log("Invalidating queries for person_id:", personId);
       await queryClient.invalidateQueries({ 
-        queryKey: ["attendance", record.person_id, personType] 
+        queryKey: ["attendance", personId, personType] 
       });
       
       // Force refetch
       await queryClient.refetchQueries({ 
-        queryKey: ["attendance", record.person_id, personType] 
+        queryKey: ["attendance", personId, personType] 
       });
       
       console.log("Queries invalidated and refetched");
@@ -174,7 +177,7 @@ export function RecordDeleteDialog({
                   <strong>Record ID:</strong> {record.id}
                 </p>
                 <p className="text-sm">
-                  <strong>Person ID:</strong> {record.person_id}
+                  <strong>Person ID:</strong> {personId}
                 </p>
               </>
             )}

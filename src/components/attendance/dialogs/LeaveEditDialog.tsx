@@ -52,7 +52,8 @@ export function LeaveEditDialog({ isOpen, onClose, record, personType }: LeaveEd
       );
 
       // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ["attendance", record.person_id, personType] });
+      const personId = record.trainee_id || record.staff_id || "";
+      queryClient.invalidateQueries({ queryKey: ["attendance", personId, personType] });
       
       onClose();
     } catch (error) {

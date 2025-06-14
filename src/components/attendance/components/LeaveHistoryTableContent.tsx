@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -28,6 +27,9 @@ function LeaveRow({ record, personType }: LeaveRowProps) {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
+  // Get the person ID from the record
+  const personId = record.trainee_id || record.staff_id || "";
+
   return (
     <>
       <TableRow>
@@ -56,7 +58,7 @@ function LeaveRow({ record, personType }: LeaveRowProps) {
               personType={personType}
               currentStatus={record.approval_status as "approved" | "rejected" | "pending"}
               absenceType="on_leave"
-              personId={record.person_id || ""}
+              personId={personId}
               onStatusUpdate={() => {}}
             />
             <Button

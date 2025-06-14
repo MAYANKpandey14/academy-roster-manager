@@ -50,6 +50,9 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
     return 'attendance';
   };
 
+  // Get the person ID from the record
+  const personId = record.trainee_id || record.staff_id || "";
+
   return (
     <>
       <TableRow>
@@ -58,13 +61,9 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
           <AttendanceStatus type={baseStatus} />
         </TableCell>
         <TableCell>
-          {record.reason ? (
-            <span className="text-sm">{record.reason}</span>
-          ) : (
-            <span className="text-sm text-muted-foreground italic">
-              {isHindi ? 'कारण नहीं दिया गया' : 'No reason provided'}
-            </span>
-          )}
+          <span className="text-sm text-muted-foreground italic">
+            {isHindi ? 'कारण नहीं दिया गया' : 'No reason provided'}
+          </span>
         </TableCell>
         <TableCell>
           <ApprovalStatus status={currentApprovalStatus} />
@@ -77,7 +76,7 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
               personType={personType}
               currentStatus={currentApprovalStatus}
               absenceType={baseStatus}
-              personId={record.person_id || ""}
+              personId={personId}
               onStatusUpdate={handleStatusUpdate}
             />
             <Button

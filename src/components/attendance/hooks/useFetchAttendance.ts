@@ -6,7 +6,6 @@ export interface AttendanceRecord {
   id: string;
   date: string;
   status: string;
-  reason?: string;
   approval_status: string;
   trainee_id?: string;
   staff_id?: string;
@@ -64,17 +63,16 @@ async function fetchAttendance(personId: string, personType: 'trainee' | 'staff'
 
     if (leaveError) throw leaveError;
 
-    const processedAttendance: AttendanceRecord[] = (attendanceData || []).map((record) => ({
+    const processedAttendance: AttendanceRecord[] = (attendanceData || []).map((record: any) => ({
       id: record.id,
       date: record.date,
       status: record.status || 'absent',
-      reason: record.reason,
       approval_status: record.approval_status || 'pending',
       trainee_id: personType === 'trainee' ? personId : undefined,
       staff_id: personType === 'staff' ? personId : undefined
     }));
 
-    const processedLeave: LeaveRecord[] = (leaveData || []).map((record) => ({
+    const processedLeave: LeaveRecord[] = (leaveData || []).map((record: any) => ({
       id: record.id,
       start_date: record.start_date,
       end_date: record.end_date,
