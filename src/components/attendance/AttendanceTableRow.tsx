@@ -77,7 +77,7 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
               personType={personType}
               currentStatus={currentApprovalStatus}
               absenceType={baseStatus}
-              personId={record.person_id || ""}
+              personId={record.trainee_id || record.staff_id || ""}
               onStatusUpdate={handleStatusUpdate}
             />
             <Button

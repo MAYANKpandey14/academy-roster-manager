@@ -56,7 +56,7 @@ function LeaveRow({ record, personType }: LeaveRowProps) {
               personType={personType}
               currentStatus={record.approval_status as "approved" | "rejected" | "pending"}
               absenceType="on_leave"
-              personId={record.person_id || ""}
+              personId={record.trainee_id || record.staff_id || ""}
               onStatusUpdate={() => {}}
             />
             <Button

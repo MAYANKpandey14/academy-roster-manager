@@ -18,8 +18,12 @@ export async function createStaffPrintContent(
 
   const recordsHtml = staffList.map(staff => {
     // Filter attendance and leave records for this specific staff member
-    const staffAttendance = attendanceRecords.filter(record => record.person_id === staff.id);
-    const staffLeave = leaveRecords.filter(record => record.person_id === staff.id);
+    const staffAttendance = attendanceRecords.filter(
+      record => (record.trainee_id || record.staff_id) === staff.id
+    );
+    const staffLeave = leaveRecords.filter(
+      record => (record.trainee_id || record.staff_id) === staff.id
+    );
 
     return `
     <div style="margin-bottom: 2em; padding: 1em; border: 1px solid #ddd; border-radius: 8px;">

@@ -214,7 +214,7 @@ export function RecordDeleteDialog({
                   <strong>Record ID:</strong> {record.id}
                 </p>
                 <p className="text-sm">
-                  <strong>Person ID:</strong> {record.person_id}
+                  <strong>Person ID:</strong> {record.trainee_id || record.staff_id}
                 </p>
               </>
             )}

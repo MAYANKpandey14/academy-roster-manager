@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -50,7 +49,7 @@ export function AttendanceEditDialog({ isOpen, onClose, record, personType }: At
       );
 
       // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ["attendance", record.person_id, personType] });
+      queryClient.invalidateQueries({ queryKey: ["attendance", record.trainee_id || record.staff_id, personType] });
       
       onClose();
     } catch (error) {
