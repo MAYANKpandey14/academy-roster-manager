@@ -24,6 +24,14 @@ interface PersonDetails {
 
 type TableName = "staff_attendance" | "trainee_attendance" | "staff_leave" | "trainee_leave";
 
+// Helper type-guards
+function isLeaveRecord(record: any): record is LeaveRecord {
+  return "start_date" in record && "end_date" in record;
+}
+function isAttendanceRecord(record: any): record is AttendanceRecord {
+  return "date" in record && "status" in record;
+}
+
 export function RecordDeleteDialog({ 
   isOpen, 
   onClose, 
@@ -75,61 +83,62 @@ export function RecordDeleteDialog({
   const handleDelete = async () => {
     setIsLoading(true);
     try {
-      console.log("Deleting record:", { record, recordType, personType });
-      console.log("Record person_id:", record.person_id);
-      
-      let tableName: TableName;
-      
-      if (recordType === "attendance") {
-        tableName = personType === "staff" ? "staff_attendance" : "trainee_attendance";
-      } else {
-        tableName = personType === "staff" ? "staff_leave" : "trainee_leave";
+      // Extra guard: Only allow delete if record has an id.
+      if (!record.id) {
+        throw new Error("Missing record ID for delete operation.");
       }
-      
-      console.log("Using table:", tableName, "for record ID:", record.id);
-      
+
+      let tableName: TableName;
+      if (recordType === "attendance" && isAttendanceRecord(record)) {
+        tableName = personType === "staff" ? "staff_attendance" : "trainee_attendance";
+      } else if (recordType === "leave" && isLeaveRecord(record)) {
+        tableName = personType === "staff" ? "staff_leave" : "trainee_leave";
+      } else {
+        throw new Error("Invalid record type for delete.");
+      }
+
+      // Log for debug: show delete details
+      console.log("[DELETE ACTION] Table:", tableName, "| RecordType:", recordType, "| PersonType:", personType, "| Record ID:", record.id);
+
+      // Perform the delete
       const { error, data } = await supabase
         .from(tableName)
         .delete()
         .eq("id", record.id)
         .select();
 
-      console.log("Delete operation result:", { error, data });
+      console.log("[DELETE RESULT]", { error, data });
 
       if (error) {
         console.error("Delete error:", error);
         throw error;
       }
+      if (!Array.isArray(data) || data.length === 0) {
+        console.warn("Delete succeeded but returned no deleted records.", data);
+      }
 
-      console.log("Delete successful, deleted records:", data);
-      
       toast.success(isHindi ? 
-        `${recordType === "attendance" ? "उपस्थिति" : "छुट्टी"} रिकॉर्ड डिलीट हो गया` : 
-        `${recordType === "attendance" ? "Attendance" : "Leave"} record deleted successfully`
+        `${recordType === "attendance" ? "उपस्थिति" : "छुट्टी"} रिकॉर्ड डिलीट हो गया`
+        : `${recordType === "attendance" ? "Attendance" : "Leave"} record deleted successfully`
       );
 
       // Add a small delay to ensure database operation completes
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 180));
 
       // Invalidate and refetch queries to refresh data
-      console.log("Invalidating queries for person_id:", record.person_id);
       await queryClient.invalidateQueries({ 
         queryKey: ["attendance", record.person_id, personType] 
       });
-      
-      // Force refetch
       await queryClient.refetchQueries({ 
         queryKey: ["attendance", record.person_id, personType] 
       });
-      
-      console.log("Queries invalidated and refetched");
-      
+
       onClose();
     } catch (error) {
       console.error(`Error deleting ${recordType}:`, error);
       toast.error(isHindi ? 
-        `${recordType === "attendance" ? "उपस्थिति" : "छुट्टी"} रिकॉर्ड डिलीट करने में विफल` : 
-        `Failed to delete ${recordType} record`
+        `${recordType === "attendance" ? "उपस्थिति" : "छुट्टी"} रिकॉर्ड डिलीट करने में विफल`
+        : `Failed to delete ${recordType} record`
       );
     } finally {
       setIsLoading(false);
@@ -178,12 +187,12 @@ export function RecordDeleteDialog({
                 </p>
               </>
             )}
-            {'date' in record && (
+            {"date" in record && (
               <p className="text-sm">
                 <strong>{isHindi ? 'दिनांक:' : 'Date:'}</strong> {record.date}
               </p>
             )}
-            {'start_date' in record && (
+            {"start_date" in record && (
               <p className="text-sm">
                 <strong>{isHindi ? 'प्रारंभ दिनांक:' : 'Start Date:'}</strong> {record.start_date}
               </p>
