@@ -30,8 +30,7 @@ const STAFF_RANKS: StaffRank[] = [
   "Sweeper",
   "Barber", 
   "Washerman",
-  "Peon",
-  "Other"
+  "Peon"
 ];
 
 export function EnhancedStaffSortBy({ onSortChange, currentSort }: EnhancedStaffSortByProps) {
@@ -40,6 +39,15 @@ export function EnhancedStaffSortBy({ onSortChange, currentSort }: EnhancedStaff
   const [customRank, setCustomRank] = useState("");
 
   const sortOptions = [
+    {
+      value: "custom_rank",
+      label: (
+        <div className="flex items-center gap-2">
+          <Plus className="h-4 w-4" />
+          <span>{isHindi ? "कस्टम रैंक" : "Custom Rank"}</span>
+        </div>
+      )
+    },
     ...STAFF_RANKS.map(rank => ({
       value: `rank:${rank}`,
       label: rank
@@ -75,7 +83,7 @@ export function EnhancedStaffSortBy({ onSortChange, currentSort }: EnhancedStaff
       <div className="flex items-center gap-2">
         <Select value={showCustomInput ? "custom_rank" : currentSort} onValueChange={handleSelectChange}>
           <SelectTrigger className="w-48">
-            <SelectValue placeholder={isHindi ? "सॉर्ट विकल्प चुनें" : "Select sort option"} />
+            <SelectValue placeholder={isHindi ? "कोई नहीं" : "None"} />
           </SelectTrigger>
           <SelectContent>
             {sortOptions.map((option) => (
@@ -83,12 +91,6 @@ export function EnhancedStaffSortBy({ onSortChange, currentSort }: EnhancedStaff
                 {option.label}
               </SelectItem>
             ))}
-            <SelectItem value="custom_rank">
-              <div className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                <span>{isHindi ? "कस्टम रैंक" : "Custom Rank"}</span>
-              </div>
-            </SelectItem>
           </SelectContent>
         </Select>
 

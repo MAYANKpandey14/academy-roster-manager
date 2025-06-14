@@ -20,7 +20,7 @@ interface StaffTableProps {
 
 export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTableProps) => {
   const { isHindi } = useLanguage();
-  const [sortBy, setSortBy] = useState("name");
+  const [sortBy, setSortBy] = useState("");
   
   const {
     rowSelection,
@@ -34,6 +34,10 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
   // Enhanced sort staff based on selected sort option
   const sortedStaff = useMemo(() => {
     const staffCopy = [...staff];
+    
+    if (!sortBy || sortBy === "") {
+      return staffCopy; // Return unsorted if no sort option selected
+    }
     
     if (sortBy.startsWith("rank:")) {
       const targetRank = sortBy.replace("rank:", "");
