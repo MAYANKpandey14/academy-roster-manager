@@ -5,7 +5,7 @@ export { prepareTextForLanguage } from '../textUtils';
 // Export print utilities
 export { getPrintStyles, createPrintHeader, createPrintFooter, handlePrint, handleDownload } from './printUtils';
 export { createPrintContent } from './traineePrintUtils';
-export { createStaffPrintContent } from '../staffExportUtils';
+export { createStaffPrintContent } from './staffPrintUtils';
 
 // Export download utilities
 
@@ -15,3 +15,6 @@ export { createCSVContent } from './traineeCSVUtils';
 // Export Excel utilities
 export { exportTraineesToExcel } from './traineeExcelUtils';
 export { exportStaffToExcel } from './staffExcelUtils';
+
+// Re-export staff utilities from the main staffExportUtils file
+export { createStaffCSVContent, exportStaffToExcel as exportStaffToExcelFromUtils } from '../staffExportUtils';
