@@ -1,3 +1,4 @@
+
 import jsPDF from 'jspdf';
 import { Trainee } from '@/types/trainee';
 import { AttendanceRecord, LeaveRecord } from '@/components/attendance/hooks/useFetchAttendance';
@@ -18,8 +19,8 @@ export async function createPrintContent(
 
   const recordsHtml = traineeList.map(trainee => {
     // Filter attendance and leave records for this specific trainee
-    const traineeAttendance = attendanceRecords.filter(record => record.person_id === trainee.id);
-    const traineeLeave = leaveRecords.filter(record => record.person_id === trainee.id);
+    const traineeAttendance = attendanceRecords.filter(record => record.trainee_id === trainee.id);
+    const traineeLeave = leaveRecords.filter(record => record.trainee_id === trainee.id);
 
     return `
     <div style="margin-bottom: 2em; padding: 1em; border: 1px solid #ddd; border-radius: 8px;">
