@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -51,7 +52,7 @@ export function LeaveEditDialog({ isOpen, onClose, record, personType }: LeaveEd
       );
 
       // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ["attendance", record.trainee_id || record.staff_id, personType] });
+      queryClient.invalidateQueries({ queryKey: ["attendance", record.person_id, personType] });
       
       onClose();
     } catch (error) {
