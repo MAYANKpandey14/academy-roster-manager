@@ -26,8 +26,7 @@ const STAFF_RANKS: StaffRank[] = [
   "Sweeper",
   "Barber", 
   "Washerman",
-  "Peon",
-  "Other"
+  "Peon"
 ];
 
 export function StaffSortBy({ onSortChange, currentSort }: StaffSortByProps) {

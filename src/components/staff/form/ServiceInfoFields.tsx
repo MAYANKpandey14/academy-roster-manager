@@ -1,3 +1,4 @@
+
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -14,6 +15,7 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
   const { isHindi } = useLanguage();
   const [selectedRank, setSelectedRank] = useState<string>("");
   const [customRankInput, setCustomRankInput] = useState<string>("");
+  const [showCustomInput, setShowCustomInput] = useState<boolean>(false);
 
   // Initialize selected rank from form value
   useEffect(() => {
@@ -21,27 +23,30 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
     if (currentRank) {
       if (staffRanks.includes(currentRank as any)) {
         setSelectedRank(currentRank);
+        setShowCustomInput(false);
       } else {
-        setSelectedRank("Other");
+        setSelectedRank("custom");
         setCustomRankInput(currentRank);
+        setShowCustomInput(true);
       }
     }
   }, [form]);
 
   const handleRankChange = (value: string) => {
     setSelectedRank(value);
-    if (value !== "Other") {
+    if (value === "custom") {
+      setShowCustomInput(true);
+      form.setValue("rank", customRankInput || "");
+    } else {
+      setShowCustomInput(false);
       form.setValue("rank", value);
       setCustomRankInput("");
-    } else {
-      // Clear the rank value when Other is selected until custom input is provided
-      form.setValue("rank", "");
     }
   };
 
   const handleCustomRankChange = (value: string) => {
     setCustomRankInput(value);
-    if (selectedRank === "Other" && value.trim()) {
+    if (showCustomInput && value.trim()) {
       form.setValue("rank", value.trim());
     }
   };
@@ -79,9 +84,12 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
+                <SelectItem value="custom">
+                  {isHindi ? "कस्टम रैंक" : "Custom Rank"}
+                </SelectItem>
                 {staffRanks.map((rank) => (
                   <SelectItem key={rank} value={rank}>
-                    {rank === "Other" ? (isHindi ? "अन्य" : "Other") : rank}
+                    {rank}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -91,13 +99,13 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
         )}
       />
 
-      {selectedRank === "Other" && (
+      {showCustomInput && (
         <div className="col-span-1 md:col-span-2">
           <FormLabel className={isHindi ? 'font-hindi' : ''}>
             {isHindi ? "कस्टम रैंक" : "Custom Rank"}
           </FormLabel>
           <Input 
-            placeholder={isHindi ? "अन्य रैंक यहाँ लिखें" : "Write Other rank here"} 
+            placeholder={isHindi ? "कस्टम रैंक यहाँ लिखें" : "Write custom rank here"} 
             value={customRankInput}
             onChange={(e) => handleCustomRankChange(e.target.value)}
             className="mt-2"

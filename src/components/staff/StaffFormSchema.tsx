@@ -21,8 +21,7 @@ export const staffRanks: StaffRank[] = [
   "Sweeper", 
   "Barber", 
   "Washerman", 
-  "Peon",
-  "Other"
+  "Peon"
 ];
 
 export const staffFormSchema = z.object({
