@@ -40,14 +40,9 @@ export function EnhancedStaffSortBy({ onSortChange, currentSort }: EnhancedStaff
   const [customRank, setCustomRank] = useState("");
 
   const sortOptions = [
-    { value: "name", label: isHindi ? "नाम" : "Name" },
-    { value: "pno", label: "PNO" },
-    { value: "rank", label: isHindi ? "रैंक" : "Rank" },
-    { value: "district", label: isHindi ? "जिला" : "District" },
-    { value: "mobile", label: isHindi ? "मोबाइल" : "Mobile" },
     ...STAFF_RANKS.map(rank => ({
       value: `rank:${rank}`,
-      label: isHindi ? `रैंक: ${rank}` : `Rank: ${rank}`
+      label: rank
     }))
   ];
 
