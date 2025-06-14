@@ -247,3 +247,5 @@ export function RecordDeleteDialog({
       </DialogContent>
     </Dialog>
   );
+} // <<< ADD THIS CLOSING BRACE TO COMPLETE THE COMPONENT DEFINITION
+
