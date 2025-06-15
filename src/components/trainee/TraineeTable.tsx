@@ -45,10 +45,8 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
     
     if (sortBy.startsWith("rank:")) {
       const targetRank = sortBy.replace("rank:", "");
-      sorted = sorted.filter(t => 
-        t.rank.toLowerCase().includes(targetRank.toLowerCase()) ||
-        t.rank === targetRank
-      );
+      // Use exact match instead of partial match
+      sorted = sorted.filter(t => t.rank === targetRank);
     } else if (sortBy === "toli_no") {
       sorted = sorted.sort((a, b) => {
         // Handle null/undefined toli_no values

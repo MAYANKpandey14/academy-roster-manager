@@ -50,10 +50,8 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
     
     if (sortBy.startsWith("rank:")) {
       const targetRank = sortBy.replace("rank:", "");
-      return staffCopy.filter(s => 
-        s.rank.toLowerCase().includes(targetRank.toLowerCase()) ||
-        s.rank === targetRank
-      );
+      // Use exact match instead of partial match
+      return staffCopy.filter(s => s.rank === targetRank);
     }
     
     return staffCopy.sort((a, b) => {
