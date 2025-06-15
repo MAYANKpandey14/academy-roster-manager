@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 import { BloodGroup, StaffRank } from "@/types/staff";
 
@@ -6,8 +5,6 @@ export const bloodGroups: BloodGroup[] = ["A+", "A-", "B+", "B-", "O+", "O-", "A
 export const staffRanks: StaffRank[] = [
   "R/CONST",
   "CONST", 
-  "C-PTI",
-  "C-ITI", 
   "HC/CP", 
   "HC/AP", 
   "HC-ITI", 
@@ -17,8 +14,6 @@ export const staffRanks: StaffRank[] = [
   "RI", 
   "RSI", 
   "Inspector",
-  "INS-T",
-  "SI-T",
   "FALL", 
   "Sweeper", 
   "Barber", 

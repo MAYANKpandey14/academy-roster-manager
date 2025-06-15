@@ -62,32 +62,36 @@ async function fetchAttendance(personId: string, personType: 'trainee' | 'staff'
 
     if (leaveError) throw leaveError;
 
-    const processedAttendance = (attendanceData || []).map((record) => {
-      const attendanceRecord: AttendanceRecord = {
-        id: record.id,
-        date: record.date,
-        status: record.status || 'absent',
-        approval_status: record.approval_status || 'pending',
-        trainee_id: personType === 'trainee' ? personId : undefined,
-        staff_id: personType === 'staff' ? personId : undefined
-      };
-      return attendanceRecord;
-    });
+    const processedAttendance: AttendanceRecord[] = [];
+    if (attendanceData) {
+      for (const record of attendanceData) {
+        processedAttendance.push({
+          id: record.id,
+          date: record.date,
+          status: record.status || 'absent',
+          approval_status: record.approval_status || 'pending',
+          trainee_id: personType === 'trainee' ? personId : undefined,
+          staff_id: personType === 'staff' ? personId : undefined
+        });
+      }
+    }
 
-    const processedLeave = (leaveData || []).map((record) => {
-      const leaveRecord: LeaveRecord = {
-        id: record.id,
-        start_date: record.start_date,
-        end_date: record.end_date,
-        status: record.status || 'pending',
-        reason: record.reason,
-        approval_status: record.status || 'pending',
-        trainee_id: personType === 'trainee' ? personId : undefined,
-        staff_id: personType === 'staff' ? personId : undefined,
-        leave_type: record.leave_type
-      };
-      return leaveRecord;
-    });
+    const processedLeave: LeaveRecord[] = [];
+    if (leaveData) {
+      for (const record of leaveData) {
+        processedLeave.push({
+          id: record.id,
+          start_date: record.start_date,
+          end_date: record.end_date,
+          status: record.status || 'pending',
+          reason: record.reason,
+          approval_status: record.status || 'pending',
+          trainee_id: personType === 'trainee' ? personId : undefined,
+          staff_id: personType === 'staff' ? personId : undefined,
+          leave_type: record.leave_type
+        });
+      }
+    }
 
     // Sort
     processedAttendance.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

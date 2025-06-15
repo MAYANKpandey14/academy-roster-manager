@@ -1,32 +1,15 @@
-
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { TraineeRank } from "@/types/trainee";
 import { Plus, X } from "lucide-react";
+import { traineeRanks } from "@/components/trainee/TraineeFormSchema";
 
 interface EnhancedTraineeSortByProps {
   onSortChange: (sortBy: string) => void;
   currentSort: string;
 }
-
-const TRAINEE_RANKS: TraineeRank[] = [
-  "R/CONST",
-  "CONST", 
-  "CONST/PTI",
-  "CONST/ITI",
-  "HC/CP",
-  "HC/AP", 
-  "HC-ITI",
-  "HC-PTI",
-  "SI/AP",
-  "SI/CP",
-  "RI",
-  "RSI",
-  "Inspector"
-];
 
 export function EnhancedTraineeSortBy({ onSortChange, currentSort }: EnhancedTraineeSortByProps) {
   const { isHindi } = useLanguage();
@@ -37,10 +20,12 @@ export function EnhancedTraineeSortBy({ onSortChange, currentSort }: EnhancedTra
     { value: "none", label: isHindi ? "कोई क्रम नहीं" : "None" },
     { value: "chest_no", label: isHindi ? "चेस्ट नंबर" : "Chest No" },
     { value: "toli_no", label: isHindi ? "टोली नंबर" : "Toli No" },
-    ...TRAINEE_RANKS.map(rank => ({
-      value: `rank:${rank}`,
-      label: rank // Show rank without "Rank:" prefix
-    }))
+    ...traineeRanks
+      .filter(rank => rank !== "Other") // Exclude "Other" rank as requested
+      .map(rank => ({
+        value: `rank:${rank}`,
+        label: rank
+      }))
   ];
 
   const handleCustomRankSubmit = () => {
