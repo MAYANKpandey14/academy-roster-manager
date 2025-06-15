@@ -16,14 +16,12 @@ export function useTraineeFilters() {
         filters.push({
           key: "sort",
           label: isHindi ? "रैंक" : "Rank",
-          value: rankValue
+          value: rankValue // Show just the rank value without "Rank:" prefix
         });
       } else {
         const sortLabels: Record<string, string> = {
-          name: isHindi ? "नाम" : "Name",
-          toli_no: isHindi ? "टोली नंबर" : "Toli Number",
-          chest_no: isHindi ? "चेस्ट नंबर" : "Chest Number",
-          rank: isHindi ? "रैंक" : "Rank"
+          chest_no: isHindi ? "चेस्ट नंबर" : "Chest No",
+          toli_no: isHindi ? "टोली नंबर" : "Toli No"
         };
         
         filters.push({

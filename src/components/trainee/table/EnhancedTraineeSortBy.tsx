@@ -35,13 +35,11 @@ export function EnhancedTraineeSortBy({ onSortChange, currentSort }: EnhancedTra
 
   const sortOptions = [
     { value: "none", label: isHindi ? "कोई क्रम नहीं" : "None" },
-    { value: "toli_no", label: isHindi ? "टोली नंबर" : "Toli No" },
     { value: "chest_no", label: isHindi ? "चेस्ट नंबर" : "Chest No" },
-    { value: "name", label: isHindi ? "नाम" : "Name" },
-    { value: "rank", label: isHindi ? "रैंक" : "Rank" },
+    { value: "toli_no", label: isHindi ? "टोली नंबर" : "Toli No" },
     ...TRAINEE_RANKS.map(rank => ({
       value: `rank:${rank}`,
-      label: isHindi ? `रैंक: ${rank}` : `Rank: ${rank}`
+      label: rank // Show rank without "Rank:" prefix
     }))
   ];
 
