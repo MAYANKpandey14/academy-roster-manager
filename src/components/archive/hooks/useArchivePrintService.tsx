@@ -8,6 +8,26 @@ import { createPrintContent } from "@/utils/export/traineePrintUtils";
 import { handlePrint } from "@/utils/export/printUtils";
 import { supabase } from "@/integrations/supabase/client";
 
+interface SimpleAttendanceRecord {
+  id: string;
+  date: string;
+  status: string;
+  approval_status: string;
+  person_id: string;
+  reason?: string;
+}
+
+interface SimpleLeaveRecord {
+  id: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  status: string;
+  leave_type?: string;
+  approval_status: string;
+  person_id: string;
+}
+
 export function useArchivePrintService() {
   const [isLoading, setIsLoading] = useState(false);
   const { isHindi } = useLanguage();
@@ -38,7 +58,7 @@ export function useArchivePrintService() {
       console.log("Archive leave result:", leaveResult);
 
       // Process attendance records with proper status parsing
-      const attendanceRecords = (attendanceResult.data || []).map((record: any) => {
+      const attendanceRecords: SimpleAttendanceRecord[] = (attendanceResult.data || []).map((record: any) => {
         let actualStatus = record.status;
         let reason = undefined;
         
@@ -59,7 +79,7 @@ export function useArchivePrintService() {
       });
 
       // Process leave records
-      const leaveRecords = (leaveResult.data || []).map((record: any) => ({
+      const leaveRecords: SimpleLeaveRecord[] = (leaveResult.data || []).map((record: any) => ({
         id: record.id,
         start_date: record.start_date,
         end_date: record.end_date,
