@@ -9,6 +9,7 @@ export interface AttendanceRecord {
   approval_status: string;
   trainee_id?: string;
   staff_id?: string;
+  reason?: string;
 }
 
 export interface LeaveRecord {
@@ -62,31 +63,36 @@ async function fetchAttendance(personId: string, personType: 'trainee' | 'staff'
 
     if (leaveError) throw leaveError;
 
-    // Process attendance records with correct ID assignment
-    const processedAttendance: AttendanceRecord[] = (attendanceData || []).map((record) => {
+    // Process attendance records with status and reason parsing
+    const processedAttendance: AttendanceRecord[] = (attendanceData || []).map((record: any) => {
+      let actualStatus = record.status;
+      let reason = undefined;
+      
+      // Parse status if it contains a reason (format: "status: reason")
+      if (record.status && record.status.includes(": ")) {
+        const parts = record.status.split(": ");
+        actualStatus = parts[0];
+        reason = parts.slice(1).join(": ");
+      }
+
       const baseRecord = {
         id: record.id,
         date: record.date,
-        status: record.status || 'absent',
+        status: actualStatus || 'absent',
         approval_status: record.approval_status || 'pending',
+        reason: reason
       };
 
-      // Only include the relevant ID field based on person type
+      // Add the appropriate ID field
       if (personType === 'trainee') {
-        return {
-          ...baseRecord,
-          trainee_id: personId
-        };
+        return { ...baseRecord, trainee_id: personId };
       } else {
-        return {
-          ...baseRecord,
-          staff_id: personId
-        };
+        return { ...baseRecord, staff_id: personId };
       }
     });
 
-    // Process leave records with correct ID assignment
-    const processedLeave: LeaveRecord[] = (leaveData || []).map((record) => {
+    // Process leave records
+    const processedLeave: LeaveRecord[] = (leaveData || []).map((record: any) => {
       const baseRecord = {
         id: record.id,
         start_date: record.start_date,
@@ -97,17 +103,11 @@ async function fetchAttendance(personId: string, personType: 'trainee' | 'staff'
         leave_type: record.leave_type
       };
 
-      // Only include the relevant ID field based on person type
+      // Add the appropriate ID field
       if (personType === 'trainee') {
-        return {
-          ...baseRecord,
-          trainee_id: personId
-        };
+        return { ...baseRecord, trainee_id: personId };
       } else {
-        return {
-          ...baseRecord,
-          staff_id: personId
-        };
+        return { ...baseRecord, staff_id: personId };
       }
     });
 

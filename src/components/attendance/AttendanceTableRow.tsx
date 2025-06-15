@@ -61,9 +61,13 @@ export function AttendanceTableRow({ record, personType }: AttendanceTableRowPro
           <AttendanceStatus type={baseStatus} />
         </TableCell>
         <TableCell>
-          <span className="text-sm text-muted-foreground italic">
-            {isHindi ? 'कारण नहीं दिया गया' : 'No reason provided'}
-          </span>
+          {record.reason ? (
+            <span className="text-sm">{record.reason}</span>
+          ) : (
+            <span className="text-sm text-muted-foreground italic">
+              {isHindi ? 'कारण नहीं दिया गया' : 'No reason provided'}
+            </span>
+          )}
         </TableCell>
         <TableCell>
           <ApprovalStatus status={currentApprovalStatus} />
