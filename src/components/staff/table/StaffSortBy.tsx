@@ -1,33 +1,12 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { StaffRank } from "@/types/staff";
+import { staffRanks } from "@/components/staff/StaffFormSchema";
 
 interface StaffSortByProps {
   onSortChange: (sortBy: string) => void;
   currentSort: string;
 }
-
-const STAFF_RANKS: StaffRank[] = [
-  "R/CONST",
-  "CONST", 
-  "CONST/PTI",
-  "CONST/ITI",
-  "HC/CP",
-  "HC/AP", 
-  "HC-ITI",
-  "HC-PTI",
-  "SI/AP",
-  "SI/CP",
-  "RI",
-  "RSI",
-  "Inspector",
-  "FALL",
-  "Sweeper",
-  "Barber", 
-  "Washerman",
-  "Peon"
-];
 
 export function StaffSortBy({ onSortChange, currentSort }: StaffSortByProps) {
   const { isHindi } = useLanguage();
@@ -38,7 +17,7 @@ export function StaffSortBy({ onSortChange, currentSort }: StaffSortByProps) {
     { value: "rank", label: isHindi ? "रैंक" : "Rank" },
     { value: "district", label: isHindi ? "जिला" : "District" },
     { value: "mobile", label: isHindi ? "मोबाइल" : "Mobile" },
-    ...STAFF_RANKS.map(rank => ({
+    ...staffRanks.map(rank => ({
       value: `rank:${rank}`,
       label: isHindi ? `रैंक: ${rank}` : `Rank: ${rank}`
     }))
