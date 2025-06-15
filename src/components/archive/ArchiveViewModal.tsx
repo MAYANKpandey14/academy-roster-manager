@@ -235,11 +235,6 @@ export function ArchiveViewModal({ record, type, isOpen, onClose }: ArchiveViewM
                               </Badge>
                               <span className="text-xs text-gray-500">{att.approval_status}</span>
                             </div>
-                            {att.reason && (
-                              <span className="text-xs text-blue-600">
-                                {isHindi ? 'कारण: ' : 'Reason: '}{att.reason}
-                              </span>
-                            )}
                           </div>
                         ))}
                       </div>
