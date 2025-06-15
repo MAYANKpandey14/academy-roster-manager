@@ -7,6 +7,8 @@ import { TraineeTableActions } from "./table/TraineeTableActions";
 import { getTraineeTableColumns } from "./table/TraineeTableColumns";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EnhancedTraineeSortBy } from "./table/EnhancedTraineeSortBy";
+import { ActiveFilters } from "@/components/common/ActiveFilters";
+import { useTraineeFilters } from "./hooks/useTraineeFilters";
 
 interface TraineeTableProps {
   trainees: Trainee[];
@@ -20,7 +22,14 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
   const [selectedCount, setSelectedCount] = useState(0);
   const { isHindi } = useLanguage();
   const [sortedTrainees, setSortedTrainees] = useState<Trainee[]>(trainees);
-  const [sortBy, setSortBy] = useState<string>("none");
+  
+  const {
+    sortBy,
+    setSortBy,
+    getActiveFilters,
+    handleRemoveFilter,
+    handleResetAll
+  } = useTraineeFilters();
   
   // Get table columns using getTraineeTableColumns function
   const columns = getTraineeTableColumns(isHindi, onRefresh);
@@ -80,6 +89,12 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
           onRefresh={onRefresh}
         />
       </div>
+
+      <ActiveFilters
+        filters={getActiveFilters()}
+        onRemoveFilter={handleRemoveFilter}
+        onResetAll={handleResetAll}
+      />
       
       <DataTable
         columns={columns}

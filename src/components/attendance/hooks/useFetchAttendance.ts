@@ -63,17 +63,16 @@ async function fetchAttendance(personId: string, personType: 'trainee' | 'staff'
 
     if (leaveError) throw leaveError;
 
-    const processedAttendance = (attendanceData || []).map((record) => ({
+    const processedAttendance: AttendanceRecord[] = (attendanceData || []).map((record) => ({
       id: record.id,
       date: record.date,
       status: record.status || 'absent',
       approval_status: record.approval_status || 'pending',
-      reason: record.reason,
       trainee_id: personType === 'trainee' ? personId : undefined,
       staff_id: personType === 'staff' ? personId : undefined
     }));
 
-    const processedLeave = (leaveData || []).map((record) => ({
+    const processedLeave: LeaveRecord[] = (leaveData || []).map((record) => ({
       id: record.id,
       start_date: record.start_date,
       end_date: record.end_date,

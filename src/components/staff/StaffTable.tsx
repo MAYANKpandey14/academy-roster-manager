@@ -11,6 +11,8 @@ import { exportStaffToExcel } from "@/utils/export";
 import { createStaffPrintContent, createStaffCSVContent } from "@/utils/staffExportUtils";
 import { handlePrint, handleDownload } from "@/utils/export";
 import { toast } from "sonner";
+import { ActiveFilters } from "@/components/common/ActiveFilters";
+import { useStaffFilters } from "./hooks/useStaffFilters";
 
 interface StaffTableProps {
   staff: Staff[];
@@ -20,7 +22,14 @@ interface StaffTableProps {
 
 export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTableProps) => {
   const { isHindi } = useLanguage();
-  const [sortBy, setSortBy] = useState("");
+  
+  const {
+    sortBy,
+    setSortBy,
+    getActiveFilters,
+    handleRemoveFilter,
+    handleResetAll
+  } = useStaffFilters();
   
   const {
     rowSelection,
@@ -108,6 +117,12 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
           onRefresh={onRefresh}
         />
       </div>
+
+      <ActiveFilters
+        filters={getActiveFilters()}
+        onRemoveFilter={handleRemoveFilter}
+        onResetAll={handleResetAll}
+      />
       
       <DataTable
         columns={columns}
