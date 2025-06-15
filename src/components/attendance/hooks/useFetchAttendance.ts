@@ -62,26 +62,54 @@ async function fetchAttendance(personId: string, personType: 'trainee' | 'staff'
 
     if (leaveError) throw leaveError;
 
-    const processedAttendance: AttendanceRecord[] = (attendanceData || []).map((record) => ({
-      id: record.id,
-      date: record.date,
-      status: record.status || 'absent',
-      approval_status: record.approval_status || 'pending',
-      trainee_id: personType === 'trainee' ? personId : undefined,
-      staff_id: personType === 'staff' ? personId : undefined
-    }));
+    // Process attendance records with correct ID assignment
+    const processedAttendance: AttendanceRecord[] = (attendanceData || []).map((record) => {
+      const baseRecord = {
+        id: record.id,
+        date: record.date,
+        status: record.status || 'absent',
+        approval_status: record.approval_status || 'pending',
+      };
 
-    const processedLeave: LeaveRecord[] = (leaveData || []).map((record) => ({
-      id: record.id,
-      start_date: record.start_date,
-      end_date: record.end_date,
-      status: record.status || 'pending',
-      reason: record.reason,
-      approval_status: record.status || 'pending',
-      trainee_id: personType === 'trainee' ? personId : undefined,
-      staff_id: personType === 'staff' ? personId : undefined,
-      leave_type: record.leave_type
-    }));
+      // Only include the relevant ID field based on person type
+      if (personType === 'trainee') {
+        return {
+          ...baseRecord,
+          trainee_id: personId
+        };
+      } else {
+        return {
+          ...baseRecord,
+          staff_id: personId
+        };
+      }
+    });
+
+    // Process leave records with correct ID assignment
+    const processedLeave: LeaveRecord[] = (leaveData || []).map((record) => {
+      const baseRecord = {
+        id: record.id,
+        start_date: record.start_date,
+        end_date: record.end_date,
+        status: record.status || 'pending',
+        reason: record.reason,
+        approval_status: record.status || 'pending',
+        leave_type: record.leave_type
+      };
+
+      // Only include the relevant ID field based on person type
+      if (personType === 'trainee') {
+        return {
+          ...baseRecord,
+          trainee_id: personId
+        };
+      } else {
+        return {
+          ...baseRecord,
+          staff_id: personId
+        };
+      }
+    });
 
     // Sort
     processedAttendance.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
