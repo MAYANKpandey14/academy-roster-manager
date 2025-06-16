@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AttendanceRecord } from "../hooks/useFetchAttendance";
@@ -23,6 +24,7 @@ export function AttendanceEditDialog({ isOpen, onClose, record, personType }: At
   const { isHindi } = useLanguage();
   const [status, setStatus] = useState(record.status);
   const [date, setDate] = useState(record.date);
+  const [reason, setReason] = useState(record.reason || "");
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
 
@@ -31,10 +33,16 @@ export function AttendanceEditDialog({ isOpen, onClose, record, personType }: At
     try {
       const tableName = personType === "staff" ? "staff_attendance" : "trainee_attendance";
       
+      // Combine status and reason if reason is provided
+      let combinedStatus = status;
+      if (reason.trim()) {
+        combinedStatus = `${status}: ${reason.trim()}`;
+      }
+      
       const { error } = await supabase
         .from(tableName)
         .update({ 
-          status: status,
+          status: combinedStatus,
           date: date,
           approval_status: "pending" // Reset approval status when edited
         })
@@ -102,6 +110,18 @@ export function AttendanceEditDialog({ isOpen, onClose, record, personType }: At
                 <SelectItem value="return_to_unit">{isHindi ? "यूनिट वापसी" : "Return to Unit"}</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div>
+            <Label className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'कारण' : 'Reason'}
+            </Label>
+            <Textarea
+              placeholder={isHindi ? 'कारण दर्ज करें (वैकल्पिक)' : 'Enter reason (optional)'}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className={isHindi ? 'font-hindi' : ''}
+            />
           </div>
 
           <div className="flex justify-end space-x-2">
