@@ -103,6 +103,8 @@ export function TraineeTable({ trainees, onRefresh, isLoading = false }: Trainee
         onRowSelectionChange={setRowSelection}
         rowSelection={rowSelection}
         totalLabel={isHindi ? "कुल प्रशिक्षानिवेशी" : "Total Trainees"}
+        enableRankFilter={true}
+        rankFilterPlaceholder={isHindi ? "रैंक से फिल्टर करें..." : "Filter by rank..."}
       />
     </div>
   );

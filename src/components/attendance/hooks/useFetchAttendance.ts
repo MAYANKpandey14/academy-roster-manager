@@ -64,7 +64,7 @@ async function fetchAttendance(personId: string, personType: 'trainee' | 'staff'
     if (leaveError) throw leaveError;
 
     // Process attendance records with status and reason parsing
-    const processedAttendance = (attendanceData || []).map(record => {
+    const processedAttendance: AttendanceRecord[] = (attendanceData || []).map(record => {
       let actualStatus = record.status;
       let reason: string | undefined = undefined;
       
@@ -94,7 +94,7 @@ async function fetchAttendance(personId: string, personType: 'trainee' | 'staff'
     });
 
     // Process leave records
-    const processedLeave = (leaveData || []).map(record => {
+    const processedLeave: LeaveRecord[] = (leaveData || []).map(record => {
       const processedRecord: LeaveRecord = {
         id: record.id,
         start_date: record.start_date,
