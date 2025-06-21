@@ -3,6 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Staff } from "@/types/staff";
 import { StaffRowActions } from "./StaffRowActions";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { tokenExactMatchFilter } from "@/lib/filters";
 
 export const getStaffColumns = (
   isHindi: boolean,
@@ -57,6 +58,7 @@ export const getStaffColumns = (
         </Avatar>
       );
     },
+    enableColumnFilter: false,
   },
   {
     accessorKey: "pno",
@@ -64,26 +66,32 @@ export const getStaffColumns = (
     cell: ({ row }) => {
       return <div className="font-medium">{row.getValue("pno")}</div>;
     },
+    enableColumnFilter: false,
   },
   {
     accessorKey: "name",
     header: isHindi ? "नाम" : "Name",
     cell: ({ row }) => <div>{row.getValue("name")}</div>,
+    enableColumnFilter: true,
   },
   {
     accessorKey: "rank",
     header: isHindi ? "रैंक" : "Rank",
     cell: ({ row }) => <div>{row.getValue("rank")}</div>,
+    filterFn: tokenExactMatchFilter,
+    enableColumnFilter: true,
   },
   {
     accessorKey: "current_posting_district",
     header: isHindi ? "वर्तमान पोस्टिंग जिला" : "Current Posting District",
     cell: ({ row }) => <div>{row.getValue("current_posting_district")}</div>,
+    enableColumnFilter: false,
   },
   {
     accessorKey: "mobile_number",
     header: isHindi ? "मोबाइल नंबर" : "Mobile Number",
     cell: ({ row }) => <div>{row.getValue("mobile_number")}</div>,
+    enableColumnFilter: false,
   },
   {
     id: "actions",
@@ -98,5 +106,6 @@ export const getStaffColumns = (
         />
       );
     },
+    enableColumnFilter: false,
   },
 ];

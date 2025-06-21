@@ -64,64 +64,56 @@ async function fetchAttendance(personId: string, personType: 'trainee' | 'staff'
     if (leaveError) throw leaveError;
 
     // Process attendance records with status and reason parsing
-    const processedAttendance: AttendanceRecord[] = [];
-    
-    if (attendanceData) {
-      for (const record of attendanceData) {
-        let actualStatus = record.status;
-        let reason = undefined;
-        
-        // Parse status if it contains a reason (format: "status: reason")
-        if (record.status && record.status.includes(": ")) {
-          const parts = record.status.split(": ");
-          actualStatus = parts[0];
-          reason = parts.slice(1).join(": ");
-        }
-
-        const processedRecord: AttendanceRecord = {
-          id: record.id,
-          date: record.date,
-          status: actualStatus || 'absent',
-          approval_status: record.approval_status || 'pending',
-          reason: reason
-        };
-
-        // Add ONLY the appropriate ID field based on person type
-        if (personType === 'trainee') {
-          processedRecord.trainee_id = personId;
-        } else {
-          processedRecord.staff_id = personId;
-        }
-
-        processedAttendance.push(processedRecord);
+    const processedAttendance = (attendanceData || []).map(record => {
+      let actualStatus = record.status;
+      let reason: string | undefined = undefined;
+      
+      // Parse status if it contains a reason (format: "status: reason")
+      if (record.status && record.status.includes(": ")) {
+        const parts = record.status.split(": ");
+        actualStatus = parts[0];
+        reason = parts.slice(1).join(": ");
       }
-    }
+
+      const processedRecord: AttendanceRecord = {
+        id: record.id,
+        date: record.date,
+        status: actualStatus || 'absent',
+        approval_status: record.approval_status || 'pending',
+        reason: reason
+      };
+
+      // Add the appropriate ID field based on person type
+      if (personType === 'trainee') {
+        processedRecord.trainee_id = personId;
+      } else {
+        processedRecord.staff_id = personId;
+      }
+
+      return processedRecord;
+    });
 
     // Process leave records
-    const processedLeave: LeaveRecord[] = [];
-    
-    if (leaveData) {
-      for (const record of leaveData) {
-        const processedRecord: LeaveRecord = {
-          id: record.id,
-          start_date: record.start_date,
-          end_date: record.end_date,
-          status: record.status || 'pending',
-          reason: record.reason,
-          approval_status: record.status || 'pending',
-          leave_type: record.leave_type
-        };
+    const processedLeave = (leaveData || []).map(record => {
+      const processedRecord: LeaveRecord = {
+        id: record.id,
+        start_date: record.start_date,
+        end_date: record.end_date,
+        status: record.status || 'pending',
+        reason: record.reason,
+        approval_status: record.status || 'pending',
+        leave_type: record.leave_type
+      };
 
-        // Add ONLY the appropriate ID field based on person type
-        if (personType === 'trainee') {
-          processedRecord.trainee_id = personId;
-        } else {
-          processedRecord.staff_id = personId;
-        }
-
-        processedLeave.push(processedRecord);
+      // Add the appropriate ID field based on person type
+      if (personType === 'trainee') {
+        processedRecord.trainee_id = personId;
+      } else {
+        processedRecord.staff_id = personId;
       }
-    }
+
+      return processedRecord;
+    });
 
     // Sort
     processedAttendance.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { SortingState, ColumnFiltersState } from "@tanstack/react-table";
 import { TableWrapper } from "./TableWrapper";
@@ -15,6 +16,8 @@ interface DataTableProps<TData, TValue> {
   rowSelection?: Record<string, boolean>;
   onRowSelectionChange?: (value: Record<string, boolean>) => void;
   totalLabel?: string;
+  enableRankFilter?: boolean;
+  rankFilterPlaceholder?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -26,6 +29,8 @@ export function DataTable<TData, TValue>({
   rowSelection = {},
   onRowSelectionChange = () => {},
   totalLabel = "total",
+  enableRankFilter = false,
+  rankFilterPlaceholder = "Filter by rank...",
 }: DataTableProps<TData, TValue>) {
   const { isHindi } = useLanguage();
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -49,6 +54,8 @@ export function DataTable<TData, TValue>({
         filterColumn={filterColumn}
         filterPlaceholder={isHindi ? "खोजें..." : filterPlaceholder}
         isLoading={isLoading}
+        rankFilterEnabled={enableRankFilter}
+        rankFilterPlaceholder={rankFilterPlaceholder}
       />
       
       <TableWrapper 

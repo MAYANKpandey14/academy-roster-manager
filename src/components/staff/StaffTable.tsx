@@ -131,6 +131,8 @@ export const StaffTable = ({ staff, onRefresh, isLoading = false }: StaffTablePr
         onRowSelectionChange={setRowSelection}
         rowSelection={rowSelection}
         totalLabel={isHindi ? "कुल स्टाफ" : "Total Staff"}
+        enableRankFilter={true}
+        rankFilterPlaceholder={isHindi ? "रैंक से फिल्टर करें..." : "Filter by rank..."}
       />
     </div>
   );
