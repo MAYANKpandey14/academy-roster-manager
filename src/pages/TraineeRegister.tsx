@@ -198,9 +198,9 @@ export default function TraineeRegister() {
                   name="pno"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel aria-required="true">PNO / Unique ID</FormLabel>
+                      <FormLabel aria-required="true">PNO</FormLabel>
                       <FormControl>
-                        <Input maxLength={12} placeholder="Enter your PNO" {...field} />
+                        <Input maxLength={9} placeholder="Enter your PNO" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -214,7 +214,7 @@ export default function TraineeRegister() {
                     <FormItem>
                       <FormLabel aria-required="true">Chest Number</FormLabel>
                       <FormControl>
-                        <Input maxLength={3} placeholder="Enter your chest number" {...field} />
+                        <Input maxLength={4} placeholder="Enter your chest number" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
