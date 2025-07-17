@@ -62,7 +62,31 @@ serve(async (req) => {
 
     console.log(`Attempting to delete trainee with ID: ${id}`);
 
-    // Delete the trainee
+    // First, get the trainee record to check if there's an associated image
+    const { data: traineeData, error: fetchError } = await supabase
+      .from("trainees")
+      .select("photo_url")
+      .eq("id", id)
+      .single();
+
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      console.error("Error fetching trainee:", fetchError);
+      return new Response(
+        JSON.stringify({
+          error: fetchError.message,
+          status: 500,
+        }),
+        {
+          status: 500,
+          headers: {
+            "Content-Type": "application/json",
+            ...corsHeaders,
+          },
+        }
+      );
+    }
+
+    // Delete the trainee record
     const { error } = await supabase
       .from("trainees")
       .delete()
@@ -84,6 +108,22 @@ serve(async (req) => {
         }
       );
     }
+
+    // If trainee had a photo, delete it from storage
+    if (traineeData?.photo_url) {
+      const fileName = `trainee_${id}.webp`;
+      const { error: deleteImageError } = await supabase.storage
+        .from("trainee_photos")
+        .remove([fileName]);
+
+      if (deleteImageError) {
+        console.error("Error deleting trainee image:", deleteImageError);
+        // Don't fail the entire operation if image deletion fails
+      } else {
+        console.log(`Successfully deleted image: ${fileName}`);
+      }
+    }
+
 
     // Return success response
     return new Response(

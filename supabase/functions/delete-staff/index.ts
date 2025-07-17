@@ -62,7 +62,31 @@ serve(async (req) => {
 
     console.log(`Attempting to delete staff with ID: ${id}`);
 
-    // Delete the staff member
+    // First, get the staff record to check if there's an associated image
+    const { data: staffData, error: fetchError } = await supabase
+      .from("staff")
+      .select("photo_url")
+      .eq("id", id)
+      .single();
+
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      console.error("Error fetching staff:", fetchError);
+      return new Response(
+        JSON.stringify({
+          error: fetchError.message,
+          status: 500,
+        }),
+        {
+          status: 500,
+          headers: {
+            "Content-Type": "application/json",
+            ...corsHeaders,
+          },
+        }
+      );
+    }
+
+    // Delete the staff record
     const { error } = await supabase
       .from("staff")
       .delete()
@@ -83,6 +107,21 @@ serve(async (req) => {
           },
         }
       );
+    }
+
+    // If staff had a photo, delete it from storage
+    if (staffData?.photo_url) {
+      const fileName = `staff_${id}.webp`;
+      const { error: deleteImageError } = await supabase.storage
+        .from("staff_photos")
+        .remove([fileName]);
+
+      if (deleteImageError) {
+        console.error("Error deleting staff image:", deleteImageError);
+        // Don't fail the entire operation if image deletion fails
+      } else {
+        console.log(`Successfully deleted image: ${fileName}`);
+      }
     }
 
     // Return success response
