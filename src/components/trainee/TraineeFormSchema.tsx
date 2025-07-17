@@ -73,7 +73,7 @@ export const traineeFormSchema = z.object({
   current_posting_district: z.string().min(1, "Current posting district is required"),
   home_address: z.string().min(1, "Home address is required"),
   toli_no: z.string().optional(),
-  photo_url: z.string().optional(),
+  photo_url: z.string().min(1, "Profile photo is required"),
 });
 
 export type TraineeFormValues = z.infer<typeof traineeFormSchema>;

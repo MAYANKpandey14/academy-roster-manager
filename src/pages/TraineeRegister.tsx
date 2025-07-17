@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -32,7 +33,7 @@ const registerFormSchema = z.object({
   blood_group: z.string().min(1, { message: "Blood group is required" }),
   nominee: z.string().min(1, { message: "Nominee is required" }),
   home_address: z.string().min(1, { message: "Home address is required" }),
-  photo_url: z.string().optional(),
+  photo_url: z.string().min(1, { message: "Profile photo is required" }),
 });
 
 type RegisterFormValues = z.infer<typeof registerFormSchema>;
@@ -73,6 +74,13 @@ export default function TraineeRegister() {
   const handleImageUpload = (url: string | null) => {
     setImageUrl(url);
     form.setValue("photo_url", url || "");
+    
+    // Trigger validation for photo_url field
+    if (url) {
+      form.clearErrors("photo_url");
+    } else {
+      form.setError("photo_url", { message: "Profile photo is required" });
+    }
   };
 
   async function onSubmit(data: RegisterFormValues) {
@@ -406,10 +414,19 @@ export default function TraineeRegister() {
                   )}
                 />
 
-                <ImageUpload 
-                  bucketName="trainee_photos"
-                  onImageUpload={handleImageUpload}
-                  label="Profile Photo (Optional)"
+                <FormField
+                  control={form.control}
+                  name="photo_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <ImageUpload 
+                        bucketName="trainee_photos"
+                        onImageUpload={handleImageUpload}
+                        label="Profile Photo (Required)"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
 
