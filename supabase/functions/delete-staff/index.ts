@@ -111,16 +111,27 @@ serve(async (req) => {
 
     // If staff had a photo, delete it from storage
     if (staffData?.photo_url) {
-      const fileName = `staff_${id}.webp`;
-      const { error: deleteImageError } = await supabase.storage
-        .from("staff_photos")
-        .remove([fileName]);
+      try {
+        // Extract the filename from the photo URL
+        const url = new URL(staffData.photo_url);
+        const pathParts = url.pathname.split('/');
+        const fileName = pathParts[pathParts.length - 1];
+        
+        console.log(`Attempting to delete image: ${fileName}`);
+        
+        const { error: deleteImageError } = await supabase.storage
+          .from("staff_photos")
+          .remove([fileName]);
 
-      if (deleteImageError) {
-        console.error("Error deleting staff image:", deleteImageError);
-        // Don't fail the entire operation if image deletion fails
-      } else {
-        console.log(`Successfully deleted image: ${fileName}`);
+        if (deleteImageError) {
+          console.error("Error deleting staff image:", deleteImageError);
+          // Don't fail the entire operation if image deletion fails
+        } else {
+          console.log(`Successfully deleted image: ${fileName}`);
+        }
+      } catch (urlError) {
+        console.error("Error parsing photo URL:", urlError);
+        // Don't fail the entire operation if URL parsing fails
       }
     }
 
