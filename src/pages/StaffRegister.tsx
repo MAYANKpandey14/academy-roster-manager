@@ -433,6 +433,7 @@ export default function StaffRegister() {
                   bucketName="staff_photos"
                   onImageUpload={handleImageUpload}
                   label="Profile Photo (Optional)"
+                  isPublic={true}
                 />
               </div>
 

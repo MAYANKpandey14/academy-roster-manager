@@ -410,6 +410,7 @@ export default function TraineeRegister() {
                   bucketName="trainee_photos"
                   onImageUpload={handleImageUpload}
                   label="Profile Photo (Compulsory)"
+                  isPublic={true}
                 />
               </div>
 

@@ -13,6 +13,7 @@ interface ImageUploadProps {
   initialImageUrl?: string;
   onImageUpload: (url: string | null) => void;
   label?: string;
+  isPublic?: boolean; // New prop to indicate if this is for public forms
 }
 
 export const ImageUpload = ({ 
@@ -20,7 +21,8 @@ export const ImageUpload = ({
   entityId, 
   initialImageUrl, 
   onImageUpload,
-  label
+  label,
+  isPublic = false
 }: ImageUploadProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | undefined>(initialImageUrl);
@@ -50,22 +52,26 @@ export const ImageUpload = ({
     setIsUploading(true);
     
     try {
-      // Get the current session to include auth token
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session?.access_token) {
-        console.warn("No active session found for image upload");
-        setError(isHindi ? 
-          "लॉगिन सत्र समाप्त हो गया है। कृपया पुनः लॉगिन करें।" : 
-          "Login session expired. Please log in again.");
-        setIsUploading(false);
-        return;
+      // For public forms, we don't need to check authentication
+      if (!isPublic) {
+        // Get the current session to include auth token for authenticated uploads
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session?.access_token) {
+          console.warn("No active session found for image upload");
+          setError(isHindi ? 
+            "लॉगिन सत्र समाप्त हो गया है। कृपया पुनः लॉगिन करें।" : 
+            "Login session expired. Please log in again.");
+          setIsUploading(false);
+          return;
+        }
       }
       
       // Create form data for the edge function
       const formData = new FormData();
       formData.append('file', file);
       formData.append('bucketName', bucketName);
+      formData.append('isPublic', isPublic.toString());
       if (entityId) {
         formData.append('entityId', entityId);
       }
