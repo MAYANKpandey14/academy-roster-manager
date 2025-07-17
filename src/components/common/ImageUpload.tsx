@@ -111,7 +111,9 @@ export const ImageUpload = ({
       }
       
       const url = uploadResponse.url;
-      console.log("Image uploaded successfully:", url);
+      const wasReplaced = uploadResponse.replaced;
+      
+      console.log(wasReplaced ? "Image replaced successfully:" : "Image uploaded successfully:", url);
       setImageUrl(url);
       onImageUpload(url);
     } catch (error) {
@@ -154,7 +156,9 @@ export const ImageUpload = ({
             </Button>
             {imageUrl && (
               <span className={`text-sm text-muted-foreground ${isHindi ? 'font-hindi' : ''}`}>
-                {isHindi ? "फोटो अपलोड किया गया" : "Photo uploaded"}
+                {entityId 
+                  ? (isHindi ? "फोटो अपडेट किया गया" : "Photo updated") 
+                  : (isHindi ? "फोटो अपलोड किया गया" : "Photo uploaded")}
               </span>
             )}
           </div>

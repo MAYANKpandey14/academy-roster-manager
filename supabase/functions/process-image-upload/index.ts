@@ -70,7 +70,22 @@ serve(async (req) => {
       );
     }
 
-    // Check current photo count
+    // Check for existing photo if entityId is provided
+    let existingPhoto = null;
+    if (entityId) {
+      const { data: existingFiles, error: searchError } = await supabase.storage
+        .from(bucketName)
+        .list('', { search: entityId });
+      
+      if (searchError) {
+        console.error('Error searching for existing photos:', searchError);
+      } else if (existingFiles && existingFiles.length > 0) {
+        existingPhoto = existingFiles[0].name;
+        console.log(`Found existing photo for ${entityId}: ${existingPhoto}`);
+      }
+    }
+
+    // Check current photo count (excluding the existing photo that will be replaced)
     const { data: objects, error: countError } = await supabase.storage
       .from(bucketName)
       .list();
@@ -84,12 +99,14 @@ serve(async (req) => {
     }
 
     const currentCount = objects?.length || 0;
-    if (currentCount >= limits.maxCount) {
+    const effectiveCount = existingPhoto ? currentCount - 1 : currentCount; // Don't count existing photo as it will be replaced
+    
+    if (effectiveCount >= limits.maxCount) {
       return new Response(
         JSON.stringify({ 
           error: `Maximum ${photoType} photos reached (${limits.maxCount}). Delete existing photos to upload more.`,
           errorCode: 'MAX_COUNT_EXCEEDED',
-          currentCount,
+          currentCount: effectiveCount,
           maxCount: limits.maxCount
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -119,17 +136,32 @@ serve(async (req) => {
       );
     }
 
-    // Generate filename
+    // Delete existing photo if found
+    if (existingPhoto) {
+      console.log(`Deleting existing photo: ${existingPhoto}`);
+      const { error: deleteError } = await supabase.storage
+        .from(bucketName)
+        .remove([existingPhoto]);
+      
+      if (deleteError) {
+        console.error('Error deleting existing photo:', deleteError);
+        // Continue with upload even if deletion fails - log the error
+      } else {
+        console.log(`Successfully deleted existing photo: ${existingPhoto}`);
+      }
+    }
+
+    // Generate filename - always use .webp extension for processed images
     const fileName = entityId 
-      ? `${entityId}.${file.name.split('.').pop()}`
-      : `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${file.name.split('.').pop()}`;
+      ? `${entityId}.webp`
+      : `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.webp`;
 
     // Upload to storage
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from(bucketName)
       .upload(fileName, fileBuffer, { 
         upsert: true,
-        contentType: file.type
+        contentType: 'image/webp'
       });
 
     if (uploadError) {
@@ -145,12 +177,19 @@ serve(async (req) => {
       .from(bucketName)
       .getPublicUrl(fileName);
 
+    const responseMessage = existingPhoto 
+      ? `Image replaced successfully. Old photo ${existingPhoto} was deleted.`
+      : 'Image uploaded successfully';
+    
+    console.log(`Upload completed for ${entityId || fileName}: ${responseMessage}`);
+
     return new Response(
       JSON.stringify({ 
         url: publicUrlData.publicUrl,
         fileName,
         sizeKB: originalSizeKB,
-        message: 'Image uploaded successfully'
+        message: responseMessage,
+        replaced: !!existingPhoto
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
