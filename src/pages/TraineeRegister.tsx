@@ -6,7 +6,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Check, AlertTriangle, Upload } from "lucide-react";
+import { Check, AlertTriangle } from "lucide-react";
+import { ImageUpload } from "@/components/common/ImageUpload";
 import { supabase } from '@/integrations/supabase/client';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { bloodGroups, traineeRanks } from "@/components/trainee/TraineeFormSchema";
@@ -39,7 +40,6 @@ type RegisterFormValues = z.infer<typeof registerFormSchema>;
 export default function TraineeRegister() {
   const { isHindi } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [submissionStatus, setSubmissionStatus] = useState<{
     success?: boolean;
@@ -70,52 +70,9 @@ export default function TraineeRegister() {
     }
   });
 
-  // Handle image upload
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    
-    // Validate file type and size
-    if (!file.type.match(/image\/(jpeg|jpg|png|webp)/i)) {
-      alert("Only JPG, PNG, and WEBP images are accepted");
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Image must be smaller than 5MB");
-      return;
-    }
-
-    setIsUploading(true);
-    
-    try {
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${file.name.split('.').pop()}`;
-      
-      // Upload the file to Supabase storage
-      const { data, error: uploadError } = await supabase.storage
-        .from('trainee_photos')
-        .upload(fileName, file, { upsert: true });
-      
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        throw uploadError;
-      }
-      
-      // Get the public URL
-      const { data: publicUrlData } = supabase.storage
-        .from('trainee_photos')
-        .getPublicUrl(fileName);
-      
-      const url = publicUrlData.publicUrl;
-      console.log("Image uploaded successfully:", url);
-      setImageUrl(url);
-      form.setValue("photo_url", url);
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      alert("Error uploading image");
-    } finally {
-      setIsUploading(false);
-    }
+  const handleImageUpload = (url: string | null) => {
+    setImageUrl(url);
+    form.setValue("photo_url", url || "");
   };
 
   async function onSubmit(data: RegisterFormValues) {
@@ -437,38 +394,11 @@ export default function TraineeRegister() {
                   )}
                 />
 
-                {/* Photo Upload */}
-                <div className="space-y-2">
-                  <FormLabel aria-required="true">Profile Photo</FormLabel>
-                  <div className="flex flex-col space-y-3">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      className="w-full relative overflow-hidden" 
-                      disabled={isUploading}
-                    >
-                      <span className="mr-2">
-                        {isUploading ? "Uploading..." : "Choose Photo"}
-                      </span>
-                      <Upload className="h-4 w-4" />
-                      <Input 
-                        type="file" 
-                        accept="image/jpeg,image/jpg,image/png,image/webp" 
-                        className="absolute inset-0 opacity-0 cursor-pointer" 
-                        onChange={handleFileChange} 
-                      />
-                    </Button>
-                    
-                    {imageUrl && (
-                      <div className="flex items-center gap-2">
-                        <div className="w-16 h-16 rounded-md overflow-hidden border">
-                          <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
-                        </div>
-                        <span className="text-sm text-muted-foreground">Photo uploaded</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <ImageUpload 
+                  bucketName="trainee_photos"
+                  onImageUpload={handleImageUpload}
+                  label="Profile Photo (Optional)"
+                />
               </div>
 
               {/* Contact Section */}
@@ -517,7 +447,7 @@ export default function TraineeRegister() {
             <Button 
               type="submit" 
               className="w-full bg-blue-700 hover:bg-blue-800"
-              disabled={isSubmitting || isUploading}
+              disabled={isSubmitting}
             >
               {isSubmitting ? "Submitting..." : "Register"}
             </Button>
