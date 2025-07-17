@@ -25,6 +25,7 @@ interface AddTraineeFormProps {
 export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const navigate = useNavigate();
   const {isHindi} = useLanguage();
   
@@ -45,11 +46,10 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
     try {
       console.log("Form data to submit:", data);
       
-      // The form now contains properly formatted dates from the DateFields component,
-      // so we don't need to transform them here
+      // First create the trainee record without photo
       const formData = {
         ...data,
-        photo_url: data.photo_url || null // Ensure photo_url is null if not provided
+        photo_url: null // Always null initially
       };
       
       console.log("Transformed form data:", formData);
@@ -63,6 +63,32 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
       }
       
       console.log("API response:", response);
+      
+      // If there's a selected image and we have the trainee ID, upload it
+      if (selectedImage && response.data?.id) {
+        try {
+          const formData = new FormData();
+          formData.append('file', selectedImage);
+          formData.append('bucketName', 'trainee_photos');
+          formData.append('entityId', response.data.id);
+
+          const uploadResponse = await fetch('https://zjgphamebgrclivvkhmw.supabase.co/functions/v1/process-image-upload', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZ3BoYW1lYmdyY2xpdnZraG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU2OTM2NDcsImV4cCI6MjA2MTI2OTY0N30.1SmOoYa7R4iybW0nCIuc-FrbYML-EP9yC2ykJ6kpUTo'}`,
+            },
+            body: formData,
+          });
+
+          if (!uploadResponse.ok) {
+            console.warn('Image upload failed, but trainee was created successfully');
+          }
+        } catch (imageError) {
+          console.warn('Image upload failed:', imageError);
+          // Don't fail the entire operation if image upload fails
+        }
+      }
+      
       toast.success(isHindi ? "प्रशिक्षानिवेशी सफलतापूर्वक जोड़ा गया है" : "Trainee added successfully");
       
       if (onSuccess) {
@@ -82,9 +108,8 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
     }
   };
 
-  const handleImageUpload = (url: string) => {
-    console.log("Image URL set in form:", url);
-    form.setValue("photo_url", url);
+  const handleImageSelect = (file: File) => {
+    setSelectedImage(file);
   };
 
   return (
@@ -108,11 +133,27 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
               <ContactFields form={form} />
               
               <div className="col-span-1 md:col-span-2">
-                <ImageUpload 
-                  bucketName="trainee_photos"
-                  onImageUpload={handleImageUpload}
-                  label={isHindi ? 'प्रशिक्षु फोटो' : 'Trainee Photo'}
-                />
+                <div className="space-y-2">
+                  <label className="text-sm font-medium dynamic-text">
+                    {isHindi ? 'प्रशिक्षु फोटो' : 'Trainee Photo'}
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleImageSelect(file);
+                      }
+                    }}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  {selectedImage && (
+                    <p className="text-sm text-green-600 dynamic-text">
+                      {isHindi ? 'फ़ाइल चुनी गई:' : 'File selected:'} {selectedImage.name}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
 

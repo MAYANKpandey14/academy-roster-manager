@@ -18,9 +18,11 @@ interface StaffFormProps {
   initialData?: Staff;
   onSubmit: (data: StaffFormValues) => void;
   isSubmitting?: boolean;
+  selectedImage?: File | null;
+  onImageSelect?: (file: File) => void;
 }
 
-export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: StaffFormProps) => {
+export const StaffForm = ({ initialData, onSubmit, isSubmitting = false, selectedImage, onImageSelect }: StaffFormProps) => {
   const { isHindi } = useLanguage();
   
   // Apply language inputs hook
@@ -68,13 +70,37 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
           <ContactInfoFields form={form} />
           
           <div className="col-span-1 md:col-span-2">
-            <ImageUpload 
-              bucketName="staff_photos"
-              entityId={initialData?.id}
-              initialImageUrl={initialData?.photo_url}
-              onImageUpload={handleImageUpload}
-              label={isHindi ? 'स्टाफ फोटो (वैकल्पिक)' : 'Staff Photo (Optional)'}
-            />
+            {initialData?.id ? (
+              <ImageUpload 
+                bucketName="staff_photos"
+                entityId={initialData.id}
+                initialImageUrl={initialData.photo_url}
+                onImageUpload={handleImageUpload}
+                label={isHindi ? 'स्टाफ फोटो (वैकल्पिक)' : 'Staff Photo (Optional)'}
+              />
+            ) : (
+              <div className="space-y-2">
+                <label className="text-sm font-medium dynamic-text">
+                  {isHindi ? 'स्टाफ फोटो (वैकल्पिक)' : 'Staff Photo (Optional)'}
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file && onImageSelect) {
+                      onImageSelect(file);
+                    }
+                  }}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                />
+                {selectedImage && (
+                  <p className="text-sm text-green-600 dynamic-text">
+                    {isHindi ? 'फ़ाइल चुनी गई:' : 'File selected:'} {selectedImage.name}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
