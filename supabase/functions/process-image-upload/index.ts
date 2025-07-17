@@ -81,16 +81,26 @@ serve(async (req) => {
       );
     }
 
-    // Construct filename
-    const fileName = `${photoType}_${entityId}.webp`;
+    // Construct filename with timestamp to avoid browser caching issues
+    const timestamp = new Date().getTime();
+    const fileName = `${photoType}_${entityId}_${timestamp}.webp`;
 
-    // Delete old image explicitly
-    const { error: deleteError } = await supabase.storage
+    // Delete old images (both old and new naming patterns)
+    const { data: existingFiles } = await supabase.storage
       .from(bucketName)
-      .remove([fileName]);
+      .list('', {
+        search: `${photoType}_${entityId}`
+      });
 
-    if (deleteError && deleteError.status !== 404) {
-      console.error('Failed to delete old image:', deleteError);
+    if (existingFiles && existingFiles.length > 0) {
+      const filesToDelete = existingFiles.map(file => file.name);
+      const { error: deleteError } = await supabase.storage
+        .from(bucketName)
+        .remove(filesToDelete);
+
+      if (deleteError) {
+        console.error('Failed to delete old images:', deleteError);
+      }
     }
 
     // Upload new image
