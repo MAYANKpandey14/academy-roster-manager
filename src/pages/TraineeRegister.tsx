@@ -86,9 +86,26 @@ export default function TraineeRegister() {
         body: data
       });
 
+      // Check if there's an error in the response
       if (response.error) {
         console.error("Registration error:", response.error);
-        throw new Error(response.error.message || "Failed to register");
+        // Extract the actual error message from the response
+        const errorMessage = response.error.message || "Failed to register";
+        setSubmissionStatus({
+          success: false,
+          message: errorMessage
+        });
+        return;
+      }
+
+      // Check if the response data contains an error (for 4xx status codes)
+      if (response.data && response.data.error) {
+        console.error("API error:", response.data);
+        setSubmissionStatus({
+          success: false,
+          message: response.data.error
+        });
+        return;
       }
 
       console.log("Registration successful:", response.data);
@@ -103,14 +120,9 @@ export default function TraineeRegister() {
     } catch (error: any) {
       console.error("Error during registration:", error);
       
-      // Handle duplicate PNO error
-      const errorMessage = error.message?.includes("already exists") 
-        ? "A trainee with this PNO already exists" 
-        : "Registration failed. Please try again.";
-      
       setSubmissionStatus({
         success: false,
-        message: errorMessage
+        message: error.message || "Registration failed. Please try again."
       });
     } finally {
       setIsSubmitting(false);

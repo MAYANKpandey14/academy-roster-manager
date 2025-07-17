@@ -85,18 +85,34 @@ export default function StaffRegister() {
     
     try {
       // Use Supabase Functions invoke instead of direct fetch
-      const { data: responseData, error } = await supabase.functions.invoke('staff-register', {
+      const response = await supabase.functions.invoke('staff-register', {
         body: data,
       });
 
-      console.log("Edge function response:", { responseData, error });
+      console.log("Edge function response:", response);
 
-      if (error) {
-        console.error("Edge function error:", error);
-        throw new Error(error.message || "Failed to register staff");
+      // Check if there's an error in the response
+      if (response.error) {
+        console.error("Edge function error:", response.error);
+        const errorMessage = response.error.message || "Failed to register staff";
+        setSubmissionStatus({
+          success: false,
+          message: errorMessage
+        });
+        return;
       }
 
-      console.log("Registration successful:", responseData);
+      // Check if the response data contains an error (for 4xx status codes)
+      if (response.data && response.data.error) {
+        console.error("API error:", response.data);
+        setSubmissionStatus({
+          success: false,
+          message: response.data.error
+        });
+        return;
+      }
+
+      console.log("Registration successful:", response.data);
       
       // Reset form and show success message
       form.reset();
@@ -108,22 +124,9 @@ export default function StaffRegister() {
     } catch (error: any) {
       console.error("Error during registration:", error);
       
-      // Handle different types of errors
-      let errorMessage = "Registration failed. Please try again.";
-      let errorDetails = error.message;
-      
-      if (error.message?.includes("already exists")) {
-        errorMessage = "A staff with this PNO already exists";
-      } else if (error.message?.includes("network") || error.message?.includes("fetch")) {
-        errorMessage = "Network error. Please check your connection and try again.";
-      } else if (error.message?.includes("401") || error.message?.includes("unauthorized")) {
-        errorMessage = "Authentication error. Please refresh the page and try again.";
-      }
-      
       setSubmissionStatus({
         success: false,
-        message: errorMessage,
-        details: errorDetails
+        message: error.message || "Registration failed. Please try again."
       });
     } finally {
       setIsSubmitting(false);
