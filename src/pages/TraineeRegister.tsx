@@ -32,7 +32,7 @@ const registerFormSchema = z.object({
   blood_group: z.string().min(1, { message: "Blood group is required" }),
   nominee: z.string().min(1, { message: "Nominee is required" }),
   home_address: z.string().min(1, { message: "Home address is required" }),
-  photo_url: z.string().optional(),
+  photo_url: z.string().min(1),
 });
 
 type RegisterFormValues = z.infer<typeof registerFormSchema>;
@@ -409,7 +409,7 @@ export default function TraineeRegister() {
                 <ImageUpload 
                   bucketName="trainee_photos"
                   onImageUpload={handleImageUpload}
-                  label="Profile Photo (Optional)"
+                  label="Profile Photo (Compulsory)"
                 />
               </div>
 
