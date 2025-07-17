@@ -38,25 +38,11 @@ export const ImageUpload = ({
     const file = event.target.files?.[0];
     if (!file) return;
     
-    // Determine photo type and limits
-    const photoType = bucketName.includes('trainee') ? 'trainee' : 'staff';
-    const maxSizeKB = photoType === 'trainee' ? 350 : 500;
-    const maxCount = photoType === 'trainee' ? 2000 : 500;
-    
-    // Validate file type
+    // Validate file type only
     if (!file.type.match(/image\/(jpeg|jpg|png|webp)/i)) {
       setError(isHindi ? 
         "केवल JPG, PNG और WEBP छवियां स्वीकार की जाती हैं" : 
         "Only JPG, PNG, and WEBP images are accepted");
-      return;
-    }
-
-    // Check file size in KB
-    const fileSizeKB = Math.round(file.size / 1024);
-    if (fileSizeKB > maxSizeKB) {
-      setError(isHindi ? 
-        `छवि बहुत बड़ी है। अधिकतम आकार: ${maxSizeKB} KB। वर्तमान आकार: ${fileSizeKB} KB।` :
-        `Image too large. Max size: ${maxSizeKB} KB. Current size: ${fileSizeKB} KB.`);
       return;
     }
 
@@ -95,18 +81,7 @@ export const ImageUpload = ({
       }
 
       if (uploadResponse.error) {
-        // Handle specific error codes
-        if (uploadResponse.errorCode === 'MAX_COUNT_EXCEEDED') {
-          setError(isHindi ? 
-            `अधिकतम ${photoType === 'trainee' ? 'प्रशिक्षु' : 'स्टाफ'} फोटो सीमा पहुंच गई (${maxCount})। अधिक अपलोड करने के लिए मौजूदा फोटो हटाएं।` :
-            uploadResponse.error);
-        } else if (uploadResponse.errorCode === 'IMAGE_TOO_LARGE') {
-          setError(isHindi ? 
-            `छवि बहुत बड़ी है। अधिकतम आकार: ${maxSizeKB} KB।` :
-            uploadResponse.error);
-        } else {
-          setError(uploadResponse.error);
-        }
+        setError(uploadResponse.error);
         return;
       }
       

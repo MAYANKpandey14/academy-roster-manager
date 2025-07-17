@@ -1,26 +1,10 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-const LIMITS = {
-  trainee: {
-    maxSizeKB: 350,
-    maxCount: 2000,
-    width: 800,
-    height: 800,
-    quality: 75
-  },
-  staff: {
-    maxSizeKB: 500,
-    maxCount: 500,
-    width: 1000,
-    height: 1000,
-    quality: 80
-  }
 };
 
 serve(async (req) => {
@@ -53,9 +37,8 @@ serve(async (req) => {
     }
 
     const photoType = bucketName.includes('trainee') ? 'trainee' : 'staff';
-    const limits = LIMITS[photoType];
 
-    // Validate file type
+    // Validate file type only
     if (!file.type.match(/image\/(jpeg|jpg|png|webp)/i)) {
       return new Response(
         JSON.stringify({
@@ -69,17 +52,6 @@ serve(async (req) => {
     // Read file as array buffer
     const fileBuffer = await file.arrayBuffer();
     const originalSizeKB = Math.round(fileBuffer.byteLength / 1024);
-
-    // Reject oversized files (no compression in Deno)
-    if (originalSizeKB > limits.maxSizeKB) {
-      return new Response(
-        JSON.stringify({
-          error: `Image too large. Max size: ${limits.maxSizeKB} KB. Current size: ${originalSizeKB} KB.`,
-          errorCode: 'IMAGE_TOO_LARGE'
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
 
     // Construct filename with timestamp to avoid browser caching issues
     const timestamp = new Date().getTime();
