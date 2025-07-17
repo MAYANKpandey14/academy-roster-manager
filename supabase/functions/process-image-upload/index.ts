@@ -45,9 +45,9 @@ serve(async (req) => {
     const bucketName = formData.get('bucketName') as string;
     const entityId = formData.get('entityId') as string;
 
-    if (!file || !bucketName || !entityId) {
+    if (!file || !bucketName) {
       return new Response(
-        JSON.stringify({ error: 'File, bucketName, and entityId are required' }),
+        JSON.stringify({ error: 'File and bucketName are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -83,23 +83,27 @@ serve(async (req) => {
 
     // Construct filename with timestamp to avoid browser caching issues
     const timestamp = new Date().getTime();
-    const fileName = `${photoType}_${entityId}_${timestamp}.webp`;
+    const fileName = entityId 
+      ? `${photoType}_${entityId}_${timestamp}.webp`
+      : `${photoType}_temp_${timestamp}.webp`;
 
-    // Delete old images (both old and new naming patterns)
-    const { data: existingFiles } = await supabase.storage
-      .from(bucketName)
-      .list('', {
-        search: `${photoType}_${entityId}`
-      });
-
-    if (existingFiles && existingFiles.length > 0) {
-      const filesToDelete = existingFiles.map(file => file.name);
-      const { error: deleteError } = await supabase.storage
+    // Delete old images only if we have an entityId (existing records)
+    if (entityId) {
+      const { data: existingFiles } = await supabase.storage
         .from(bucketName)
-        .remove(filesToDelete);
+        .list('', {
+          search: `${photoType}_${entityId}`
+        });
 
-      if (deleteError) {
-        console.error('Failed to delete old images:', deleteError);
+      if (existingFiles && existingFiles.length > 0) {
+        const filesToDelete = existingFiles.map(file => file.name);
+        const { error: deleteError } = await supabase.storage
+          .from(bucketName)
+          .remove(filesToDelete);
+
+        if (deleteError) {
+          console.error('Failed to delete old images:', deleteError);
+        }
       }
     }
 
@@ -125,33 +129,49 @@ serve(async (req) => {
       .getPublicUrl(fileName);
     const publicUrl = publicUrlData.publicUrl;
 
-    // Update DB record
-    const tableName = photoType === 'trainee' ? 'trainees' : 'staff';
-    const { error: dbError } = await supabase
-      .from(tableName)
-      .update({ photo_url: publicUrl }) // Change 'photo_url' to your column name
-      .eq('id', entityId);
+    // Update DB record only if entityId is provided (existing records)
+    if (entityId) {
+      const tableName = photoType === 'trainee' ? 'trainees' : 'staff';
+      const { error: dbError } = await supabase
+        .from(tableName)
+        .update({ photo_url: publicUrl })
+        .eq('id', entityId);
 
-    if (dbError) {
-      console.error('Failed to update DB record:', dbError);
+      if (dbError) {
+        console.error('Failed to update DB record:', dbError);
+        return new Response(
+          JSON.stringify({ error: 'Image uploaded but failed to update DB record' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      console.log(`Upload and DB update completed for ${fileName}`);
+
       return new Response(
-        JSON.stringify({ error: 'Image uploaded but failed to update DB record' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({
+          url: publicUrl,
+          fileName,
+          sizeKB: originalSizeKB,
+          message: `Image replaced and record updated for ${entityId}`,
+          replaced: true
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    } else {
+      // For new records, just return the URL without updating DB
+      console.log(`Upload completed for new record: ${fileName}`);
+
+      return new Response(
+        JSON.stringify({
+          url: publicUrl,
+          fileName,
+          sizeKB: originalSizeKB,
+          message: `Image uploaded successfully for new record`,
+          replaced: false
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    console.log(`Upload and DB update completed for ${fileName}`);
-
-    return new Response(
-      JSON.stringify({
-        url: publicUrl,
-        fileName,
-        sizeKB: originalSizeKB,
-        message: `Image replaced and record updated for ${entityId}`,
-        replaced: true
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
 
   } catch (error) {
     console.error('Error in Edge Function:', error);
