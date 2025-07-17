@@ -40,7 +40,7 @@ export const ImageUpload = ({
     
     // Determine photo type and limits
     const photoType = bucketName.includes('trainee') ? 'trainee' : 'staff';
-    const maxSizeKB = photoType === 'staff' ? 500 : undefined; // No size limit for trainee photos
+    const maxSizeKB = photoType === 'trainee' ? 350 : 500;
     const maxCount = photoType === 'trainee' ? 2000 : 500;
     
     // Validate file type
@@ -51,15 +51,13 @@ export const ImageUpload = ({
       return;
     }
 
-    // Check file size in KB only for staff photos
-    if (maxSizeKB) {
-      const fileSizeKB = Math.round(file.size / 1024);
-      if (fileSizeKB > maxSizeKB) {
-        setError(isHindi ? 
-          `छवि बहुत बड़ी है। अधिकतम आकार: ${maxSizeKB} KB। वर्तमान आकार: ${fileSizeKB} KB।` :
-          `Image too large. Max size: ${maxSizeKB} KB. Current size: ${fileSizeKB} KB.`);
-        return;
-      }
+    // Check file size in KB
+    const fileSizeKB = Math.round(file.size / 1024);
+    if (fileSizeKB > maxSizeKB) {
+      setError(isHindi ? 
+        `छवि बहुत बड़ी है। अधिकतम आकार: ${maxSizeKB} KB। वर्तमान आकार: ${fileSizeKB} KB।` :
+        `Image too large. Max size: ${maxSizeKB} KB. Current size: ${fileSizeKB} KB.`);
+      return;
     }
 
     setError(null);
