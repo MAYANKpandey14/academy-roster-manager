@@ -42,14 +42,14 @@ export function useArchivePrintService() {
 
       // Fetch attendance data
       const attendanceResult = await supabase
-        .from(attendanceTable)
+        .from(attendanceTable as any)
         .select("id, date, status, approval_status")
         .eq(idColumn, personId)
         .order("date", { ascending: false });
 
-      // Fetch leave data
+      // Fetch leave data  
       const leaveResult = await supabase
-        .from(leaveTable)
+        .from(leaveTable as any)
         .select("id, start_date, end_date, reason, status, leave_type")
         .eq(idColumn, personId)
         .order("start_date", { ascending: false });

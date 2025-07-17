@@ -56,7 +56,12 @@ export function PersonalInfoFields({ form }: PersonalInfoFieldsProps) {
               {isHindi ? "जन्म तिथि" : "Date of Birth"}
             </FormLabel>
             <FormControl>
-              <Input {...field} type="date" />
+              <Input 
+                {...field} 
+                type="date" 
+                placeholder="dd/mm/yyyy"
+                style={{ colorScheme: 'light' }}
+              />
             </FormControl>
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>

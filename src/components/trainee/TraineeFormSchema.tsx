@@ -46,13 +46,23 @@ export const bloodGroups = [
 ];
 
 export const traineeFormSchema = z.object({
-  pno: z.string().min(1, "PNO is required"),
-  chest_no: z.string().min(1, "Chest number is required"),
-  name: z.string().min(1, "Name is required"),
+  pno: z.string()
+    .min(1, "PNO is required")
+    .regex(/^[a-zA-Z0-9]+$/, "PNO can only contain letters and numbers"),
+  chest_no: z.string()
+    .min(1, "Chest number is required")
+    .regex(/^[a-zA-Z0-9]+$/, "Chest number can only contain letters and numbers"),
+  name: z.string()
+    .min(1, "Name is required")
+    .min(2, "Name must be at least 2 characters")
+    .regex(/^[a-zA-Z\s.]+$/, "Name can only contain letters, spaces, and dots"),
   father_name: z.string().min(1, "Father's name is required"),
   rank: z.string().min(1, "Rank is required"),
   category_caste: z.string().optional(),
-  mobile_number: z.string().min(10, "Valid mobile number is required"),
+  mobile_number: z.string()
+    .min(10, "Mobile number must be exactly 10 digits")
+    .max(10, "Mobile number must be exactly 10 digits")
+    .regex(/^\d{10}$/, "Mobile number must contain only 10 digits"),
   education: z.string().min(1, "Education is required"),
   date_of_birth: z.string().min(1, "Date of birth is required"),
   date_of_joining: z.string().min(1, "Date of joining is required"),

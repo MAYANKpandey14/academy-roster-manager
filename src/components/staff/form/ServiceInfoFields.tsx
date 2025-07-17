@@ -186,7 +186,12 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
               {isHindi ? 'नियुक्ति की तारीख' : 'Date of Joining'}
             </FormLabel>
             <FormControl>
-              <Input type="date" {...field} />
+              <Input 
+                type="date" 
+                {...field} 
+                placeholder="dd/mm/yyyy"
+                style={{ colorScheme: 'light' }}
+              />
             </FormControl>
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
@@ -202,7 +207,12 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
               {isHindi ? 'आगमन की तारीख RTC' : 'Arrival Date RTC'}
             </FormLabel>
             <FormControl>
-              <Input type="date" {...field} />
+              <Input 
+                type="date" 
+                {...field} 
+                placeholder="dd/mm/yyyy"
+                style={{ colorScheme: 'light' }}
+              />
             </FormControl>
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
@@ -218,7 +228,12 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
               {isHindi ? 'प्रस्थान की तारीख' : 'Departure Date'}
             </FormLabel>
             <FormControl>
-              <Input type="date" {...field} />
+              <Input 
+                type="date" 
+                {...field} 
+                placeholder="dd/mm/yyyy"
+                style={{ colorScheme: 'light' }}
+              />
             </FormControl>
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>

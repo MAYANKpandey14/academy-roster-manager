@@ -26,10 +26,14 @@ export const staffRanks: StaffRank[] = [
 
 export const staffFormSchema = z.object({
   pno: z.string()
+    .min(1, { message: "PNO is required" })
     .min(9, { message: "PNO must be at least 9 characters" })
     .max(12, { message: "PNO must be at most 12 characters" })
     .regex(/^[a-zA-Z0-9]+$/, { message: "PNO can only contain letters and numbers" }),
-  name: z.string().min(1, { message: "Name is required" }),
+  name: z.string()
+    .min(1, { message: "Name is required" })
+    .min(2, { message: "Name must be at least 2 characters" })
+    .regex(/^[a-zA-Z\s.]+$/, { message: "Name can only contain letters, spaces, and dots" }),
   father_name: z.string().min(1, { message: "Father's Name is required" }),
   rank: z.string().min(1, { message: "Rank is required" }),
   current_posting_district: z.string().min(1, { message: "Current Posting District is required" }),
