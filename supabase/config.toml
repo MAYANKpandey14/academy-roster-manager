@@ -52,3 +52,7 @@ verify_jwt = true
 [[functions]]
 name = "delete-trainee"
 verify_jwt = true
+
+[[functions]]
+name = "process-image-upload"
+verify_jwt = true

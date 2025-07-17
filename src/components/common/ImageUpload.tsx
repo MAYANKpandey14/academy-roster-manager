@@ -38,7 +38,12 @@ export const ImageUpload = ({
     const file = event.target.files?.[0];
     if (!file) return;
     
-    // Validate file type and size
+    // Determine photo type and limits
+    const photoType = bucketName.includes('trainee') ? 'trainee' : 'staff';
+    const maxSizeKB = photoType === 'trainee' ? 350 : 500;
+    const maxCount = photoType === 'trainee' ? 2000 : 500;
+    
+    // Validate file type
     if (!file.type.match(/image\/(jpeg|jpg|png|webp)/i)) {
       setError(isHindi ? 
         "केवल JPG, PNG और WEBP छवियां स्वीकार की जाती हैं" : 
@@ -46,10 +51,12 @@ export const ImageUpload = ({
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
+    // Check file size in KB
+    const fileSizeKB = Math.round(file.size / 1024);
+    if (fileSizeKB > maxSizeKB) {
       setError(isHindi ? 
-        "छवि 5MB से छोटी होनी चाहिए" : 
-        "Image must be smaller than 5MB");
+        `छवि बहुत बड़ी है। अधिकतम आकार: ${maxSizeKB} KB। वर्तमान आकार: ${fileSizeKB} KB।` :
+        `Image too large. Max size: ${maxSizeKB} KB. Current size: ${fileSizeKB} KB.`);
       return;
     }
 
@@ -69,37 +76,50 @@ export const ImageUpload = ({
         return;
       }
       
-      console.log(`Using existing bucket: ${bucketName}`);
-      
-      // Use entityId if provided, otherwise generate a random name
-      const fileName = entityId 
-        ? `${entityId}.${file.name.split('.').pop()}`
-        : `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${file.name.split('.').pop()}`;
-      
-      // Upload the file to the existing bucket without trying to create it
-      const { data, error: uploadError } = await supabase.storage
-        .from(bucketName)
-        .upload(fileName, file, { upsert: true });
-      
+      // Create form data for the edge function
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('bucketName', bucketName);
+      if (entityId) {
+        formData.append('entityId', entityId);
+      }
+
+      // Call the image processing edge function
+      const { data: uploadResponse, error: uploadError } = await supabase.functions.invoke('process-image-upload', {
+        body: formData
+      });
+
       if (uploadError) {
         console.error('Upload error:', uploadError);
         throw uploadError;
       }
+
+      if (uploadResponse.error) {
+        // Handle specific error codes
+        if (uploadResponse.errorCode === 'MAX_COUNT_EXCEEDED') {
+          setError(isHindi ? 
+            `अधिकतम ${photoType === 'trainee' ? 'प्रशिक्षु' : 'स्टाफ'} फोटो सीमा पहुंच गई (${maxCount})। अधिक अपलोड करने के लिए मौजूदा फोटो हटाएं।` :
+            uploadResponse.error);
+        } else if (uploadResponse.errorCode === 'IMAGE_TOO_LARGE') {
+          setError(isHindi ? 
+            `छवि बहुत बड़ी है। अधिकतम आकार: ${maxSizeKB} KB।` :
+            uploadResponse.error);
+        } else {
+          setError(uploadResponse.error);
+        }
+        return;
+      }
       
-      // Get the public URL
-      const { data: publicUrlData } = supabase.storage
-        .from(bucketName)
-        .getPublicUrl(fileName);
-      
-      const url = publicUrlData.publicUrl;
+      const url = uploadResponse.url;
       console.log("Image uploaded successfully:", url);
       setImageUrl(url);
       onImageUpload(url);
     } catch (error) {
       console.error('Error uploading file:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setError(isHindi ? 
         "छवि अपलोड करने में त्रुटि हुई है" : 
-        "Error uploading image");
+        `Error uploading image: ${errorMessage}`);
     } finally {
       setIsUploading(false);
     }
