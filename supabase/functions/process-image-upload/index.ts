@@ -6,7 +6,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Image processing limits
 const LIMITS = {
   trainee: {
     maxSizeKB: 350,
@@ -25,13 +24,11 @@ const LIMITS = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Initialize Supabase client with service role key for admin operations
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -48,21 +45,20 @@ serve(async (req) => {
     const bucketName = formData.get('bucketName') as string;
     const entityId = formData.get('entityId') as string;
 
-    if (!file || !bucketName) {
+    if (!file || !bucketName || !entityId) {
       return new Response(
-        JSON.stringify({ error: 'File and bucket name are required' }),
+        JSON.stringify({ error: 'File, bucketName, and entityId are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Determine photo type from bucket name
     const photoType = bucketName.includes('trainee') ? 'trainee' : 'staff';
     const limits = LIMITS[photoType];
 
     // Validate file type
     if (!file.type.match(/image\/(jpeg|jpg|png|webp)/i)) {
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: `Only JPG, PNG, and WEBP images are accepted`,
           errorCode: 'INVALID_FILE_TYPE'
         }),
@@ -70,68 +66,37 @@ serve(async (req) => {
       );
     }
 
-    // Check current photo count for new uploads only (entityId not provided)
-    if (!entityId) {
-      const { data: objects, error: countError } = await supabase.storage
-        .from(bucketName)
-        .list();
-
-      if (countError) {
-        console.error('Error checking photo count:', countError);
-        return new Response(
-          JSON.stringify({ error: 'Failed to check current photo count' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      const currentCount = objects?.length || 0;
-      if (currentCount >= limits.maxCount) {
-        return new Response(
-          JSON.stringify({ 
-            error: `Maximum ${photoType} photos reached (${limits.maxCount}). Delete existing photos to upload more.`,
-            errorCode: 'MAX_COUNT_EXCEEDED',
-            currentCount,
-            maxCount: limits.maxCount
-          }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-    }
-
     // Read file as array buffer
     const fileBuffer = await file.arrayBuffer();
     const originalSizeKB = Math.round(fileBuffer.byteLength / 1024);
 
-    // For now, we'll implement basic size checking and format conversion
-    // Note: Sharp is not directly available in Deno, so we'll use a simpler approach
-    // In production, you might want to use a different image processing library or service
-
-    // Check if original file is already within size limits
+    // Reject oversized files (no compression in Deno)
     if (originalSizeKB > limits.maxSizeKB) {
-      // For now, reject oversized files
-      // In a full implementation, you'd resize/compress here
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: `Image too large. Max size: ${limits.maxSizeKB} KB. Current size: ${originalSizeKB} KB.`,
-          errorCode: 'IMAGE_TOO_LARGE',
-          maxSizeKB: limits.maxSizeKB,
-          currentSizeKB: originalSizeKB
+          errorCode: 'IMAGE_TOO_LARGE'
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Generate filename using specific naming convention
-    const fileName = entityId 
-      ? `${photoType}_${entityId}.webp`
-      : `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.webp`;
-    
-    console.log(`Uploading file: ${fileName} to bucket: ${bucketName}`);
+    // Construct filename
+    const fileName = `${photoType}_${entityId}.webp`;
 
-    // Upload to storage
+    // Delete old image explicitly
+    const { error: deleteError } = await supabase.storage
+      .from(bucketName)
+      .remove([fileName]);
+
+    if (deleteError && deleteError.status !== 404) {
+      console.error('Failed to delete old image:', deleteError);
+    }
+
+    // Upload new image
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from(bucketName)
-      .upload(fileName, fileBuffer, { 
+      .upload(fileName, fileBuffer, {
         upsert: true,
         contentType: 'image/webp'
       });
@@ -148,28 +113,40 @@ serve(async (req) => {
     const { data: publicUrlData } = supabase.storage
       .from(bucketName)
       .getPublicUrl(fileName);
+    const publicUrl = publicUrlData.publicUrl;
 
-    const responseMessage = entityId 
-      ? `Image replaced successfully using upsert for ${photoType}_${entityId}.webp`
-      : 'Image uploaded successfully';
-    
-    console.log(`Upload completed for ${fileName}: ${responseMessage}`);
+    // Update DB record
+    const tableName = photoType === 'trainee' ? 'trainees' : 'staff';
+    const { error: dbError } = await supabase
+      .from(tableName)
+      .update({ photo_url: publicUrl }) // Change 'photo_url' to your column name
+      .eq('id', entityId);
+
+    if (dbError) {
+      console.error('Failed to update DB record:', dbError);
+      return new Response(
+        JSON.stringify({ error: 'Image uploaded but failed to update DB record' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`Upload and DB update completed for ${fileName}`);
 
     return new Response(
-      JSON.stringify({ 
-        url: publicUrlData.publicUrl,
+      JSON.stringify({
+        url: publicUrl,
         fileName,
         sizeKB: originalSizeKB,
-        message: responseMessage,
-        replaced: !!entityId
+        message: `Image replaced and record updated for ${entityId}`,
+        replaced: true
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Error in process-image-upload function:', error);
+    console.error('Error in Edge Function:', error);
     return new Response(
-      JSON.stringify({ error: 'An unexpected error occurred' }),
+      JSON.stringify({ error: 'Unexpected error occurred' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
