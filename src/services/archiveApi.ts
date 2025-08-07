@@ -19,7 +19,10 @@ export async function archiveStaff(staffId: string, folderId?: string): Promise<
     console.log("Sending request body:", requestBody);
     
     const { data, error } = await supabase.functions.invoke('archive-staff', {
-      body: requestBody
+      body: requestBody,
+      headers: {
+        Authorization: `Bearer ${session.access_token}`
+      }
     });
     
     if (error) {
@@ -56,7 +59,10 @@ export async function archiveTrainee(traineeId: string, folderId?: string): Prom
     console.log("Sending request body:", requestBody);
     
     const { data, error } = await supabase.functions.invoke('archive-trainee', {
-      body: requestBody
+      body: requestBody,
+      headers: {
+        Authorization: `Bearer ${session.access_token}`
+      }
     });
     
     if (error) {
@@ -88,6 +94,9 @@ export async function archiveAllStaff(staffIds: string[], folderId?: string): Pr
       body: { 
         staff_ids: staffIds,
         folder_id: folderId
+      },
+      headers: {
+        Authorization: `Bearer ${session.access_token}`
       }
     });
     
@@ -120,6 +129,9 @@ export async function archiveAllTrainees(traineeIds: string[], folderId?: string
       body: { 
         trainee_ids: traineeIds,
         folder_id: folderId
+      },
+      headers: {
+        Authorization: `Bearer ${session.access_token}`
       }
     });
     
