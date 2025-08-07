@@ -88,7 +88,7 @@ export async function archiveAllStaff(staffIds: string[], folderId?: string): Pr
       throw new Error("No active session. Please log in again.");
     }
     
-    console.log("Archiving all staff with session:", !!session);
+    console.log(`Archiving ${staffIds.length} staff members with session:`, !!session);
     
     const { data, error } = await supabase.functions.invoke('archive-all-staff', {
       body: { 
@@ -103,6 +103,12 @@ export async function archiveAllStaff(staffIds: string[], folderId?: string): Pr
     if (error) {
       console.error("Error archiving all staff:", error);
       throw error;
+    }
+    
+    // Handle partial success responses
+    if (data?.partial_success) {
+      console.warn("Partial archive completed:", data);
+      throw new Error(data.error || "Partial archive completed with errors");
     }
     
     console.log("All staff archived successfully:", data);
@@ -123,7 +129,7 @@ export async function archiveAllTrainees(traineeIds: string[], folderId?: string
       throw new Error("No active session. Please log in again.");
     }
     
-    console.log("Archiving all trainees with session:", !!session);
+    console.log(`Archiving ${traineeIds.length} trainees with session:`, !!session);
     
     const { data, error } = await supabase.functions.invoke('archive-all-trainees', {
       body: { 
@@ -138,6 +144,12 @@ export async function archiveAllTrainees(traineeIds: string[], folderId?: string
     if (error) {
       console.error("Error archiving all trainees:", error);
       throw error;
+    }
+    
+    // Handle partial success responses
+    if (data?.partial_success) {
+      console.warn("Partial archive completed:", data);
+      throw new Error(data.error || "Partial archive completed with errors");
     }
     
     console.log("All trainees archived successfully:", data);
