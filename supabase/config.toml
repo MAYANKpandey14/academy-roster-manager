@@ -56,3 +56,27 @@ verify_jwt = true
 [[functions]]
 name = "process-image-upload"
 verify_jwt = true
+
+[[functions]]
+name = "archive-trainee"
+verify_jwt = true
+
+[[functions]]
+name = "archive-staff"
+verify_jwt = true
+
+[[functions]]
+name = "archive-all-trainees"
+verify_jwt = true
+
+[[functions]]
+name = "archive-all-staff"
+verify_jwt = true
+
+[[functions]]
+name = "unarchive-trainee"
+verify_jwt = true
+
+[[functions]]
+name = "unarchive-staff"
+verify_jwt = true
