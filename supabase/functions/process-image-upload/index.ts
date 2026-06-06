@@ -64,19 +64,17 @@ serve(async (req) => {
     // Construct filename with timestamp to avoid browser caching issues
     const timestamp = new Date().getTime();
     const fileName = entityId 
-      ? `${photoType}_${entityId}_${timestamp}.webp`
-      : `${photoType}_temp_${timestamp}.webp`;
+      ? `${photoType}/${entityId}/${timestamp}.webp`
+      : `${photoType}/temp/${timestamp}.webp`;
 
     // Delete old images only if we have an entityId (existing records)
     if (entityId) {
       const { data: existingFiles } = await supabase.storage
         .from(bucketName)
-        .list('', {
-          search: `${photoType}_${entityId}`
-        });
+        .list(`${photoType}/${entityId}`);
 
       if (existingFiles && existingFiles.length > 0) {
-        const filesToDelete = existingFiles.map(file => file.name);
+        const filesToDelete = existingFiles.map(file => `${photoType}/${entityId}/${file.name}`);
         const { error: deleteError } = await supabase.storage
           .from(bucketName)
           .remove(filesToDelete);

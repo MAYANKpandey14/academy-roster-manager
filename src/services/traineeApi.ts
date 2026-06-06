@@ -11,7 +11,7 @@ export async function deleteTrainee(id: string): Promise<{ error: Error | null }
       throw new Error("No active session. Please log in again.");
     }
     
-    const { error } = await supabase.functions.invoke('delete-trainee', {
+    const { error } = await supabase.functions.invoke('manage-trainees/delete', {
       body: { id },
       headers: {
         Authorization: `Bearer ${session.access_token}`

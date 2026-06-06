@@ -58,7 +58,7 @@ export function ArchiveConfirmationDialog({
   const fetchFolders = async () => {
     setIsLoadingFolders(true);
     try {
-      const { data, error } = await supabase.functions.invoke('manage-archive-folders', {
+      const { data, error } = await supabase.functions.invoke('manage-archives/folders', {
         body: { action: 'list' }
       });
       
@@ -96,7 +96,7 @@ export function ArchiveConfirmationDialog({
 
   // Handle folder creation
   const createFolder = async (folderName: string): Promise<string> => {
-    const { data, error } = await supabase.functions.invoke('manage-archive-folders', {
+    const { data, error } = await supabase.functions.invoke('manage-archives/folders', {
       body: { 
         action: 'create',
         folderName: folderName.trim(),

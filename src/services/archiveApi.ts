@@ -18,7 +18,7 @@ export async function archiveStaff(staffId: string, folderId?: string): Promise<
     
     console.log("Sending request body:", requestBody);
     
-    const { data, error } = await supabase.functions.invoke('archive-staff', {
+    const { data, error } = await supabase.functions.invoke('manage-archives/archive-staff', {
       body: requestBody,
       headers: {
         Authorization: `Bearer ${session.access_token}`
@@ -58,7 +58,7 @@ export async function archiveTrainee(traineeId: string, folderId?: string): Prom
     
     console.log("Sending request body:", requestBody);
     
-    const { data, error } = await supabase.functions.invoke('archive-trainee', {
+    const { data, error } = await supabase.functions.invoke('manage-archives/archive-trainee', {
       body: requestBody,
       headers: {
         Authorization: `Bearer ${session.access_token}`
@@ -90,7 +90,7 @@ export async function archiveAllStaff(staffIds: string[], folderId?: string): Pr
     
     console.log(`Archiving ${staffIds.length} staff members with session:`, !!session);
     
-    const { data, error } = await supabase.functions.invoke('archive-all-staff', {
+    const { data, error } = await supabase.functions.invoke('manage-archives/archive-all-staff', {
       body: { 
         staff_ids: staffIds,
         folder_id: folderId
@@ -131,7 +131,7 @@ export async function archiveAllTrainees(traineeIds: string[], folderId?: string
     
     console.log(`Archiving ${traineeIds.length} trainees with session:`, !!session);
     
-    const { data, error } = await supabase.functions.invoke('archive-all-trainees', {
+    const { data, error } = await supabase.functions.invoke('manage-archives/archive-all-trainees', {
       body: { 
         trainee_ids: traineeIds,
         folder_id: folderId

@@ -61,7 +61,7 @@ export function FolderSelectionDialog({
         throw new Error("No active session");
       }
 
-      const { data, error } = await supabase.functions.invoke('manage-archive-folders', {
+      const { data, error } = await supabase.functions.invoke('manage-archives/folders', {
         body: { action: 'list' },
         headers: { Authorization: `Bearer ${session.access_token}` }
       });
@@ -96,7 +96,7 @@ export function FolderSelectionDialog({
           throw new Error("No active session");
         }
 
-        const { data, error } = await supabase.functions.invoke('manage-archive-folders', {
+        const { data, error } = await supabase.functions.invoke('manage-archives/folders', {
           body: { 
             action: 'create', 
             folderName: newFolderName.trim(),

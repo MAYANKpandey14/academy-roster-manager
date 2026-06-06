@@ -6,6 +6,7 @@ import { FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/f
 import { Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { SecureImage } from "@/components/common/SecureImage";
 
 interface ImageUploadProps {
   bucketName: string;
@@ -146,7 +147,7 @@ export const ImageUpload = ({
           
           {imageUrl && (
             <div className="relative w-24 h-24 rounded-md overflow-hidden border">
-              <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+              <SecureImage src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
             </div>
           )}
           

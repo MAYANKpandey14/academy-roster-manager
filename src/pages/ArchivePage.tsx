@@ -19,7 +19,7 @@ const ArchivePage = () => {
   const fetchFolders = async () => {
     setIsLoadingFolders(true);
     try {
-      const { data, error } = await supabase.functions.invoke('manage-archive-folders', {
+      const { data, error } = await supabase.functions.invoke('manage-archives/folders', {
         body: { action: 'list' }
       });
       

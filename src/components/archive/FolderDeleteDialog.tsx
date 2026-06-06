@@ -67,7 +67,7 @@ export function FolderDeleteDialog({
         return;
       }
 
-      const { error } = await supabase.functions.invoke('delete-archive-folder', {
+      const { error } = await supabase.functions.invoke('manage-archives/delete-folder', {
         body: { 
           folderId: folder.id,
           targetFolderId: selectedTargetFolder || null,

@@ -35,7 +35,7 @@ export function useAttendanceSubmit({ personType, personId, onSuccess }: UseAtte
       // Use custom status if "other" is selected
       const finalStatus = data.status === "other" ? data.customStatus || "other" : data.status;
       
-      const functionName = personType === 'trainee' ? 'trainee-attendance-add' : 'staff-attendance-add';
+      const subPath = personType === 'trainee' ? 'trainee-add' : 'staff-add';
       
       const requestData = {
         [`${personType}Id`]: personId,
@@ -46,9 +46,9 @@ export function useAttendanceSubmit({ personType, personId, onSuccess }: UseAtte
         leaveType: data.leaveType
       };
       
-      console.log("Calling function:", functionName, "with data:", requestData);
+      console.log("Calling manage-attendance subpath:", subPath, "with data:", requestData);
       
-      const { data: result, error } = await supabase.functions.invoke(functionName, {
+      const { data: result, error } = await supabase.functions.invoke(`manage-attendance/${subPath}`, {
         body: requestData
       });
       

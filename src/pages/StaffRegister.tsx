@@ -85,7 +85,7 @@ export default function StaffRegister() {
     
     try {
       // Use Supabase Functions invoke instead of direct fetch
-      const response = await supabase.functions.invoke('staff-register', {
+      const response = await supabase.functions.invoke('register-person/staff', {
         body: data,
       });
 

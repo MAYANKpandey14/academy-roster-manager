@@ -2,7 +2,8 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Trainee } from "@/types/trainee";
 import { TraineeRowActions } from "./TraineeRowActions";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { SecureAvatarImage } from "@/components/common/SecureImage";
 import { tokenExactMatchFilter } from "@/lib/filters";
 
 export function getTraineeTableColumns(isHindi: boolean, onRefresh?: () => void): ColumnDef<Trainee>[] {
@@ -36,19 +37,19 @@ export function getTraineeTableColumns(isHindi: boolean, onRefresh?: () => void)
       enableHiding: false,
     },
     {
-    accessorKey: "photo_url",
-    header: isHindi ? "फोटो" : "Photo",
-    cell: ({ row }) => {
-      const trainee = row.original;
-      const firstLetter = trainee.name.charAt(0).toUpperCase();
-      
-      return (
-        <Avatar className="h-10 w-10">
-          <AvatarImage src={trainee.photo_url} alt={trainee.name} />
-          <AvatarFallback>{firstLetter}</AvatarFallback>
-        </Avatar>
-      );
-    },
+      accessorKey: "photo_url",
+      header: isHindi ? "फोटो" : "Photo",
+      cell: ({ row }) => {
+        const trainee = row.original;
+        const firstLetter = trainee.name.charAt(0).toUpperCase();
+        
+        return (
+          <Avatar className="h-10 w-10">
+            <SecureAvatarImage src={trainee.photo_url} alt={trainee.name} />
+            <AvatarFallback>{firstLetter}</AvatarFallback>
+          </Avatar>
+        );
+      },
     enableColumnFilter: false,
   },
     {

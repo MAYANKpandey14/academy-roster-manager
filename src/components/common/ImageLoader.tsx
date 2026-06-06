@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { getSecureUrl } from './SecureImage';
 
 interface ImageLoaderProps {
   src: string;
@@ -23,16 +24,36 @@ export function ImageLoader({
 }: ImageLoaderProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(false);
+  const [resolvedSrc, setResolvedSrc] = useState<string>('');
 
   useEffect(() => {
     // Reset states when src changes
     setIsLoaded(false);
     setError(false);
-  }, [src]);
 
-  // Generate optimized URL - typically we'd use a proper image CDN here
-  // This is a simple version that could be expanded with actual CDN integration
-  const optimizedSrc = src;
+    if (!src) {
+      setResolvedSrc('');
+      return;
+    }
+
+    let isMounted = true;
+    getSecureUrl(src)
+      .then((url) => {
+        if (isMounted) {
+          setResolvedSrc(url);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to secure URL in ImageLoader:", err);
+        if (isMounted) {
+          setResolvedSrc(src); // fallback
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [src]);
 
   const objectFitClass = {
     'contain': 'object-contain',
@@ -50,13 +71,13 @@ export function ImageLoader({
       }, 
       className
     )}>
-      {error ? (
+      {error || !resolvedSrc ? (
         <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
           Failed to load image
         </div>
       ) : (
         <img
-          src={optimizedSrc}
+          src={resolvedSrc}
           alt={alt}
           width={width}
           height={height}

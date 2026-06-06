@@ -59,34 +59,15 @@ export async function addStaff(staffData: StaffFormValues): Promise<{ data: Staf
       throw new Error("No active session found");
     }
 
-    // Ensure all required fields are present before insert
-    const { data, error } = await supabase
-      .from('staff')
-      .insert({
-        pno: staffData.pno,
-        name: staffData.name,
-        father_name: staffData.father_name,
-        rank: staffData.rank,
-        current_posting_district: staffData.current_posting_district,
-        mobile_number: staffData.mobile_number,
-        education: staffData.education,
-        date_of_birth: staffData.date_of_birth,
-        date_of_joining: staffData.date_of_joining,
-        arrival_date: staffData.arrival_date,
-        blood_group: staffData.blood_group,
-        nominee: staffData.nominee,
-        home_address: staffData.home_address,
-        category_caste: staffData.category_caste,
-        toli_no: staffData.toli_no,
-        class_no: staffData.class_no,
-        class_subject: staffData.class_subject,
-        photo_url: staffData.photo_url || null // Ensure photo_url is null if undefined
-      })
-      .select()
-      .single();
+    const { data, error } = await supabase.functions.invoke('manage-staff/add', {
+      body: staffData,
+      headers: {
+        Authorization: `Bearer ${sessionData.session.access_token}`
+      }
+    });
     
     if (error) {
-      console.error('Supabase insert error:', error);
+      console.error('Supabase add error:', error);
       throw error;
     }
     
@@ -116,36 +97,12 @@ export async function updateStaff(id: string, staffData: StaffFormValues): Promi
       throw new Error("No active session found");
     }
     
-    // Prepare update data with proper handling for photo_url
-    const updateData = {
-      pno: staffData.pno,
-      name: staffData.name,
-      father_name: staffData.father_name,
-      rank: staffData.rank,
-      current_posting_district: staffData.current_posting_district,
-      mobile_number: staffData.mobile_number,
-      education: staffData.education,
-      date_of_birth: staffData.date_of_birth,
-      date_of_joining: staffData.date_of_joining,
-      arrival_date: staffData.arrival_date,
-      blood_group: staffData.blood_group,
-      nominee: staffData.nominee,
-      home_address: staffData.home_address,
-      category_caste: staffData.category_caste,
-      toli_no: staffData.toli_no,
-      class_no: staffData.class_no,
-      class_subject: staffData.class_subject,
-      photo_url: staffData.photo_url || null // Ensure photo_url is null if undefined or empty
-    };
-    
-    console.log('Updating staff with data:', updateData);
-    
-    const { data, error } = await supabase
-      .from('staff')
-      .update(updateData)
-      .eq('id', id)
-      .select()
-      .single();
+    const { data, error } = await supabase.functions.invoke('manage-staff/update', {
+      body: { id, ...staffData },
+      headers: {
+        Authorization: `Bearer ${sessionData.session.access_token}`
+      }
+    });
     
     if (error) {
       console.error('Supabase update error:', error);
@@ -178,8 +135,8 @@ export async function deleteStaff(id: string): Promise<{ error: Error | null }> 
       throw new Error("No active session found");
     }
     
-    // Call the delete-staff edge function
-    const { error } = await supabase.functions.invoke('delete-staff', {
+    // Call the manage-staff/delete edge function subpath
+    const { error } = await supabase.functions.invoke('manage-staff/delete', {
       body: { id },
       headers: {
         Authorization: `Bearer ${sessionData.session.access_token}`

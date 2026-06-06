@@ -1,5 +1,4 @@
-
-project_id = "zjgphamebgrclivvkhmw"
+project_id = "jvjvrdarcmdjohdwwfhf"
 
 [api]
 enabled = true
@@ -13,70 +12,20 @@ port = 54322
 port = 54323
 
 # Edge Functions
-[[functions]]
-name = "add-trainee"
-verify_jwt = true
-
-[[functions]]
-name = "update-trainee"
-verify_jwt = true
-
-[[functions]]
-name = "get-trainees"
-verify_jwt = true
-
-[[functions]]
-name = "staff-register" 
+[functions.process-image-upload]
 verify_jwt = false
 
-[[functions]]
-name = "trainee-register"
+[functions.manage-trainees]
+verify_jwt = true
+
+[functions.manage-staff]
+verify_jwt = true
+
+[functions.manage-attendance]
+verify_jwt = true
+
+[functions.manage-archives]
+verify_jwt = true
+
+[functions.register-person]
 verify_jwt = false
-
-[[functions]]
-name = "staff-attendance-view"
-verify_jwt = false
-
-[[functions]]
-name = "trainee-attendance-view"
-verify_jwt = false
-
-[[functions]]
-name = "attendance-manage"
-verify_jwt = false
-
-[[functions]]
-name = "delete-staff"
-verify_jwt = true
-
-[[functions]]
-name = "delete-trainee"
-verify_jwt = true
-
-[[functions]]
-name = "process-image-upload"
-verify_jwt = true
-
-[[functions]]
-name = "archive-trainee"
-verify_jwt = true
-
-[[functions]]
-name = "archive-staff"
-verify_jwt = true
-
-[[functions]]
-name = "archive-all-trainees"
-verify_jwt = true
-
-[[functions]]
-name = "archive-all-staff"
-verify_jwt = true
-
-[[functions]]
-name = "unarchive-trainee"
-verify_jwt = true
-
-[[functions]]
-name = "unarchive-staff"
-verify_jwt = true

@@ -14,7 +14,7 @@ export async function getTrainees(): Promise<{ data: Trainee[] | null; error: Er
       console.warn("No active session found for fetching trainees");
     }
     
-    const { data, error } = await supabase.functions.invoke('get-trainees', {
+    const { data, error } = await supabase.functions.invoke('manage-trainees', {
       headers: session?.access_token ? {
         Authorization: `Bearer ${session.access_token}`
       } : {}
@@ -53,7 +53,7 @@ export async function filterTrainees(
       console.warn("No active session found for filtering trainees");
     }
     
-    const { data, error } = await supabase.functions.invoke('get-trainees', {
+    const { data, error } = await supabase.functions.invoke('manage-trainees', {
       body: params,
       headers: session?.access_token ? {
         Authorization: `Bearer ${session.access_token}`
@@ -89,7 +89,7 @@ export async function addTrainee(traineeData: TraineeFormValues): Promise<{ data
     console.log("Authorization header available:", !!session.access_token);
     
     // Add extra validation or data processing if needed
-    const { data, error } = await supabase.functions.invoke('add-trainee', {
+    const { data, error } = await supabase.functions.invoke('manage-trainees/add', {
       body: traineeData,
       headers: {
         Authorization: `Bearer ${session.access_token}`
@@ -134,7 +134,7 @@ export async function updateTrainee(id: string, traineeData: TraineeFormValues):
       photo_url: traineeData.photo_url || null // Ensure photo_url is null if not provided
     };
     
-    const { data, error } = await supabase.functions.invoke('update-trainee', {
+    const { data, error } = await supabase.functions.invoke('manage-trainees/update', {
       body: { id, ...updateData },
       headers: {
         Authorization: `Bearer ${session.access_token}`

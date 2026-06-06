@@ -2,7 +2,8 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Staff } from "@/types/staff";
 import { StaffRowActions } from "./StaffRowActions";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { SecureAvatarImage } from "@/components/common/SecureImage";
 import { tokenExactMatchFilter } from "@/lib/filters";
 
 export const getStaffColumns = (
@@ -53,7 +54,7 @@ export const getStaffColumns = (
       
       return (
         <Avatar className="h-10 w-10">
-          <AvatarImage src={staff.photo_url} alt={staff.name} />
+          <SecureAvatarImage src={staff.photo_url} alt={staff.name} />
           <AvatarFallback>{firstLetter}</AvatarFallback>
         </Avatar>
       );

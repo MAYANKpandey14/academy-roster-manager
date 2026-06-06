@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { useFetchAttendance } from "@/components/attendance/hooks/useFetchAttendance";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { SecureImage } from "@/components/common/SecureImage";
 
 interface ArchiveViewModalProps {
   record: ArchivedStaff | ArchivedTrainee | null;
@@ -60,7 +61,7 @@ export function ArchiveViewModal({ record, type, isOpen, onClose }: ArchiveViewM
           {/* Header with photo and basic info */}
           <div className="flex items-start space-x-6 p-4 bg-gray-50 rounded-lg">
             {record.photo_url && (
-              <img 
+              <SecureImage 
                 src={record.photo_url} 
                 alt={record.name}
                 className="w-24 h-24 rounded-lg object-cover border"

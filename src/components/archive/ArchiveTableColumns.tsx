@@ -1,7 +1,8 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { ArchivedStaff, ArchivedTrainee } from "@/types/archive";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { SecureAvatarImage } from "@/components/common/SecureImage";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 
@@ -15,7 +16,7 @@ export const getArchivedStaffColumns = (isHindi: boolean): ColumnDef<ArchivedSta
       
       return (
         <Avatar className="h-10 w-10">
-          <AvatarImage src={staff.photo_url} alt={staff.name} />
+          <SecureAvatarImage src={staff.photo_url} alt={staff.name} />
           <AvatarFallback>{firstLetter}</AvatarFallback>
         </Avatar>
       );
@@ -67,7 +68,7 @@ export const getArchivedTraineeColumns = (isHindi: boolean): ColumnDef<ArchivedT
       
       return (
         <Avatar className="h-10 w-10">
-          <AvatarImage src={trainee.photo_url} alt={trainee.name} />
+          <SecureAvatarImage src={trainee.photo_url} alt={trainee.name} />
           <AvatarFallback>{firstLetter}</AvatarFallback>
         </Avatar>
       );

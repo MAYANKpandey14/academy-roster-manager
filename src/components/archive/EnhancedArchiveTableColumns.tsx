@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArchiveRowActions } from "./ArchiveRowActions";
 import { format } from "date-fns";
+import { SecureImage } from "@/components/common/SecureImage";
 
 const formatDate = (dateString: string) => {
   try {
@@ -67,7 +68,7 @@ export function getEnhancedArchivedStaffColumns(
         const photoUrl = row.getValue("photo_url") as string;
         const record = row.original as ArchivedStaff;
         return photoUrl ? (
-          <img 
+          <SecureImage 
             src={photoUrl} 
             alt={record.name}
             className="w-10 h-10 rounded-full object-cover border"
@@ -174,7 +175,7 @@ export function getEnhancedArchivedTraineeColumns(
         const photoUrl = row.getValue("photo_url") as string;
         const record = row.original as ArchivedTrainee;
         return photoUrl ? (
-          <img 
+          <SecureImage 
             src={photoUrl} 
             alt={record.name}
             className="w-10 h-10 rounded-full object-cover border"

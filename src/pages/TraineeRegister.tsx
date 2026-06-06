@@ -82,7 +82,7 @@ export default function TraineeRegister() {
     try {
       console.log("Submitting trainee registration:", data);
       
-      const response = await supabase.functions.invoke('trainee-register', {
+      const response = await supabase.functions.invoke('register-person/trainee', {
         body: data
       });
 
