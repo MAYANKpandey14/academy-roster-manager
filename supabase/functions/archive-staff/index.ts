@@ -23,9 +23,17 @@ serve(async (req) => {
       throw new Error('Missing authorization header');
     }
 
+    const supabaseAnonKey = (() => {
+      try {
+        return JSON.parse(Deno.env.get('SUPABASE_PUBLISHABLE_KEYS') ?? '{}').default ?? Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+      } catch {
+        return Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+      }
+    })();
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      supabaseAnonKey,
       {
         global: {
           headers: { Authorization: authHeader },

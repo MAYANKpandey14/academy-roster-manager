@@ -16,10 +16,18 @@ serve(async (req) => {
   }
 
   try {
+    const supabaseKey = (() => {
+      try {
+        return JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS') ?? '{}').default ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+      } catch {
+        return Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+      }
+    })();
+
     // Create a Supabase client with service role key to bypass RLS for admin operations
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',  // Using service role key to bypass RLS
+      supabaseKey,  // Using service role key to bypass RLS
       {
         global: {
           headers: {

@@ -41,7 +41,13 @@ serve(async (req) => {
 
     // Create a Supabase client with the authenticated user's JWT
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    const supabaseAnonKey = (() => {
+      try {
+        return JSON.parse(Deno.env.get('SUPABASE_PUBLISHABLE_KEYS') ?? '{}').default ?? Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+      } catch {
+        return Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+      }
+    })();
     
     if (!supabaseUrl || !supabaseAnonKey) {
       console.error("Supabase environment variables not set");

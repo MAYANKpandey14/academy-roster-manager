@@ -19,7 +19,13 @@ serve(async (req) => {
   try {
     // Create a Supabase client
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const supabaseKey = (() => {
+      try {
+        return JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS') ?? '{}').default ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+      } catch {
+        return Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+      }
+    })();
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get auth token from the request header

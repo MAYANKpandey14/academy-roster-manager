@@ -28,10 +28,18 @@ serve(async (req) => {
 
     console.log("Auth header received:", authHeader ? "Yes" : "No");
 
+    const supabaseAnonKey = (() => {
+      try {
+        return JSON.parse(Deno.env.get('SUPABASE_PUBLISHABLE_KEYS') ?? '{}').default ?? Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+      } catch {
+        return Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+      }
+    })();
+
     // Create a Supabase client with the Auth context of the function
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      supabaseAnonKey,
       { 
         global: { 
           headers: { 
