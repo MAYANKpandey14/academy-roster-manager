@@ -24,10 +24,9 @@ const AddStaff = () => {
     try {
       setIsSubmitting(true);
       
-      // First create staff without photo
       const staffData = {
         ...data,
-        photo_url: null
+        photo_url: data.photo_url || null
       };
       
       const response = await addStaff(staffData);

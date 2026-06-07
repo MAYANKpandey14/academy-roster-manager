@@ -250,3 +250,182 @@ CREATE INDEX IF NOT EXISTS idx_archived_trainees_pno ON public.archived_trainees
 CREATE INDEX IF NOT EXISTS idx_archived_staff_folder_id ON public.archived_staff (folder_id);
 CREATE INDEX IF NOT EXISTS idx_archived_staff_name ON public.archived_staff (name);
 CREATE INDEX IF NOT EXISTS idx_archived_staff_pno ON public.archived_staff (pno);
+
+-- 16. Enable Row Level Security and Create Policies for Core Tables
+
+-- staff
+ALTER TABLE public.staff ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS staff_select_policy ON public.staff;
+CREATE POLICY staff_select_policy ON public.staff FOR SELECT USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS staff_insert_policy ON public.staff;
+CREATE POLICY staff_insert_policy ON public.staff FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS staff_update_policy ON public.staff;
+CREATE POLICY staff_update_policy ON public.staff FOR UPDATE USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS staff_delete_policy ON public.staff;
+CREATE POLICY staff_delete_policy ON public.staff FOR DELETE USING (auth.role() = 'authenticated');
+
+-- archive_folders
+ALTER TABLE public.archive_folders ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS folders_select_policy ON public.archive_folders;
+CREATE POLICY folders_select_policy ON public.archive_folders FOR SELECT USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS folders_insert_policy ON public.archive_folders;
+CREATE POLICY folders_insert_policy ON public.archive_folders FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS folders_update_policy ON public.archive_folders;
+CREATE POLICY folders_update_policy ON public.archive_folders FOR UPDATE USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS folders_delete_policy ON public.archive_folders;
+CREATE POLICY folders_delete_policy ON public.archive_folders FOR DELETE USING (auth.role() = 'authenticated');
+
+-- archived_trainees
+ALTER TABLE public.archived_trainees ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS archived_trainees_select_policy ON public.archived_trainees;
+CREATE POLICY archived_trainees_select_policy ON public.archived_trainees FOR SELECT USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS archived_trainees_insert_policy ON public.archived_trainees;
+CREATE POLICY archived_trainees_insert_policy ON public.archived_trainees FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS archived_trainees_update_policy ON public.archived_trainees;
+CREATE POLICY archived_trainees_update_policy ON public.archived_trainees FOR UPDATE USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS archived_trainees_delete_policy ON public.archived_trainees;
+CREATE POLICY archived_trainees_delete_policy ON public.archived_trainees FOR DELETE USING (auth.role() = 'authenticated');
+
+-- archived_staff
+ALTER TABLE public.archived_staff ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS archived_staff_select_policy ON public.archived_staff;
+CREATE POLICY archived_staff_select_policy ON public.archived_staff FOR SELECT USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS archived_staff_insert_policy ON public.archived_staff;
+CREATE POLICY archived_staff_insert_policy ON public.archived_staff FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS archived_staff_update_policy ON public.archived_staff;
+CREATE POLICY archived_staff_update_policy ON public.archived_staff FOR UPDATE USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS archived_staff_delete_policy ON public.archived_staff;
+CREATE POLICY archived_staff_delete_policy ON public.archived_staff FOR DELETE USING (auth.role() = 'authenticated');
+
+-- trainee_attendance
+ALTER TABLE public.trainee_attendance ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS trainee_attendance_select_policy ON public.trainee_attendance;
+CREATE POLICY trainee_attendance_select_policy ON public.trainee_attendance FOR SELECT USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS trainee_attendance_insert_policy ON public.trainee_attendance;
+CREATE POLICY trainee_attendance_insert_policy ON public.trainee_attendance FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS trainee_attendance_update_policy ON public.trainee_attendance;
+CREATE POLICY trainee_attendance_update_policy ON public.trainee_attendance FOR UPDATE USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS trainee_attendance_delete_policy ON public.trainee_attendance;
+CREATE POLICY trainee_attendance_delete_policy ON public.trainee_attendance FOR DELETE USING (auth.role() = 'authenticated');
+
+-- staff_attendance
+ALTER TABLE public.staff_attendance ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS staff_attendance_select_policy ON public.staff_attendance;
+CREATE POLICY staff_attendance_select_policy ON public.staff_attendance FOR SELECT USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS staff_attendance_insert_policy ON public.staff_attendance;
+CREATE POLICY staff_attendance_insert_policy ON public.staff_attendance FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS staff_attendance_update_policy ON public.staff_attendance;
+CREATE POLICY staff_attendance_update_policy ON public.staff_attendance FOR UPDATE USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS staff_attendance_delete_policy ON public.staff_attendance;
+CREATE POLICY staff_attendance_delete_policy ON public.staff_attendance FOR DELETE USING (auth.role() = 'authenticated');
+
+-- trainee_leave
+ALTER TABLE public.trainee_leave ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS trainee_leave_select_policy ON public.trainee_leave;
+CREATE POLICY trainee_leave_select_policy ON public.trainee_leave FOR SELECT USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS trainee_leave_insert_policy ON public.trainee_leave;
+CREATE POLICY trainee_leave_insert_policy ON public.trainee_leave FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS trainee_leave_update_policy ON public.trainee_leave;
+CREATE POLICY trainee_leave_update_policy ON public.trainee_leave FOR UPDATE USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS trainee_leave_delete_policy ON public.trainee_leave;
+CREATE POLICY trainee_leave_delete_policy ON public.trainee_leave FOR DELETE USING (auth.role() = 'authenticated');
+
+-- staff_leave
+ALTER TABLE public.staff_leave ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS staff_leave_select_policy ON public.staff_leave;
+CREATE POLICY staff_leave_select_policy ON public.staff_leave FOR SELECT USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS staff_leave_insert_policy ON public.staff_leave;
+CREATE POLICY staff_leave_insert_policy ON public.staff_leave FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS staff_leave_update_policy ON public.staff_leave;
+CREATE POLICY staff_leave_update_policy ON public.staff_leave FOR UPDATE USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS staff_leave_delete_policy ON public.staff_leave;
+CREATE POLICY staff_leave_delete_policy ON public.staff_leave FOR DELETE USING (auth.role() = 'authenticated');
+
+-- profiles
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS profiles_select_policy ON public.profiles;
+CREATE POLICY profiles_select_policy ON public.profiles FOR SELECT USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS profiles_insert_policy ON public.profiles;
+CREATE POLICY profiles_insert_policy ON public.profiles FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS profiles_update_policy ON public.profiles;
+CREATE POLICY profiles_update_policy ON public.profiles FOR UPDATE USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS profiles_delete_policy ON public.profiles;
+CREATE POLICY profiles_delete_policy ON public.profiles FOR DELETE USING (auth.role() = 'authenticated');
+
+-- user_roles
+ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS user_roles_select_policy ON public.user_roles;
+CREATE POLICY user_roles_select_policy ON public.user_roles FOR SELECT USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS user_roles_insert_policy ON public.user_roles;
+CREATE POLICY user_roles_insert_policy ON public.user_roles FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS user_roles_update_policy ON public.user_roles;
+CREATE POLICY user_roles_update_policy ON public.user_roles FOR UPDATE USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS user_roles_delete_policy ON public.user_roles;
+CREATE POLICY user_roles_delete_policy ON public.user_roles FOR DELETE USING (auth.role() = 'authenticated');
+
+-- 17. Additional Trainees Table Policies (for archiving)
+ALTER TABLE public.trainees ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS trainees_delete_policy ON public.trainees;
+CREATE POLICY trainees_delete_policy ON public.trainees FOR DELETE USING (auth.role() = 'authenticated');
+
+-- 18. Triggers to Automatically Update archive_folders.item_count
+CREATE OR REPLACE FUNCTION public.update_archive_folder_item_count()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_folder_id UUID;
+  v_count INTEGER;
+BEGIN
+  -- Determine which folder_id to update
+  IF TG_OP = 'DELETE' THEN
+    v_folder_id := OLD.folder_id;
+  ELSE
+    v_folder_id := NEW.folder_id;
+  END IF;
+
+  IF v_folder_id IS NOT NULL THEN
+    -- Calculate total count of items in this folder (trainees + staff)
+    SELECT COALESCE(
+      (SELECT COUNT(*) FROM public.archived_trainees WHERE folder_id = v_folder_id), 0
+    ) + COALESCE(
+      (SELECT COUNT(*) FROM public.archived_staff WHERE folder_id = v_folder_id), 0
+    ) INTO v_count;
+
+    -- Update the folder's item_count and last_modified columns
+    UPDATE public.archive_folders
+    SET item_count = v_count, last_modified = NOW()
+    WHERE id = v_folder_id;
+  END IF;
+
+  -- If folder_id changed, update the old folder's count as well
+  IF TG_OP = 'UPDATE' AND OLD.folder_id IS DISTINCT FROM NEW.folder_id AND OLD.folder_id IS NOT NULL THEN
+    SELECT COALESCE(
+      (SELECT COUNT(*) FROM public.archived_trainees WHERE folder_id = OLD.folder_id), 0
+    ) + COALESCE(
+      (SELECT COUNT(*) FROM public.archived_staff WHERE folder_id = OLD.folder_id), 0
+    ) INTO v_count;
+
+    UPDATE public.archive_folders
+    SET item_count = v_count, last_modified = NOW()
+    WHERE id = OLD.folder_id;
+  END IF;
+
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Triggers for archived_trainees
+DROP TRIGGER IF EXISTS trigger_update_count_archived_trainees ON public.archived_trainees;
+CREATE TRIGGER trigger_update_count_archived_trainees
+  AFTER INSERT OR UPDATE OR DELETE ON public.archived_trainees
+  FOR EACH ROW EXECUTE FUNCTION public.update_archive_folder_item_count();
+
+-- Triggers for archived_staff
+DROP TRIGGER IF EXISTS trigger_update_count_archived_staff ON public.archived_staff;
+CREATE TRIGGER trigger_update_count_archived_staff
+  AFTER INSERT OR UPDATE OR DELETE ON public.archived_staff
+  FOR EACH ROW EXECUTE FUNCTION public.update_archive_folder_item_count();
+
+-- 19. Run One-time Update for Existing Folders to Sync Item Counts
+UPDATE public.archive_folders f
+SET item_count = COALESCE((SELECT COUNT(*) FROM public.archived_trainees WHERE folder_id = f.id), 0) +
+                 COALESCE((SELECT COUNT(*) FROM public.archived_staff WHERE folder_id = f.id), 0);

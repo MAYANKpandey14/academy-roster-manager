@@ -46,10 +46,9 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
     try {
       console.log("Form data to submit:", data);
       
-      // First create the trainee record without photo
       const formData = {
         ...data,
-        photo_url: null // Always null initially
+        photo_url: data.photo_url || null
       };
       
       console.log("Transformed form data:", formData);

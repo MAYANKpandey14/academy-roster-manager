@@ -46,11 +46,13 @@ serve(async (req) => {
 
     console.log(`Routing archive request method: ${req.method}, path: ${path}`);
 
-    // Get current user for audit trail
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    // Get current user for audit trail by passing the JWT token explicitly
+    const token = authHeader.replace("Bearer ", "");
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError || !user) {
+      console.error("Auth getUser error:", userError);
       return new Response(
-        JSON.stringify({ error: "Authentication required" }),
+        JSON.stringify({ error: "Authentication required", details: userError?.message }),
         { status: 401, headers: corsHeaders }
       );
     }
@@ -78,7 +80,7 @@ serve(async (req) => {
         status: "archived",
       };
 
-      const { error: insertError } = await supabaseClient.from("archived_trainees").insert(archiveData);
+      const { error: insertError } = await supabaseClient.from("archived_trainees").upsert(archiveData, { onConflict: "id" });
       if (insertError) throw new Error(`Failed to archive trainee: ${insertError.message}`);
 
       const { error: deleteError } = await supabaseClient.from("trainees").delete().eq("id", id);
@@ -116,7 +118,7 @@ serve(async (req) => {
         status: "archived",
       };
 
-      const { error: insertError } = await supabaseClient.from("archived_staff").insert(archiveData);
+      const { error: insertError } = await supabaseClient.from("archived_staff").upsert(archiveData, { onConflict: "id" });
       if (insertError) throw new Error(`Failed to archive staff: ${insertError.message}`);
 
       const { error: deleteError } = await supabaseClient.from("staff").delete().eq("id", id);
@@ -162,7 +164,7 @@ serve(async (req) => {
           archived_by: user.id,
         }));
 
-        const { error: insertError } = await supabaseClient.from("archived_trainees").insert(archivedTrainees);
+        const { error: insertError } = await supabaseClient.from("archived_trainees").upsert(archivedTrainees, { onConflict: "id" });
         if (insertError) throw new Error(`Failed to archive trainees batch: ${insertError.message}`);
 
         const { error: deleteError } = await supabaseClient.from("trainees").delete().in("id", traineeData.map((t) => t.id));
@@ -217,7 +219,7 @@ serve(async (req) => {
           archived_by: user.id,
         }));
 
-        const { error: insertError } = await supabaseClient.from("archived_staff").insert(archivedStaff);
+        const { error: insertError } = await supabaseClient.from("archived_staff").upsert(archivedStaff, { onConflict: "id" });
         if (insertError) throw new Error(`Failed to archive staff batch: ${insertError.message}`);
 
         const { error: deleteError } = await supabaseClient.from("staff").delete().in("id", staffData.map((s) => s.id));
