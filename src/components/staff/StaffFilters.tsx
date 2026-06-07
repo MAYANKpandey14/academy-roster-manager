@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface StaffFiltersProps {
-  onSearch: (pno: string) => Promise<boolean>;
+  onSearch: (pno: string, name?: string) => Promise<boolean>;
   onShowAll: () => void;
   disabled?: boolean;
 }
@@ -21,15 +21,16 @@ export function StaffFilters({
 }: StaffFiltersProps) {
   const navigate = useNavigate();
   const [pno, setPno] = useState("");
+  const [name, setName] = useState("");
   const { isHindi } = useLanguage();
 
   const handleSearch = async () => {
-    if (!pno) {
-      toast.error(isHindi ? "कृपया खोजने के लिए PNO दर्ज करें" : "Please enter a PNO to search");
+    if (!pno && !name) {
+      toast.error(isHindi ? "कृपया खोजने के लिए PNO या नाम दर्ज करें" : "Please enter a PNO or name to search");
       return;
     }
     
-    const found = await onSearch(pno);
+    const found = await onSearch(pno, name);
     if (!found) {
       toast.error(isHindi ? "कोई स्टाफ खोजने के लिए मिला नहीं" : "No staff found matching your search criteria");
     }
@@ -51,6 +52,18 @@ export function StaffFilters({
       </h3>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="name" className="dynamic-text">{isHindi ? "नाम" : "Name"}</Label>
+          <Input
+            id="name"
+            placeholder={isHindi ? "नाम (फजी सर्च)" : "Name (Fuzzy Search)"}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={disabled}
+          />
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="pno" className="dynamic-text">{isHindi ? "पीएनओ/ यूनिक आईडी" : "PNO/ Unique ID"}</Label>
           <Input

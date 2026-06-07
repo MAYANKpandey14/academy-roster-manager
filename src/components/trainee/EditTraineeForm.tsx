@@ -16,6 +16,7 @@ import { updateTrainee } from "@/services/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 import { ImageUpload } from "@/components/common/ImageUpload";
+import { useIntelligentValidation } from "@/hooks/useIntelligentValidation";
 
 interface EditTraineeFormProps {
   trainee: Trainee;
@@ -73,6 +74,20 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
     defaultValues,
   });
 
+  const watchedValues = form.watch();
+  const { warnings } = useIntelligentValidation({
+    formData: {
+      pno: watchedValues.pno,
+      mobile_number: watchedValues.mobile_number,
+      date_of_birth: watchedValues.date_of_birth,
+      date_of_joining: watchedValues.date_of_joining,
+      arrival_date: watchedValues.arrival_date,
+      departure_date: watchedValues.departure_date,
+    },
+    personType: "trainee",
+    isEditing: true,
+  });
+
   const onSubmit = async (data: TraineeFormValues) => {
     setIsSubmitting(true);
     console.log("Form data to submit:", data);
@@ -117,8 +132,8 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <ServiceInfoFields form={form} />
                 <PersonalInfoFields form={form} />
-                <DateFields form={form} />
-                <ContactFields form={form} />
+                <DateFields form={form} warnings={warnings} />
+                <ContactFields form={form} warnings={warnings} />
                 
                 <div className="col-span-1 md:col-span-2">
                   <ImageUpload 

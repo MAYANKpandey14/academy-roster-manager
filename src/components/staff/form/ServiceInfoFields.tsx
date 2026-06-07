@@ -6,12 +6,15 @@ import { UseFormReturn } from "react-hook-form";
 import { StaffFormValues, staffRanks } from "@/components/staff/StaffFormSchema";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState, useEffect } from "react";
+import { ValidationWarnings } from "@/components/common/ValidationWarnings";
+import { ValidationWarning } from "@/hooks/useIntelligentValidation";
 
 interface ServiceInfoFieldsProps {
   form: UseFormReturn<StaffFormValues>;
+  warnings?: ValidationWarning[];
 }
 
-export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
+export function ServiceInfoFields({ form, warnings = [] }: ServiceInfoFieldsProps) {
   const { isHindi } = useLanguage();
   const [selectedRank, setSelectedRank] = useState<string>("");
   const [customRankInput, setCustomRankInput] = useState<string>("");
@@ -193,6 +196,7 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
                 style={{ colorScheme: 'light' }}
               />
             </FormControl>
+            <ValidationWarnings warnings={warnings} fieldName="date_of_joining" />
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
         )}
@@ -214,6 +218,7 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
                 style={{ colorScheme: 'light' }}
               />
             </FormControl>
+            <ValidationWarnings warnings={warnings} fieldName="arrival_date" />
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
         )}
@@ -235,6 +240,7 @@ export function ServiceInfoFields({ form }: ServiceInfoFieldsProps) {
                 style={{ colorScheme: 'light' }}
               />
             </FormControl>
+            <ValidationWarnings warnings={warnings} fieldName="departure_date" />
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
         )}

@@ -4,12 +4,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { UseFormReturn } from "react-hook-form";
 import { TraineeFormValues } from "../TraineeFormSchema";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ValidationWarnings } from "@/components/common/ValidationWarnings";
+import { ValidationWarning } from "@/hooks/useIntelligentValidation";
 
 interface ContactFieldsProps {
   form: UseFormReturn<TraineeFormValues>;
+  warnings?: ValidationWarning[];
 }
 
-export function ContactFields({ form }: ContactFieldsProps) {
+export function ContactFields({ form, warnings = [] }: ContactFieldsProps) {
   const { isHindi } = useLanguage();
 
   return (
@@ -25,6 +28,7 @@ export function ContactFields({ form }: ContactFieldsProps) {
             <FormControl>
               <Input maxLength={10} type="tel" pattern="[0-9]{10}" {...field} />
             </FormControl>
+            <ValidationWarnings warnings={warnings} fieldName="mobile_number" />
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
         )}

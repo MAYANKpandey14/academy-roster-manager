@@ -13,6 +13,7 @@ import { ImageUpload } from "@/components/common/ImageUpload";
 import { PersonalInfoFields } from "./form/PersonalInfoFields";
 import { ServiceInfoFields } from "./form/ServiceInfoFields";
 import { ContactInfoFields } from "./form/ContactInfoFields";
+import { useIntelligentValidation } from "@/hooks/useIntelligentValidation";
 
 interface StaffFormProps {
   initialData?: Staff;
@@ -51,6 +52,20 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
     },
   });
 
+  const watchedValues = form.watch();
+  const { warnings } = useIntelligentValidation({
+    formData: {
+      pno: watchedValues.pno,
+      mobile_number: watchedValues.mobile_number,
+      date_of_birth: watchedValues.date_of_birth,
+      date_of_joining: watchedValues.date_of_joining,
+      arrival_date: watchedValues.arrival_date,
+      departure_date: watchedValues.departure_date,
+    },
+    personType: "staff",
+    isEditing: !!initialData?.id,
+  });
+
   const handleFormSubmit = (data: StaffFormValues) => {
     onSubmit(data);
   };
@@ -63,9 +78,9 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <PersonalInfoFields form={form} />
-          <ServiceInfoFields form={form} />
-          <ContactInfoFields form={form} />
+          <PersonalInfoFields form={form} warnings={warnings} />
+          <ServiceInfoFields form={form} warnings={warnings} />
+          <ContactInfoFields form={form} warnings={warnings} />
           
           <div className="col-span-1 md:col-span-2">
             {initialData?.id ? (

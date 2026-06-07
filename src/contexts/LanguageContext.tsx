@@ -9,10 +9,26 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [isHindi, setIsHindi] = useState(false);
+  const LANG_KEY = 'academy-roster-lang-hindi';
+
+  const [isHindi, setIsHindi] = useState(() => {
+    try {
+      return localStorage.getItem(LANG_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
 
   const toggleLanguage = () => {
-    setIsHindi(prev => !prev);
+    setIsHindi(prev => {
+      const next = !prev;
+      try {
+        localStorage.setItem(LANG_KEY, String(next));
+      } catch (e) {
+        console.error('Failed to save language preference to localStorage:', e);
+      }
+      return next;
+    });
   };
 
   return (

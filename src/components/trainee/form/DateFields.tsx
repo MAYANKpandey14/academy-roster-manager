@@ -4,12 +4,15 @@ import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { TraineeFormValues } from "@/components/trainee/TraineeFormSchema";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ValidationWarnings } from "@/components/common/ValidationWarnings";
+import { ValidationWarning } from "@/hooks/useIntelligentValidation";
 
 interface DateFieldsProps {
   form: UseFormReturn<TraineeFormValues>;
+  warnings?: ValidationWarning[];
 }
 
-export function DateFields({ form }: DateFieldsProps) {
+export function DateFields({ form, warnings = [] }: DateFieldsProps) {
   const { isHindi } = useLanguage();
 
   return (
@@ -30,6 +33,7 @@ export function DateFields({ form }: DateFieldsProps) {
                 style={{ colorScheme: 'light' }}
               />
             </FormControl>
+            <ValidationWarnings warnings={warnings} fieldName="date_of_birth" />
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
         )}
@@ -51,6 +55,7 @@ export function DateFields({ form }: DateFieldsProps) {
                 style={{ colorScheme: 'light' }}
               />
             </FormControl>
+            <ValidationWarnings warnings={warnings} fieldName="date_of_joining" />
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
         )}
@@ -72,6 +77,7 @@ export function DateFields({ form }: DateFieldsProps) {
                 style={{ colorScheme: 'light' }}
               />
             </FormControl>
+            <ValidationWarnings warnings={warnings} fieldName="arrival_date" />
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
         )}
@@ -93,6 +99,7 @@ export function DateFields({ form }: DateFieldsProps) {
                 style={{ colorScheme: 'light' }}
               />
             </FormControl>
+            <ValidationWarnings warnings={warnings} fieldName="departure_date" />
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
         )}

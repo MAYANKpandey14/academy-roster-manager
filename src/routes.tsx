@@ -22,11 +22,16 @@ import Welcome from "@/pages/Welcome";
 import TraineeRegister from "@/pages/TraineeRegister";
 import StaffRegister from "@/pages/StaffRegister";
 import ArchivePage from "@/pages/ArchivePage";
+import DashboardPage from "@/pages/DashboardPage";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/trainees" replace />,
+    element: <Navigate to="/dashboard" replace />,
+  },
+  {
+    path: "dashboard",
+    element: <ProtectedRoute><DashboardPage /></ProtectedRoute>,
   },
   {
     path: "welcome",

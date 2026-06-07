@@ -9,22 +9,51 @@ import { toast } from "sonner";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
-import { Share2 } from "lucide-react";
+import { Share2, Sparkles } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useFuzzySearch } from "@/hooks/useFuzzySearch";
+import { NaturalLanguageSearch } from "@/components/search/NaturalLanguageSearch";
 
 const StaffPage = () => {
   const [staff, setStaff] = useState<Staff[]>([]);
+  const { performServerSearch } = useFuzzySearch<Staff>({ table: "staff" });
   const [isLoading, setIsLoading] = useState(false);
   const [showTable, setShowTable] = useState(false);
+  const [searchMode, setSearchMode] = useState<"quick" | "ai">("quick");
   const { isHindi } = useLanguage();
   const isMobile = useIsMobile();
+
+  const handleAISearchResults = (
+    table: "trainees" | "staff",
+    data: any[]
+  ) => {
+    const typedStaff: Staff[] = data.map(item => ({
+      ...item,
+      rank: item.rank as StaffRank,
+      blood_group: item.blood_group as Staff['blood_group']
+    }));
+    setStaff(typedStaff);
+    setShowTable(true);
+  };
+
+  const handleClearAISearch = () => {
+    setStaff([]);
+    setShowTable(false);
+  };
   
   // Use the language inputs hook for better language support
   useLanguageInputs();
 
-  const handleSearch = async (pno: string): Promise<boolean> => {
+  const handleSearch = async (pno: string, name?: string): Promise<boolean> => {
     setIsLoading(true);
     try {
+      if (name && !pno) {
+        const results = await performServerSearch(name);
+        setStaff(results);
+        setShowTable(true);
+        return results.length > 0;
+      }
+
       const { data, error } = await supabase
         .from('staff')
         .select('*')
@@ -127,11 +156,43 @@ const StaffPage = () => {
           </Button>
         </div>
 
-        <StaffFilters
-          onSearch={handleSearch}
-          onShowAll={handleShowAll}
-          disabled={isLoading}
-        />
+        {/* Search Mode Tabs */}
+        <div className="flex border-b border-gray-200 dark:border-gray-800 mb-6">
+          <button
+            onClick={() => setSearchMode("quick")}
+            className={`px-4 py-2 text-sm font-semibold border-b-2 transition-all ${
+              searchMode === "quick"
+                ? "border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"
+                : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            }`}
+          >
+            {isHindi ? "त्वरित खोज" : "Quick Search"}
+          </button>
+          <button
+            onClick={() => setSearchMode("ai")}
+            className={`px-4 py-2 text-sm font-semibold border-b-2 transition-all flex items-center gap-1.5 ${
+              searchMode === "ai"
+                ? "border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"
+                : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            }`}
+          >
+            <Sparkles className="h-4 w-4" />
+            {isHindi ? "स्मार्ट एआई खोज" : "AI Smart Search"}
+          </button>
+        </div>
+
+        {searchMode === "quick" ? (
+          <StaffFilters
+            onSearch={handleSearch}
+            onShowAll={handleShowAll}
+            disabled={isLoading}
+          />
+        ) : (
+          <NaturalLanguageSearch
+            onSearchResults={handleAISearchResults}
+            onClear={handleClearAISearch}
+          />
+        )}
         
         {showTable && (
           <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mt-6 animate-scale-in">

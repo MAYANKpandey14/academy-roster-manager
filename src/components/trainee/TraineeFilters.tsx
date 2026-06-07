@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TraineeFiltersProps {
-  onSearch: (pno: string, chestNo: string, rollNo?: string) => Promise<boolean>;
+  onSearch: (pno: string, chestNo: string, rollNo?: string, name?: string) => Promise<boolean>;
   onShowAll: () => void;
   disabled?: boolean;
 }
@@ -22,16 +22,16 @@ export function TraineeFilters({
   const navigate = useNavigate();
   const [pno, setPno] = useState("");
   const [chestNo, setChestNo] = useState("");
+  const [name, setName] = useState("");
   const { isHindi } = useLanguage();
 
   const handleSearch = async () => {
-    if (!pno && !chestNo) {
+    if (!pno && !chestNo && !name) {
       toast.error(isHindi ? "कृपया कम से कम एक खोज मानदंड दर्ज करें" : "Please enter at least one search criteria");
       return;
     }
 
-    // Passing an empty string as the third parameter (rollNo)
-    const found = await onSearch(pno, chestNo, "");
+    const found = await onSearch(pno, chestNo, "", name);
     if (!found) {
       toast.error(isHindi ? "आपकी खोज मानदंडों से मेल खाने वाला कोई प्रशिक्षु नहीं मिला" : "No trainee found matching your search criteria");
     }
@@ -51,6 +51,20 @@ export function TraineeFilters({
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="name" className={isHindi ? 'font-mangal' : ''}>
+            {isHindi ? "नाम" : "Name"}
+          </Label>
+          <Input
+            id="name"
+            placeholder={isHindi ? "नाम (फजी सर्च)" : "Name (Fuzzy Search)"}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={disabled}
+          />
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="pno" className={isHindi ? 'font-mangal' : ''}>
             {isHindi ? "पीएनओ/ यूनिक आईडी" : "PNO/ Unique ID"}

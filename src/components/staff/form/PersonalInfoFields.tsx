@@ -5,12 +5,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { UseFormReturn } from "react-hook-form";
 import { StaffFormValues, bloodGroups } from "@/components/staff/StaffFormSchema";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ValidationWarnings } from "@/components/common/ValidationWarnings";
+import { ValidationWarning } from "@/hooks/useIntelligentValidation";
 
 interface PersonalInfoFieldsProps {
   form: UseFormReturn<StaffFormValues>;
+  warnings?: ValidationWarning[];
 }
 
-export function PersonalInfoFields({ form }: PersonalInfoFieldsProps) {
+export function PersonalInfoFields({ form, warnings = [] }: PersonalInfoFieldsProps) {
   const { isHindi } = useLanguage();
 
   return (
@@ -63,6 +66,7 @@ export function PersonalInfoFields({ form }: PersonalInfoFieldsProps) {
                 style={{ colorScheme: 'light' }}
               />
             </FormControl>
+            <ValidationWarnings warnings={warnings} fieldName="date_of_birth" />
             <FormMessage className={isHindi ? 'font-hindi' : ''} />
           </FormItem>
         )}

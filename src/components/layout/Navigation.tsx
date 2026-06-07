@@ -10,6 +10,10 @@ export function Navigation() {
   
   const routes = [
     { 
+      name: isHindi ? "डैशबोर्ड" : "Dashboard", 
+      path: "/dashboard" 
+    },
+    { 
       name: isHindi ? "प्रशिक्षु" : "Trainees", 
       path: "/trainees" 
     },
