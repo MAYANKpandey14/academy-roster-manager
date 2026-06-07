@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Trainee } from "@/types/trainee";
 import { toast } from "sonner";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
+import { TraineeHeader } from "@/components/trainee/view/TraineeHeader";
 import { TraineeDetailsSection } from "@/components/trainee/view/TraineeDetailsSection";
 import { TraineeLoadingState } from "@/components/trainee/view/TraineeLoadingState";
 import { TraineeNotFound } from "@/components/trainee/view/TraineeNotFound";

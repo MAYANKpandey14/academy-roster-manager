@@ -50,8 +50,8 @@ async function fetchAttendance(personId: string, personType: 'trainee' | 'staff'
     let leaveData: any[] = [];
 
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://jvjvrdarcmdjohdwwfhf.supabase.co';
-      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_a-SkV_-J1ByWdnnDH3nk-w_UHdOK4EO';
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
       
       const attendanceResponse = await fetch(
         `${supabaseUrl}/rest/v1/${tableName}?${foreignKeyField}=eq.${personId}`,

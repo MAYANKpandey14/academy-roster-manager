@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/languageswitch/LanguageSwitcher";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -15,6 +16,7 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [resetPassword, setResetPassword] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { isHindi } = useLanguage();
   const navigate = useNavigate();
 
@@ -108,15 +110,29 @@ export default function Auth() {
                   <Label htmlFor="password" className={`text-gray-900 ${isHindi ? 'font-hindi' : ''}`}>
                     {isHindi ? "पासवर्ड" : "Password"}
                   </Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    required={!resetPassword}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder={isHindi ? "पासवर्ड दर्ज करें" : "Enter password"}
-                    className="bg-white/80 animate-scale-in"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      required={!resetPassword}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder={isHindi ? "पासवर्ड दर्ज करें" : "Enter password"}
+                      className="bg-white/80 animate-scale-in pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               )}
             </fieldset>

@@ -5,6 +5,7 @@ import { getStaffById } from "@/services/staffApi";
 import { Staff } from "@/types/staff";
 import { toast } from "sonner";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
+import { StaffHeader } from "@/components/staff/view/StaffHeader";
 import { StaffDetailsSection } from "@/components/staff/view/StaffDetailsSection";
 import { StaffLoadingState } from "@/components/staff/view/StaffLoadingState";
 import { StaffNotFound } from "@/components/staff/view/StaffNotFound";

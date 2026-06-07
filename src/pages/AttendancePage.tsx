@@ -33,6 +33,11 @@ export default function AttendancePage() {
   return (
     <div className="min-h-screen bg-gray-50">
             <main className="container mx-auto py-6 px-4 animate-fade-in">
+        <div className="mb-6">
+          <h1 className={`text-2xl font-semibold ${isHindi ? 'font-hindi' : ''}`}>
+            {isHindi ? 'उपस्थिति प्रबंधन' : 'Attendance Management'}
+          </h1>
+        </div>
 
         <div className="space-y-6">
           <PersonSearch onPersonSelected={handlePersonSelected} />

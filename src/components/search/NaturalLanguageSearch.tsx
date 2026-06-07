@@ -33,36 +33,81 @@ export function NaturalLanguageSearch({
     }
 
     setIsLoading(true);
+    const normalizedQuery = query.toLowerCase().trim();
+    const cacheKey = "nl-search-cache";
+
+    // 1. Try to load from translation cache
     try {
-      /* Retrieve local session token to pass as auth header */
-      const { data: sessionData } = await supabase.auth.getSession();
-      const token = sessionData.session?.access_token;
-      
-      const headers: HeadersInit = {
-        "Content-Type": "application/json",
-      };
-      
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
+      const cachedData = localStorage.getItem(cacheKey);
+      if (cachedData) {
+        const cacheMap = JSON.parse(cachedData);
+        const cachedItem = cacheMap[normalizedQuery];
 
-      /* Call the nl-search edge function */
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL || "https://jvjvrdarcmdjohdwwfhf.supabase.co"}/functions/v1/nl-search`,
-        {
-          method: "POST",
-          headers,
-          body: JSON.stringify({ query }),
+        // Cache valid for 24 hours
+        if (cachedItem && Date.now() - cachedItem.timestamp < 24 * 60 * 60 * 1000) {
+          console.log("NL search cache hit for:", normalizedQuery);
+          
+          let dbQuery = supabase.from(cachedItem.table).select("*");
+          cachedItem.filters.forEach((f: any) => {
+            const { field, operator, value } = f;
+            if (operator === "eq") {
+              dbQuery = dbQuery.eq(field, value);
+            } else if (operator === "ilike") {
+              dbQuery = dbQuery.ilike(field, value);
+            } else if (operator === "gt") {
+              dbQuery = dbQuery.gt(field, value);
+            } else if (operator === "lt") {
+              dbQuery = dbQuery.lt(field, value);
+            } else if (operator === "gte") {
+              dbQuery = dbQuery.gte(field, value);
+            } else if (operator === "lte") {
+              dbQuery = dbQuery.lte(field, value);
+            }
+          });
+
+          const { data, error } = await dbQuery;
+          if (error) throw error;
+
+          setActiveBrief({ en: cachedItem.reasonEn, hi: cachedItem.reasonHi, filters: cachedItem.filters });
+          onSearchResults(cachedItem.table, data || [], cachedItem.reasonEn, cachedItem.reasonHi, cachedItem.filters);
+          toast.success(
+            isHindi 
+              ? `खोज पूरी हुई: ${(data || []).length} रिकॉर्ड मिले (कैश)` 
+              : `Search complete: found ${(data || []).length} records (cached)`
+          );
+          setIsLoading(false);
+          return;
         }
-      );
-
-      if (!response.ok) {
-        const errJson = await response.json().catch(() => ({}));
-        throw new Error(errJson.error || `HTTP error! Status: ${response.status}`);
       }
+    } catch (e) {
+      console.warn("NL search cache lookup failed, proceeding to API:", e);
+    }
 
-      const result = await response.json();
+    // 2. Fallback to Edge Function invocation
+    try {
+      const { data: result, error: fnError } = await supabase.functions.invoke("nl-search", {
+        body: { query },
+      });
+
+      if (fnError) throw fnError;
+
       const { table, data, reasonEn, reasonHi, filters } = result;
+
+      // 3. Store translation rules in cache
+      try {
+        const cachedData = localStorage.getItem(cacheKey);
+        const cacheMap = cachedData ? JSON.parse(cachedData) : {};
+        cacheMap[normalizedQuery] = {
+          table,
+          filters,
+          reasonEn,
+          reasonHi,
+          timestamp: Date.now(),
+        };
+        localStorage.setItem(cacheKey, JSON.stringify(cacheMap));
+      } catch (e) {
+        console.warn("Failed saving NL search cache:", e);
+      }
 
       setActiveBrief({ en: reasonEn, hi: reasonHi, filters });
       onSearchResults(table, data, reasonEn, reasonHi, filters);

@@ -108,13 +108,13 @@ export function FolderGrid({ folders, isLoading, recordType = 'staff', onFolderC
     <div className="space-y-4">
       {/* Search and Sort Controls */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+        <div className="relative flex-1 max-w-md w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
           <Input
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={isHindi ? 'फ़ोल्डर खोजें...' : 'Search folders...'}
-            className="pl-10"
+            className="pl-10 h-10 border-slate-200 focus-visible:ring-slate-900"
           />
         </div>
         
@@ -123,27 +123,39 @@ export function FolderGrid({ folders, isLoading, recordType = 'staff', onFolderC
             variant={sortBy === 'name' ? 'default' : 'outline'}
             size="sm"
             onClick={() => handleSort('name')}
-            className="flex items-center gap-1"
+            className={`flex items-center gap-1 h-9 ${
+              sortBy === 'name' 
+                ? 'bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200 dark:text-slate-900 text-white' 
+                : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900'
+            }`}
           >
-            {isHindi ? 'नाम' : 'Name'}
+            <span className={isHindi ? 'font-hindi' : ''}>{isHindi ? 'नाम' : 'Name'}</span>
             {getSortIcon('name')}
           </Button>
           <Button
             variant={sortBy === 'date' ? 'default' : 'outline'}
             size="sm"
             onClick={() => handleSort('date')}
-            className="flex items-center gap-1"
+            className={`flex items-center gap-1 h-9 ${
+              sortBy === 'date' 
+                ? 'bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200 dark:text-slate-900 text-white' 
+                : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900'
+            }`}
           >
-            {isHindi ? 'दिनांक' : 'Date'}
+            <span className={isHindi ? 'font-hindi' : ''}>{isHindi ? 'दिनांक' : 'Date'}</span>
             {getSortIcon('date')}
           </Button>
           <Button
             variant={sortBy === 'count' ? 'default' : 'outline'}
             size="sm"
             onClick={() => handleSort('count')}
-            className="flex items-center gap-1"
+            className={`flex items-center gap-1 h-9 ${
+              sortBy === 'count' 
+                ? 'bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200 dark:text-slate-900 text-white' 
+                : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900'
+            }`}
           >
-            {isHindi ? 'आइटम' : 'Items'}
+            <span className={isHindi ? 'font-hindi' : ''}>{isHindi ? 'आइटम' : 'Items'}</span>
             {getSortIcon('count')}
           </Button>
         </div>
@@ -152,14 +164,14 @@ export function FolderGrid({ folders, isLoading, recordType = 'staff', onFolderC
       {/* Folders Grid */}
       {sortedFolders.length === 0 ? (
         <div className="text-center py-12">
-          <Folder className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className={`text-lg font-medium text-gray-900 mb-2 ${isHindi ? 'font-hindi' : ''}`}>
+          <Folder className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+          <h3 className={`text-lg font-medium text-slate-900 mb-2 ${isHindi ? 'font-hindi' : ''}`}>
             {searchTerm 
               ? (isHindi ? 'कोई फ़ोल्डर नहीं मिला' : 'No folders found')
               : (isHindi ? 'कोई आर्काइव फ़ोल्डर नहीं' : 'No archive folders')
             }
           </h3>
-          <p className={`text-gray-500 ${isHindi ? 'font-hindi' : ''}`}>
+          <p className={`text-slate-500 ${isHindi ? 'font-hindi' : ''}`}>
             {searchTerm 
               ? (isHindi ? 'अपनी खोज को समायोजित करने का प्रयास करें' : 'Try adjusting your search')
               : (isHindi ? 'जब आप रिकॉर्ड आर्काइव करेंगे तो फ़ोल्डर यहाँ दिखाई देंगे' : 'Folders will appear here when you archive records')
@@ -171,36 +183,36 @@ export function FolderGrid({ folders, isLoading, recordType = 'staff', onFolderC
           {sortedFolders.map((folder) => (
             <Card 
               key={folder.id} 
-              className="hover:shadow-lg transition-shadow cursor-pointer group relative"
+              className="rounded-xl border border-slate-200 hover:border-slate-300 dark:border-slate-800 dark:hover:border-slate-700 shadow-sm hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-all duration-200 cursor-pointer group relative"
               onClick={() => onFolderClick(folder)}
             >
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-base group-hover:text-blue-600 transition-colors">
+                <CardTitle className="flex items-center gap-2 text-base font-semibold group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                   <Folder className="h-5 w-5 text-orange-500" />
                   <span className="truncate">{folder.folder_name}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {folder.description && (
-                  <p className="text-sm text-gray-600 line-clamp-2">
+                  <p className="text-sm text-slate-600 line-clamp-2">
                     {folder.description}
                   </p>
                 )}
                 
                 <div className="flex items-center justify-between">
-                  <Badge variant="secondary" className="flex items-center gap-1">
+                  <Badge variant="secondary" className="flex items-center gap-1 text-slate-700 dark:text-slate-300">
                     <FileText className="h-3 w-3" />
                     {folder.item_count} {isHindi ? 'आइटम' : 'items'}
                   </Badge>
                   
-                  <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <div className="flex items-center gap-1 text-xs text-slate-500">
                     <Calendar className="h-3 w-3" />
                     {format(new Date(folder.created_at), 'MMM d, yyyy')}
                   </div>
                 </div>
                 
                 {folder.last_modified !== folder.created_at && (
-                  <div className="text-xs text-gray-400">
+                  <div className="text-xs text-slate-400">
                     {isHindi ? 'अंतिम संशोधन:' : 'Last modified:'} {format(new Date(folder.last_modified), 'MMM d, yyyy')}
                   </div>
                 )}
@@ -210,7 +222,7 @@ export function FolderGrid({ folders, isLoading, recordType = 'staff', onFolderC
               <Button
                 variant="ghost"
                 size="sm"
-                className="absolute bottom-3 right-3 h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 hover:text-red-600"
+                className="absolute bottom-3 right-3 h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400"
                 onClick={(e) => handleDeleteClick(e, folder)}
               >
                 <Trash2 className="h-4 w-4" />

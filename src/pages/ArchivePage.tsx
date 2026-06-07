@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { ArchiveFolder } from "@/types/archive";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FolderGrid } from "@/components/archive/FolderGrid";
 import { FolderDetailView } from "@/components/archive/FolderDetailView";
 import { supabase } from "@/integrations/supabase/client";
@@ -129,56 +128,68 @@ const ArchivePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-            <main className="container mx-auto py-6 px-4 animate-fade-in">
+             <main className="container mx-auto py-6 px-4 animate-fade-in">
         <div className="mb-6">
           <h1 className={`text-2xl font-semibold ${isHindi ? 'font-hindi' : ''}`}>
-            {isHindi ? 'आर्काइव फ़ोल्डर' : 'Archive Folders'}
+            {isHindi ? 'संग्रह (आर्काइव)' : 'Archives'}
           </h1>
-          <p className={`text-gray-600 mt-2 ${isHindi ? 'font-hindi' : ''}`}>
-            {isHindi ? 'आर्काइव किए गए रिकॉर्ड फ़ोल्डर के अनुसार व्यवस्थित हैं' : 'Archived records organized by folders'}
-          </p>
         </div>
 
-        <Tabs value={selectedTab} onValueChange={(value) => setSelectedTab(value as 'staff' | 'trainee')} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="staff" className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? 'स्टाफ आर्काइव' : 'Staff Archive'} 
-              {!isFilteringFolders && (
-                <span className="ml-2 text-sm text-gray-500">
-                  ({staffFolders.length})
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="trainee" className={isHindi ? 'font-hindi' : ''}>
-              {isHindi ? 'प्रशिक्षु आर्काइव' : 'Trainee Archive'} 
-              {!isFilteringFolders && (
-                <span className="ml-2 text-sm text-gray-500">
-                  ({traineeFolders.length})
-                </span>
-              )}
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="staff" className="mt-6">
-            <FolderGrid
-              folders={staffFolders}
-              isLoading={isLoadingFolders || isFilteringFolders}
-              recordType="staff"
-              onFolderClick={handleFolderClick}
-              onFolderDeleted={handleFolderDeleted}
-            />
-          </TabsContent>
-          
-          <TabsContent value="trainee" className="mt-6">
-            <FolderGrid
-              folders={traineeFolders}
-              isLoading={isLoadingFolders || isFilteringFolders}
-              recordType="trainee"
-              onFolderClick={handleFolderClick}
-              onFolderDeleted={handleFolderDeleted}
-            />
-          </TabsContent>
-        </Tabs>
+        {/* Archive Record Type Tabs */}
+        <div className="flex border-b border-gray-200 dark:border-gray-800 mb-6">
+          <button
+            onClick={() => setSelectedTab('staff')}
+            className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-[2px] transition-all ${
+              selectedTab === 'staff'
+                ? "border-slate-900 text-slate-900 dark:border-slate-100 dark:text-slate-100"
+                : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            }`}
+          >
+            <span className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'स्टाफ आर्काइव' : 'Staff Archive'}
+            </span>
+            {!isFilteringFolders && (
+              <span className="ml-1.5 text-xs text-gray-400 dark:text-gray-500 font-normal">
+                ({staffFolders.length})
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => setSelectedTab('trainee')}
+            className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-[2px] transition-all ${
+              selectedTab === 'trainee'
+                ? "border-slate-900 text-slate-900 dark:border-slate-100 dark:text-slate-100"
+                : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            }`}
+          >
+            <span className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'प्रशिक्षु आर्काइव' : 'Trainee Archive'}
+            </span>
+            {!isFilteringFolders && (
+              <span className="ml-1.5 text-xs text-gray-400 dark:text-gray-500 font-normal">
+                ({traineeFolders.length})
+              </span>
+            )}
+          </button>
+        </div>
+
+        {selectedTab === 'staff' ? (
+          <FolderGrid
+            folders={staffFolders}
+            isLoading={isLoadingFolders || isFilteringFolders}
+            recordType="staff"
+            onFolderClick={handleFolderClick}
+            onFolderDeleted={handleFolderDeleted}
+          />
+        ) : (
+          <FolderGrid
+            folders={traineeFolders}
+            isLoading={isLoadingFolders || isFilteringFolders}
+            recordType="trainee"
+            onFolderClick={handleFolderClick}
+            onFolderDeleted={handleFolderDeleted}
+          />
+        )}
       </main>
     </div>
   );

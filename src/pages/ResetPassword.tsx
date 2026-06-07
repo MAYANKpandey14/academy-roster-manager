@@ -69,51 +69,53 @@ export default function ResetPassword() {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 animate-scale-in">
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={isHindi ? 'font-hindi' : ''}>
-                    {isHindi ? "नया पासवर्ड" : "New Password"}
-                  </FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="password" 
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage className={isHindi ? 'font-hindi' : ''} />
-                </FormItem>
-              )}
-            />
+            <fieldset disabled={loading} className="space-y-6 w-full">
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                      {isHindi ? "नया पासवर्ड" : "New Password"}
+                    </FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="password" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage className={isHindi ? 'font-hindi' : ''} />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={isHindi ? 'font-hindi' : ''}>
-                    {isHindi ? "पासवर्ड की पुष्टि करें" : "Confirm Password"}
-                  </FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="password" 
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage className={isHindi ? 'font-hindi' : ''} />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                      {isHindi ? "पासवर्ड की पुष्टि करें" : "Confirm Password"}
+                    </FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="password" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage className={isHindi ? 'font-hindi' : ''} />
+                  </FormItem>
+                )}
+              />
 
-            <Button type="submit" className="w-full animate-slide-in" disabled={loading}>
-              <span className={isHindi ? 'font-hindi' : ''}>
-                {loading 
-                  ? (isHindi ? "प्रक्रिया में..." : "Processing...") 
-                  : (isHindi ? "पासवर्ड अपडेट करें" : "Update Password")}
-              </span>
-            </Button>
+              <Button type="submit" className="w-full animate-slide-in" disabled={loading}>
+                <span className={isHindi ? 'font-hindi' : ''}>
+                  {loading 
+                    ? (isHindi ? "प्रक्रिया में..." : "Processing...") 
+                    : (isHindi ? "पासवर्ड अपडेट करें" : "Update Password")}
+                </span>
+              </Button>
+            </fieldset>
           </form>
         </Form>
       </div>
