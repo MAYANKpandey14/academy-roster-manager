@@ -3,6 +3,7 @@ import { Trainee } from '@/types/trainee';
 import { AttendanceRecord, LeaveRecord } from '@/components/attendance/hooks/useFetchAttendance';
 import { getPrintStyles, createPrintHeader, createPrintFooter } from './printUtils';
 import { prepareTextForLanguage } from '../textUtils';
+import { getSecureUrl } from '@/components/common/SecureImage';
 
 export async function createPrintContent(
   traineeList: Trainee[],
@@ -28,7 +29,18 @@ export async function createPrintContent(
     }
   };
 
-  const recordsHtml = traineeList.map(trainee => {
+  // Pre-resolve all photo URLs to signed URLs before building HTML.
+  // The print window opens in a new context without Supabase auth headers,
+  // so raw private storage URLs would return 403. Signed URLs are plain
+  // HTTPS links valid for 1 hour — safe and no auth required.
+  const resolvedPhotos = await Promise.all(
+    traineeList.map(async (trainee) =>
+      trainee.photo_url ? getSecureUrl(trainee.photo_url).catch(() => trainee.photo_url) : null
+    )
+  );
+
+  const recordsHtml = traineeList.map((trainee, index) => {
+    const resolvedPhotoUrl = resolvedPhotos[index];
     // Filter attendance and leave records for this specific trainee
     const traineeAttendance = attendanceRecords.filter(record => record.trainee_id === trainee.id);
     const traineeLeave = leaveRecords.filter(record => record.trainee_id === trainee.id);
@@ -36,7 +48,7 @@ export async function createPrintContent(
     return `
     <div class="record-card">
       <div class="record-card-header">
-        ${trainee.photo_url ? `<img src="${trainee.photo_url}" alt="${trainee.name}" class="profile-photo" />` : ''}
+        ${resolvedPhotoUrl ? `<img src="${resolvedPhotoUrl}" alt="${trainee.name}" class="profile-photo" />` : ''}
         <div class="profile-meta">
           <h3>${prepareTextForLanguage(trainee.name, isHindi)}</h3>
           <p>${isHindi ? "पीएनओ" : "PNO"}: ${trainee.pno} | ${isHindi ? "छाती संख्या" : "Chest No"}: ${trainee.chest_no} | ${isHindi ? "रैंक" : "Rank"}: ${trainee.rank}</p>

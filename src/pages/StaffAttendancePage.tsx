@@ -7,6 +7,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { AttendanceHistory } from "@/components/attendance/AttendanceHistory";
 import { AttendanceForm } from "@/components/attendance/AttendanceForm";
 import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ArrowLeft, Plus } from "lucide-react";
 
 export default function StaffAttendancePage() {

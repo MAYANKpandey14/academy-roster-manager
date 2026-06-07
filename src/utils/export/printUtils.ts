@@ -113,12 +113,14 @@ export function getPrintStyles(isHindi: boolean): string {
     }
     
     .profile-photo {
-      width: 75px;
-      height: 75px;
-      border-radius: 50%;
-      margin-right: 1.25rem;
+      width: 120px;
+      height: 120px;
+      border-radius: 6px;
+      margin-right: 1.5rem;
       object-fit: cover;
-      border: 2px solid #cbd5e1;
+      object-position: center top;
+      border: 2px solid #94a3b8;
+      flex-shrink: 0;
     }
     
     .profile-meta {

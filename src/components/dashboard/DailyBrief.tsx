@@ -80,8 +80,6 @@ export function DailyBrief({ insights, className }: DailyBriefProps) {
       } catch (err: any) {
         console.error("Failed to generate AI brief narrative:", err);
         setError(err.message || "Narrative generation failed");
-        // Fallback: show raw insights directly if edge function fails
-        setShowRawInsights(true);
       } finally {
         setIsLoading(false);
       }

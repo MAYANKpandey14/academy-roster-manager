@@ -4,6 +4,7 @@ import { Staff } from "@/types/staff";
 import { AttendanceRecord, LeaveRecord } from "@/components/attendance/hooks/useFetchAttendance";
 import { getPrintStyles, createPrintHeader, createPrintFooter } from "./printUtils";
 import { prepareTextForLanguage } from "../textUtils";
+import { getSecureUrl } from "@/components/common/SecureImage";
 
 export async function createStaffPrintContent(
   staffList: (Staff | ArchivedStaff)[],
@@ -17,27 +18,38 @@ export async function createStaffPrintContent(
   const header = createPrintHeader(title, isHindi);
   const footer = createPrintFooter(isHindi);
 
-  const recordsHtml = staffList.map(staff => {
+  const formatDate = (dateStr: string) => {
+    try {
+      return new Date(dateStr).toLocaleDateString(isHindi ? 'hi-IN' : 'en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
+  // Pre-resolve all photo URLs to signed URLs before building HTML.
+  // The print window opens in a new context without Supabase auth headers,
+  // so raw private storage URLs would return 403. Signed URLs are plain
+  // HTTPS links valid for 1 hour — safe and no auth required.
+  const resolvedPhotos = await Promise.all(
+    staffList.map(async (staff) =>
+      staff.photo_url ? getSecureUrl(staff.photo_url).catch(() => staff.photo_url) : null
+    )
+  );
+
+  const recordsHtml = staffList.map((staff, index) => {
+    const resolvedPhotoUrl = resolvedPhotos[index];
     // Filter attendance and leave records for this specific staff member
     const staffAttendance = attendanceRecords.filter(record => record.staff_id === staff.id);
     const staffLeave = leaveRecords.filter(record => record.staff_id === staff.id);
 
-    const formatDate = (dateStr: string) => {
-      try {
-        return new Date(dateStr).toLocaleDateString(isHindi ? 'hi-IN' : 'en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
-      } catch {
-        return dateStr;
-      }
-    };
-
     return `
     <div class="record-card">
       <div class="record-card-header">
-        ${staff.photo_url ? `<img src="${staff.photo_url}" alt="${staff.name}" class="profile-photo" />` : ''}
+        ${resolvedPhotoUrl ? `<img src="${resolvedPhotoUrl}" alt="${staff.name}" class="profile-photo" />` : ''}
         <div class="profile-meta">
           <h3>${prepareTextForLanguage(staff.name, isHindi)}</h3>
           <p>${isHindi ? "पीएनओ" : "PNO"}: ${staff.pno} | ${isHindi ? "रैंक" : "Rank"}: ${staff.rank}</p>
