@@ -33,7 +33,12 @@ export function Header() {
         month: "long",
         day: "numeric",
       };
-      setToday(date.toLocaleDateString(isHindi ? 'hi-IN' : 'en-US', options));
+      try {
+        setToday(date.toLocaleDateString(isHindi ? 'hi-IN' : 'en-US', options));
+      } catch (e) {
+        console.error("Failed to format date with locale options, using fallback:", e);
+        setToday(date.toDateString());
+      }
     };
 
     updateDate();

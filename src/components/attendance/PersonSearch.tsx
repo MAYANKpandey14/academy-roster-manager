@@ -20,11 +20,11 @@ export function PersonSearch({ onPersonSelected }: PersonSearchProps) {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className={isHindi ? "font-mangal" : ""}>
+      <CardHeader className="pb-4">
+        <CardTitle className={`text-lg font-display font-bold text-slate-900 dark:text-slate-100 ${isHindi ? "font-mangal" : ""}`}>
           {isHindi ? "व्यक्ति खोजें" : "Search Person"}
         </CardTitle>
-        <CardDescription className={isHindi ? "font-mangal" : ""}>
+        <CardDescription className={`text-xs text-slate-500 ${isHindi ? "font-mangal" : ""}`}>
           {isHindi
             ? "पीएनओ द्वारा स्टाफ या प्रशिक्षु खोजें"
             : "Find staff or trainee by PNO"}

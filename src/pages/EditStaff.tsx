@@ -1,5 +1,4 @@
 
-import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useState, useEffect } from "react";
@@ -80,8 +79,7 @@ const EditStaff = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
-        <main className="container mx-auto py-6 px-4">
+                <main className="container mx-auto py-6 px-4">
           <p className="text-center dynamic-text">{isHindi ? "लोडिंग..." : "Loading..."}</p>
         </main>
       </div>
@@ -91,8 +89,7 @@ const EditStaff = () => {
   if (!staff) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
-        <main className="container mx-auto py-6 px-4">
+                <main className="container mx-auto py-6 px-4">
           <p className="text-center text-red-500 dynamic-text">{isHindi ? "स्टाफ नहीं मिला" : "Staff not found"}</p>
         </main>
       </div>
@@ -101,8 +98,7 @@ const EditStaff = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-      <main className="container mx-auto py-6 px-4">
+            <main className="container mx-auto py-6 px-4">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-semibold dynamic-text">{isHindi ? "स्टाफ संपादित करें" : "Edit Staff"}</h1>
           <Button variant="outline" onClick={() => navigate("/staff")}>

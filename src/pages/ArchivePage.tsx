@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from "react";
-import { Header } from "@/components/layout/Header";
 import { ArchiveFolder } from "@/types/archive";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
@@ -117,8 +116,7 @@ const ArchivePage = () => {
   if (selectedFolder) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
-        <main className="container mx-auto py-6 px-4 animate-fade-in">
+                <main className="container mx-auto py-6 px-4 animate-fade-in">
           <FolderDetailView
             folder={selectedFolder}
             recordType={selectedTab}
@@ -131,8 +129,7 @@ const ArchivePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-      <main className="container mx-auto py-6 px-4 animate-fade-in">
+            <main className="container mx-auto py-6 px-4 animate-fade-in">
         <div className="mb-6">
           <h1 className={`text-2xl font-semibold ${isHindi ? 'font-hindi' : ''}`}>
             {isHindi ? 'आर्काइव फ़ोल्डर' : 'Archive Folders'}

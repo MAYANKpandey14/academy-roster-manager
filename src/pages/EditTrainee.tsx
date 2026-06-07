@@ -1,6 +1,5 @@
 
 import { useEffect, useState } from "react";
-import { Header } from "@/components/layout/Header";
 import { useParams, useNavigate } from "react-router-dom";
 import { EditTraineeForm } from "@/components/trainee/EditTraineeForm";
 import { Trainee } from "@/types/trainee";
@@ -65,8 +64,7 @@ const EditTraineePage = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
-        <main className="container mx-auto py-6 px-4">
+                <main className="container mx-auto py-6 px-4">
           <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
             <p className="text-center dynamic-text">{isHindi ? "लोडिंग..." : "Loading trainee data..."}</p>
           </div>
@@ -78,8 +76,7 @@ const EditTraineePage = () => {
   if (!trainee) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
-        <main className="container mx-auto py-6 px-4">
+                <main className="container mx-auto py-6 px-4">
           <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
             <p className="text-center text-red-500 dynamic-text">{isHindi ? "प्रशिक्षु नहीं मिला" : "Trainee not found"}</p>
           </div>
@@ -90,8 +87,7 @@ const EditTraineePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-      <main className="container mx-auto py-6 px-4">
+            <main className="container mx-auto py-6 px-4">
         <EditTraineeForm 
           trainee={trainee}
           onSuccess={() => {

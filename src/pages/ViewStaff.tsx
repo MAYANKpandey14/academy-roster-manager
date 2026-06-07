@@ -1,12 +1,10 @@
 
 import { useState, useEffect } from "react";
-import { Header } from "@/components/layout/Header";
 import { useParams } from "react-router-dom";
 import { getStaffById } from "@/services/staffApi";
 import { Staff } from "@/types/staff";
 import { toast } from "sonner";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
-import { StaffHeader } from "@/components/staff/view/StaffHeader";
 import { StaffDetailsSection } from "@/components/staff/view/StaffDetailsSection";
 import { StaffLoadingState } from "@/components/staff/view/StaffLoadingState";
 import { StaffNotFound } from "@/components/staff/view/StaffNotFound";
@@ -57,8 +55,7 @@ const ViewStaff = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-      <main className="container mx-auto py-6 px-4">
+            <main className="container mx-auto py-6 px-4">
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
           <StaffHeader 
             id={id}

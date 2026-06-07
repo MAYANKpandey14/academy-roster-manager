@@ -8,6 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 interface DailyBriefProps {
   insights: Insight[];
+  className?: string;
 }
 
 interface CachedBrief {
@@ -17,11 +18,10 @@ interface CachedBrief {
   hash: string;
 }
 
-export function DailyBrief({ insights }: DailyBriefProps) {
+export function DailyBrief({ insights, className }: DailyBriefProps) {
   const { isHindi } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   const [narrative, setNarrative] = useState<{ en: string; hi: string } | null>(null);
-  const [showRawInsights, setShowRawInsights] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Compute a simple hash of the current insights list
@@ -91,7 +91,7 @@ export function DailyBrief({ insights }: DailyBriefProps) {
   }, [insightsHash]);
 
   return (
-    <Card className="border border-gray-200 dark:border-gray-800 overflow-hidden bg-white dark:bg-gray-900 rounded-xl transition-all duration-200">
+    <Card className={`border border-gray-200 dark:border-gray-800 overflow-hidden bg-white dark:bg-gray-900 rounded-xl transition-all duration-200 flex flex-col ${className || ""}`}>
       <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
         <div className="flex items-center gap-2">
           <div className="h-7 w-7 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300 shrink-0">
@@ -101,25 +101,9 @@ export function DailyBrief({ insights }: DailyBriefProps) {
             {isHindi ? "दैनिक समीक्षा" : "Daily Command Brief"}
           </CardTitle>
         </div>
-        
-        {insights.length > 0 && !error && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowRawInsights(!showRawInsights)}
-            className="h-8 px-2 rounded-lg text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-100 dark:hover:bg-slate-800"
-          >
-            <span>{isHindi ? "विवरण दिखाएं" : "Details"}</span>
-            {showRawInsights ? (
-              <ChevronUp className="h-4 w-4 ml-1" />
-            ) : (
-              <ChevronDown className="h-4 w-4 ml-1" />
-            )}
-          </Button>
-        )}
       </CardHeader>
 
-      <CardContent className="pt-2">
+      <CardContent className="pt-2 flex-grow">
         {isLoading ? (
           <div className="space-y-2 py-4 animate-pulse">
             <div className="h-4 bg-gray-100 dark:bg-gray-800 rounded w-full" />
@@ -150,7 +134,7 @@ export function DailyBrief({ insights }: DailyBriefProps) {
           </p>
         )}
 
-        {(showRawInsights || error) && (
+        {insights.length > 0 && (
           <div className="mt-4 border-t border-gray-200 dark:border-gray-800 pt-4">
             <InsightsList insights={insights} />
           </div>

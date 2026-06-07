@@ -25,6 +25,7 @@ interface AddTraineeFormProps {
 
 export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isImageUploading, setIsImageUploading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   
   const navigate = useNavigate();
@@ -115,7 +116,7 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="space-y-6">
+          <fieldset disabled={isSubmitting} className="space-y-6 w-full">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <ServiceInfoFields form={form} />
               <PersonalInfoFields form={form} />
@@ -126,6 +127,7 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
                 <ImageUpload 
                   bucketName="trainee_photos"
                   onImageUpload={handleImageUpload}
+                  onUploadingStateChange={setIsImageUploading}
                   label={isHindi ? 'प्रशिक्षु फोटो (वैकल्पिक)' : 'Trainee Photo (Optional)'}
                 />
               </div>
@@ -140,15 +142,17 @@ export function AddTraineeForm({ onSuccess }: AddTraineeFormProps) {
               >
                 <span className="dynamic-text">{isHindi ? "रद्द करें" : "Cancel"}</span>
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting || isImageUploading}>
                 <span className="dynamic-text">
                   {isSubmitting 
                     ? isHindi ? "सहेजने में..." : "Saving..."
-                    : isHindi ? "जोड़ें" : "Add Trainee"}
+                    : isImageUploading
+                      ? isHindi ? "छवि अपलोड हो रही है..." : "Image uploading..."
+                      : isHindi ? "जोड़ें" : "Add Trainee"}
                 </span>
               </Button>
             </div>
-          </div>
+          </fieldset>
         </form>
       </Form>
     </div>

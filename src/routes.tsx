@@ -1,6 +1,7 @@
 
-import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Navigate, Outlet } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { Header } from "@/components/layout/Header";
 
 import Index from "@/pages/Index";
 import Auth from "@/pages/Auth";
@@ -24,14 +25,19 @@ import StaffRegister from "@/pages/StaffRegister";
 import ArchivePage from "@/pages/ArchivePage";
 import DashboardPage from "@/pages/DashboardPage";
 
+const AppLayout = () => {
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-8 font-sans">
+      <Header />
+      <Outlet />
+    </div>
+  );
+};
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Navigate to="/dashboard" replace />,
-  },
-  {
-    path: "dashboard",
-    element: <ProtectedRoute><DashboardPage /></ProtectedRoute>,
   },
   {
     path: "welcome",
@@ -51,58 +57,6 @@ const router = createBrowserRouter([
     element: <ResetPassword />,
   },
   {
-    path: "staff",
-    element: <ProtectedRoute><StaffPage /></ProtectedRoute>,
-  },
-  {
-    path: "staff/add",
-    element: <ProtectedRoute><AddStaff /></ProtectedRoute>,
-  },
-  {
-    path: "staff/:id/edit",
-    element: <ProtectedRoute><EditStaff /></ProtectedRoute>,
-  },
-  {
-    path: "staff/:id/attendance",
-    element: <ProtectedRoute><StaffAttendancePage /></ProtectedRoute>,
-  },
-  {
-    path: "staff/:id",
-    element: <ProtectedRoute><ViewStaff /></ProtectedRoute>,
-  },
-  {
-    path: "trainees",
-    element: <ProtectedRoute><TraineesPage /></ProtectedRoute>,
-  },
-  {
-    path: "trainees/add",
-    element: <ProtectedRoute><AddTrainee /></ProtectedRoute>,
-  },
-  {
-    path: "trainees/:id/edit",
-    element: <ProtectedRoute><EditTrainee /></ProtectedRoute>,
-  },
-  {
-    path: "trainees/:id/attendance",
-    element: <ProtectedRoute><TraineeAttendancePage /></ProtectedRoute>,
-  },
-  {
-    path: "trainees/:id",
-    element: <ProtectedRoute><ViewTrainee /></ProtectedRoute>,
-  },
-  {
-    path: "attendance",
-    element: <ProtectedRoute><AttendancePage /></ProtectedRoute>,
-  },
-  {
-    path: "leave",
-    element: <ProtectedRoute><LeavePage /></ProtectedRoute>,
-  },
-  {
-    path: "archive",
-    element: <ProtectedRoute><ArchivePage /></ProtectedRoute>,
-  },
-  {
     path: "trainee-register",
     element: <TraineeRegister />,
   },
@@ -118,6 +72,67 @@ const router = createBrowserRouter([
   {
     path: "/staff-register",
     element: <StaffRegister />,
+  },
+  {
+    element: <ProtectedRoute><AppLayout /></ProtectedRoute>,
+    children: [
+      {
+        path: "dashboard",
+        element: <DashboardPage />,
+      },
+      {
+        path: "staff",
+        element: <StaffPage />,
+      },
+      {
+        path: "staff/add",
+        element: <AddStaff />,
+      },
+      {
+        path: "staff/:id/edit",
+        element: <EditStaff />,
+      },
+      {
+        path: "staff/:id/attendance",
+        element: <StaffAttendancePage />,
+      },
+      {
+        path: "staff/:id",
+        element: <ViewStaff />,
+      },
+      {
+        path: "trainees",
+        element: <TraineesPage />,
+      },
+      {
+        path: "trainees/add",
+        element: <AddTrainee />,
+      },
+      {
+        path: "trainees/:id/edit",
+        element: <EditTrainee />,
+      },
+      {
+        path: "trainees/:id/attendance",
+        element: <TraineeAttendancePage />,
+      },
+      {
+        path: "trainees/:id",
+        element: <ViewTrainee />,
+      },
+      {
+        path: "attendance",
+        element: <AttendancePage />,
+      },
+      {
+        path: "leave",
+        element: <LeavePage />,
+      },
+      {
+        path: "archive",
+        element: <ArchivePage />,
+      },
+    ],
   },
   {
     path: "*",

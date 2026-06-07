@@ -1,11 +1,9 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Header } from "@/components/layout/Header";
 import { Trainee } from "@/types/trainee";
 import { toast } from "sonner";
 import { useLanguageInputs } from "@/hooks/useLanguageInputs";
-import { TraineeHeader } from "@/components/trainee/view/TraineeHeader";
 import { TraineeDetailsSection } from "@/components/trainee/view/TraineeDetailsSection";
 import { TraineeLoadingState } from "@/components/trainee/view/TraineeLoadingState";
 import { TraineeNotFound } from "@/components/trainee/view/TraineeNotFound";
@@ -81,8 +79,7 @@ const ViewTrainee = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-      <main className="container mx-auto py-6 px-4">
+            <main className="container mx-auto py-6 px-4">
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
           <TraineeHeader 
             trainee={trainee} 

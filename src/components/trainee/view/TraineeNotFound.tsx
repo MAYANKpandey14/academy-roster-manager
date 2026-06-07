@@ -1,6 +1,5 @@
 
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -11,8 +10,7 @@ export function TraineeNotFound() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-      <main className="container mx-auto py-6 px-4">
+            <main className="container mx-auto py-6 px-4">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-semibold">
             <span className={`dynamic-text ${isHindi ? 'font-hindi' : ''}`}>

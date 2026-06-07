@@ -72,7 +72,7 @@ export function TablePagination({
               {isHindi ? "पृष्ठ" : "Page"}
             </p>
             <strong className={`text-sm font-medium ${isHindi ? 'font-mangal' : ''}`}>
-              {table.getState().pagination.pageIndex + 1} {isHindi ? "में से" : "of"}{" "}
+              {table.getPageCount() === 0 ? 0 : table.getState().pagination.pageIndex + 1} {isHindi ? "में से" : "of"}{" "}
               {table.getPageCount()}
             </strong>
           </div>

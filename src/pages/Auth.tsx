@@ -87,7 +87,7 @@ export default function Auth() {
           </div>
           
           <form onSubmit={handleAuth} className="mt-8 space-y-6">
-            <div className="rounded-md space-y-4">
+            <fieldset disabled={loading} className="rounded-md space-y-4">
               <div>
                 <Label htmlFor="email" className={`text-gray-900 ${isHindi ? 'font-hindi' : ''}`}>
                   {isHindi ? "ईमेल पता" : "Email Address"}
@@ -119,7 +119,7 @@ export default function Auth() {
                   />
                 </div>
               )}
-            </div>
+            </fieldset>
 
             <div className="flex flex-col space-y-4">
               <Button 

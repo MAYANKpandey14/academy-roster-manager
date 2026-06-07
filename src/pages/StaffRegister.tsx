@@ -41,6 +41,7 @@ type RegisterFormValues = z.infer<typeof registerFormSchema>;
 export default function StaffRegister() {
   const { isHindi } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isImageUploading, setIsImageUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [submissionStatus, setSubmissionStatus] = useState<{
     success?: boolean;
@@ -166,327 +167,334 @@ export default function StaffRegister() {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Service Info Section */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-lg border-b pb-2">Service Information</h3>
-                
-                <FormField
-                  control={form.control}
-                  name="pno"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel aria-required="true">PNO / Unique ID</FormLabel>
-                      <FormControl>
-                        <Input maxLength={12} placeholder="Enter your PNO" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="rank"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel aria-required="true">Rank</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <fieldset disabled={isSubmitting} className="space-y-6 w-full">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Service Info Section */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-lg border-b pb-2">Service Information</h3>
+                  
+                  <FormField
+                    control={form.control}
+                    name="pno"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel aria-required="true">PNO / Unique ID</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select rank" />
-                          </SelectTrigger>
+                          <Input maxLength={12} placeholder="Enter your PNO" {...field} />
                         </FormControl>
-                        <SelectContent>
-                          {staffRanks.map((rank) => (
-                            <SelectItem key={rank} value={rank}>
-                              {rank}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="toli_no"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Toli No.</FormLabel>
-                      <FormControl>
-                        <Input maxLength={3} placeholder="Enter toli number (optional)" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name="rank"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel aria-required="true">Rank</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select rank" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {staffRanks.map((rank) => (
+                              <SelectItem key={rank} value={rank}>
+                                {rank}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="current_posting_district"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel aria-required="true">Current Posting District</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your current posting district" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="education"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel aria-required="true">Education</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your education" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Personal Info Section */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-lg border-b pb-2">Personal Information</h3>
-                
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel aria-required="true">Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your full name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="father_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel aria-required="true">Father's Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your father's name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="date_of_birth"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel aria-required="true">Date of Birth</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="category_caste"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className={isHindi ? 'font-hindi' : ''}>
-                        {isHindi ? "श्रेणी/जाति" : "Category/Caste"}
-                      </FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage className={isHindi ? 'font-hindi' : ''} />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="date_of_joining"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel aria-required="true">Date of Joining</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="arrival_date"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel aria-required="true">Arrival Date RTC</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="departure_date"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Departure Date (Optional)</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="blood_group"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel aria-required="true">Blood Group</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormField
+                    control={form.control}
+                    name="toli_no"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Toli No.</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select blood group" />
-                          </SelectTrigger>
+                          <Input maxLength={3} placeholder="Enter toli number (optional)" {...field} />
                         </FormControl>
-                        <SelectContent>
-                          {bloodGroups.map((group) => (
-                            <SelectItem key={group} value={group}>
-                              {group}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="nominee"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel aria-required="true">Nominee</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter nominee name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name="current_posting_district"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel aria-required="true">Current Posting District</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your current posting district" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="education"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel aria-required="true">Education</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your education" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Personal Info Section */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-lg border-b pb-2">Personal Information</h3>
+                  
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel aria-required="true">Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your full name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="father_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel aria-required="true">Father's Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your father's name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="date_of_birth"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel aria-required="true">Date of Birth</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="category_caste"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className={isHindi ? 'font-hindi' : ''}>
+                          {isHindi ? "श्रेणी/जाति" : "Category/Caste"}
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage className={isHindi ? 'font-hindi' : ''} />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="date_of_joining"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel aria-required="true">Date of Joining</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="arrival_date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel aria-required="true">Arrival Date RTC</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="departure_date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Departure Date (Optional)</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="blood_group"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel aria-required="true">Blood Group</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select blood group" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {bloodGroups.map((group) => (
+                              <SelectItem key={group} value={group}>
+                                {group}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="nominee"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel aria-required="true">Nominee</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter nominee name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Additional Fields Section */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-lg border-b pb-2">Additional Information</h3>
+                  
+                  <FormField
+                    control={form.control}
+                    name="class_no"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Class No (Optional)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter class number" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="class_subject"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Class Subject (Optional)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter class subject" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <ImageUpload 
+                    bucketName="staff_photos"
+                    onImageUpload={handleImageUpload}
+                    onUploadingStateChange={setIsImageUploading}
+                    label="Profile Photo (Optional)"
+                    isPublic={true}
+                  />
+                </div>
+
+                {/* Contact Section */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-lg border-b pb-2">Contact Information</h3>
+                  
+                  <FormField
+                    control={form.control}
+                    name="mobile_number"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel aria-required="true">Mobile Number</FormLabel>
+                        <FormControl>
+                          <Input 
+                            maxLength={10}
+                            type="tel" 
+                            placeholder="Enter your mobile number" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="home_address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel aria-required="true">Full Address</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Enter your complete home address" 
+                            className="min-h-[100px]"
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
 
-              {/* Additional Fields Section */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-lg border-b pb-2">Additional Information</h3>
-                
-                <FormField
-                  control={form.control}
-                  name="class_no"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Class No (Optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter class number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="class_subject"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Class Subject (Optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter class subject" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <ImageUpload 
-                  bucketName="staff_photos"
-                  onImageUpload={handleImageUpload}
-                  label="Profile Photo (Optional)"
-                  isPublic={true}
-                />
-              </div>
-
-              {/* Contact Section */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-lg border-b pb-2">Contact Information</h3>
-                
-                <FormField
-                  control={form.control}
-                  name="mobile_number"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel aria-required="true">Mobile Number</FormLabel>
-                      <FormControl>
-                        <Input 
-                          maxLength={10}
-                          type="tel" 
-                          placeholder="Enter your mobile number" 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="home_address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel aria-required="true">Full Address</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Enter your complete home address" 
-                          className="min-h-[100px]"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            <Button 
-              type="submit" 
-              className="w-full bg-blue-700 hover:bg-blue-800"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Submitting..." : "Register"}
-            </Button>
+              <Button 
+                type="submit" 
+                className="w-full bg-blue-700 hover:bg-blue-800"
+                disabled={isSubmitting || isImageUploading}
+              >
+                {isSubmitting 
+                  ? (isHindi ? "जमा किया जा रहा है..." : "Submitting...") 
+                  : isImageUploading 
+                    ? (isHindi ? "छवि अपलोड हो रही है..." : "Image uploading...") 
+                    : (isHindi ? "पंजीकरण करें" : "Register")}
+              </Button>
+            </fieldset>
           </form>
         </Form>
       </div>

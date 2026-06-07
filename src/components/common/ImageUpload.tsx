@@ -13,6 +13,7 @@ interface ImageUploadProps {
   entityId?: string;
   initialImageUrl?: string;
   onImageUpload: (url: string | null) => void;
+  onUploadingStateChange?: (isUploading: boolean) => void;
   label?: string;
   isPublic?: boolean; // New prop to indicate if this is for public forms
 }
@@ -22,6 +23,7 @@ export const ImageUpload = ({
   entityId, 
   initialImageUrl, 
   onImageUpload,
+  onUploadingStateChange,
   label,
   isPublic = false
 }: ImageUploadProps) => {
@@ -51,6 +53,7 @@ export const ImageUpload = ({
 
     setError(null);
     setIsUploading(true);
+    onUploadingStateChange?.(true);
     
     try {
       // For public forms, we don't need to check authentication
@@ -64,6 +67,7 @@ export const ImageUpload = ({
             "लॉगिन सत्र समाप्त हो गया है। कृपया पुनः लॉगिन करें।" : 
             "Login session expired. Please log in again.");
           setIsUploading(false);
+          onUploadingStateChange?.(false);
           return;
         }
       }
@@ -106,6 +110,7 @@ export const ImageUpload = ({
         `Error uploading image: ${errorMessage}`);
     } finally {
       setIsUploading(false);
+      onUploadingStateChange?.(false);
     }
   };
 

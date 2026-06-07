@@ -1,4 +1,3 @@
-import { Header } from "@/components/layout/Header";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { AttendanceChart } from "@/components/dashboard/AttendanceChart";
@@ -20,14 +19,33 @@ import {
   Archive,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export default function DashboardPage() {
   const { isHindi } = useLanguage();
   
   // Fetch data from our custom hooks
-  const { data: dashboardData, isLoading: isDashboardLoading } = useDashboardData();
-  const { data: dataQuality, isLoading: isQualityLoading } = useDataQuality();
-  const { anomalies, dismissAnomaly, isLoading: isAnomaliesLoading } = useAttendanceAnomalies();
+  const { 
+    data: dashboardData, 
+    isLoading: isDashboardLoading,
+    isError: isDashboardError,
+    refetch: refetchDashboard
+  } = useDashboardData();
+  
+  const { 
+    data: dataQuality, 
+    isLoading: isQualityLoading,
+    isError: isQualityError,
+    refetch: refetchQuality
+  } = useDataQuality();
+  
+  const { 
+    anomalies, 
+    dismissAnomaly, 
+    isLoading: isAnomaliesLoading,
+    isError: isAnomaliesError,
+    refetch: refetchAnomalies
+  } = useAttendanceAnomalies();
   
   // Calculate insights
   const insights = useInsightEngine({
@@ -37,6 +55,13 @@ export default function DashboardPage() {
   });
 
   const isLoading = isDashboardLoading || isQualityLoading || isAnomaliesLoading;
+  const hasError = isDashboardError || isQualityError || isAnomaliesError;
+
+  const handleRetry = () => {
+    if (isDashboardError) refetchDashboard();
+    if (isQualityError) refetchQuality();
+    if (isAnomaliesError) refetchAnomalies();
+  };
 
   const quickOps = [
     {
@@ -78,17 +103,41 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-8">
-      <Header />
-      <main className="container mx-auto py-6 px-4 animate-fade-in space-y-6">
-        {/* Title Section */}
-        <div className="flex flex-col gap-1.5">
-          <h1 className="text-3xl font-display font-extrabold text-gray-900 dark:text-gray-50 tracking-tight dynamic-text">
-            {isHindi ? "आरटीसी पुलिस लाइन, मुरादाबाद" : "RTC Police Line, Moradabad"}
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 dynamic-text">
-            {isHindi ? "प्रशासनिक नियंत्रण कक्ष और अंतर्दृष्टि" : "Administrative control room and insights"}
-          </p>
-        </div>
+            <main className="container mx-auto py-6 px-4 animate-fade-in space-y-6">
+
+
+        {hasError && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 animate-slide-in">
+            <div className="flex items-center gap-3">
+              <div className="rounded-full bg-red-100 p-2 text-red-600">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div className="text-left">
+                <h3 className={`text-sm font-semibold text-red-900 ${isHindi ? 'font-mangal' : ''}`}>
+                  {isHindi ? "डेटा लोड करने में विफल" : "Failed to Load Dashboard Data"}
+                </h3>
+                <p className={`text-xs text-red-700 ${isHindi ? 'font-mangal' : ''}`}>
+                  {isHindi 
+                    ? "सर्वर या नेटवर्क कनेक्शन में समस्या आ रही है। कृपया पुनः प्रयास करें।" 
+                    : "There was a problem communicating with the server. Please check your connection and try again."}
+                </p>
+              </div>
+            </div>
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              onClick={handleRetry}
+              className={`flex items-center gap-1.5 whitespace-nowrap ${isHindi ? 'font-mangal' : ''}`}
+            >
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3-3m0 0l3 3m-3-3v12" />
+              </svg>
+              {isHindi ? "पुनः प्रयास करें" : "Retry Connection"}
+            </Button>
+          </div>
+        )}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -127,12 +176,12 @@ export default function DashboardPage() {
         </div>
 
         {/* AI Briefing and Attendance Donut Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <DailyBrief insights={insights} />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+          <div className="lg:col-span-2 flex">
+            <DailyBrief insights={insights} className="w-full h-full" />
           </div>
-          <div>
-            <AttendanceChart data={dashboardData?.todayAttendance || []} />
+          <div className="flex">
+            <AttendanceChart data={dashboardData?.todayAttendance || []} className="w-full h-full" />
           </div>
         </div>
 

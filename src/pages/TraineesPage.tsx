@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Header } from "@/components/layout/Header";
 import { TraineeTable } from "@/components/trainee/TraineeTable";
 import { TraineeFilters } from "@/components/trainee/TraineeFilters";
 import { Trainee, BloodGroup, TraineeRank } from "@/types/trainee";
@@ -142,49 +141,43 @@ const TraineesPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-      <main className="container mx-auto py-6 px-4 animate-fade-in">
-        <div className="mb-6 flex flex-wrap items-center justify-between">
-          <h1 className={`text-2xl font-semibold ${isHindi ? 'font-hindi' : ''}`}>
-            {isHindi ? 'प्रशिक्षु' : 'Trainees'}
-          </h1>
+            <main className="container mx-auto py-6 px-4 animate-fade-in">
+        {/* Search Mode Tabs & Share Button */}
+        <div className="flex flex-wrap items-center justify-between border-b border-gray-200 dark:border-gray-800 mb-6 gap-4">
+          <div className="flex">
+            <button
+              onClick={() => setSearchMode("quick")}
+              className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-[2px] transition-all ${
+                searchMode === "quick"
+                  ? "border-slate-900 text-slate-900 dark:border-slate-100 dark:text-slate-100"
+                  : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              }`}
+            >
+              {isHindi ? "त्वरित खोज" : "Quick Search"}
+            </button>
+            <button
+              onClick={() => setSearchMode("ai")}
+              className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-[2px] transition-all flex items-center gap-1.5 ${
+                searchMode === "ai"
+                  ? "border-slate-900 text-slate-900 dark:border-slate-100 dark:text-slate-100"
+                  : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              }`}
+            >
+              <Sparkles className="h-4 w-4" />
+              {isHindi ? "स्मार्ट एआई खोज" : "AI Smart Search"}
+            </button>
+          </div>
+
           <Button 
             variant="outline" 
             onClick={handleShareRegistrationForm}
-            className="flex items-center gap-2 ml-auto mb-4"
+            className="flex items-center gap-2 mb-2 h-9 text-xs border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
           >
-            <Share2 size={16} />
-            {!isMobile && (
-              <span className={isHindi ? 'font-hindi' : ''}>
-                {isHindi ? 'प्रशिक्षु पंजीकरण फॉर्म शेयर करें' : 'Share Trainee Register Form'}
-              </span>
-            )}
+            <Share2 size={14} />
+            <span className={isHindi ? 'font-hindi' : ''}>
+              {isHindi ? 'पंजीकरण फॉर्म शेयर करें' : 'Share Registration Form'}
+            </span>
           </Button>
-        </div>
-        
-        {/* Search Mode Tabs */}
-        <div className="flex border-b border-gray-200 dark:border-gray-800 mb-6">
-          <button
-            onClick={() => setSearchMode("quick")}
-            className={`px-4 py-2 text-sm font-semibold border-b-2 transition-all ${
-              searchMode === "quick"
-                ? "border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"
-                : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            }`}
-          >
-            {isHindi ? "त्वरित खोज" : "Quick Search"}
-          </button>
-          <button
-            onClick={() => setSearchMode("ai")}
-            className={`px-4 py-2 text-sm font-semibold border-b-2 transition-all flex items-center gap-1.5 ${
-              searchMode === "ai"
-                ? "border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"
-                : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            }`}
-          >
-            <Sparkles className="h-4 w-4" />
-            {isHindi ? "स्मार्ट एआई खोज" : "AI Smart Search"}
-          </button>
         </div>
 
         {searchMode === "quick" ? (

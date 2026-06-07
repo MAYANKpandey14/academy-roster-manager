@@ -25,6 +25,7 @@ interface EditTraineeFormProps {
 
 export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isImageUploading, setIsImageUploading] = useState(false);
   const navigate = useNavigate();
   const { isHindi } = useLanguage();
   
@@ -128,7 +129,7 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
         </h2>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="space-y-6">
+            <fieldset disabled={isSubmitting} className="space-y-6 w-full">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <ServiceInfoFields form={form} />
                 <PersonalInfoFields form={form} />
@@ -141,6 +142,7 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
                     entityId={trainee.id}
                     initialImageUrl={trainee.photo_url}
                     onImageUpload={handleImageUpload}
+                    onUploadingStateChange={setIsImageUploading}
                     label={isHindi ? 'प्रशिक्षु फोटो (वैकल्पिक)' : 'Trainee Photo (Optional)'}
                   />
                 </div>
@@ -157,15 +159,17 @@ export function EditTraineeForm({ trainee, onSuccess }: EditTraineeFormProps) {
                     {isHindi ? "रद्द करें" : "Cancel"}
                   </span>
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
+                <Button type="submit" disabled={isSubmitting || isImageUploading}>
                   <span className={isHindi ? 'font-mangal' : ''}>
                     {isSubmitting 
                       ? (isHindi ? "सहेजा जा रहा है..." : "Saving...") 
-                      : (isHindi ? "ट्रेनी अपडेट करें" : "Update Trainee")}
+                      : isImageUploading
+                        ? (isHindi ? "छवि अपलोड हो रही है..." : "Image uploading...")
+                        : (isHindi ? "ट्रेनी अपडेट करें" : "Update Trainee")}
                   </span>
                 </Button>
               </div>
-            </div>
+            </fieldset>
           </form>
         </Form>
       </div>

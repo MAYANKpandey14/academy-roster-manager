@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AttendanceChartProps {
   data: { status: string; count: number }[];
+  className?: string;
 }
 
 const COLORS = {
@@ -16,7 +17,7 @@ const COLORS = {
   other: "#94a3b8", // Slate
 };
 
-export function AttendanceChart({ data }: AttendanceChartProps) {
+export function AttendanceChart({ data, className }: AttendanceChartProps) {
   const { isHindi } = useLanguage();
 
   const getStatusLabel = (status: string) => {
@@ -42,13 +43,13 @@ export function AttendanceChart({ data }: AttendanceChartProps) {
   const total = chartData.reduce((acc, curr) => acc + curr.value, 0);
 
   return (
-    <Card className="border-none shadow-md bg-white/70 dark:bg-gray-900/50 backdrop-blur-md">
+    <Card className={`border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-xl transition-all duration-200 flex flex-col ${className || ""}`}>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 dynamic-text">
+        <CardTitle className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 dynamic-text">
           {isHindi ? "आज की उपस्थिति सारांश" : "Today's Attendance"}
         </CardTitle>
       </CardHeader>
-      <CardContent className="h-72 relative flex flex-col justify-center items-center">
+      <CardContent className="relative flex flex-col justify-center items-center flex-grow min-h-[288px]">
         {chartData.length === 0 ? (
           <div className="text-sm text-gray-500 dark:text-gray-400 dynamic-text py-20">
             {isHindi ? "आज कोई उपस्थिति दर्ज नहीं की गई है" : "No attendance logs recorded for today"}
@@ -81,12 +82,12 @@ export function AttendanceChart({ data }: AttendanceChartProps) {
                 </Pie>
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "rgba(255, 255, 255, 0.9)",
-                    border: "none",
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #e2e8f0",
                     borderRadius: "8px",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
                   }}
-                  itemStyle={{ color: "#374151", fontSize: "12px", fontWeight: "bold" }}
+                  itemStyle={{ color: "#2563eb", fontSize: "12px", fontWeight: "bold" }}
                 />
                 <Legend
                   verticalAlign="bottom"

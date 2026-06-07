@@ -1,5 +1,4 @@
 
-import { Header } from "@/components/layout/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LeaveForm } from "@/components/leave/LeaveForm";
 import { useState } from "react";
@@ -19,8 +18,7 @@ const LeavePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-      <main className="container mx-auto py-6 px-4">
+            <main className="container mx-auto py-6 px-4">
         <h1 className="text-2xl font-semibold mb-6 dynamic-text">{isHindi ? "छुट्टी प्रबंधन" : "Leave Management"}</h1>
         
         <Tabs defaultValue="trainee">

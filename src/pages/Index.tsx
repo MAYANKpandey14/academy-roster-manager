@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from "react";
-import { Header } from "@/components/layout/Header";
 import { TraineeTable } from "@/components/trainee/TraineeTable";
 import { TraineeFilters } from "@/components/trainee/TraineeFilters";
 import { Button } from "@/components/ui/button";
@@ -115,8 +114,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-      
+            
       <main className="container mx-auto py-6 px-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <h1 className="text-2xl font-bold">RTC POLICE LINE, MORADABAD</h1>

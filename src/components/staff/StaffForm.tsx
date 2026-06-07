@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ interface StaffFormProps {
 
 export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: StaffFormProps) => {
   const { isHindi } = useLanguage();
+  const [isImageUploading, setIsImageUploading] = useState(false);
   
   // Apply language inputs hook
   useLanguageInputs();
@@ -76,41 +78,47 @@ export const StaffForm = ({ initialData, onSubmit, isSubmitting = false }: Staff
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <PersonalInfoFields form={form} warnings={warnings} />
-          <ServiceInfoFields form={form} warnings={warnings} />
-          <ContactInfoFields form={form} warnings={warnings} />
-          
-          <div className="col-span-1 md:col-span-2">
-            {initialData?.id ? (
-              <ImageUpload 
-                bucketName="staff_photos"
-                entityId={initialData.id}
-                initialImageUrl={initialData.photo_url}
-                onImageUpload={handleImageUpload}
-                label={isHindi ? 'स्टाफ फोटो (वैकल्पिक)' : 'Staff Photo (Optional)'}
-              />
-            ) : (
-              <ImageUpload 
-                bucketName="staff_photos"
-                onImageUpload={handleImageUpload}
-                label={isHindi ? 'स्टाफ फोटो (वैकल्पिक)' : 'Staff Photo (Optional)'}
-              />
-            )}
+      <form onSubmit={form.handleSubmit(handleFormSubmit)}>
+        <fieldset disabled={isSubmitting} className="space-y-6 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <PersonalInfoFields form={form} warnings={warnings} />
+            <ServiceInfoFields form={form} warnings={warnings} />
+            <ContactInfoFields form={form} warnings={warnings} />
+            
+            <div className="col-span-1 md:col-span-2">
+              {initialData?.id ? (
+                <ImageUpload 
+                  bucketName="staff_photos"
+                  entityId={initialData.id}
+                  initialImageUrl={initialData.photo_url}
+                  onImageUpload={handleImageUpload}
+                  onUploadingStateChange={setIsImageUploading}
+                  label={isHindi ? 'स्टाफ फोटो (वैकल्पिक)' : 'Staff Photo (Optional)'}
+                />
+              ) : (
+                <ImageUpload 
+                  bucketName="staff_photos"
+                  onImageUpload={handleImageUpload}
+                  onUploadingStateChange={setIsImageUploading}
+                  label={isHindi ? 'स्टाफ फोटो (वैकल्पिक)' : 'Staff Photo (Optional)'}
+                />
+              )}
+            </div>
           </div>
-        </div>
 
-        <Button type="submit" disabled={isSubmitting}>
-          <span className={isHindi ? 'font-hindi' : ''}>
-            {isSubmitting 
-              ? (isHindi ? "सेव हो रहा है..." : "Saving...") 
-              : initialData 
-                ? (isHindi ? "स्टाफ अपडेट करें" : "Update Staff") 
-                : (isHindi ? "स्टाफ जोड़ें" : "Add Staff")
-            }
-          </span>
-        </Button>
+          <Button type="submit" disabled={isSubmitting || isImageUploading}>
+            <span className={isHindi ? 'font-hindi' : ''}>
+              {isSubmitting 
+                ? (isHindi ? "सेव हो रहा है..." : "Saving...") 
+                : isImageUploading
+                  ? (isHindi ? "छवि अपलोड हो रही है..." : "Image uploading...")
+                  : initialData 
+                    ? (isHindi ? "स्टाफ अपडेट करें" : "Update Staff") 
+                    : (isHindi ? "स्टाफ जोड़ें" : "Add Staff")
+              }
+            </span>
+          </Button>
+        </fieldset>
       </form>
     </Form>
   );

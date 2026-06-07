@@ -3,14 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Header } from "@/components/layout/Header";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AttendanceHistory } from "@/components/attendance/AttendanceHistory";
 import { AttendanceForm } from "@/components/attendance/AttendanceForm";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Plus } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function StaffAttendancePage() {
   const { id } = useParams<{ id: string }>();
@@ -38,8 +35,7 @@ export default function StaffAttendancePage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
-        <main className="container mx-auto py-6 px-4">
+                <main className="container mx-auto py-6 px-4">
           <div className="text-center">
             <p className={isHindi ? 'font-hindi' : ''}>
               {isHindi ? 'लोड हो रहा है...' : 'Loading...'}
@@ -53,8 +49,7 @@ export default function StaffAttendancePage() {
   if (error || !staff) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
-        <main className="container mx-auto py-6 px-4">
+                <main className="container mx-auto py-6 px-4">
           <div className="text-center">
             <p className="text-red-600">
               {isHindi ? 'स्टाफ नहीं मिला' : 'Staff not found'}
@@ -71,8 +66,7 @@ export default function StaffAttendancePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-      <main className="container mx-auto py-6 px-4">
+            <main className="container mx-auto py-6 px-4">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
