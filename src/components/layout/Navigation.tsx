@@ -3,10 +3,12 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/languageswitch/LanguageSwitcher";
+import { useAttendanceAnomalies } from "@/hooks/useAttendanceAnomalies";
 
 export function Navigation() {
   const location = useLocation();
   const { isHindi } = useLanguage();
+  const { anomalies } = useAttendanceAnomalies();
   
   const routes = [
     { 
@@ -45,7 +47,14 @@ export function Navigation() {
               asChild
               className={`whitespace-nowrap ${isHindi ? "font-mangal" : ""}`}
             >
-              <Link to={route.path}>{route.name}</Link>
+              <Link to={route.path} className="flex items-center gap-1.5">
+                {route.name}
+                {route.path === "/dashboard" && anomalies.length > 0 && (
+                  <span className="h-4 min-w-4 px-1 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center animate-pulse">
+                    {anomalies.length}
+                  </span>
+                )}
+              </Link>
             </Button>
           ))}
           </div>
