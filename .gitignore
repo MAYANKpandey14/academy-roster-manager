@@ -23,5 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 .env
+skills-lock.json
+
 # Project documentation / metadata
 AGENTS.md
+.agents
+

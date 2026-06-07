@@ -23,7 +23,7 @@ ORDER BY count DESC;
 CREATE OR REPLACE VIEW today_attendance_summary WITH (security_invoker = true) AS
 SELECT status, COUNT(*) as count
 FROM trainee_attendance
-WHERE date = CURRENT_DATE::text
+WHERE date = CURRENT_DATE
 GROUP BY status;
 
 /* View: recent arrivals (last 7 days) */
