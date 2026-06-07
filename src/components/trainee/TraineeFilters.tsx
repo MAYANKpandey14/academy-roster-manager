@@ -47,7 +47,7 @@ export function TraineeFilters({
   return (
     <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-4 animate-scale-in">
       <h3 className={`text-lg font-medium mb-4 ${isHindi ? 'font-mangal' : ''}`}>
-        {isHindi ? "प्रशिक्षु खोजें" : "Search Trainees"}
+        {isHindi ? "खोजें" : "Search"}
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -57,7 +57,7 @@ export function TraineeFilters({
           </Label>
           <Input
             id="name"
-            placeholder={isHindi ? "नाम (फजी सर्च)" : "Name (Fuzzy Search)"}
+            placeholder={isHindi ? "नाम" : "Name"}
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -100,7 +100,7 @@ export function TraineeFilters({
         <Button onClick={() => navigate('/trainees/add')} variant="outline" className="animate-slide-in">
           <UserPlus className="mr-2 h-4 w-4" />
           <span className={isHindi ? 'font-mangal' : ''}>
-            {isHindi ? "नया प्रशिक्षु जोड़ें" : "Add New Trainee"}
+            {isHindi ? "नया प्रशिक्षु जोड़ें" : "Add Trainee"}
           </span>
         </Button>
         <Button onClick={onShowAll} variant="outline" disabled={disabled} className="animate-slide-in">
@@ -112,7 +112,7 @@ export function TraineeFilters({
         <Button onClick={handleSearch} disabled={disabled} className="animate-slide-in">
           <Search className="mr-2 h-4 w-4" />
           <span className={isHindi ? 'font-mangal' : ''}>
-            {isHindi ? "प्रशिक्षु खोजें" : "Search Trainee"}
+            {isHindi ? "खोजें" : "Search"}
           </span>
         </Button>
       </div>

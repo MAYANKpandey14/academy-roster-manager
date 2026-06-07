@@ -15,21 +15,16 @@ export function StatCard({
   value,
   icon: Icon,
   description,
-  gradient,
-  iconColor,
-}: StatCardProps) {
+}: Omit<StatCardProps, "gradient" | "iconColor">) {
   return (
-    <Card className="overflow-hidden border-none shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 bg-white/70 dark:bg-gray-900/50 backdrop-blur-md">
+    <Card className="overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-xl transition-all duration-200">
       <CardContent className="p-6 relative">
-        {/* Glow decoration */}
-        <div className={`absolute top-0 right-0 w-32 h-32 rounded-full filter blur-3xl opacity-10 bg-gradient-to-br ${gradient}`} />
-        
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 dynamic-text">
               {title}
             </p>
-            <h3 className="text-3xl font-extrabold tracking-tight text-gray-800 dark:text-gray-100">
+            <h3 className="text-3xl font-display font-extrabold tracking-tight text-gray-900 dark:text-gray-100">
               {value}
             </h3>
             {description && (
@@ -39,8 +34,8 @@ export function StatCard({
             )}
           </div>
           
-          <div className={`h-12 w-12 rounded-xl flex items-center justify-center bg-gradient-to-br ${gradient} ${iconColor} shadow-inner`}>
-            <Icon className="h-6 w-6" />
+          <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-300">
+            <Icon className="h-5 w-5" />
           </div>
         </div>
       </CardContent>

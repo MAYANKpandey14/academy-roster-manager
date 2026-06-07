@@ -22,9 +22,9 @@ export function RecentActivity({
   const items = activeTab === "arrivals" ? recentArrivals : upcomingDepartures;
 
   return (
-    <Card className="border-none shadow-md bg-white/70 dark:bg-gray-900/50 backdrop-blur-md">
+    <Card className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-xl transition-all duration-200">
       <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-        <CardTitle className="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 dynamic-text">
+        <CardTitle className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 dynamic-text">
           {isHindi ? "आगमन / प्रस्थान गतिविधियां" : "Arrivals & Departures"}
         </CardTitle>
         <Tabs

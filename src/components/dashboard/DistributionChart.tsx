@@ -41,9 +41,9 @@ export function DistributionChart({
   const data = getChartData();
 
   return (
-    <Card className="border-none shadow-md bg-white/70 dark:bg-gray-900/50 backdrop-blur-md">
+    <Card className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-xl transition-all duration-200">
       <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-        <CardTitle className="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 dynamic-text">
+        <CardTitle className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 dynamic-text">
           {isHindi ? "ट्रेनी वितरण" : "Trainee Distributions"}
         </CardTitle>
         <Tabs
@@ -73,12 +73,6 @@ export function DistributionChart({
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-              <defs>
-                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#6366f1" stopOpacity={0.9} />
-                  <stop offset="100%" stopColor="#818cf8" stopOpacity={0.4} />
-                </linearGradient>
-              </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" className="dark:stroke-gray-800" />
               <XAxis
                 dataKey="name"
@@ -93,18 +87,18 @@ export function DistributionChart({
                 allowDecimals={false}
               />
               <Tooltip
-                cursor={{ fill: "rgba(99, 102, 241, 0.05)" }}
+                cursor={{ fill: "rgba(37, 99, 235, 0.04)" }}
                 contentStyle={{
-                  backgroundColor: "rgba(255, 255, 255, 0.9)",
-                  border: "none",
+                  backgroundColor: "#ffffff",
+                  border: "1px solid #e2e8f0",
                   borderRadius: "8px",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
                 }}
-                itemStyle={{ color: "#4f46e5", fontSize: "12px", fontWeight: "bold" }}
+                itemStyle={{ color: "#2563eb", fontSize: "12px", fontWeight: "bold" }}
               />
               <Bar
                 dataKey="count"
-                fill="url(#barGradient)"
+                fill="#2563eb"
                 radius={[4, 4, 0, 0]}
                 maxBarSize={45}
               />

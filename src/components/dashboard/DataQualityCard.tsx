@@ -57,7 +57,7 @@ export function DataQualityCard() {
   const offset = circumference - (score / 100) * circumference;
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden transition-all duration-200">
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -68,15 +68,15 @@ export function DataQualityCard() {
               {isHindi ? "समग्र डेटा अखंडता और पूर्णता स्कोर" : "Overall data integrity and completeness score"}
             </p>
           </div>
-          <span className="flex items-center gap-1 text-xs px-2.5 py-1 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30 rounded-full font-medium">
+          <span className="flex items-center gap-1 text-xs px-2.5 py-1 bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-700 rounded-lg font-medium">
             <UserCheck className="h-3.5 w-3.5" />
             {data.totalRecords} {isHindi ? "कुल रिकॉर्ड" : "Total Records"}
           </span>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-6 p-4 rounded-xl border border-gray-50 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/20">
+        <div className="flex flex-col sm:flex-row items-center gap-6 p-4 rounded-lg border border-gray-200 dark:border-gray-800 bg-slate-50/50 dark:bg-slate-900/50">
           {/* Progress Circle */}
-          <div className="relative flex items-center justify-center shrink-0">
+          <div className="relative flex items-center justify-center shrink-0 w-20 h-20">
             <svg className="w-20 h-20 transform -rotate-90">
               <circle
                 cx="40"
@@ -96,13 +96,13 @@ export function DataQualityCard() {
                 strokeLinecap="round"
               />
             </svg>
-            <div className="absolute text-xl font-extrabold text-gray-800 dark:text-gray-100">
+            <div className="absolute inset-0 flex items-center justify-center text-sm font-display font-bold text-slate-800 dark:text-slate-100">
               {score}%
             </div>
           </div>
 
           <div className="flex-grow text-center sm:text-left">
-            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-2 border ${scoreBg}`}>
+            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold mb-2 border ${scoreBg}`}>
               {score >= 90 ? (
                 <>
                   <CheckCircle className="h-3.5 w-3.5" />
@@ -134,24 +134,24 @@ export function DataQualityCard() {
 
         {summary.missingMobiles > 0 || summary.missingPhotos > 0 || summary.futureDobs > 0 || summary.dateConflicts > 0 || summary.duplicateMobiles > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-4">
-            <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-center border border-gray-100/50 dark:border-gray-800">
-              <span className="text-lg font-bold text-gray-700 dark:text-gray-200">{summary.missingPhotos}</span>
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-lg text-center border border-gray-200 dark:border-gray-800">
+              <span className="text-lg font-bold text-gray-750 dark:text-gray-200">{summary.missingPhotos}</span>
               <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 uppercase font-semibold leading-tight">{isHindi ? "फोटो गायब" : "No Photo"}</p>
             </div>
-            <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-center border border-gray-100/50 dark:border-gray-800">
-              <span className="text-lg font-bold text-gray-700 dark:text-gray-200">{summary.missingMobiles}</span>
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-lg text-center border border-gray-200 dark:border-gray-800">
+              <span className="text-lg font-bold text-gray-750 dark:text-gray-200">{summary.missingMobiles}</span>
               <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 uppercase font-semibold leading-tight">{isHindi ? "मोबाइल गायब" : "No Mobile"}</p>
             </div>
-            <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-center border border-gray-100/50 dark:border-gray-800">
-              <span className="text-lg font-bold text-gray-700 dark:text-gray-200">{summary.duplicateMobiles}</span>
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-lg text-center border border-gray-200 dark:border-gray-800">
+              <span className="text-lg font-bold text-gray-750 dark:text-gray-200">{summary.duplicateMobiles}</span>
               <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 uppercase font-semibold leading-tight">{isHindi ? "डुप्लिकेट" : "Duplicates"}</p>
             </div>
-            <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-center border border-gray-100/50 dark:border-gray-800">
-              <span className="text-lg font-bold text-gray-700 dark:text-gray-200">{summary.futureDobs}</span>
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-lg text-center border border-gray-200 dark:border-gray-800">
+              <span className="text-lg font-bold text-gray-750 dark:text-gray-200">{summary.futureDobs}</span>
               <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 uppercase font-semibold leading-tight">{isHindi ? "भविष्य तिथि" : "Future DOB"}</p>
             </div>
-            <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-center border border-gray-100/50 dark:border-gray-800 col-span-2 md:col-span-1">
-              <span className="text-lg font-bold text-gray-700 dark:text-gray-200">{summary.dateConflicts}</span>
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-lg text-center border border-gray-200 dark:border-gray-800 col-span-2 md:col-span-1">
+              <span className="text-lg font-bold text-gray-750 dark:text-gray-200">{summary.dateConflicts}</span>
               <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 uppercase font-semibold leading-tight">{isHindi ? "तिथि संघर्ष" : "Date Conflict"}</p>
             </div>
           </div>

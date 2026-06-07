@@ -91,13 +91,13 @@ export function DailyBrief({ insights }: DailyBriefProps) {
   }, [insightsHash]);
 
   return (
-    <Card className="border-none shadow-md overflow-hidden bg-gradient-to-r from-indigo-50/40 via-purple-50/40 to-pink-50/40 dark:from-indigo-950/10 dark:via-purple-950/10 dark:to-pink-950/10 border border-indigo-100/30 dark:border-indigo-900/20 backdrop-blur-md">
+    <Card className="border border-gray-200 dark:border-gray-800 overflow-hidden bg-white dark:bg-gray-900 rounded-xl transition-all duration-200">
       <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
         <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-sm">
-            <Sparkles className="h-4 w-4 animate-pulse" />
+          <div className="h-7 w-7 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300 shrink-0">
+            <Sparkles className="h-4 w-4" />
           </div>
-          <CardTitle className="text-sm font-bold uppercase tracking-wider text-indigo-950 dark:text-indigo-200 dynamic-text">
+          <CardTitle className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 dynamic-text">
             {isHindi ? "दैनिक समीक्षा" : "Daily Command Brief"}
           </CardTitle>
         </div>
@@ -107,7 +107,7 @@ export function DailyBrief({ insights }: DailyBriefProps) {
             variant="ghost"
             size="sm"
             onClick={() => setShowRawInsights(!showRawInsights)}
-            className="h-8 px-2 rounded-lg text-indigo-700 dark:text-indigo-400 font-semibold text-xs hover:bg-indigo-50/60"
+            className="h-8 px-2 rounded-lg text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             <span>{isHindi ? "विवरण दिखाएं" : "Details"}</span>
             {showRawInsights ? (
@@ -122,12 +122,12 @@ export function DailyBrief({ insights }: DailyBriefProps) {
       <CardContent className="pt-2">
         {isLoading ? (
           <div className="space-y-2 py-4 animate-pulse">
-            <div className="h-4 bg-indigo-100/60 dark:bg-indigo-950/30 rounded w-full" />
-            <div className="h-4 bg-indigo-100/60 dark:bg-indigo-950/30 rounded w-5/6" />
-            <div className="h-4 bg-indigo-100/60 dark:bg-indigo-950/30 rounded w-4/5" />
+            <div className="h-4 bg-gray-100 dark:bg-gray-800 rounded w-full" />
+            <div className="h-4 bg-gray-100 dark:bg-gray-800 rounded w-5/6" />
+            <div className="h-4 bg-gray-100 dark:bg-gray-800 rounded w-4/5" />
           </div>
         ) : error ? (
-          <div className="p-3 bg-rose-50/60 dark:bg-rose-950/20 border border-rose-100/30 rounded-xl flex gap-2 items-start text-xs text-rose-700 dark:text-rose-400 font-medium leading-normal mb-4 animate-scale-in">
+          <div className="p-3 bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 rounded-lg flex gap-2 items-start text-xs text-rose-700 dark:text-rose-400 font-medium leading-normal mb-4">
             <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
             <div>
               <p className="font-bold dynamic-text">
@@ -141,7 +141,7 @@ export function DailyBrief({ insights }: DailyBriefProps) {
             </div>
           </div>
         ) : narrative ? (
-          <p className="text-sm font-bold text-gray-800 dark:text-gray-100 leading-relaxed py-2 dynamic-text animate-fade-in">
+          <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 leading-relaxed py-2 dynamic-text">
             {isHindi ? narrative.hi : narrative.en}
           </p>
         ) : (
@@ -151,7 +151,7 @@ export function DailyBrief({ insights }: DailyBriefProps) {
         )}
 
         {(showRawInsights || error) && (
-          <div className="mt-4 border-t border-indigo-100/30 dark:border-indigo-900/30 pt-4 animate-slide-in">
+          <div className="mt-4 border-t border-gray-200 dark:border-gray-800 pt-4">
             <InsightsList insights={insights} />
           </div>
         )}

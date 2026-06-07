@@ -20,7 +20,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ['Space Grotesk', 'sans-serif'],
+				sans: ['Inter', 'sans-serif'],
+				display: ['Space Grotesk', 'sans-serif'],
 				mangal: ['Mangal', 'Arial Unicode MS', 'sans-serif'],
 			},
 			colors: {
